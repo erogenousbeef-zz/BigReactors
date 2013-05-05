@@ -50,13 +50,13 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	}
 	
 	@Override
-	protected void assembleMachine(World world) {
-		super.assembleMachine(world);
+	protected void assembleMachine() {
+		super.assembleMachine();
 	}
 	
 	@Override
-	protected void disassembleMachine(World world) {
-		super.disassembleMachine(world);
+	protected void disassembleMachine() {
+		super.disassembleMachine();
 	}
 
 	@Override
@@ -213,17 +213,17 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
-		super.writeToNBT(data);
 		// TODO Save/Load
 	}
 
+	@Override
 	public void readFromNBT(NBTTagCompound data) {
-		super.readFromNBT(data);
 		// TODO Save/Load
 	}
 
 	@Override
 	protected int getMinimumNumberOfBlocksForAssembledMachine() {
+		// Hollow cube.
 		return 26;
 	}
 }
