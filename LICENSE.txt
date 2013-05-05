@@ -1,20 +1,3 @@
-BigReactors
-===========
-
-What is this?
--------------
-
-An upcoming mod for Minecraft, based on adding new and fun ways to generate power through big multi-block structures. Don't just plop blocks, design the machines yourself!
-
-This is a heavy WIP. More info coming soon.
-
-License
--------
-
-Licensing for Minecraft mods is silly. If you want to use my mod on your server, in your modpack, whatever, do it, have fun! If you want to use, copy or fork my code, go for it, have fun!
-
-For the pedantic, copied from LICENSE.txt:
-
 The MIT License (MIT)
 
 Copyright (c) 2013 "Erogenous Beef"
