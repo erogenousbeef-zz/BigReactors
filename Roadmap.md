@@ -19,38 +19,40 @@ Known Bugs
 TODO - Pre-Alpha
 ----------------
 
-- [X] Split project into BeefCore and BigReactors
-- [X] Finish initial multiblock library in BeefCore
--- [X] Conflict resolution for colliding multiblock machines
--- [X] Test difficult-to-detect errors, such as multiblock fusion/mitosis
+- [x] Split project into BeefCore and BigReactors
+- [x] Finish initial multiblock library in BeefCore
+- [x] Conflict resolution for colliding multiblock machines
+- [x] Test difficult-to-detect errors, such as multiblock fusion/mitosis
 
-- [ ] Fix NBT save/load for MultiblockReactor objects
--- [ ] Implement save/load on MultiblockReactor class
+- [ ] Port BigReactors to BeefCore, fix bugs
 
-- [ ] Fix network communication for MultiblockReactor objects
--- [ ] Send updates properly through the network delegate
+### Fix NBT save/load for MultiblockReactor objects
+- [ ] Implement save/load on MultiblockReactor class
+
+### Fix network communication for MultiblockReactor objects
+- [ ] Send updates properly through the network delegate
 
 - [ ] Create fuel access port block
--- [ ] Create UI for access port block
--- [ ] Configuration: User can choose which inventory slot is externally-addressible
---- This provides LogiPipes/AE/BC pipe compatibiltiy
--- Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
--- Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
--- [ ] Add auto-emit, like MFR's machines, so BC pipes don't need power
+- [ ] Create UI for access port block
+- [ ] Configuration: User can choose which inventory slot is externally-addressible
+	  This provides LogiPipes/AE/BC pipe compatibility
+- Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
+- Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
+- [ ] Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 - [ ] Rename "Depleted Yellorium" to "Blutonium" or something cute.
 
 - [ ] Add graphite ingots
--- [ ] Add graphite dust if a mod with grinders is detected
--- Made from coal & cobblestone, unshaped recipe
+- [ ] Add graphite dust if a mod with grinders is detected
+	  Made from coal & cobblestone, unshaped recipe
 
-- [ ] Add in initial crafting recipes for reactor parts
--- [ ] Basic reactor plating
--- [ ] Reactor core
--- [ ] Fuel rod
--- [ ] Control rod
--- [ ] Power tap
--- [ ] Fuel access port
+### Add in initial crafting recipes for reactor parts
+- [ ] Basic reactor plating
+- [ ] Reactor core
+- [ ] Fuel rod
+- [ ] Control rod
+- [ ] Power tap
+- [ ] Fuel access port
 
 - [ ] Create reactor glass blocks, remove support for standard glass.
 
@@ -61,22 +63,22 @@ TODO - Alpha
 
 - [ ] Make halfway-decent UIs with better visualizations than just text
 
-- [ ]  Refactor fuel rods
--- [ ] Make them a pseudo-multiblock controlled/rendered by the control rod
--- [ ] Remove internal LiquidTank usage, just use integers, jesus.
--- [ ] Make sure bounding box is set properly
+### Refactor fuel rods
+- [ ] Make them a pseudo-multiblock controlled/rendered by the control rod
+- [ ] Remove internal LiquidTank usage, just use integers, jesus.
+- [ ] Make sure bounding box is set properly
 
 - [ ] Add ability to toggle control rods on/off, changing radiation absorption properties
 
-- [ ] Add redstone interfaces
--- [ ] Reactor on/off switch
--- [ ] Control rod in/out switch
--- [ ] Signal emitter if temperature gets above/below a certain level
+### Add redstone interfaces
+- [ ] Reactor on/off switch
+- [ ] Control rod in/out switch
+- [ ] Signal emitter if temperature gets above/below a certain level
 
-- [ ] Basic fuel cycle
--- [ ] "Enricher" or some way to recycle depleted yellorium
--- [ ] "Dump" or "incinerator" or some way of destroying depleted yellorium
---- Maybe just let people use void pipes or something
+### Basic fuel cycle
+- [ ] "Enricher" or some way to recycle depleted yellorium
+- [ ] "Dump" or "incinerator" or some way of destroying depleted yellorium
+	  Maybe just let people use void pipes or something
 
 TODO - Beta
 -----------
@@ -85,16 +87,16 @@ TODO - Beta
 
 - [ ] Refactor liquids using new Forge liquid interfaces
 
-- [ ] Make real liquids for yellorium & depleted yellorium
--- Liquids should flow
--- [ ] Add MFR compatibility for drinking with a straw
--- [ ] Add nasty side effects for going near pools of yellorium
+### Make real liquids for yellorium & depleted yellorium
+- [ ] Making flowing-liquid blocks
+- [ ] Add MFR compatibility for drinking with a straw
+- [ ] Add nasty side effects for going near pools of yellorium
 
 - [ ] RedNet integration
--- Do I have to do more than just provide a plain redstone interface implementation?
+	  Do I have to do more than just provide a plain redstone interface implementation?
 
 - [ ] Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
--- Maybe do this per-fuel-column?
+	  Maybe do this per-fuel-column?
 
 - [ ] ComputerCraft integration!
 
