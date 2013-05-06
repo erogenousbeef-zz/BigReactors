@@ -6,9 +6,11 @@ import com.google.common.io.ByteArrayDataInput;
 
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPacket;
+import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
@@ -30,6 +32,28 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 
 	public MultiblockReactor getReactorController() { return (MultiblockReactor)this.getMultiblockController(); }
+	
+	@Override
+	public void onBlockAdded(World world, int x, int y, int z) {
+		super.onBlockAdded(world, x, y, z);
+		if(world.isRemote) {
+			System.out.println("onBlockAdded - client");
+		}
+		else {
+			System.out.println("onBlockAdded - server");
+		}
+	}
+	
+	// Oh god this is a terrible hack
+	@Override
+	public void updateContainingBlockInfo() {
+		super.updateContainingBlockInfo();
+		
+		if(this.worldObj.isRemote && !isConnected()) {
+			// onBlockAdded is not normally called on clients
+			onBlockAdded(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+		}
+	}
 	
 	@Override
 	public boolean canUpdate() { return false; }
@@ -82,14 +106,17 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	@Override
 	public void onMachineAssembled() {
-		if(BlockReactorPart.isCasing(this.blockMetadata)) {
+		if(this.worldObj.isRemote) { return; }
+
+		int metadata = this.getBlockMetadata();
+		if(BlockReactorPart.isCasing(metadata)) {
 			this.setCasingMetadataBasedOnWorldPosition();
 		}
-		else if(BlockReactorPart.isControlRod(blockMetadata)) {
+		else if(BlockReactorPart.isControlRod(metadata)) {
 			// Control rods start inserted.
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLROD_METADATA_BASE, 2);
 		}
-		else if(BlockReactorPart.isController(blockMetadata)) {
+		else if(BlockReactorPart.isController(metadata)) {
 			// Controllers start idle
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);
 		}
@@ -97,13 +124,16 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	@Override
 	public void onMachineBroken() {
-		if(BlockReactorPart.isCasing(this.blockMetadata)) {
+		if(this.worldObj.isRemote) { return; }
+		
+		int metadata = this.getBlockMetadata();
+		if(BlockReactorPart.isCasing(metadata)) {
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
 		}
-		else if(BlockReactorPart.isControlRod(blockMetadata)) {
+		else if(BlockReactorPart.isControlRod(metadata)) {
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLROD_METADATA_BASE, 2);
 		}
-		else if(BlockReactorPart.isController(blockMetadata)) {
+		else if(BlockReactorPart.isController(metadata)) {
 			// Controllers start idle
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_METADATA_BASE, 2);
 		}
@@ -111,7 +141,11 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	@Override
 	public void onMachineActivated() {
-		if(BlockReactorPart.isController(blockMetadata)) {
+		if(this.worldObj.isRemote) { return; }
+		
+		int metadata = this.getBlockMetadata();
+		if(BlockReactorPart.isController(metadata)) {
+			System.out.println("Machine activated - turning controller green!");
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);
 		}
 		
@@ -119,7 +153,10 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	@Override
 	public void onMachineDeactivated() {
-		if(BlockReactorPart.isController(blockMetadata)) {
+		if(this.worldObj.isRemote) { return; }
+
+		int metadata = this.getBlockMetadata();
+		if(BlockReactorPart.isController(metadata)) {
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);
 		}
 	}
@@ -163,25 +200,47 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	// TODO: Fix this. Communication with the controller should...
 	public void onNetworkPacket(int packetType, DataInputStream data) {
+		System.out.println(String.format("TileEntityReactorPart::onNetworkPacket - %d", packetType));
+		
 		if(!this.isConnected()) {
 			// TODO: Log this.
+			System.out.println("TileEntityReactorPart::onNetworkPacket - ignoring, not connected");
 			return;
 		}
 		
+		/// Client->Server packets
+		
 		if(packetType == Packets.ReactorControllerButton) {
-			if(!this.isMultiblockSaveDelegate()) {
-				// TODO: log this.
-				return;
-			}
-
 			Class decodeAs[] = { String.class, Boolean.class };
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			String buttonName = (String) decodedData[0];
 			boolean newValue = (Boolean) decodedData[1];
 			
-			if(buttonName == "activate") {
+			System.out.println(String.format("TileEntityReactorPart::onNetworkPacket::button press (%s, %b)", buttonName, newValue));
+			
+			if(buttonName.equals("activate")) {
+				System.out.println(String.format("TileEntityReactorPart::onNetworkPacket::setting machine to active => %b", newValue));
 				getReactorController().setActive(newValue);
 			}
+		}
+		
+		/// Server->Client packets
+		
+		if(packetType == Packets.ReactorControllerFullUpdate) {
+			Class decodeAs[] = { Boolean.class, Double.class };
+			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
+			boolean active = (Boolean) decodedData[0];
+			double heat = (Double) decodedData[1];
+			
+			getReactorController().setActive(active);
+			getReactorController().setHeat(heat);
+		}
+		
+		if(packetType == Packets.ReactorControllerTickUpdate) {
+			Class decodeAs[] = { Double.class };
+			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
+			double heat = (Double) decodedData[0];
+			getReactorController().setHeat(heat);
 		}
 	}
 
@@ -232,5 +291,34 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 			// This shouldn't happen.
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
 		}		
+	}
+
+	/**
+	 * @return The Container object for use by the GUI. Null if there isn't any.
+	 */
+	public Object getContainer() {
+		if(!this.isConnected()) {
+			return null;
+		}
+		
+		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+		if(BlockReactorPart.isController(metadata)) {
+			return new ContainerReactorController(this);
+		}
+		return null;
+	}
+
+	public Object getGuiElement() {
+		if(!this.isConnected()) {
+			System.out.println("getGuiElement - null (no connection)");
+			return null;
+		}
+		
+		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
+		if(BlockReactorPart.isController(metadata)) {
+			System.out.println("getGuiElement - ReactorStatus");
+			return new GuiReactorStatus(new ContainerReactorController(this), this);
+		}
+		return null;
 	}
 }

@@ -1,30 +1,32 @@
 package erogenousbeef.bigreactors.gui.controls;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
+import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
 import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderEngine;
+import net.minecraft.inventory.Container;
 
-public class BeefGuiLabel implements IBeefGuiControl, IBeefTooltipControl {
+@SideOnly(Side.CLIENT)
+public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipControl {
 
-	protected int x, y;
-	protected int xSize, ySize;
 	protected int xMax;	// If >0, wrap text at this pixel level. Does not split words. 
 	protected String labelText;
 	protected String labelTooltip;
 	protected boolean dropShadow;
 	protected int color;
 	
-	public int getWidth() { return xSize; }
-	public int getHeight() { return ySize; }
-	
 	public String getLabelText() { return labelText; }
 	public String getLabelTooltip() { return labelTooltip; }
 
-	public void setLabelText(String newText, FontRenderer renderer) { 
+	public void setLabelText(String newText) { 
 		if(newText == labelText) { return; }
 		labelText = newText;
-		recalculateSize(renderer);		
+		recalculateSize();
 	}
 
 	public void setLabelTooltip(String newTooltip) { labelTooltip = newTooltip; }
@@ -34,41 +36,40 @@ public class BeefGuiLabel implements IBeefGuiControl, IBeefTooltipControl {
 	// If set to 0 or less, disables wrapping.
 	public void setWordWrapLength(int pixels) { xMax = pixels; }
 	
-	public BeefGuiLabel(String text, int x, int y, FontRenderer renderer) {
+	public BeefGuiLabel(BeefGuiBase container, String text, int x, int y) {
+		super(container, x, y, 0, 0);
 		this.labelText = text;
-		this.x = x;
-		this.y = y;
-		
-		recalculateSize(renderer);
+		recalculateSize();
 	}
 
-	private void recalculateSize(FontRenderer renderer) {
+	private void recalculateSize() {
+		FontRenderer fontRenderer = guiContainer.getFontRenderer();
 		if(xMax > 0) {
-			xSize = renderer.splitStringWidth(labelText, xMax);
-			int totalWidth = renderer.getStringWidth(labelText);
-			ySize = renderer.FONT_HEIGHT * Math.max(1, (totalWidth / xSize));		
+			this.width = fontRenderer.splitStringWidth(labelText, xMax);
+			int totalWidth = fontRenderer.getStringWidth(labelText);
+			this.height = fontRenderer.FONT_HEIGHT * Math.max(1, (totalWidth / width));		
 		}
 		else {
-			xSize = renderer.getStringWidth(labelText);
-			ySize = renderer.FONT_HEIGHT;
+			this.width = fontRenderer.getStringWidth(labelText);
+			this.height = fontRenderer.FONT_HEIGHT;
 		}
 	}
 	
-	public boolean isMouseOver(int mouseX, int mouseY) {
-		if(mouseX < x || mouseX > x+xSize || mouseY < y || mouseY > y+ySize) { return false; }
-		return true;
-	}
-	
-	public void render(RenderEngine renderEngine, FontRenderer renderer) {
-		if(xMax > 0) {
-			renderer.drawSplitString(labelText, x, y, color, xMax);
-		}
-		else {
-			renderer.drawString(labelText, x, y, color, dropShadow);
-		}
+	public void drawBackground(int mouseX, int mouseY) {
 	}
 	
 	public void renderTooltip(RenderEngine renderEngine, FontRenderer fontRenderer, int mouseX, int mouseY) {
 		fontRenderer.drawString(labelTooltip, mouseX, mouseY, 0, false);
+	}
+
+	@Override
+	public void drawForeground(int mouseX, int mouseY) {
+		FontRenderer fontRenderer = guiContainer.getFontRenderer();
+		if(xMax > 0) {
+			fontRenderer.drawSplitString(labelText, x, y, color, xMax);
+		}
+		else {
+			fontRenderer.drawString(labelText, x, y, color, dropShadow);
+		}
 	}
 }

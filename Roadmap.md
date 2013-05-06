@@ -21,12 +21,12 @@ TODO - Pre-Alpha
 - (DONE) Port BigReactors to BeefCore, fix bugs
 
 ### Fix NBT save/load for MultiblockReactor objects
-- Implement save/load on MultiblockReactor class
- - Save/load user configuration ("active" state)
- - Save/load game state (heat)
+- (DONE) Implement save/load on MultiblockReactor class
+ - (DONE) Save/load user configuration ("active" state)
+ - (DONE) Save/load game state (heat)
 
 ### Fix network communication for MultiblockReactor objects
-- Send updates properly through the network delegate
+- (DONE) Send updates properly through the network delegate
 
 ### Fuel access port block
 - Create fuel access port block

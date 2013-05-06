@@ -3,17 +3,20 @@ package erogenousbeef.bigreactors.client.gui;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.inventory.Container;
 
 public class GuiReactorStatus extends BeefGuiBase {
 
 	private GuiButton _toggleReactorOn;
 	
+	private TileEntityReactorPart part;
 	private MultiblockReactor reactor;
 	
 	private BeefGuiLabel titleString;
@@ -22,10 +25,11 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel fuelRodsString;
 	private BeefGuiLabel powerUsageString;
 	
-	public GuiReactorStatus(MultiblockReactor reactor) {
-		super();
+	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
+		super(container);
 		
-		this.reactor = reactor;
+		this.part = tileEntityReactorPart;
+		this.reactor = part.getReactorController();
 	}
 	
 	// Add controls, etc.
@@ -33,27 +37,28 @@ public class GuiReactorStatus extends BeefGuiBase {
 	public void initGui() {
 		super.initGui();
 		
-		int xCenter = (this.width  - this.xSize ) / 2;
-		int yCenter = (this.height - this.ySize ) / 2; 
+		int xCenter = guiLeft + this.xSize / 2;
+		int yCenter = this.ySize / 2;
 		
-		_toggleReactorOn = new GuiButton(1, xCenter + (this.xSize/2) - 24, 4, 20, 20, getReactorToggleText() );
-		
+		_toggleReactorOn = new GuiButton(1, xCenter - (this.xSize/2) + 4, yCenter + (this.height/2) - 24, 70, 20, getReactorToggleText() );
+		this.buttonList.add(_toggleReactorOn);
+
 		int leftX = 4;
 		int topY = 4;
 		
-		titleString = new BeefGuiLabel("Reactor Control", leftX, topY, this.fontRenderer);
+		titleString = new BeefGuiLabel(this, "Reactor Control", leftX, topY);
 		topY += titleString.getHeight() + 4;
 		
-		statusString = new BeefGuiLabel("Status: Online", leftX, topY, this.fontRenderer);
+		statusString = new BeefGuiLabel(this, "Status: -- updating --", leftX, topY);
 		topY += statusString.getHeight() + 4;
 		
-		heatString = new BeefGuiLabel("Heat: 0", leftX, topY, this.fontRenderer);
+		heatString = new BeefGuiLabel(this, "Heat: -- updating --", leftX, topY);
 		topY += heatString.getHeight() + 4;
 		
-		fuelRodsString = new BeefGuiLabel("Active Fuel Columns: 0", leftX, topY, this.fontRenderer);
+		fuelRodsString = new BeefGuiLabel(this, "Active Fuel Columns: -- updating --", leftX, topY);
 		topY += fuelRodsString.getHeight() + 4;
 		
-		powerUsageString = new BeefGuiLabel("Power Exported: 0mj", leftX, topY, this.fontRenderer);
+		powerUsageString = new BeefGuiLabel(this, "Power Exported: -- updating --", leftX, topY);
 		topY += powerUsageString.getHeight() + 4;
 		
 		registerControl(titleString);
@@ -75,21 +80,23 @@ public class GuiReactorStatus extends BeefGuiBase {
 		_toggleReactorOn.displayString = getReactorToggleText();
 		
 		if(reactor.isActive()) {
-			statusString.setLabelText("Status: Online", this.fontRenderer);
+			statusString.setLabelText("Status: Online");
 		}
 		else {
-			statusString.setLabelText("Status: Offline", this.fontRenderer);
+			statusString.setLabelText("Status: Offline");
 		}
 		
-		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()), this.fontRenderer);
-		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getActiveFuelRodCount()), this.fontRenderer);
-		powerUsageString.setLabelText("Power Exported: 0mj", this.fontRenderer);
+		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()));
+		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getActiveFuelRodCount()));
+		powerUsageString.setLabelText("Power Exported: 0mj");
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 1) {
 			boolean newValue = !reactor.isActive();
+			
+			System.out.println(String.format("Sending activation packet to server, active => %s", Boolean.toString(newValue)));
 			
 			CoordTriplet saveDelegate = reactor.getDelegateLocation();
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
