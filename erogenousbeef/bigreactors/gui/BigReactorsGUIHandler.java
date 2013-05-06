@@ -18,6 +18,9 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 		if(te == null) {
 			return null;
 		}
+		else if(te instanceof TileEntityReactorPart) {
+			return ((TileEntityReactorPart)te).getContainer();
+		}
 		
 		return null;
 	}
@@ -30,13 +33,9 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 			return null;
 		}
 		
-		if(te instanceof TileEntityReactorPart && BlockReactorPart.isController(te.blockMetadata)) {
-			// TODO: Return new GUI here
+		if(te instanceof TileEntityReactorPart) {
 			TileEntityReactorPart part = (TileEntityReactorPart)te;
-			if(part.isConnected()) {
-				return new GuiReactorStatus(part.getReactorController());
-			}
-			return null;
+			return part.getGuiElement();
 		}
 		
 		return null;

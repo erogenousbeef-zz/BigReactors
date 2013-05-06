@@ -5,31 +5,28 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.inventory.Container;
 
-public abstract class BeefGuiBase extends GuiScreen {
+@SideOnly(Side.CLIENT)
+public abstract class BeefGuiBase extends GuiContainer {
 
 	protected List<IBeefGuiControl> controls;
 	protected List<IBeefTooltipControl> controlsWithTooltips;
 	
-	// Set these!
-	protected int xSize = 200;
-	protected int ySize = 200;
-	
-	public BeefGuiBase() {
-		super();
+	public BeefGuiBase(Container container) {
+		super(container);
 		
 		controls = new LinkedList<IBeefGuiControl>();
 		controlsWithTooltips = new LinkedList<IBeefTooltipControl>();
-	}
-	
-	// Add controls, etc.
-	@Override
-	public void initGui() {
-		super.initGui();
 	}
 
 	public void registerControl(IBeefGuiControl newControl) {
@@ -39,27 +36,27 @@ public abstract class BeefGuiBase extends GuiScreen {
 			controlsWithTooltips.add((IBeefTooltipControl) newControl);
 		}
 	}
+
+	public FontRenderer getFontRenderer() { return this.fontRenderer; }
 	
 	@Override
-    public void drawScreen(int mouseX, int mouseY, float gameTicks) {
-    	super.drawScreen(mouseX, mouseY, gameTicks);
-    	
-    	drawBackground(mouseX, mouseY, gameTicks);
-    	drawForeground(mouseX, mouseY, gameTicks);
-    }
-	
-	protected void drawBackground(int mouseX, int mouseY, float gameTicks) {
+	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY) {
+		mouseX -= guiLeft;
+		mouseY -= guiTop;
+		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.mc.renderEngine.bindTexture(getGuiBackground());
-		int x = (width - xSize) / 2;
-		int y = (height - ySize) / 2;
-		this.drawTexturedModalRect(x, y, 0, 0, xSize, ySize);
+		this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
 	}
 	
 	// Override to draw your custom controls
-	protected void drawForeground(int mouseX, int mouseY, float gameTicks) {
+	@Override
+	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+		int relativeX, relativeY;
+		relativeX = mouseX - this.guiLeft;
+		relativeY = mouseY - this.guiTop;
 		for(IBeefGuiControl c : controls) {
-			c.render(this.mc.renderEngine, this.fontRenderer);
+			c.drawForeground(relativeX, relativeY);
 		}
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {

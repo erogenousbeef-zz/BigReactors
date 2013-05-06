@@ -157,6 +157,12 @@ public class BlockReactorPart extends BlockContainer {
 	@Override
 	public void onBlockAdded(World world, int x, int y, int z) {
 		// Will this work?
+		if(world.isRemote) {
+			System.out.println("BlockReactorPart::onBlockAdded - client");
+		} else {
+			System.out.println("BlockReactorPart::onBlockAdded - server");
+		}
+		
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te != null && te instanceof TileEntityReactorPart) {
 			TileEntityReactorPart rp = (TileEntityReactorPart)te;
@@ -189,7 +195,7 @@ public class BlockReactorPart extends BlockContainer {
 		if(metadata == CONTROLLER_METADATA_BASE) { return false; }
 
 		// TODO: Fixme. Causes an NPE.
-		// player.openGui(BRLoader.instance, 0, world, x, y, z);
+		player.openGui(BRLoader.instance, 0, world, x, y, z);
 		return true;
 	}
 	

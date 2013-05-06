@@ -21,6 +21,8 @@ public class ServerPacketHandler implements IPacketHandler {
 		DataInputStream data = new DataInputStream(new ByteArrayInputStream(packet.data));
 		int packetType = PacketWrapper.readPacketID(data);
 		
+		System.out.println(String.format("ServerPacketHandler::onPacketData - type %d", packetType));
+		
 		switch(packetType) {
 		case Packets.ReactorControllerButton:
 			int x, y, z;
@@ -29,6 +31,7 @@ public class ServerPacketHandler implements IPacketHandler {
 				y = data.readInt();
 				z = data.readInt();
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				System.out.println("ServerPacketHandler::onPacketData::ReactorControllerButton");
 				if(te != null & te instanceof TileEntityReactorPart) {
 					((TileEntityReactorPart)te).onNetworkPacket(packetType, data);
 				}

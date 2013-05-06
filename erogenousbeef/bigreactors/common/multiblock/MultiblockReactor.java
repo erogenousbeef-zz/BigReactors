@@ -2,8 +2,11 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import java.util.LinkedList;
 
+import cpw.mods.fml.common.network.PacketDispatcher;
+
 import net.minecraft.block.material.Material;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -11,20 +14,14 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockRegistry;
 
 public class MultiblockReactor extends MultiblockControllerBase {
-	// Multiblock stuff
-	private World worldObj;
-	private boolean isWholeMachine;
-	private boolean checkForMachineWholeness;
-
-	private LinkedList<CoordTriplet> connectedBlocks;
-	private CoordTriplet saveDelegate; // Also the network delegate
-
 	// Game stuff
 	protected boolean active;
 	private double latentHeat;
@@ -36,12 +33,6 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	public MultiblockReactor(World world) {
 		super(world);
 
-		// Multiblock stuff
-		worldObj = world;
-		isWholeMachine = false;
-		connectedBlocks = new LinkedList<CoordTriplet>();
-		saveDelegate = null;
-
 		// Game stuff
 		active = false;
 		latentHeat = 0.0;
@@ -51,6 +42,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	
 	@Override
 	protected void assembleMachine() {
+		this.active = false;
 		super.assembleMachine();
 	}
 	
@@ -71,7 +63,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	@Override
 	public void updateMultiblockEntity() {		
 		super.updateMultiblockEntity();
-		
+		double oldHeat = this.getHeat();
+
 		// TODO: Eject Waste
 		
 		// TODO: Inject fuel
@@ -109,7 +102,10 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		latentHeat -= latentHeatLoss;
 		if(latentHeat < 0.0) { latentHeat = 0.0; }
 		
-		// TODO: Overload?		
+		if(oldHeat != this.getHeat()) {
+			sendTickUpdate();
+		}
+		// TODO: Overload?
 	}
 	
 	public void onPowerTapConnectionChanged(int x, int y, int z, int numConnections) {
@@ -146,10 +142,10 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		return this.active;
 	}
 
-	public void setActive(Boolean act) {
+	public void setActive(boolean act) {
 		if(act == this.active) { return; }
 		this.active = act;
-
+		
 		TileEntity te = null; 
 		IMultiblockPart part = null;
 		for(CoordTriplet coord : connectedBlocks) {
@@ -159,11 +155,19 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				if(this.active) { part.onMachineActivated(); }
 				else { part.onMachineDeactivated(); }
 			}
+			else {
+			}
 		}
+		
+		this.sendFullUpdate();
 	}
 
 	public double getHeat() {
 		return latentHeat;
+	}
+	
+	public void setHeat(double newHeat) {
+		latentHeat = newHeat;
 	}
 
 	public int getActiveFuelRodCount() {
@@ -213,17 +217,91 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
-		// TODO Save/Load
+		data.setBoolean("reactorActive", this.active);
+		data.setDouble("heat", this.latentHeat);
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
-		// TODO Save/Load
+		data.getBoolean("reactorActive");
+		data.getDouble("heat");
 	}
 
 	@Override
 	protected int getMinimumNumberOfBlocksForAssembledMachine() {
 		// Hollow cube.
 		return 26;
+	}
+
+	@Override
+	public void formatDescriptionPacket(NBTTagCompound data) {
+		data.setBoolean("reactorActive", this.active);
+		data.setDouble("heat", this.latentHeat);
+	}
+
+	@Override
+	public void decodeDescriptionPacket(NBTTagCompound data) {
+		data.getBoolean("reactorActive");
+		data.getDouble("heat");
+	}
+
+	/**
+	 * Sends a full state update to all connected players.
+	 * Use this sparingly.
+	 * TODO: Make this only broadcast to nearby players?
+	 */
+	protected void sendFullUpdate() {
+		if(this.worldObj.isRemote) { return; }
+
+		Packet data = PacketWrapper.createPacket(BigReactors.CHANNEL,
+												 Packets.ReactorControllerFullUpdate,
+												 new Object[] { referenceCoord.x,
+																referenceCoord.y,
+																referenceCoord.z,
+																this.active,
+																this.latentHeat});
+
+		CoordTriplet min, max;
+		min = getMinimumCoord();
+		max = getMaximumCoord();
+		int midX, midY, midZ;
+		int sizeX, sizeY, sizeZ;
+		sizeX = (min.x - max.x) / 2;
+		sizeY = (min.y - max.y) / 2;
+		sizeZ = (min.z - max.z) / 2;
+		midX = min.x + sizeX;
+		midY = min.y + sizeY;
+		midZ = min.z + sizeZ;
+		
+		PacketDispatcher.sendPacketToAllAround(midX, midY, midZ, 64, worldObj.provider.dimensionId, data);
+	}
+	
+	/**
+	 * Send an update to any clients nearby
+	 * TODO: Make this broadcast only to players viewing the UI
+	 */
+	protected void sendTickUpdate() {
+		if(this.worldObj.isRemote) { return; }
+		
+		Packet data = PacketWrapper.createPacket(BigReactors.CHANNEL,
+				 Packets.ReactorControllerFullUpdate,
+				 new Object[] { referenceCoord.x,
+								referenceCoord.y,
+								referenceCoord.z,
+								this.latentHeat});
+
+		CoordTriplet min, max;
+		min = getMinimumCoord();
+		max = getMaximumCoord();
+		int midX, midY, midZ;
+		int sizeX, sizeY, sizeZ;
+		sizeX = (min.x - max.x) / 2;
+		sizeY = (min.y - max.y) / 2;
+		sizeZ = (min.z - max.z) / 2;
+		midX = min.x + sizeX;
+		midY = min.y + sizeY;
+		midZ = min.z + sizeZ;
+		
+		PacketDispatcher.sendPacketToAllAround(midX, midY, midZ, 64, worldObj.provider.dimensionId, data);
 	}
 }
