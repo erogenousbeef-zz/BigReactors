@@ -8,6 +8,8 @@ An upcoming mod for Minecraft, based on adding new and fun ways to generate powe
 
 This is a heavy WIP. More info coming soon.
 
+For near-future plans and development status, see the Roadmap file.
+
 License
 -------
 
