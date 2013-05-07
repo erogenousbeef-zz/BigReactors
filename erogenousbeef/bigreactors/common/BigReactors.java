@@ -22,6 +22,7 @@ import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericLiquid;
 import erogenousbeef.bigreactors.common.block.BlockRTG;
+import erogenousbeef.bigreactors.common.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
@@ -31,6 +32,8 @@ import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 
@@ -52,13 +55,13 @@ public class BigReactors {
 
 	public static final String LANGUAGE_PATH = RESOURCE_PATH + "languages/";
 	private static final String[] LANGUAGES_SUPPORTED = new String[] { "en_US" };
-
 	
 	public static final int BLOCK_ID_PREFIX = 1750;
 	
 	public static Block blockYelloriteOre;
 	public static Block blockYelloriumFuelRod;
 	public static Block blockReactorPart;
+	public static Block blockReactorGlass;
 	public static Block blockRadiothermalGen;
 	
 	public static Block liquidYelloriumStill;
@@ -134,6 +137,8 @@ public class BigReactors {
 		{
 			GameRegistry.registerTileEntity(TileEntityReactorPowerTap.class, 	"BRReactorPowerTap");
 			GameRegistry.registerTileEntity(TileEntityReactorPart.class, 		"BRReactorPart");
+			GameRegistry.registerTileEntity(TileEntityReactorAccessPort.class,	"BRReactorAccessPort");
+			GameRegistry.registerTileEntity(TileEntityReactorGlass.class,		"BRReactorGlass");
 			GameRegistry.registerTileEntity(TileEntityFuelRod.class, 			"BRFuelRod");
 			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
 			registeredTileEntities = true;
@@ -203,6 +208,16 @@ public class BigReactors {
 			OreDictionary.registerOre("reactorPowerTap", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack());
 
 			BRConfig.CONFIGURATION.save();
+		}
+		
+		if(BigReactors.blockReactorGlass == null) {
+			BRConfig.CONFIGURATION.load();
+			
+			BigReactors.blockReactorGlass = new BlockReactorGlass(BRConfig.CONFIGURATION.getBlock("ReactorGlass",  BigReactors.BLOCK_ID_PREFIX + 7).getInt(), Material.glass);
+			GameRegistry.registerBlock(BigReactors.blockReactorGlass, ItemBlockBigReactors.class, "BRReactorGlass");
+			
+			BRConfig.CONFIGURATION.save();
+			
 		}
 	}
 	

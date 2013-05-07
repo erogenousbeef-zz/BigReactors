@@ -36,8 +36,11 @@ public class ItemBlockReactorPart extends ItemBlock {
 		else if (BlockReactorPart.isControlRod(damage)) {
 			metadata = 2;
 		}
-		else {
+		else if (BlockReactorPart.isPowerTap(damage)){
 			metadata = 3;
+		}
+		else {
+			metadata = 4;
 		}
 
 		return BigReactors.blockReactorPart.getUnlocalizedName() + "." + metadata;

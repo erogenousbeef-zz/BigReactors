@@ -10,6 +10,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRConfig;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import net.minecraft.block.Block;
@@ -40,6 +41,9 @@ public class BlockReactorPart extends BlockContainer {
 	public static final int CONTROLROD_METADATA_BASE = 9; // Inserted, Retracted
 	public static final int POWERTAP_METADATA_BASE 	 = 11; // Disconnected, Connected
 	
+	public static final int ACCESSPORT_INLET = 13;
+	public static final int ACCESSPORT_OUTLET = 14;
+	
 	private static String[] _subBlocks = new String[] { "casingDefault",
 														"casingCorner",
 														"casingCenter",
@@ -52,13 +56,16 @@ public class BlockReactorPart extends BlockContainer {
 														"controlRodInserted",
 														"controlRodRetracted",
 														"powerTapDisconnected",
-														"powerTapConnected" };
+														"powerTapConnected",
+														"accessInlet",
+														"accessOutlet"};
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
 	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < CONTROLROD_METADATA_BASE; }
 	public static boolean isControlRod(int metadata) { return metadata >= CONTROLROD_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
-	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE; }
+	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE && metadata < ACCESSPORT_INLET; }
+	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET; }
 	
 	public BlockReactorPart(int id, Material material) {
 		super(id, material);
@@ -149,6 +156,9 @@ public class BlockReactorPart extends BlockContainer {
 		if(isPowerTap(metadata)) {
 			return new TileEntityReactorPowerTap();
 		}
+		else if(isAccessPort(metadata)) {
+			return new TileEntityReactorAccessPort();
+		}
 		else {
 			return new TileEntityReactorPart();
 		}
@@ -156,13 +166,6 @@ public class BlockReactorPart extends BlockContainer {
 	
 	@Override
 	public void onBlockAdded(World world, int x, int y, int z) {
-		// Will this work?
-		if(world.isRemote) {
-			System.out.println("BlockReactorPart::onBlockAdded - client");
-		} else {
-			System.out.println("BlockReactorPart::onBlockAdded - server");
-		}
-		
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te != null && te instanceof TileEntityReactorPart) {
 			TileEntityReactorPart rp = (TileEntityReactorPart)te;
@@ -187,7 +190,7 @@ public class BlockReactorPart extends BlockContainer {
 		}
 		
 		int metadata = world.getBlockMetadata(x, y, z);
-		if(!isController(metadata)) {
+		if(!isController(metadata) && !isAccessPort(metadata)) {
 			return false;
 		}
 		
@@ -229,6 +232,9 @@ public class BlockReactorPart extends BlockContainer {
 		else if(isPowerTap(metadata)) {
 			return POWERTAP_METADATA_BASE;
 		}
+		else if(isAccessPort(metadata)) {
+			return ACCESSPORT_INLET;
+		}
 		else {
 			return CASING_METADATA_BASE;
 		}
@@ -250,6 +256,10 @@ public class BlockReactorPart extends BlockContainer {
 		return new ItemStack(this.blockID, 1, POWERTAP_METADATA_BASE);
 	}
 	
+	public ItemStack getAccessPortItemStack() {
+		return new ItemStack(this.blockID, 1, ACCESSPORT_INLET);
+	}
+	
 	@Override
 	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
@@ -257,5 +267,6 @@ public class BlockReactorPart extends BlockContainer {
 		par3List.add(this.getReactorControllerItemStack());
 		par3List.add(this.getReactorControlRodItemStack());
 		par3List.add(this.getReactorPowerTapItemStack());
+		par3List.add(this.getAccessPortItemStack());
 	}
 }

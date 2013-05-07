@@ -1,0 +1,194 @@
+package erogenousbeef.bigreactors.common.tileentity;
+
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.item.ItemIngot;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+
+public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
+
+	protected ItemStack[] _inventories;
+	
+	protected static final int SLOT_INLET = 0;
+	protected static final int SLOT_OUTLET = 1;
+	protected static final int NUM_SLOTS = 2;
+	
+	public TileEntityReactorAccessPort() {
+		super();
+		
+		_inventories = new ItemStack[getSizeInventory()];
+	}
+
+	// TileEntity overrides
+	
+	@Override
+	public void readFromNBT(NBTTagCompound tag) {
+		super.readFromNBT(tag);
+		_inventories = new ItemStack[getSizeInventory()];
+		if(tag.hasKey("Items")) {
+			NBTTagList tagList = tag.getTagList("Items");
+			for(int i = 0; i < tagList.tagCount(); i++) {
+				NBTTagCompound itemTag = (NBTTagCompound)tagList.tagAt(i);
+				int slot = itemTag.getByte("Slot") & 0xff;
+				if(slot >= 0 && slot <= _inventories.length) {
+					ItemStack itemStack = new ItemStack(0,0,0);
+					itemStack.readFromNBT(tag);
+					_inventories[slot] = itemStack;
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void writeToNBT(NBTTagCompound tag) {
+		super.writeToNBT(tag);
+		NBTTagList tagList = new NBTTagList();
+		
+		for(int i = 0; i < _inventories.length; i++) {
+			if((_inventories[i]) != null) {
+				NBTTagCompound itemTag = new NBTTagCompound();
+				itemTag.setByte("Slot", (byte)i);
+				_inventories[i].writeToNBT(itemTag);
+				tagList.appendTag(itemTag);
+			}
+		}
+		
+		if(tagList.tagCount() > 0) {
+			tag.setTag("Items", tagList);
+		}
+	}
+	
+	// IInventory
+	
+	@Override
+	public int getSizeInventory() {
+		return NUM_SLOTS;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int slot) {
+		return _inventories[slot];
+	}
+
+	@Override
+	public ItemStack decrStackSize(int slot, int amount) {
+		if(_inventories[slot] != null)
+		{
+			if(_inventories[slot].stackSize <= amount)
+			{
+				ItemStack itemstack = _inventories[slot];
+				_inventories[slot] = null;
+				return itemstack;
+			}
+			ItemStack newStack = _inventories[slot].splitStack(amount);
+			if(_inventories[slot].stackSize == 0)
+			{
+				_inventories[slot] = null;
+			}
+			return newStack;
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	@Override
+	public ItemStack getStackInSlotOnClosing(int slot) {
+		return null;
+	}
+
+	@Override
+	public void setInventorySlotContents(int slot, ItemStack itemstack) {
+		_inventories[slot] = itemstack;
+		if(itemstack != null && itemstack.stackSize > getInventoryStackLimit())
+		{
+			itemstack.stackSize = getInventoryStackLimit();
+		}
+	}
+
+	@Override
+	public String getInvName() {
+		return "Access Port";
+	}
+
+	@Override
+	public boolean isInvNameLocalized() {
+		return false;
+	}
+
+	@Override
+	public int getInventoryStackLimit() {
+		return 64;
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
+		if(worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this)
+		{
+			return false;
+		}
+		return entityplayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64D;
+	}
+
+	@Override
+	public void openChest() {
+	}
+
+	@Override
+	public void closeChest() {
+	}
+
+	@Override
+	public boolean isStackValidForSlot(int slot, ItemStack itemstack) {
+		if(itemstack == null) { return true; }
+		
+		if(itemstack.itemID == BigReactors.ingotYellorium.itemID) {
+			if(ItemIngot.isFuel(itemstack.getItemDamage()) && slot == SLOT_INLET) {
+				return true;
+			}
+			else if(ItemIngot.isWaste(itemstack.getItemDamage()) && slot == SLOT_OUTLET) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	// ISidedInventory
+	
+	@Override
+	public int[] getAccessibleSlotsFromSide(int side) {
+		if(side == 0 || side == 1) { return null; }
+		
+		int metadata = this.getBlockMetadata();
+		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
+			return new int[] {SLOT_INLET};
+		}
+		else if(metadata == BlockReactorPart.ACCESSPORT_OUTLET) {
+			return new int[] {SLOT_OUTLET};
+		}
+		return null;
+	}
+
+	@Override
+	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
+		// TODO: Do I need to include the metadata restriction here too?
+		if(side == 0 || side == 1) { return false; }
+		
+		return isStackValidForSlot(slot, itemstack);
+	}
+
+	@Override
+	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
+		// TODO: Do I need to include the metadata restriction here too?
+		if(side == 0 || side == 1) { return false; }
+		
+		return isStackValidForSlot(slot, itemstack);
+	}
+}
