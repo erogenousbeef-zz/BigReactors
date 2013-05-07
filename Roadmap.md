@@ -11,6 +11,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Known Bugs
 ----------
 - When a wire burns out, it does not disconnect the power tap
+- Reactors do not properly recognize fuel rods as acceptable for the interior when assembling
+- Reactor glass breaks instead of dropping a block
+- Client-side reactors need a TickHandler
 
 TODO - Pre-Alpha
 ----------------
@@ -29,13 +32,13 @@ TODO - Pre-Alpha
 - (DONE) Send updates properly through the network delegate
 
 ### Fuel access port block
-- Create fuel access port block
+- (DONE) Create fuel access port block
  - Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
  - Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
 - Create UI for access port block
 - Configuration: User can choose which inventory slot is externally-addressible
  - This provides LogiPipes/AE/BC pipe compatibility
-- Add auto-emit, like MFR's machines, so BC pipes don't need power
+- (DONE/UNTESTED) Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 ### Add in initial crafting recipes for reactor parts
 - Add graphite ingots (coal & cobble, unshaped recipe)
@@ -47,7 +50,7 @@ TODO - Pre-Alpha
 - Power tap
 - Fuel access port
 - Rename "Depleted Yellorium" to "Blutonium" or something cute.
-- Create reactor glass blocks so people can see inside
+- (DONE) Create reactor glass blocks so people can see inside
 
 - Take a stab at balancing power production
 
@@ -56,6 +59,7 @@ TODO - Alpha
 - Finish the RTG for mid/early-game power
 - Make halfway-decent UIs with better visualizations than just text
 - Actually try to balance power production
+- Make glass have a border when disassembled, no border when assembled
 
 ### Refactor fuel rods
 - Make them a pseudo-multiblock controlled/rendered by the control rod

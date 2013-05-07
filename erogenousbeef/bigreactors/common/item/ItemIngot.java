@@ -36,4 +36,12 @@ public class ItemIngot extends ItemBase
 			list.add(new ItemStack(this, 1, i));
 		}
 	}
+
+	public static boolean isFuel(int itemDamage) {
+		return itemDamage == 0;
+	}
+
+	public static boolean isWaste(int itemDamage) {
+		return itemDamage == 1;
+	}
 }
