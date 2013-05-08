@@ -19,7 +19,9 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
@@ -269,4 +271,51 @@ public class BlockReactorPart extends BlockContainer {
 		par3List.add(this.getReactorPowerTapItemStack());
 		par3List.add(this.getAccessPortItemStack());
 	}
+	
+	@Override
+	public void breakBlock(World world, int x, int y, int z, int blockId, int meta)
+	{
+		// Drop everything inside inventory blocks
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof IInventory)
+		{
+			IInventory inventory = ((IInventory)te);
+inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
+			{
+				ItemStack itemstack = inventory.getStackInSlot(i);
+				if(itemstack == null)
+				{
+					continue;
+				}
+				float xOffset = world.rand.nextFloat() * 0.8F + 0.1F;
+				float yOffset = world.rand.nextFloat() * 0.8F + 0.1F;
+				float zOffset = world.rand.nextFloat() * 0.8F + 0.1F;
+				do
+				{
+					if(itemstack.stackSize <= 0)
+					{
+						continue inv;
+					}
+					int amountToDrop = world.rand.nextInt(21) + 10;
+					if(amountToDrop > itemstack.stackSize)
+					{
+						amountToDrop = itemstack.stackSize;
+					}
+					itemstack.stackSize -= amountToDrop;
+					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.itemID, amountToDrop, itemstack.getItemDamage()));
+					if(itemstack.getTagCompound() != null)
+					{
+						entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound());
+					}
+					float motionMultiplier = 0.05F;
+					entityitem.motionX = (float)world.rand.nextGaussian() * motionMultiplier;
+					entityitem.motionY = (float)world.rand.nextGaussian() * motionMultiplier + 0.2F;
+					entityitem.motionZ = (float)world.rand.nextGaussian() * motionMultiplier;
+					world.spawnEntityInWorld(entityitem);
+				} while(true);
+			}
+		}
+
+		super.breakBlock(world, x, y, z, blockId, meta);
+	}	
 }

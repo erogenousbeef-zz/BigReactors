@@ -19,7 +19,7 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 			return null;
 		}
 		else if(te instanceof TileEntityReactorPart) {
-			return ((TileEntityReactorPart)te).getContainer();
+			return ((TileEntityReactorPart)te).getContainer(player.inventory);
 		}
 		
 		return null;
@@ -35,7 +35,7 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 		
 		if(te instanceof TileEntityReactorPart) {
 			TileEntityReactorPart part = (TileEntityReactorPart)te;
-			return part.getGuiElement();
+			return part.getGuiElement(player.inventory);
 		}
 		
 		return null;

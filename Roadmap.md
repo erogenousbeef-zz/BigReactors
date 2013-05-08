@@ -34,10 +34,10 @@ TODO - Pre-Alpha
 - (DONE) Create fuel access port block
  - Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
  - Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
-- Create UI for access port block
-- Configuration: User can choose which inventory slot is externally-addressible
- - This provides LogiPipes/AE/BC pipe compatibility
-- (DONE/UNTESTED) Add auto-emit, like MFR's machines, so BC pipes don't need power
+- (DONE) Create UI for access port block
+- (DONE) Configuration: User can choose which inventory slot is externally-addressible
+ - (DONE) This provides LogiPipes/AE/BC pipe compatibility
+- (PARTIAL) Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 ### Add in initial crafting recipes for reactor parts
 - Add graphite ingots (coal & cobble, unshaped recipe)

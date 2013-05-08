@@ -18,6 +18,7 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
@@ -278,7 +279,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	/**
 	 * @return The Container object for use by the GUI. Null if there isn't any.
 	 */
-	public Object getContainer() {
+	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
 			return null;
 		}
@@ -290,7 +291,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		return null;
 	}
 
-	public Object getGuiElement() {
+	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
 			System.out.println("getGuiElement - null (no connection)");
 			return null;

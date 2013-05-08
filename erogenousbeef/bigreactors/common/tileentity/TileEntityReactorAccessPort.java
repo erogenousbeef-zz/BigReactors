@@ -1,14 +1,27 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import java.io.DataInputStream;
+import java.util.HashMap;
+
+import buildcraft.api.transport.IPipeEntry;
+import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
+import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
+import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.ForgeDirection;
 
 public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
 
@@ -37,7 +50,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				int slot = itemTag.getByte("Slot") & 0xff;
 				if(slot >= 0 && slot <= _inventories.length) {
 					ItemStack itemStack = new ItemStack(0,0,0);
-					itemStack.readFromNBT(tag);
+					itemStack.readFromNBT(itemTag);
 					_inventories[slot] = itemStack;
 				}
 			}
@@ -190,5 +203,51 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(side == 0 || side == 1) { return false; }
 		
 		return isStackValidForSlot(slot, itemstack);
+	}
+	
+	@Override
+	public void onNetworkPacket(int packetType, DataInputStream data) {
+		if(packetType == Packets.AccessPortButton) {
+			Class[] decodeAs = { Byte.class };
+			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
+			byte newMetadata = (Byte)decodedData[0];
+			
+			if(newMetadata == BlockReactorPart.ACCESSPORT_INLET || newMetadata == BlockReactorPart.ACCESSPORT_OUTLET) {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, newMetadata, 2);
+			}
+		}
+	}
+	
+	@Override
+	public Object getContainer(InventoryPlayer inventoryPlayer) {
+		return new ContainerReactorAccessPort(this, inventoryPlayer);
+	}
+
+	@Override
+	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
+		return new GuiReactorAccessPort(new ContainerReactorAccessPort(this, inventoryPlayer), this);
+	}
+	
+	/**
+	 * @param itemToDistribute An ItemStack to distribute to pipes
+	 * @return Null if the stack was distributed, the same ItemStack otherwise.
+	 */
+	protected ItemStack distributeItemToPipes(ItemStack itemToDistribute) {
+		
+		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
+										ForgeDirection.EAST, ForgeDirection.WEST };
+
+		for(ForgeDirection dir : dirsToCheck) {
+			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+			if(te != null && te instanceof IPipeEntry) {
+				IPipeEntry pipe = (IPipeEntry)te;
+				if(pipe.acceptItems()) {
+					pipe.entityEntering(itemToDistribute.copy(), dir.getOpposite());
+					return null;
+				}
+			}
+		}
+		
+		return itemToDistribute;
 	}
 }
