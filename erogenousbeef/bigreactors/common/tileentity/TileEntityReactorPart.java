@@ -33,17 +33,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	public MultiblockReactor getReactorController() { return (MultiblockReactor)this.getMultiblockController(); }
 	
-	@Override
-	public void onBlockAdded(World world, int x, int y, int z) {
-		super.onBlockAdded(world, x, y, z);
-		if(world.isRemote) {
-			System.out.println("onBlockAdded - client");
-		}
-		else {
-			System.out.println("onBlockAdded - server");
-		}
-	}
-	
 	// Oh god this is a terrible hack
 	@Override
 	public void updateContainingBlockInfo() {
@@ -145,7 +134,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		
 		int metadata = this.getBlockMetadata();
 		if(BlockReactorPart.isController(metadata)) {
-			System.out.println("Machine activated - turning controller green!");
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);
 		}
 		
@@ -200,11 +188,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	// TODO: Fix this. Communication with the controller should...
 	public void onNetworkPacket(int packetType, DataInputStream data) {
-		System.out.println(String.format("TileEntityReactorPart::onNetworkPacket - %d", packetType));
-		
 		if(!this.isConnected()) {
 			// TODO: Log this.
-			System.out.println("TileEntityReactorPart::onNetworkPacket - ignoring, not connected");
 			return;
 		}
 		
@@ -216,10 +201,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 			String buttonName = (String) decodedData[0];
 			boolean newValue = (Boolean) decodedData[1];
 			
-			System.out.println(String.format("TileEntityReactorPart::onNetworkPacket::button press (%s, %b)", buttonName, newValue));
-			
 			if(buttonName.equals("activate")) {
-				System.out.println(String.format("TileEntityReactorPart::onNetworkPacket::setting machine to active => %b", newValue));
 				getReactorController().setActive(newValue);
 			}
 		}
@@ -316,7 +298,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
 		if(BlockReactorPart.isController(metadata)) {
-			System.out.println("getGuiElement - ReactorStatus");
 			return new GuiReactorStatus(new ContainerReactorController(this), this);
 		}
 		return null;

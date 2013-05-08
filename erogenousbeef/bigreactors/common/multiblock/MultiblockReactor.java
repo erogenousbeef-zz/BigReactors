@@ -204,8 +204,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			// Ensure that the block below is either a fuel rod or casing.
 			int blockTypeBelow = world.getBlockId(x, y-1, z);
 			int blockMetaBelow = world.getBlockMetadata(x, y-1, z);
-			if(blockTypeAbove != BigReactors.blockYelloriumFuelRod.blockID &&
-					!(blockTypeAbove == BigReactors.blockReactorPart.blockID && BlockReactorPart.isCasing(blockMetaAbove))) {
+			if(blockTypeBelow != BigReactors.blockYelloriumFuelRod.blockID &&
+					!(blockTypeBelow == BigReactors.blockReactorPart.blockID && BlockReactorPart.isCasing(blockMetaBelow))) {
 					return false;
 				}
 			

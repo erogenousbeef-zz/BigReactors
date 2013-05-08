@@ -10,10 +10,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Known Bugs
 ----------
+- (CRITICAL) Client-side reactors do not recognize assembly properly when being loaded
 - When a wire burns out, it does not disconnect the power tap
-- Reactors do not properly recognize fuel rods as acceptable for the interior when assembling
 - Reactor glass breaks instead of dropping a block
-- Client-side reactors need a TickHandler
 
 TODO - Pre-Alpha
 ----------------
