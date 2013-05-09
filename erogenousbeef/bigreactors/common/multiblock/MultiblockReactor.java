@@ -156,7 +156,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			
 			ItemStack wasteToDistribute = null;
 			if(wasteAmt >= 1000) {
-				wasteToDistribute = new ItemStack(BigReactors.ingotYellorium, wasteAmt/1000, 1);
+				wasteToDistribute = new ItemStack(BigReactors.ingotGeneric, wasteAmt/1000, 1);
 			}
 
 			int fuelIngotsToConsume = freeFuelSpace / 1000;

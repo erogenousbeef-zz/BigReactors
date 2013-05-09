@@ -93,7 +93,7 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		LiquidStack waste = wasteTank.getLiquid();
 		
 		if(waste == null) {
-			waste = BigReactors.liquidDepletedYellorium.copy();
+			waste = BigReactors.liquidCyanite.copy();
 			waste.amount = wasteToAdd;
 			wasteTank.setLiquid(waste);
 		}
@@ -289,7 +289,7 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 				}
 				
 				if(waste == null) {
-					waste = BigReactors.liquidDepletedYellorium.copy();
+					waste = BigReactors.liquidCyanite.copy();
 					waste.amount = 1;
 					wasteTank.setLiquid(waste);
 				}

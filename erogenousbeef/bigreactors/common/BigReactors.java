@@ -65,18 +65,18 @@ public class BigReactors {
 	public static Block blockRadiothermalGen;
 	
 	public static Block liquidYelloriumStill;
-	public static Block liquidDepletedYelloriumStill;
+	public static Block liquidCyaniteStill;
 	public static Block liquidFuelColumnStill;
 	
 	public static LiquidStack liquidYellorium;
-	public static LiquidStack liquidDepletedYellorium;
+	public static LiquidStack liquidCyanite;
 	public static LiquidStack liquidFuelColumn;
 	
 	public static final int defaultLiquidColorFuel = 0xbcba50;
 	public static final int defaultLiquidColorWaste = 0x4d92b5;
 	
 	public static final int ITEM_ID_PREFIX = 17750;
-	public static Item ingotYellorium;
+	public static Item ingotGeneric;
 
 	public static OreGenBase yelloriteOreGeneration;
 	
@@ -99,17 +99,63 @@ public class BigReactors {
 			 */
 			// Recipe Registry
 			
-			// Copper
+			// Yellorium
 			if (blockYelloriteOre != null)
 			{
 				System.out.println("Registered yellorite -> yellorium");
 				FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotUranium").get(0), 0.5f);
 			}
 
-			if(blockYelloriumFuelRod != null) {
-				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "CUC", "CUC", "CUC", 'C', "ingotCopper", 'U', "ingotUranium" } ));				
+			// TODO: Configurable recipes.
+			
+			ItemStack ingotUranium = null;
+			ItemStack ingotCyanite = null;
+			ItemStack ingotGraphite = null;
+			if(OreDictionary.getOres("ingotUranium") != null) {
+				ingotUranium = OreDictionary.getOres("ingotUranium").get(0);
+			}
+			if(OreDictionary.getOres("ingotDepletedUranium") != null) {
+				ingotCyanite = OreDictionary.getOres("ingotDepletedUranium").get(0);
+			}
+			if(OreDictionary.getOres("ingotGraphite") != null) {
+				ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0);
 			}
 			
+			// Coal -> Graphite
+			FurnaceRecipes.smelting().addSmelting(Item.coal.itemID, 0, ingotGraphite, 1);
+			// Charcoal -> Graphite
+			FurnaceRecipes.smelting().addSmelting(Item.coal.itemID, 1, ingotGraphite, 1);
+			
+			// Basic Parts: Reactor Casing, Fuel Rods
+			if(blockYelloriumFuelRod != null) {
+				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" } ));
+			}
+
+			if(blockReactorPart != null) {
+				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack(); 
+				reactorPartStack.stackSize = 4;
+				GameRegistry.addRecipe(reactorPartStack, new Object[] { "ICI", "C C", "ICI", 'I', Item.ingotIron, 'C', ingotGraphite.getItem() });
+			}
+			
+			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
+			if(blockReactorPart != null) {
+				ItemStack singleReactorCasing = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack();
+				
+				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack(); 
+				GameRegistry.addRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
+				
+				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControlRodItemStack(); 
+				GameRegistry.addRecipe(reactorPartStack, new Object[] { "CGC", "GRG", "C C", 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
+
+				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack();
+				GameRegistry.addRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
+
+				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
+				GameRegistry.addRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', singleReactorCasing.getItem(), 'V', Block.chest, 'P', Block.pistonBase });
+			}
+			
+			
+			/* TODO: Fixme
 			if(blockRadiothermalGen != null) {
 				GameRegistry.addRecipe(new ItemStack(blockRadiothermalGen, 1), new Object[] {
 					"III",
@@ -119,7 +165,7 @@ public class BigReactors {
 					Character.valueOf('U'), new ItemStack(blockYelloriumFuelRod, 1)
 				});
 			}
-			// TODO: Add recipes for reactor parts.
+			*/
 		}
 
 		INITIALIZED = true;
@@ -153,6 +199,7 @@ public class BigReactors {
 		{
 			blockYelloriteOre = new BlockBROre(BRConfig.CONFIGURATION.getBlock("YelloriteOre", BigReactors.BLOCK_ID_PREFIX + 0).getInt());
 			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBROre.class, "YelloriteOre");
+			OreDictionary.registerOre("oreYellorite", blockYelloriteOre);
 		}
 
 		if (yelloriteOreGeneration == null)
@@ -160,7 +207,7 @@ public class BigReactors {
 			yelloriteOreGeneration = new OreGenReplaceStone("Yellorite Ore", "oreYellorite", new ItemStack(BigReactors.blockYelloriteOre, 1, 0), 60, 26, 4).enable(BRConfig.CONFIGURATION);
 			OreGenerator.addOre(BigReactors.yelloriteOreGeneration);
 		}
-
+		
 		BRConfig.CONFIGURATION.save();
 
 		return new ItemStack(blockYelloriteOre);
@@ -168,20 +215,34 @@ public class BigReactors {
 
 
 	public static ItemStack registerIngots(int id, boolean require) {
-		if (BigReactors.ingotYellorium == null)
+		if (BigReactors.ingotGeneric == null)
 		{
 			BRConfig.CONFIGURATION.load();
-			BigReactors.ingotYellorium = new ItemIngot(BRConfig.CONFIGURATION.getItem("IngotYellorium", BigReactors.ITEM_ID_PREFIX + 0).getInt());
+			BigReactors.ingotGeneric = new ItemIngot(BRConfig.CONFIGURATION.getItem("IngotYellorium", BigReactors.ITEM_ID_PREFIX + 0).getInt());
 
 			if (OreDictionary.getOres("ingotUranium").size() <= 0 || require)
 			{
-				OreDictionary.registerOre("ingotUranium", new ItemStack(ingotYellorium, 1, 0));
+				OreDictionary.registerOre("ingotUranium", new ItemStack(ingotGeneric, 1, 0));
 			}
-
+			
+			if (OreDictionary.getOres("ingotDepletedUranium").size() <= 0 || require)
+			{
+				OreDictionary.registerOre("ingotDepletedUranium", new ItemStack(ingotGeneric, 1, 1));
+			}
+			
+			if (OreDictionary.getOres("ingotGraphite").size() <= 0 || require)
+			{
+				OreDictionary.registerOre("ingotGraphite", new ItemStack(ingotGeneric, 1, 2));
+			}
+			
+			if (OreDictionary.getOres("ingotPlutonium").size() <= 0 || require)
+			{
+				OreDictionary.registerOre("ingotPlutonium", new ItemStack(ingotGeneric, 1, 3));
+			}
 			BRConfig.CONFIGURATION.save();
 		}
 
-		return new ItemStack(ingotYellorium);
+		return new ItemStack(ingotGeneric);
 		
 	}
 
@@ -245,13 +306,13 @@ public class BigReactors {
 			BRConfig.CONFIGURATION.save();
 		}
 		
-		if(BigReactors.liquidDepletedYelloriumStill == null) {
+		if(BigReactors.liquidCyaniteStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			BlockBRGenericLiquid liqDY = new BlockBRGenericLiquid(BRConfig.CONFIGURATION.getBlock("LiquidDepletedYelloriumStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt(), "depletedYellorium");
-			BigReactors.liquidDepletedYelloriumStill = liqDY;
-			GameRegistry.registerBlock(BigReactors.liquidDepletedYelloriumStill, ItemBlockBigReactors.class, BigReactors.liquidDepletedYelloriumStill.getUnlocalizedName());
-			BigReactors.liquidDepletedYellorium = LiquidDictionary.getOrCreateLiquid("depletedYellorium", new LiquidStack(liquidDepletedYelloriumStill, 1));
+			BlockBRGenericLiquid liqDY = new BlockBRGenericLiquid(BRConfig.CONFIGURATION.getBlock("LiquidCyaniteStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt(), "cyanite");
+			BigReactors.liquidCyaniteStill = liqDY;
+			GameRegistry.registerBlock(BigReactors.liquidCyaniteStill, ItemBlockBigReactors.class, BigReactors.liquidCyaniteStill.getUnlocalizedName());
+			BigReactors.liquidCyanite = LiquidDictionary.getOrCreateLiquid("cyanite", new LiquidStack(liquidCyaniteStill, 1));
 			
 			BRRegistry.registerReactorFuel(liqDY, liqDY);
 			BRConfig.CONFIGURATION.save();

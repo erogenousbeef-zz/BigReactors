@@ -14,6 +14,6 @@ public class SlotReactorFuelOnly extends Slot {
 
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		return stack.itemID == BigReactors.ingotYellorium.itemID;
+		return stack.itemID == BigReactors.ingotGeneric.itemID;
 	}
 }

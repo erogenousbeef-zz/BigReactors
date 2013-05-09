@@ -7,7 +7,7 @@ import net.minecraft.item.ItemStack;
 
 public class ItemIngot extends ItemBase
 {
-	public static final String[] TYPES = { "ingotYellorium", "ingotDepletedYellorium" };
+	public static final String[] TYPES = { "ingotYellorium", "ingotCyanite", "ingotGraphite", "ingotBlutonium" };
 
 	public ItemIngot(int id)
 	{
@@ -43,5 +43,9 @@ public class ItemIngot extends ItemBase
 
 	public static boolean isWaste(int itemDamage) {
 		return itemDamage == 1;
+	}
+	
+	public static boolean isGraphite(int itemDamage) {
+		return itemDamage == 2;
 	}
 }

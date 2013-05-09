@@ -100,7 +100,7 @@ public class BlockFuelRod extends BlockContainer {
 			fuelRod.doEmpty();
 			return true;
 		}
-		else if(BigReactors.ingotYellorium.itemID == currentItem.itemID && !fuelRod.isFull()) {
+		else if(BigReactors.ingotGeneric.itemID == currentItem.itemID && !fuelRod.isFull()) {
 			if(currentItem.getItemDamage() == 0) {
 				// Fuel
 				fuelRod.addFuel(1000);
