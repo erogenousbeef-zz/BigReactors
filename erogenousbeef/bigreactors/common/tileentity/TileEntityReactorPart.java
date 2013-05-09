@@ -34,17 +34,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	public MultiblockReactor getReactorController() { return (MultiblockReactor)this.getMultiblockController(); }
 	
-	// Oh god this is a terrible hack
-	@Override
-	public void updateContainingBlockInfo() {
-		super.updateContainingBlockInfo();
-		
-		if(this.worldObj.isRemote && !isConnected()) {
-			// onBlockAdded is not normally called on clients
-			onBlockAdded(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
-		}
-	}
-	
 	@Override
 	public boolean canUpdate() { return false; }
 
@@ -190,10 +179,9 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// TODO: Fix this. Communication with the controller should...
 	public void onNetworkPacket(int packetType, DataInputStream data) {
 		if(!this.isConnected()) {
-			// TODO: Log this.
 			return;
 		}
-		
+
 		/// Client->Server packets
 		
 		if(packetType == Packets.ReactorControllerButton) {
@@ -303,4 +291,30 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		}
 		return null;
 	}
+
+	// Only refresh if we're switching functionality
+	// Warning: dragonz!
+	@Override
+    public boolean shouldRefresh(int oldID, int newID, int oldMeta, int newMeta, World world, int x, int y, int z)
+    {
+		if(oldID != newID) {
+			return true;
+		}
+		if(BlockReactorPart.isCasing(oldMeta) && BlockReactorPart.isCasing(newMeta)) {
+			return false;
+		}
+		if(BlockReactorPart.isAccessPort(oldMeta) && BlockReactorPart.isAccessPort(newMeta)) {
+			return false;
+		}
+		if(BlockReactorPart.isController(oldMeta) && BlockReactorPart.isController(newMeta)) {
+			return false;
+		}
+		if(BlockReactorPart.isControlRod(oldMeta) && BlockReactorPart.isControlRod(newMeta)) {
+			return false;
+		}
+		if(BlockReactorPart.isPowerTap(oldMeta) && BlockReactorPart.isPowerTap(newMeta)) {
+			return false;
+		}
+		return true;
+    }
 }

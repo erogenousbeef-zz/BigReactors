@@ -207,7 +207,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				LiquidStack fuelToDistribute = LiquidDictionary.getLiquid("yellorium", fuelIngotsConsumed * 1000);
 				int wasteToConsume = 0;
 				if(wasteToDistribute != null) {
-					wasteToConsume = (wasteAmt/1000) - wasteToDistribute.stackSize;
+					wasteToConsume = ((wasteAmt/1000) - wasteToDistribute.stackSize) * 1000;
 				}
 				
 				for(CoordTriplet coord : attachedControlRods) {
@@ -221,14 +221,14 @@ public class MultiblockReactor extends MultiblockControllerBase {
 						fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
 						
 						if(wasteToConsume > 0) {
-							LiquidStack drained = fuelRod.drain(1, wasteToConsume, true);
+							LiquidStack drained = fuelRod.drain(TileEntityFuelRod.wasteTankIndex, wasteToConsume, true);
 							if(drained != null) {
 								wasteToConsume -= drained.amount;
 							}
 						}
 						
 						if(fuelToDistribute.amount > 0) {
-							fuelRod.fill(0, fuelToDistribute, true);
+							fuelRod.fill(TileEntityFuelRod.fuelTankIndex, fuelToDistribute, true);
 						}
 						
 						// Move down a block
