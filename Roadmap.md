@@ -42,15 +42,14 @@ TODO - Pre-Alpha
 - (DONE/UNTESTED) Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 ### Add in initial crafting recipes for reactor parts
-- Add graphite ingots (coal & cobble, unshaped recipe)
-- Add graphite dust if a mod with grinders is detected
-- Basic reactor plating
-- Reactor core
-- Fuel rod
-- Control rod
-- Power tap
-- Fuel access port
-- Rename "Depleted Yellorium" to "Blutonium" or something cute.
+- (DONE) Add graphite ingots (coal & cobble, unshaped recipe)
+- (DONE) Basic reactor plating
+- (DONE) Reactor core
+- (DONE) Fuel rod
+- (DONE) Control rod
+- (DONE) Power tap
+- (DONE) Fuel access port
+- (DONE) Rename "Depleted Yellorium" to "Cyanite"
 - (DONE) Create reactor glass blocks so people can see inside
 
 - Take a stab at balancing power production
@@ -61,6 +60,7 @@ TODO - Alpha
 - Make halfway-decent UIs with better visualizations than just text
 - Actually try to balance power production
 - Make glass have a border when disassembled, no border when assembled
+- Add graphite dust if a mod with grinders is detected
 
 ### Refactor fuel rods
 - Make them a pseudo-multiblock controlled/rendered by the control rod
@@ -74,9 +74,8 @@ TODO - Alpha
 - Signal emitter if temperature gets above/below a certain level
 
 ### Basic fuel cycle
-- "Enricher" or some way to recycle depleted yellorium
-- "Dump" or "incinerator" or some way of destroying depleted yellorium
- - Maybe just let people use void pipes or something?
+- "Enricher" or some way to recycle cyanite into blutonium
+- Way to use blutonium as fuel, with different reactivity than yellorium
 
 TODO - Beta
 -----------

@@ -32,7 +32,7 @@ public class BlockBRGenericLiquid extends Block implements ILiquid, IReactorFuel
 		if(blockID == BigReactors.liquidYelloriumStill.blockID) {
 			return 12;
 		}
-		else if(blockID == BigReactors.liquidDepletedYelloriumStill.blockID) {
+		else if(blockID == BigReactors.liquidCyaniteStill.blockID) {
 			return 4;
 		}
 		else if(blockID == BigReactors.liquidFuelColumnStill.blockID) {
@@ -81,7 +81,7 @@ public class BlockBRGenericLiquid extends Block implements ILiquid, IReactorFuel
 		if(blockID == BigReactors.liquidYelloriumStill.blockID) {
 			return BigReactors.defaultLiquidColorFuel;
 		}
-		else if(blockID == BigReactors.liquidDepletedYelloriumStill.blockID) {
+		else if(blockID == BigReactors.liquidCyaniteStill.blockID) {
 			return BigReactors.defaultLiquidColorWaste;
 		}
 		else {
@@ -94,8 +94,8 @@ public class BlockBRGenericLiquid extends Block implements ILiquid, IReactorFuel
 		if(blockID == BigReactors.liquidYelloriumStill.blockID) {
 			return BigReactors.liquidYellorium;
 		}
-		else if(blockID == BigReactors.liquidDepletedYelloriumStill.blockID) {
-			return BigReactors.liquidDepletedYellorium;
+		else if(blockID == BigReactors.liquidCyaniteStill.blockID) {
+			return BigReactors.liquidCyanite;
 		}
 		else {
 			return null;
@@ -105,10 +105,10 @@ public class BlockBRGenericLiquid extends Block implements ILiquid, IReactorFuel
 	@Override
 	public ItemStack getReferenceItemStack() {
 		if(blockID == BigReactors.liquidYelloriumStill.blockID) {
-			return new ItemStack(BigReactors.ingotYellorium, 1, 0);
+			return new ItemStack(BigReactors.ingotGeneric, 1, 0);
 		}
-		else if(blockID == BigReactors.liquidDepletedYelloriumStill.blockID) {
-			return new ItemStack(BigReactors.ingotYellorium, 1, 1);
+		else if(blockID == BigReactors.liquidCyaniteStill.blockID) {
+			return new ItemStack(BigReactors.ingotGeneric, 1, 1);
 		}
 		else {
 			return null;
