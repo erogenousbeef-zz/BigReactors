@@ -87,7 +87,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		}
 		
 		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()));
-		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getActiveFuelRodCount()));
+		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
 		powerUsageString.setLabelText("Power Exported: 0mj");
 	}
 	

@@ -21,8 +21,6 @@ public class ClientPacketHandler implements IPacketHandler {
 		DataInputStream data = new DataInputStream(new ByteArrayInputStream(packet.data));
 		int packetType = PacketWrapper.readPacketID(data);
 		
-		System.out.println(String.format("ClientPacketHandler::onPacketData - type %d", packetType));
-
 		switch(packetType) {
 		case Packets.ReactorControllerFullUpdate:
 		case Packets.ReactorControllerTickUpdate:
@@ -32,7 +30,6 @@ public class ClientPacketHandler implements IPacketHandler {
 				y = data.readInt();
 				z = data.readInt();
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-				System.out.println("ServerPacketHandler::onPacketData::ReactorControllerButton");
 				if(te != null & te instanceof TileEntityReactorPart) {
 					((TileEntityReactorPart)te).onNetworkPacket(packetType, data);
 				}

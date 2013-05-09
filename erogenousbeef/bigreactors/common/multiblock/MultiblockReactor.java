@@ -1,18 +1,24 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.liquids.LiquidDictionary;
+import net.minecraftforge.liquids.LiquidStack;
 
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
@@ -27,9 +33,10 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	private double latentHeat;
 	private LinkedList<CoordTriplet> activePowerTaps;
 	// Highest internal Y-coordinate in the fuel column
-	private LinkedList<CoordTriplet> activeFuelColumns;
-	
-	
+	private LinkedList<CoordTriplet> attachedControlRods;
+	private LinkedList<CoordTriplet> attachedAccessPorts;
+	private LinkedList<CoordTriplet> attachedControllers;
+
 	public MultiblockReactor(World world) {
 		super(world);
 
@@ -37,7 +44,50 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		active = false;
 		latentHeat = 0.0;
 		activePowerTaps = new LinkedList<CoordTriplet>();
-		activeFuelColumns = new LinkedList<CoordTriplet>();
+		attachedControlRods = new LinkedList<CoordTriplet>();
+		attachedAccessPorts = new LinkedList<CoordTriplet>();
+		attachedControllers = new LinkedList<CoordTriplet>();
+	}
+	
+	@Override
+	protected void onBlockAdded(IMultiblockPart part) {
+		if(part instanceof TileEntityReactorAccessPort) {
+			CoordTriplet coord = part.getWorldLocation();
+			if(!attachedAccessPorts.contains(coord)) {
+				attachedAccessPorts.add(coord);
+			}
+		}
+		else if(part instanceof TileEntityReactorPart) {
+			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
+			CoordTriplet coord = part.getWorldLocation();
+			if(BlockReactorPart.isControlRod(metadata) && !attachedControlRods.contains(coord)) {
+				attachedControlRods.add(coord);
+			}
+			else if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
+				attachedControllers.add(coord);
+			}
+		}
+		
+	}
+	
+	@Override
+	protected void onBlockRemoved(IMultiblockPart part) {
+		if(part instanceof TileEntityReactorAccessPort) {
+			CoordTriplet coord = part.getWorldLocation();
+			if(attachedAccessPorts.contains(coord)) {
+				attachedAccessPorts.remove(coord);
+			}
+		}
+		else if(part instanceof TileEntityReactorPart) {
+			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
+			CoordTriplet coord = part.getWorldLocation();
+			if(BlockReactorPart.isControlRod(metadata) && attachedControlRods.contains(coord)) {
+				attachedControlRods.remove(coord);
+			}
+			else if(BlockReactorPart.isController(metadata) && attachedControllers.contains(coord)) {
+				attachedControllers.remove(coord);
+			}
+		}
 	}
 	
 	@Override
@@ -53,11 +103,16 @@ public class MultiblockReactor extends MultiblockControllerBase {
 
 	@Override
 	protected boolean isMachineWhole() {
-		boolean b = super.isMachineWhole();
+		// Ensure that there is at least one controller and control rod attached.
+		if(attachedControlRods.size() < 1) {
+			return false;
+		}
 		
-		// TODO: Ensure that there is at least one controller and control rod attached.
+		if(attachedControllers.size() < 1) {
+			return false;
+		}
 		
-		return b;
+		return super.isMachineWhole();
 	}
 	
 	@Override
@@ -65,23 +120,127 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		super.updateMultiblockEntity();
 		double oldHeat = this.getHeat();
 
-		// TODO: Eject Waste
-		
-		// TODO: Inject fuel
+		// How much waste do we have?
+		int wasteAmt = 0;
+		int freeFuelSpace = 0;
 
-		if(this.isActive()) {
-			// Run Radiation Sim, Produce Heatz
-			TileEntityFuelRod fuelRod;
-			for(CoordTriplet coord: activeFuelColumns) {
-				CoordTriplet c = coord.copy();
-				c.y = c.y - 1;
-				int blockType = worldObj.getBlockId(c.x, c.y, c.z);			
-				while(blockType == BigReactors.blockYelloriumFuelRod.blockID) {
-					fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
+		// Look for waste and run radiation simulation
+		TileEntityFuelRod fuelRod;
+		for(CoordTriplet coord : attachedControlRods) {
+			CoordTriplet c = coord.copy();
+			c.y = c.y - 1;
+			int blockType = worldObj.getBlockId(c.x, c.y, c.z);			
+			while(blockType == BigReactors.blockYelloriumFuelRod.blockID) {
+				// Do we have waste?
+				fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
+				if(fuelRod.hasWaste()) {
+					wasteAmt += fuelRod.getWaste().amount;
+				}
+				
+				freeFuelSpace += fuelRod.maxTotalLiquid - fuelRod.getTotalLiquid();
+				
+				// If we're active, radiate, produce heatz
+				if(this.isActive()) {
 					fuelRod.radiate();
 				}
+				
+				// Move down a block
+				c.y = c.y - 1;
+				blockType = worldObj.getBlockId(c.x, c.y, c.z);
+			}
+			
+		}
+		
+		// If we can, poop out waste and inject new fuel
+		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
+			
+			ItemStack wasteToDistribute = null;
+			if(wasteAmt >= 1000) {
+				wasteToDistribute = new ItemStack(BigReactors.ingotYellorium, wasteAmt/1000, 1);
 			}
 
+			int fuelIngotsToConsume = freeFuelSpace / 1000;
+			int fuelIngotsConsumed = 0;
+			
+			// Distribute waste, slurp in ingots.
+			for(CoordTriplet coord : attachedAccessPorts) {
+				if(fuelIngotsToConsume <= 0 && (wasteToDistribute == null || wasteToDistribute.stackSize <= 0)) {
+					break;
+				}
+
+				TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
+				
+				if(fuelStack != null) {
+					if(fuelStack.stackSize >= fuelIngotsToConsume) {
+						fuelStack.stackSize -= fuelIngotsToConsume;
+						fuelIngotsConsumed = fuelIngotsToConsume;
+						fuelIngotsToConsume = 0;
+					}
+					else {
+						fuelIngotsConsumed += fuelStack.stackSize;
+						fuelIngotsToConsume -= fuelStack.stackSize;
+						port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, null);
+					}
+				}
+
+				if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {
+					tryDistributeWaste(port, coord, wasteToDistribute, false);
+				}
+			}
+			
+			// If we have waste leftover and we have multiple ports, go back over them for the
+			// outlets.
+			if(wasteToDistribute != null && wasteToDistribute.stackSize > 0 && attachedAccessPorts.size() > 1) {
+				for(CoordTriplet coord : attachedAccessPorts) {
+					if(wasteToDistribute == null || wasteToDistribute.stackSize <= 0) {
+						break;
+					}
+
+					TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					tryDistributeWaste(port, coord, wasteToDistribute, true);
+				}
+			}
+			
+			// Okay... let's modify the fuel rods now
+			if((wasteToDistribute != null && wasteToDistribute.stackSize != wasteAmt / 1000) || fuelIngotsConsumed > 0) {
+				LiquidStack fuelToDistribute = LiquidDictionary.getLiquid("yellorium", fuelIngotsConsumed * 1000);
+				int wasteToConsume = 0;
+				if(wasteToDistribute != null) {
+					wasteToConsume = (wasteAmt/1000) - wasteToDistribute.stackSize;
+				}
+				
+				for(CoordTriplet coord : attachedControlRods) {
+					if(wasteToConsume <= 0 && fuelToDistribute.amount <= 0) { break; }
+					
+					CoordTriplet c = coord.copy();
+					c.y = c.y - 1;
+					int blockType = worldObj.getBlockId(c.x, c.y, c.z);			
+					while(blockType == BigReactors.blockYelloriumFuelRod.blockID) {
+						// Do we have waste?
+						fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
+						
+						if(wasteToConsume > 0) {
+							LiquidStack drained = fuelRod.drain(1, wasteToConsume, true);
+							if(drained != null) {
+								wasteToConsume -= drained.amount;
+							}
+						}
+						
+						if(fuelToDistribute.amount > 0) {
+							fuelRod.fill(0, fuelToDistribute, true);
+						}
+						
+						// Move down a block
+						c.y = c.y - 1;
+						blockType = worldObj.getBlockId(c.x, c.y, c.z);
+					}
+				}
+			}
+		}
+
+		if(this.isActive()) {
+			// TODO: Balance this.
 			// Produce energy from heat
 			int energyAvailable = getAvailableEnergy();
 			int energyRemaining = energyAvailable;
@@ -102,6 +261,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		latentHeat -= latentHeatLoss;
 		if(latentHeat < 0.0) { latentHeat = 0.0; }
 		
+		// TODO: Reduce the frequency of these calls? This is very spammy.
 		if(oldHeat != this.getHeat()) {
 			sendTickUpdate();
 		}
@@ -123,7 +283,6 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 	}
 
-	// TODO: Real versions of these
 	// Returns available energy based on reactor heat. 10energy = 1MJ
 	protected int getAvailableEnergy() { return (int)latentHeat; }
 
@@ -170,9 +329,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		latentHeat = newHeat;
 	}
 
-	public int getActiveFuelRodCount() {
-		// TODO: Make this the number of columns that actually have fuel
-		return activeFuelColumns.size();
+	public int getFuelColumnCount() {
+		return attachedControlRods.size();
 	}
 
 
@@ -185,9 +343,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			return true;
 		}
 		else if(world.getBlockId(x, y, z) == BigReactors.blockYelloriumFuelRod.blockID) {
-			// TODO: Make this a reactor part like any other?
 			// Ensure that the block above is either a fuel rod or a control rod
-			
 			int blockTypeAbove = world.getBlockId(x, y+1, z);
 			int blockMetaAbove = world.getBlockMetadata(x,  y+1, z);
 			if(blockTypeAbove != BigReactors.blockYelloriumFuelRod.blockID &&
@@ -248,7 +404,6 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	/**
 	 * Sends a full state update to all connected players.
 	 * Use this sparingly.
-	 * TODO: Make this only broadcast to nearby players?
 	 */
 	protected void sendFullUpdate() {
 		if(this.worldObj.isRemote) { return; }
@@ -284,7 +439,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		if(this.worldObj.isRemote) { return; }
 		
 		Packet data = PacketWrapper.createPacket(BigReactors.CHANNEL,
-				 Packets.ReactorControllerFullUpdate,
+				 Packets.ReactorControllerTickUpdate,
 				 new Object[] { referenceCoord.x,
 								referenceCoord.y,
 								referenceCoord.z,
@@ -303,5 +458,38 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		midZ = min.z + sizeZ;
 		
 		PacketDispatcher.sendPacketToAllAround(midX, midY, midZ, 64, worldObj.provider.dimensionId, data);
+	}
+	
+	private void tryDistributeWaste(TileEntityReactorAccessPort port, CoordTriplet coord, ItemStack wasteToDistribute, boolean distributeToInputs) {
+		ItemStack wasteStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
+		int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
+
+		if(metadata == BlockReactorPart.ACCESSPORT_OUTLET || (distributeToInputs || attachedAccessPorts.size() < 2)) {
+			// Dump waste preferentially to outlets, unless we only have one access port
+			if(wasteStack == null) {
+				if(wasteToDistribute.stackSize > port.getInventoryStackLimit()) {
+					ItemStack newStack = wasteToDistribute.splitStack(port.getInventoryStackLimit());
+					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, newStack);
+				}
+				else {
+					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, wasteToDistribute);
+					wasteToDistribute.stackSize = 0;
+				}
+			}
+			else {
+				ItemStack existingStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
+				if(existingStack.isItemEqual(wasteToDistribute)) {
+					if(existingStack.stackSize + wasteToDistribute.stackSize <= existingStack.getMaxStackSize()) {
+						existingStack.stackSize += wasteToDistribute.stackSize;
+						wasteToDistribute.stackSize = 0;
+					}
+					else {
+						int amt = existingStack.getMaxStackSize() - existingStack.stackSize;
+						wasteToDistribute.stackSize -= existingStack.getMaxStackSize() - existingStack.stackSize;
+						existingStack.stackSize += amt;
+					}
+				}
+			}
+		}
 	}
 }

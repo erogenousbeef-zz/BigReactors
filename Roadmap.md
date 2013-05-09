@@ -13,6 +13,8 @@ Known Bugs
 - (CRITICAL) Client-side reactors do not recognize assembly properly when being loaded
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
+- Reactor glass does not generate reactor heat because it doesn't implement the right interface
+- Heat does not appear in reactor UI properly for some reason
 
 TODO - Pre-Alpha
 ----------------
@@ -32,12 +34,12 @@ TODO - Pre-Alpha
 
 ### Fuel access port block
 - (DONE) Create fuel access port block
- - Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
- - Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
+ - (DONE) Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
+ - (DONE) Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
 - (DONE) Create UI for access port block
 - (DONE) Configuration: User can choose which inventory slot is externally-addressible
  - (DONE) This provides LogiPipes/AE/BC pipe compatibility
-- (PARTIAL) Add auto-emit, like MFR's machines, so BC pipes don't need power
+- (DONE/UNTESTED) Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 ### Add in initial crafting recipes for reactor parts
 - Add graphite ingots (coal & cobble, unshaped recipe)
