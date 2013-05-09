@@ -253,11 +253,13 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				}
 			}
 			
-			produceEnergy(energyAvailable - energyRemaining);		
+			if(energyAvailable != energyRemaining) {
+				produceEnergy(energyAvailable - energyRemaining);		
+			}
 		}
 
 		// leak 1% of heat to the environment
-		double latentHeatLoss = Math.max(2.0, this.latentHeat * 0.99);
+		double latentHeatLoss = Math.max(1.0, this.latentHeat * 0.01);
 		latentHeat -= latentHeatLoss;
 		if(latentHeat < 0.0) { latentHeat = 0.0; }
 		
@@ -284,7 +286,10 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	}
 
 	// Returns available energy based on reactor heat. 10energy = 1MJ
-	protected int getAvailableEnergy() { return (int)latentHeat; }
+	// Retains 0.5MJ to "run" the system and let cool reactors get off the ground
+	protected int getAvailableEnergy() {
+		return Math.max((int)latentHeat-50, 0);
+	}
 
 	protected void produceEnergy(int amountProduced) {
 		latentHeat -= (double)amountProduced;

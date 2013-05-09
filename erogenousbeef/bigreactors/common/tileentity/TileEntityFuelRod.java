@@ -272,8 +272,8 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		int wasteAmt = 0;
 		if(fuel != null && fuel.amount > 0) {
 			fuelAmt = fuel.amount;
-			fastNeutrons += lerp(5,10, fuelAmt/maxTotalLiquid);
-			slowNeutrons += lerp(2, 5, fuelAmt/maxTotalLiquid);
+			fastNeutrons += lerp(10,20, fuelAmt/maxTotalLiquid);
+			slowNeutrons += lerp(5, 10, fuelAmt/maxTotalLiquid);
 			heatGenerated += fuel.amount / 100; // 1 heat per 100mB
 
 			// Deal with fuel usage, 0..1 scale
@@ -305,12 +305,13 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		}
 		if(waste != null) {
 			heatGenerated += waste.amount / 1000; // 1 heat per bucket
-			fastNeutrons += lerp(1,2, wasteAmt/maxTotalLiquid);
+			fastNeutrons += lerp(1,4, wasteAmt/maxTotalLiquid);
 			wasteAmt = waste.amount;
 		}
 		
-		fastNeutrons = (int) ((double)fastNeutrons * radMultiplier * 4*(wasteAmt+fuelAmt / (double)maxTotalLiquid));
-		slowNeutrons = (int) ((double)slowNeutrons * radMultiplier * 4*(wasteAmt+fuelAmt / (double)maxTotalLiquid));
+		// TODO: Balance the shit out of this.
+		//fastNeutrons = (int) ((double)fastNeutrons * radMultiplier * 4*(wasteAmt+fuelAmt / (double)maxTotalLiquid));
+		//slowNeutrons = (int) ((double)slowNeutrons * radMultiplier * 4*(wasteAmt+fuelAmt / (double)maxTotalLiquid));
 
 		
 		// Now propagate radiation
