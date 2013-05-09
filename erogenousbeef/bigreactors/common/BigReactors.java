@@ -154,6 +154,12 @@ public class BigReactors {
 				GameRegistry.addRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', singleReactorCasing.getItem(), 'V', Block.chest, 'P', Block.pistonBase });
 			}
 			
+			if(blockReactorGlass != null) {
+				ItemStack singleReactorCasing = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack();
+				
+				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
+				GameRegistry.addRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', singleReactorCasing.getItem() } );
+			}
 			
 			/* TODO: Fixme
 			if(blockRadiothermalGen != null) {

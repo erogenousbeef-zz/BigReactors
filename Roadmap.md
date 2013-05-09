@@ -12,45 +12,13 @@ Known Bugs
 ----------
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
-- Reactor glass does not generate reactor heat because it doesn't implement the right interface
+- Tick Handler ticks 10x as fast as a normal TileEntity. Fix this with an IScheduledTickHandler.
 
 TODO - Pre-Alpha
 ----------------
-- (DONE) Split project into BeefCore and BigReactors
-- (DONE) Finish initial multiblock library in BeefCore
-- (DONE) Conflict resolution for colliding multiblock machines
-- (DONE) Test difficult-to-detect errors, such as multiblock fusion/mitosis
-- (DONE) Port BigReactors to BeefCore, fix bugs
 
-### Fix NBT save/load for MultiblockReactor objects
-- (DONE) Implement save/load on MultiblockReactor class
- - (DONE) Save/load user configuration ("active" state)
- - (DONE) Save/load game state (heat)
-
-### Fix network communication for MultiblockReactor objects
-- (DONE) Send updates properly through the network delegate
-
-### Fuel access port block
-- (DONE) Create fuel access port block
- - (DONE) Yellorium ingots in the "intake" section are automatically consumed into the reactor to refill fuel rods
- - (DONE) Depleted Yellorium is spat out as an ingot when there's a full ingot's worth in the fuel rods
-- (DONE) Create UI for access port block
-- (DONE) Configuration: User can choose which inventory slot is externally-addressible
- - (DONE) This provides LogiPipes/AE/BC pipe compatibility
-- (DONE/UNTESTED) Add auto-emit, like MFR's machines, so BC pipes don't need power
-
-### Add in initial crafting recipes for reactor parts
-- (DONE) Add graphite ingots (coal & cobble, unshaped recipe)
-- (DONE) Basic reactor plating
-- (DONE) Reactor core
-- (DONE) Fuel rod
-- (DONE) Control rod
-- (DONE) Power tap
-- (DONE) Fuel access port
-- (DONE) Rename "Depleted Yellorium" to "Cyanite"
-- (DONE) Create reactor glass blocks so people can see inside
-
-- Take a stab at balancing power production
+- (SORTA DONE) Take a stab at balancing power production
+- Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 TODO - Alpha
 ------------
