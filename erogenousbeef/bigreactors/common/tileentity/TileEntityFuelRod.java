@@ -25,6 +25,7 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 	
 	public final static int fuelTankIndex = 0;
 	public final static int wasteTankIndex = 1;
+	public final static int numTanks = 2;
 	
 	// 1 ingot = 1 bucket
 	protected LiquidTank fuelTank = new LiquidTank(maxTotalLiquid);
@@ -156,23 +157,80 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 	
 	@Override
 	public int fill(ForgeDirection from, LiquidStack resource, boolean doFill) {
-		// TODO Auto-generated method stub
+		// TODO: This.
 		return 0;
 	}
 
 	@Override
 	public int fill(int tankIndex, LiquidStack resource, boolean doFill) {
+		if(tankIndex < 0 || tankIndex > numTanks) { return 0; }
+		if(resource == null) { return 0; }
+		
+		LiquidTank tank = fuelTank;
+		if(tankIndex == wasteTankIndex) {
+			tank = wasteTank;
+		}
+		
+		if(tank.getLiquid() == null) {
+			if(doFill) {
+				tank.setLiquid(resource.copy());
+				tank.getLiquid().amount = Math.min(tank.getLiquid().amount, tank.getCapacity());
+				resource.amount -= tank.getLiquid().amount;
+				return tank.getLiquid().amount;
+			}
+			else {
+				return Math.min(resource.amount, tank.getCapacity());
+			}
+		}
+		else if(tank.getLiquid().isLiquidEqual(resource)) {
+			int amt = Math.min(resource.amount, tank.getCapacity() - tank.getLiquid().amount);
+			if(doFill) {
+				tank.getLiquid().amount += amt;
+				resource.amount -= amt;
+			}
+			return amt;
+		}
+		
 		return 0;
 	}
 
 	@Override
 	public LiquidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
+		// TODO: This.
 		return null;
 	}
 
 	@Override
 	public LiquidStack drain(int tankIndex, int maxDrain, boolean doDrain) {
-		return null;
+		if(tankIndex < 0 || tankIndex > numTanks) { return null; }
+		
+		LiquidTank tank = fuelTank;
+		if(tankIndex == wasteTankIndex) {
+			tank = wasteTank;
+		}
+		
+		if(tank.getLiquid() == null) {
+			return null;
+		}
+		
+		if(maxDrain >= tank.getLiquid().amount) {
+			LiquidStack ret;
+			if(doDrain) {
+				ret = tank.getLiquid();
+				tank.setLiquid(null);
+			}
+			else {
+				ret = tank.getLiquid().copy();
+			}
+			return ret;
+		} else {
+			LiquidStack ret = tank.getLiquid().copy();
+			ret.amount = maxDrain;
+			if(doDrain) {
+				tank.getLiquid().amount -= ret.amount;
+			}
+			return ret;
+		}
 	}
 
 	@Override
@@ -350,4 +408,9 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		radiation.setSlowRadiation((int) ((double)radiation.getSlowRadiation() / 2.0));
 		radiation.setFastRadiation((int) ((double)radiation.getFastRadiation() / 1.1));
 	}
+
+	public boolean hasWaste() {
+		return wasteTank.containsValidLiquid() && wasteTank.getLiquid() != null && wasteTank.getLiquid().amount > 0;
+	}
+	
 }

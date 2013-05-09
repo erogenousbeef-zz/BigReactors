@@ -27,9 +27,9 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	protected ItemStack[] _inventories;
 	
-	protected static final int SLOT_INLET = 0;
-	protected static final int SLOT_OUTLET = 1;
-	protected static final int NUM_SLOTS = 2;
+	public static final int SLOT_INLET = 0;
+	public static final int SLOT_OUTLET = 1;
+	public static final int NUM_SLOTS = 2;
 	
 	public TileEntityReactorAccessPort() {
 		super();
