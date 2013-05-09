@@ -10,11 +10,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Known Bugs
 ----------
-- (CRITICAL) Client-side reactors do not recognize assembly properly when being loaded
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
 - Reactor glass does not generate reactor heat because it doesn't implement the right interface
-- Heat does not appear in reactor UI properly for some reason
 
 TODO - Pre-Alpha
 ----------------
