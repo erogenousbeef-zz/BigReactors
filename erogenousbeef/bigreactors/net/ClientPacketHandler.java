@@ -34,7 +34,7 @@ public class ClientPacketHandler implements IPacketHandler {
 					((TileEntityReactorPart)te).onNetworkPacket(packetType, data);
 				}
 				else {
-					throw new IOException("Invalid TileEntity for receipt of ReactorControllerButton packet");
+					throw new IOException("Invalid TileEntity for receipt of TickUpdate packet");
 				}
 
 			} catch (IOException e) {
