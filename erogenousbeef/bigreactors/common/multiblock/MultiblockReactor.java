@@ -497,4 +497,12 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			}
 		}
 	}
+
+	@Override
+	protected void onMachineMerge(MultiblockControllerBase otherMachine) {
+		this.activePowerTaps.clear();
+		this.attachedAccessPorts.clear();
+		this.attachedControllers.clear();
+		this.attachedControlRods.clear();
+	}
 }
