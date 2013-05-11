@@ -14,10 +14,12 @@ Known Bugs
 - Reactor glass breaks instead of dropping a block
 - Tick Handler ticks 10x as fast as a normal TileEntity. Fix this with an IScheduledTickHandler.
 
+The tick handler thing requires some more research. I'm not 100% sure how often tile entity update loops are ticked. Either way, the current rate seems way too fast and is probably very spammy on the network.
+
 TODO - Pre-Alpha
 ----------------
 
-- (SORTA DONE) Take a stab at balancing power production
+- Segregate radiation and heat leakage from fuel rods, so fuel rods cool off even when inactive
 - Add auto-emit, like MFR's machines, so BC pipes don't need power
 
 TODO - Alpha
