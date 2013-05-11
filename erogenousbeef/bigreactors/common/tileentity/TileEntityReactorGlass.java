@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
 import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.api.IRadiationPacket;
+import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
@@ -55,15 +55,14 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	}
 
 	@Override
-	public void receivePulse(IRadiationPacket radiation) {
+	public int receivePulse(IRadiationPulse radiation) {
+		int newCasingHeat = 0;
 		if(this.isConnected()) {
-			double newCasingHeat = radiation.getSlowRadiation();
+			newCasingHeat = radiation.getSlowRadiation();
 			radiation.setSlowRadiation(0);
 			radiation.setFastRadiation(0);
-			
-			// This is a bad assumption.
-			// TODO: Fixme when I make a second multiblock machine.
-			((MultiblockReactor)getMultiblockController()).addLatentHeat(newCasingHeat);
 		}
+		
+		return newCasingHeat;
 	}
 }

@@ -5,7 +5,7 @@ import java.io.DataInputStream;
 import com.google.common.io.ByteArrayDataInput;
 
 import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.api.IRadiationPacket;
+import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -38,14 +38,15 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	public boolean canUpdate() { return false; }
 
 	@Override
-	public void receivePulse(IRadiationPacket radiation) {
+	public int receivePulse(IRadiationPulse radiation) {
+		int newCasingHeat = 0;
 		if(this.isConnected()) {
-			double newCasingHeat = radiation.getSlowRadiation();
+			newCasingHeat = radiation.getSlowRadiation();
 			radiation.setSlowRadiation(0);
 			radiation.setFastRadiation(0);
-			
-			getReactorController().addLatentHeat(newCasingHeat);
 		}
+		
+		return newCasingHeat;
 	}
 
 	@Override
@@ -317,4 +318,10 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		}
 		return true;
     }
+
+	public void addHeat(int heatProduced) {
+		if(isConnected()) {
+			getReactorController().addLatentHeat(heatProduced);
+		}
+	}
 }
