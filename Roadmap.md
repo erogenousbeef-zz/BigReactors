@@ -21,6 +21,7 @@ TODO - Pre-Alpha
 
 - Segregate radiation and heat leakage from fuel rods, so fuel rods cool off even when inactive
 - Add auto-emit, like MFR's machines, so BC pipes don't need power
+- Fix network communication. Only send network update packets when needed: clients with UI open.
 
 TODO - Alpha
 ------------
