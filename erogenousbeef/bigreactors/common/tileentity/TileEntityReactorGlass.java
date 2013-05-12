@@ -1,12 +1,14 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import erogenousbeef.bigreactors.api.HeatPulse;
+import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 
-public class TileEntityReactorGlass extends MultiblockTileEntityBase implements IRadiationModerator {
+public class TileEntityReactorGlass extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
 	@Override
 	public MultiblockControllerBase getNewMultiblockControllerObject() {
@@ -55,14 +57,55 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	}
 
 	@Override
-	public int receivePulse(IRadiationPulse radiation) {
-		int newCasingHeat = 0;
-		if(this.isConnected()) {
-			newCasingHeat = radiation.getSlowRadiation();
-			radiation.setSlowRadiation(0);
-			radiation.setFastRadiation(0);
-		}
+	public void receiveRadiationPulse(IRadiationPulse radiation) {
+		double newHeat = radiation.getSlowRadiation() * 0.75;
 		
-		return newCasingHeat;
+		// Convert 10% of newly-gained heat to energy (thermocouple or something)
+		radiation.addPower((int)(newHeat*0.1));
+		newHeat *= 0.9;
+		radiation.changeHeat(newHeat);
+		
+		// Slow radiation is all lost now
+		radiation.setSlowRadiation(0);
+		
+		// And zero out the TTL so evaluation force-stops
+		radiation.setTimeToLive(0);
+	}
+
+	@Override
+	public double getHeat() {
+		if(this.isConnected()) {
+			return ((MultiblockReactor)getMultiblockController()).getHeat();
+		}
+		return 0;
+	}
+
+	@Override
+	public double getThermalConductivity() {
+		// Using iron so there's no disadvantage to reactor glass.
+		return IHeatEntity.conductivityIron;
+	}
+
+	@Override
+	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces) {
+		double deltaTemp = source.getHeat() - getHeat();
+		
+		// If the source is cooler than the reactor, then do nothing
+		if(deltaTemp <= 0.0) {
+			return 0.0;
+		}
+
+		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces);
+
+		pulse.powerProduced += (int)(heatToAbsorb*0.1);
+		pulse.heatChange += heatToAbsorb * 0.9;
+		
+		return heatToAbsorb;
+	}
+
+	@Override
+	public HeatPulse onRadiateHeat(double ambientHeat) {
+		// Ignore, glass doesn't re-radiate heat
+		return null;
 	}
 }

@@ -17,13 +17,6 @@ TODO - Pre-Alpha
 ----------------
 
 - Add auto-emit, like MFR's machines, so BC pipes don't need power
-- Change interaction between heat, cooling and power.
-  Small direct production of power from heat in rods
-  Cooling blocks reduce heat, some of heat reduced is converted to power
-  Have fuel rods transfer their heat to neighbors instead of directly to the reactor
-  Add small internal power buffer (1kmj or something)
-  Change radiation packets so they contain heat produced & power produced variables
-  Excess power production is lost
 
 TODO - Alpha
 ------------

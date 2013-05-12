@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 
 import com.google.common.io.ByteArrayDataInput;
 
+import erogenousbeef.bigreactors.api.HeatPulse;
+import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
@@ -25,8 +27,9 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 
-public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart {
+public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity {
 
 	public TileEntityReactorPart() {
 		super();
@@ -38,15 +41,19 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	public boolean canUpdate() { return false; }
 
 	@Override
-	public int receivePulse(IRadiationPulse radiation) {
-		int newCasingHeat = 0;
-		if(this.isConnected()) {
-			newCasingHeat = radiation.getSlowRadiation();
-			radiation.setSlowRadiation(0);
-			radiation.setFastRadiation(0);
-		}
+	public void receiveRadiationPulse(IRadiationPulse radiation) {
+		double newHeat = radiation.getSlowRadiation() * 0.75;
 		
-		return newCasingHeat;
+		// Convert 10% of newly-gained heat to energy (thermocouple or something)
+		radiation.addPower((int)(newHeat*0.1));
+		newHeat *= 0.9;
+		radiation.changeHeat(newHeat);
+		
+		// Slow radiation is all lost now
+		radiation.setSlowRadiation(0);
+		
+		// And zero out the TTL so evaluation force-stops
+		radiation.setTimeToLive(0);
 	}
 
 	@Override
@@ -199,21 +206,16 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {
-			Class decodeAs[] = { Boolean.class, Double.class };
+			Class decodeAs[] = { Boolean.class, Double.class, Integer.class };
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			boolean active = (Boolean) decodedData[0];
 			double heat = (Double) decodedData[1];
-			
+			int storedEnergy = (Integer) decodedData[2];
+
 			getReactorController().setActive(active);
 			getReactorController().setHeat(heat);
-		}
-		
-		if(packetType == Packets.ReactorControllerTickUpdate) {
-			Class decodeAs[] = { Double.class };
-			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
-			double heat = (Double) decodedData[0];
-			getReactorController().setHeat(heat);
-		}
+			getReactorController().setStoredEnergy(storedEnergy);
+		}		
 	}
 
 	@Override
@@ -323,5 +325,40 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		if(isConnected()) {
 			getReactorController().addLatentHeat(heatProduced);
 		}
+	}
+
+	// IHeatEntity
+	
+	@Override
+	public double getHeat() {
+		if(!this.isConnected()) { return 0; }
+		return getReactorController().getHeat();
+	}
+
+	@Override
+	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces) {
+		double deltaTemp = source.getHeat() - getHeat();
+		// If the source is cooler than the reactor, then do nothing
+		if(deltaTemp <= 0.0) {
+			return 0.0;
+		}
+
+		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces);
+
+		pulse.powerProduced += (int)(heatToAbsorb*0.1);
+		pulse.heatChange += heatToAbsorb * 0.9;
+
+		return heatToAbsorb;
+	}
+
+	@Override
+	public HeatPulse onRadiateHeat(double ambientHeat) {
+		// Ignore. Casing does not re-radiate heat on its own.
+		return null;
+	}
+
+	@Override
+	public double getThermalConductivity() {
+		return IHeatEntity.conductivityIron;
 	}
 }

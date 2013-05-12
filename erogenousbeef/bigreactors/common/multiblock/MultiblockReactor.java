@@ -18,6 +18,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 
+import erogenousbeef.bigreactors.api.HeatPulse;
+import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
@@ -35,6 +37,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	// Game stuff
 	protected boolean active;
 	private double latentHeat;
+	private int storedEnergy;	// Internal units
+	
 	private LinkedList<CoordTriplet> activePowerTaps;
 	// Highest internal Y-coordinate in the fuel column
 	private LinkedList<CoordTriplet> attachedControlRods;
@@ -44,6 +48,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
+	private static final int maxEnergyStored = 1000000;
 	
 	public MultiblockReactor(World world) {
 		super(world);
@@ -51,6 +56,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		// Game stuff
 		active = false;
 		latentHeat = 0.0;
+		storedEnergy = 0;
 		activePowerTaps = new LinkedList<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
@@ -146,6 +152,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		int freeFuelSpace = 0;
 		
 		double newHeat = 0.0;
+		IRadiationPulse radiationResult;
 
 		// Look for waste and run radiation simulation
 		TileEntityFuelRod fuelRod;
@@ -164,11 +171,15 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				
 				// If we're active, radiate, produce heatz
 				if(this.isActive()) {
-					newHeat += fuelRod.radiate();
+					radiationResult = fuelRod.radiate();
+					this.addStoredEnergy(radiationResult.getPowerProduced());
+					newHeat += radiationResult.getHeatProduced();
 				}
 				
 				// Active or not, leak internal heat into the reactor itself
-				newHeat += fuelRod.leakHeat();
+				HeatPulse heatPulse = fuelRod.onRadiateHeat(getHeat());
+				newHeat += heatPulse.heatChange;
+				this.addStoredEnergy(heatPulse.powerProduced);
 				
 				// Move down a block
 				c.y = c.y - 1;
@@ -176,6 +187,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			}
 		}
 		
+		// Now apply delta-heat
 		latentHeat += newHeat;
 		
 		// If we can, poop out waste and inject new fuel
@@ -317,16 +329,14 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 	}
 
-	// Returns available energy based on reactor heat. 10energy = 1MJ
-	// Retains 0.5MJ to "run" the system and let cool reactors get off the ground
 	protected int getAvailableEnergy() {
-		return Math.max((int)latentHeat-50, 0);
+		return storedEnergy;
 	}
 
 	protected void produceEnergy(int amountProduced) {
-		latentHeat -= (double)amountProduced;
-		if(latentHeat < 0) {
-			latentHeat = 0;
+		storedEnergy -= amountProduced;
+		if(storedEnergy < 0) {
+			storedEnergy = 0;
 		}
 	}
 	
@@ -410,12 +420,14 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	public void writeToNBT(NBTTagCompound data) {
 		data.setBoolean("reactorActive", this.active);
 		data.setDouble("heat", this.latentHeat);
+		data.setInteger("storedEnergy", this.storedEnergy);
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
-		data.getBoolean("reactorActive");
-		data.getDouble("heat");
+		this.active = data.getBoolean("reactorActive");
+		this.latentHeat = data.getDouble("heat");
+		this.storedEnergy = data.getInteger("storedEnergy");
 	}
 
 	@Override
@@ -426,14 +438,10 @@ public class MultiblockReactor extends MultiblockControllerBase {
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
-		data.setBoolean("reactorActive", this.active);
-		data.setDouble("heat", this.latentHeat);
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
-		data.getBoolean("reactorActive");
-		data.getDouble("heat");
 	}
 
 	protected Packet getUpdatePacket() {
@@ -443,7 +451,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 								referenceCoord.y,
 								referenceCoord.z,
 								this.active,
-								this.latentHeat});
+								this.latentHeat,
+								this.storedEnergy});
 	}
 	
 	/**
@@ -508,5 +517,14 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
+	}
+
+	public void setStoredEnergy(int newEnergy) {
+		storedEnergy = newEnergy;
+	}
+	
+	public void addStoredEnergy(int newEnergy) {
+		storedEnergy += newEnergy;
+		if(storedEnergy < maxEnergyStored) { storedEnergy = maxEnergyStored; }
 	}
 }
