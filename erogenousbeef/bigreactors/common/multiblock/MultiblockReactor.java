@@ -1,11 +1,15 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
@@ -37,6 +41,10 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	private LinkedList<CoordTriplet> attachedAccessPorts;
 	private LinkedList<CoordTriplet> attachedControllers;
 
+	private Set<EntityPlayer> updatePlayers;
+	private int ticksSinceLastUpdate;
+	private static final int ticksBetweenUpdates = 3;
+	
 	public MultiblockReactor(World world) {
 		super(world);
 
@@ -47,6 +55,19 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
 		attachedControllers = new LinkedList<CoordTriplet>();
+		
+		updatePlayers = new HashSet<EntityPlayer>();
+		
+		ticksSinceLastUpdate = 0;
+	}
+	
+	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
+		updatePlayers.add(playerToUpdate);
+		sendIndividualUpdate(playerToUpdate);
+	}
+	
+	public void stopUpdatingPlayer(EntityPlayer playerToRemove) {
+		updatePlayers.remove(playerToRemove);
 	}
 	
 	@Override
@@ -123,6 +144,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		// How much waste do we have?
 		int wasteAmt = 0;
 		int freeFuelSpace = 0;
+		
+		double newHeat = 0.0;
 
 		// Look for waste and run radiation simulation
 		TileEntityFuelRod fuelRod;
@@ -141,15 +164,19 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				
 				// If we're active, radiate, produce heatz
 				if(this.isActive()) {
-					fuelRod.radiate();
+					newHeat += fuelRod.radiate();
 				}
+				
+				// Active or not, leak internal heat into the reactor itself
+				newHeat += fuelRod.leakHeat();
 				
 				// Move down a block
 				c.y = c.y - 1;
 				blockType = worldObj.getBlockId(c.x, c.y, c.z);
 			}
-			
 		}
+		
+		latentHeat += newHeat;
 		
 		// If we can, poop out waste and inject new fuel
 		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
@@ -259,15 +286,20 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 
 		// leak 1% of heat to the environment
+		// TODO: Replace this with a better equation, so low heats leak less
+		// and high heats leak far more.
 		double latentHeatLoss = Math.max(1.0, this.latentHeat * 0.01);
 		latentHeat -= latentHeatLoss;
 		if(latentHeat < 0.0) { latentHeat = 0.0; }
-		
-		// TODO: Reduce the frequency of these calls? This is very spammy.
-		if(oldHeat != this.getHeat()) {
+
+		// Send updates periodically
+		ticksSinceLastUpdate++;
+		if(ticksSinceLastUpdate >= ticksBetweenUpdates) {
+			ticksSinceLastUpdate = 0;
 			sendTickUpdate();
 		}
-		// TODO: Overload?
+		
+		// TODO: Overload/overheat
 	}
 	
 	public void onPowerTapConnectionChanged(int x, int y, int z, int numConnections) {
@@ -322,8 +354,6 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			else {
 			}
 		}
-		
-		this.sendFullUpdate();
 	}
 
 	public double getHeat() {
@@ -406,63 +436,37 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		data.getDouble("heat");
 	}
 
-	/**
-	 * Sends a full state update to all connected players.
-	 * Use this sparingly.
-	 */
-	protected void sendFullUpdate() {
-		if(this.worldObj.isRemote) { return; }
-
-		Packet data = PacketWrapper.createPacket(BigReactors.CHANNEL,
-												 Packets.ReactorControllerFullUpdate,
-												 new Object[] { referenceCoord.x,
-																referenceCoord.y,
-																referenceCoord.z,
-																this.active,
-																this.latentHeat});
-
-		CoordTriplet min, max;
-		min = getMinimumCoord();
-		max = getMaximumCoord();
-		int midX, midY, midZ;
-		int sizeX, sizeY, sizeZ;
-		sizeX = (min.x - max.x) / 2;
-		sizeY = (min.y - max.y) / 2;
-		sizeZ = (min.z - max.z) / 2;
-		midX = min.x + sizeX;
-		midY = min.y + sizeY;
-		midZ = min.z + sizeZ;
-		
-		PacketDispatcher.sendPacketToAllAround(midX, midY, midZ, 64, worldObj.provider.dimensionId, data);
-	}
-	
-	/**
-	 * Send an update to any clients nearby
-	 * TODO: Make this broadcast only to players viewing the UI
-	 */
-	protected void sendTickUpdate() {
-		if(this.worldObj.isRemote) { return; }
-		
-		Packet data = PacketWrapper.createPacket(BigReactors.CHANNEL,
-				 Packets.ReactorControllerTickUpdate,
+	protected Packet getUpdatePacket() {
+		return PacketWrapper.createPacket(BigReactors.CHANNEL,
+				 Packets.ReactorControllerFullUpdate,
 				 new Object[] { referenceCoord.x,
 								referenceCoord.y,
 								referenceCoord.z,
+								this.active,
 								this.latentHeat});
+	}
+	
+	/**
+	 * Sends a full state update to a player.
+	 */
+	protected void sendIndividualUpdate(EntityPlayer player) {
+		if(this.worldObj.isRemote) { return; }
 
-		CoordTriplet min, max;
-		min = getMinimumCoord();
-		max = getMaximumCoord();
-		int midX, midY, midZ;
-		int sizeX, sizeY, sizeZ;
-		sizeX = (min.x - max.x) / 2;
-		sizeY = (min.y - max.y) / 2;
-		sizeZ = (min.z - max.z) / 2;
-		midX = min.x + sizeX;
-		midY = min.y + sizeY;
-		midZ = min.z + sizeZ;
+		PacketDispatcher.sendPacketToPlayer(getUpdatePacket(), (Player)player);
+	}
+	
+	/**
+	 * Send an update to any clients with GUIs open
+	 */
+	protected void sendTickUpdate() {
+		if(this.worldObj.isRemote) { return; }
+		if(this.updatePlayers.size() <= 0) { return; }
 		
-		PacketDispatcher.sendPacketToAllAround(midX, midY, midZ, 64, worldObj.provider.dimensionId, data);
+		Packet data = getUpdatePacket();
+
+		for(EntityPlayer player : updatePlayers) {
+			PacketDispatcher.sendPacketToPlayer(data, (Player)player);
+		}
 	}
 	
 	private void tryDistributeWaste(TileEntityReactorAccessPort port, CoordTriplet coord, ItemStack wasteToDistribute, boolean distributeToInputs) {

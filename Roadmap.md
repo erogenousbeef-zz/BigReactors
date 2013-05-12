@@ -12,16 +12,18 @@ Known Bugs
 ----------
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
-- Tick Handler ticks 10x as fast as a normal TileEntity. Fix this with an IScheduledTickHandler.
-
-The tick handler thing requires some more research. I'm not 100% sure how often tile entity update loops are ticked. Either way, the current rate seems way too fast and is probably very spammy on the network.
 
 TODO - Pre-Alpha
 ----------------
 
-- Segregate radiation and heat leakage from fuel rods, so fuel rods cool off even when inactive
 - Add auto-emit, like MFR's machines, so BC pipes don't need power
-- Fix network communication. Only send network update packets when needed: clients with UI open.
+- Change interaction between heat, cooling and power.
+  Small direct production of power from heat in rods
+  Cooling blocks reduce heat, some of heat reduced is converted to power
+  Have fuel rods transfer their heat to neighbors instead of directly to the reactor
+  Add small internal power buffer (1kmj or something)
+  Change radiation packets so they contain heat produced & power produced variables
+  Excess power production is lost
 
 TODO - Alpha
 ------------
@@ -46,6 +48,10 @@ TODO - Alpha
 - "Enricher" or some way to recycle cyanite into blutonium
 - Way to use blutonium as fuel, with different reactivity than yellorium
 
+### Proper Coolant System
+- Create cooling API, similar to the IRadiationModerator API
+- Use this for fuel rod heat transfer
+
 TODO - Beta
 -----------
 - Unshitty artwork.
@@ -57,6 +63,7 @@ TODO - Beta
 - Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
 - ComputerCraft integration!
 - Make better APIs/interfaces for extending the reactor
+- Add active cooling system
 
 Wishlist / Post-Release
 -----------------------
@@ -64,4 +71,3 @@ Wishlist / Post-Release
 - Expand fuel cycle
  - Add different types of fuels
  - Add different ways to refine/recycle fuels & wastes
-- Add coolant cells & coolant API

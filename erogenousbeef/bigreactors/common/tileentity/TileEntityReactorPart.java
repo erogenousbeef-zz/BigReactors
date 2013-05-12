@@ -275,7 +275,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
 		if(BlockReactorPart.isController(metadata)) {
-			return new ContainerReactorController(this);
+			return new ContainerReactorController(this, inventoryPlayer.player);
 		}
 		return null;
 	}
@@ -288,7 +288,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
 		if(BlockReactorPart.isController(metadata)) {
-			return new GuiReactorStatus(new ContainerReactorController(this), this);
+			return new GuiReactorStatus(new ContainerReactorController(this, inventoryPlayer.player), this);
 		}
 		return null;
 	}
