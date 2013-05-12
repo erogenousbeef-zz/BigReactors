@@ -6,6 +6,7 @@ import java.util.Set;
 
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.power.buildcraft.PowerProviderBeef;
 import universalelectricity.core.block.IConductor;
 import universalelectricity.core.block.IConnector;
 import universalelectricity.core.block.IVoltage;
@@ -33,6 +34,8 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		
 		powerConnections = new HashSet<CoordTriplet>();
 		activeConductors = new HashSet<IConductor>();
+		
+		powerProvider = new PowerProviderBeef();
 	}
 	
 	@Override
