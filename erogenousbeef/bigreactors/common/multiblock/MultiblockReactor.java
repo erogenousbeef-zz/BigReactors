@@ -179,7 +179,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				// Active or not, leak internal heat into the reactor itself
 				HeatPulse heatPulse = fuelRod.onRadiateHeat(getHeat());
 				newHeat += heatPulse.heatChange;
-				this.addStoredEnergy(heatPulse.powerProduced);
+				this.addStoredEnergy((int)heatPulse.powerProduced);
 				
 				// Move down a block
 				c.y = c.y - 1;
@@ -279,9 +279,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 
 		if(this.isActive()) {
-			// TODO: Balance this.
-			// Produce energy from heat
-			int energyAvailable = getAvailableEnergy();
+			// Distribute available power
+			int energyAvailable = getStoredEnergy();
 			int energyRemaining = energyAvailable;
 			if(activePowerTaps.size() > 0) {
 				for(CoordTriplet coord : activePowerTaps) {
@@ -293,13 +292,17 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			}
 			
 			if(energyAvailable != energyRemaining) {
-				produceEnergy(energyAvailable - energyRemaining);		
+				reduceStoredEnergy(energyAvailable - energyRemaining);		
 			}
 		}
 
 		// leak 1% of heat to the environment
 		// TODO: Replace this with a better equation, so low heats leak less
 		// and high heats leak far more.
+		
+		// 1% base loss rate, +1% per thousand degrees C
+		double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
+		
 		double latentHeatLoss = Math.max(1.0, this.latentHeat * 0.01);
 		latentHeat -= latentHeatLoss;
 		if(latentHeat < 0.0) { latentHeat = 0.0; }
@@ -329,12 +332,21 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 	}
 
-	protected int getAvailableEnergy() {
+	public int getStoredEnergy() {
 		return storedEnergy;
 	}
 
-	protected void produceEnergy(int amountProduced) {
-		storedEnergy -= amountProduced;
+	public void setStoredEnergy(int newEnergy) {
+		storedEnergy = newEnergy;
+	}
+	
+	public void addStoredEnergy(int newEnergy) {
+		storedEnergy += newEnergy;
+		if(storedEnergy > maxEnergyStored) { storedEnergy = maxEnergyStored; }
+	}
+
+	protected void reduceStoredEnergy(int lostEnergy) {
+		storedEnergy -= lostEnergy;
 		if(storedEnergy < 0) {
 			storedEnergy = 0;
 		}
@@ -425,9 +437,17 @@ public class MultiblockReactor extends MultiblockControllerBase {
 
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
-		this.active = data.getBoolean("reactorActive");
-		this.latentHeat = data.getDouble("heat");
-		this.storedEnergy = data.getInteger("storedEnergy");
+		if(data.hasKey("reactorActive")) {
+			this.active = data.getBoolean("reactorActive");
+		}
+		
+		if(data.hasKey("heat")) {
+			this.latentHeat = data.getDouble("heat");
+		}
+		
+		if(data.hasKey("storedEnergy")) {
+			this.storedEnergy = data.getInteger("storedEnergy");
+		}
 	}
 
 	@Override
@@ -517,14 +537,5 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
-	}
-
-	public void setStoredEnergy(int newEnergy) {
-		storedEnergy = newEnergy;
-	}
-	
-	public void addStoredEnergy(int newEnergy) {
-		storedEnergy += newEnergy;
-		if(storedEnergy < maxEnergyStored) { storedEnergy = maxEnergyStored; }
 	}
 }

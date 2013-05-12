@@ -61,7 +61,7 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 		double newHeat = radiation.getSlowRadiation() * 0.75;
 		
 		// Convert 10% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower((int)(newHeat*0.1));
+		radiation.addPower(newHeat*0.1);
 		newHeat *= 0.9;
 		radiation.changeHeat(newHeat);
 		
@@ -97,8 +97,8 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 
 		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces);
 
-		pulse.powerProduced += (int)(heatToAbsorb*0.1);
-		pulse.heatChange += heatToAbsorb * 0.9;
+		pulse.powerProduced += heatToAbsorb*0.25;
+		pulse.heatChange += heatToAbsorb * 0.75;
 		
 		return heatToAbsorb;
 	}

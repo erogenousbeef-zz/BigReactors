@@ -10,7 +10,7 @@ public interface IRadiationPulse {
 	
 	public void setFastRadiation(int newValue);
 	public void setSlowRadiation(int newValue);
-	public void addPower(int additionalPower);
+	public void addPower(double d);
 	public void changeHeat(double difference);
 
 	public void setTimeToLive(int newTTL);

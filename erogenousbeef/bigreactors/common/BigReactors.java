@@ -102,7 +102,6 @@ public class BigReactors {
 			// Yellorium
 			if (blockYelloriteOre != null)
 			{
-				System.out.println("Registered yellorite -> yellorium");
 				FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotUranium").get(0), 0.5f);
 			}
 

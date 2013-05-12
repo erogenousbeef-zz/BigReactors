@@ -38,13 +38,13 @@ public interface IHeatEntity {
 	public HeatPulse onRadiateHeat(double ambientHeat);
 	
 	
-	public static final double conductivityAir = 0.0000001;
-	public static final double conductivityRubber = 0.000001;
-	public static final double conductivityWater = 0.0005;
-	public static final double conductivityStone = 0.0001;
-	public static final double conductivityGlass = 0.0001;
-	public static final double conductivityIron = 0.001; // Stainless steel, really.
-	public static final double conductivityCopper = 0.005;
-	public static final double conductivityDiamond = 0.05;
-	public static final double conductivityGraphene = 0.5;
+	public static final double conductivityAir = 0.0005;
+	public static final double conductivityRubber = 0.001;
+	public static final double conductivityWater = 0.01;
+	public static final double conductivityStone = 0.02;
+	public static final double conductivityGlass = 0.02;
+	public static final double conductivityIron = 0.05; // Stainless steel, really.
+	public static final double conductivityCopper = 0.1;
+	public static final double conductivityDiamond = 0.15;
+	public static final double conductivityGraphene = 0.25;
 }

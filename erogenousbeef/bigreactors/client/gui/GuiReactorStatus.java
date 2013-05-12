@@ -23,7 +23,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel statusString;
 	private BeefGuiLabel heatString;
 	private BeefGuiLabel fuelRodsString;
-	private BeefGuiLabel powerUsageString;
+	private BeefGuiLabel powerStoredString;
 	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
@@ -58,14 +58,14 @@ public class GuiReactorStatus extends BeefGuiBase {
 		fuelRodsString = new BeefGuiLabel(this, "Active Fuel Columns: -- updating --", leftX, topY);
 		topY += fuelRodsString.getHeight() + 4;
 		
-		powerUsageString = new BeefGuiLabel(this, "Power Exported: -- updating --", leftX, topY);
-		topY += powerUsageString.getHeight() + 4;
+		powerStoredString = new BeefGuiLabel(this, "Power Exported: -- updating --", leftX, topY);
+		topY += powerStoredString.getHeight() + 4;
 		
 		registerControl(titleString);
 		registerControl(statusString);
 		registerControl(heatString);
 		registerControl(fuelRodsString);
-		registerControl(powerUsageString);
+		registerControl(powerStoredString);
 	}
 
 	@Override
@@ -86,9 +86,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 			statusString.setLabelText("Status: Offline");
 		}
 		
-		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()));
+		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()) + " degrees C");
 		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
-		powerUsageString.setLabelText("Power Exported: 0mj");
+		powerStoredString.setLabelText("Power Stored: " + Integer.toString(reactor.getStoredEnergy()) + " MJ");
 	}
 	
 	@Override
