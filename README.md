@@ -10,6 +10,20 @@ This is a heavy WIP. More info coming soon.
 
 For near-future plans and development status, see the Roadmap file.
 
+Playtest
+--------
+
+Big Reactors is slowly becoming playable, at last! However, the balance is awful and I'm only one guy - I can't totally break all the combinations you crazy folks will discover. The internal radiation/power production simulation is very complicated.
+
+As a result, I'm going to occasionally post a public playtest version. These have been _lightly_ bugtested to work properly with a small set of other mods.
+
+_You will need other mods_ to play with Big Reactors. This is just a power-generation mod, so you will need a mod that supports the Universal Electricity or Buildcraft power systems. I personally recommend [Thermal Expansion](http://thermalexpansion.wikispaces.com).
+
+Current Playtest Version: [0.0.1-playtest](http://db.tt/bFmXcZ0j)
+
+*Warning* Playtest versions may be wildly imbalanced and are largely intended as a semi-playable preview. There may still be significant bugs! Don't use these on worlds you love; use a backup world!
+
+
 License
 -------
 
