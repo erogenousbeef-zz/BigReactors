@@ -7,7 +7,12 @@ import net.minecraft.item.ItemStack;
 
 public class ContainerReactorController extends Container {
 
-	public ContainerReactorController(TileEntityReactorPart reactorPart) {
+	TileEntityReactorPart part;
+	
+	public ContainerReactorController(TileEntityReactorPart reactorPart, EntityPlayer player) {
+		part = reactorPart;
+		
+		part.getReactorController().beginUpdatingPlayer(player);
 	}
 	
 	@Override
@@ -18,5 +23,12 @@ public class ContainerReactorController extends Container {
 	@Override
 	public void putStackInSlot(int slot, ItemStack stack) {
 		return;
+	}
+	
+	@Override
+    public void onCraftGuiClosed(EntityPlayer player) {
+		super.onCraftGuiClosed(player);
+		
+		part.getReactorController().stopUpdatingPlayer(player);
 	}
 }
