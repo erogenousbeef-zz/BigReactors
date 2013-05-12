@@ -283,9 +283,9 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		int wasteAmt = 0;
 		if(fuel != null && fuel.amount > 0) {
 			fuelAmt = fuel.amount;
-			fastNeutrons += lerp(10,20, fuelAmt/maxTotalLiquid);
-			slowNeutrons += lerp(5, 10, fuelAmt/maxTotalLiquid);
-			internalHeatGenerated += fuel.amount / 100; // 1 heat per 100mB
+			fastNeutrons += lerp(5, 10, fuelAmt/maxTotalLiquid);
+			slowNeutrons += lerp(2, 5, fuelAmt/maxTotalLiquid);
+			internalHeatGenerated += fuel.amount / 500; // 1 heat per Bucket
 
 			// Deal with fuel usage, 0..1 scale
 			// This is the chance that fuel will be consumed this tick, base.
@@ -321,15 +321,15 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		}
 		
 		// TODO: Balance the shit out of this.
-		fastNeutrons = (int) ((double)fastNeutrons * radMultiplier * 4*(wasteAmt+fuelAmt / (double)maxTotalLiquid));
-		slowNeutrons = (int) ((double)slowNeutrons * radMultiplier * 4*(wasteAmt+fuelAmt / (double)maxTotalLiquid));
+		fastNeutrons = (int) ((double)fastNeutrons * radMultiplier * ((double)(wasteAmt+fuelAmt) / (double)maxTotalLiquid));
+		slowNeutrons = (int) ((double)slowNeutrons * radMultiplier * ((double)(wasteAmt+fuelAmt) / (double)maxTotalLiquid));
 
+		// Add locally-produced heat to self
+		localHeat += internalHeatGenerated;
+		
 		// Now propagate radiation
 		RadiationPulse radiation = new RadiationPulse(fastNeutrons, slowNeutrons, 3, 0.0);
 		
-		// Hit ourself first.
-		receiveRadiationPulse(radiation);
-
 		// Pick a random direction
 		int dx, dz;
 		dx = dz = 0;
@@ -374,9 +374,6 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 			if(radiation.getFastRadiation() <= 0 && radiation.getSlowRadiation() <= 0) { break; }
 		}
 		
-		// Add locally-produced heat to self
-		localHeat += internalHeatGenerated;
-		
 		return radiation;
 	}
 		
@@ -397,31 +394,30 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 			// Air produces only tiny amounts of moderation.
 			double moderationFactor = 0.1;
 			
-			// Lose 25% of slow in water
+			// Lose 50% of slow in water
 			if(material == Material.water) {
-				moderationFactor = 0.25;
+				moderationFactor = 0.50;
 			}
 
 			// Lose some slow radiation
-			int moderated = (int)((double)radiation.getSlowRadiation() * moderationFactor);
-			radiation.setSlowRadiation(radiation.getSlowRadiation() - moderated);
-			
+			double moderated = (double)radiation.getSlowRadiation() * moderationFactor;
+			radiation.setSlowRadiation((int)(radiation.getSlowRadiation() - moderated));
 			
 			// Moderate 50% of fast in water and generate 50% heat as power
 			if(material == Material.water) {
 				moderationFactor = 0.50;
 			}
 			// Directly generate energy based on heat
-			radiation.addPower((int)(moderated * moderationFactor));
-			moderated -= (int)(moderated * moderationFactor);
+			radiation.addPower(moderated * moderationFactor);
+			moderated -= moderated * moderationFactor;
 			
 			// Apply the rest of the energy as reactor heat
 			radiation.changeHeat(moderated);
 			
 			// Convert some fast to slow.
 			moderated = (int)((double)radiation.getFastRadiation() * moderationFactor);
-			radiation.setFastRadiation(radiation.getFastRadiation() - moderated);
-			radiation.setSlowRadiation(radiation.getSlowRadiation() - moderated);
+			radiation.setFastRadiation((int)(radiation.getFastRadiation() - moderated));
+			radiation.setSlowRadiation((int)(radiation.getSlowRadiation() - moderated));
 		}
 	}
 
@@ -431,13 +427,14 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		double slowRadiationConsumed = (double)radiation.getSlowRadiation() / 2.0;
+		// Consume a small amount of slow radiation.
+		double slowRadiationConsumed = (double)radiation.getSlowRadiation() * 0.1;
 		double newHeat = slowRadiationConsumed;
 		localHeat += newHeat * 0.75; // 75% of new heat goes to local store
 		newHeat *= 0.25;   // Remaining 25% will go to machine itself
 		
 		// Convert 10% of locally-generated heat to power, to be nice.
-		radiation.addPower((int)(newHeat*0.1));
+		radiation.addPower(newHeat*0.1);
 		
 		// Remaining 90% will be reactor heat.
 		newHeat *= 0.9;
@@ -522,13 +519,13 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 		
 		if(material.equals(Material.water)) {
 			thermalConductivity = IHeatEntity.conductivityWater;
-			conversionEfficiency = 0.5;
+			conversionEfficiency = 0.75;
 		}
 		
 		
 		double heatToTransfer = (localHeat - ambientHeat) * 0.05 * thermalConductivity * (1.0/(double)faces);
 
-		pulse.powerProduced += (int)(heatToTransfer*conversionEfficiency);
+		pulse.powerProduced += heatToTransfer*conversionEfficiency;
 		pulse.heatChange += heatToTransfer * (1.0-conversionEfficiency);
 		
 		return heatToTransfer;

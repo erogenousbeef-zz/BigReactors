@@ -41,22 +41,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	public boolean canUpdate() { return false; }
 
 	@Override
-	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		double newHeat = radiation.getSlowRadiation() * 0.75;
-		
-		// Convert 10% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower((int)(newHeat*0.1));
-		newHeat *= 0.9;
-		radiation.changeHeat(newHeat);
-		
-		// Slow radiation is all lost now
-		radiation.setSlowRadiation(0);
-		
-		// And zero out the TTL so evaluation force-stops
-		radiation.setTimeToLive(0);
-	}
-
-	@Override
 	public boolean isGoodForFrame() {
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
 		if(BlockReactorPart.isCasing(metadata)) { return true; }
@@ -327,6 +311,23 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		}
 	}
 
+	// IRadiationModerator
+	@Override
+	public void receiveRadiationPulse(IRadiationPulse radiation) {
+		double newHeat = radiation.getSlowRadiation() * 0.75;
+		
+		// Convert 25% of newly-gained heat to energy (thermocouple or something)
+		radiation.addPower(newHeat*0.15);
+		newHeat *= 0.85;
+		radiation.changeHeat(newHeat);
+		
+		// Slow radiation is all lost now
+		radiation.setSlowRadiation(0);
+		
+		// And zero out the TTL so evaluation force-stops
+		radiation.setTimeToLive(0);
+	}
+	
 	// IHeatEntity
 	
 	@Override
@@ -345,8 +346,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces);
 
-		pulse.powerProduced += (int)(heatToAbsorb*0.1);
-		pulse.heatChange += heatToAbsorb * 0.9;
+		pulse.powerProduced += heatToAbsorb * 0.15;
+		pulse.heatChange += heatToAbsorb * 0.85;
 
 		return heatToAbsorb;
 	}
