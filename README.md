@@ -19,6 +19,8 @@ As a result, I'm going to occasionally post a public playtest version. These hav
 
 _You will need other mods_ to play with Big Reactors. This is just a power-generation mod, so you will need a mod that supports the Universal Electricity or Buildcraft power systems. I personally recommend [Thermal Expansion](http://thermalexpansion.wikispaces.com).
 
+*Requires Minecraft Forge for 1.5.2, version 684 or newer*
+
 Current Playtest Version: [0.0.1-playtest](http://db.tt/bFmXcZ0j)
 
 *Warning* Playtest versions may be wildly imbalanced and are largely intended as a semi-playable preview. There may still be significant bugs! Don't use these on worlds you love; use a backup world!
