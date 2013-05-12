@@ -6,6 +6,7 @@ import java.util.Set;
 
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.power.buildcraft.PowerProviderBeef;
 import universalelectricity.core.block.IConductor;
 import universalelectricity.core.block.IConnector;
@@ -22,7 +23,7 @@ import net.minecraftforge.common.ForgeDirection;
 public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IVoltage, IConnector, IPowerReceptor {
 
 	public static final int uePowerFactor = 1;	// 1 UE watt per 1 internal power
-	public static final int bcPowerFactor = 100;// 1 MJ per 100 internal power
+	public static final int bcPowerFactor = 1;  // 1 MJ per 1 internal power
 	
 	Set<CoordTriplet> powerConnections;
 	IPowerProvider powerProvider;
@@ -44,6 +45,15 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 
 		if(isConnected()) {
 			checkForConnections(world, x, y, z);
+		}
+	}
+	
+	@Override
+	public void onAttached(MultiblockControllerBase newController) {
+		super.onAttached(newController);
+		
+		if(isConnected()) {
+			checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 		}
 	}
 	

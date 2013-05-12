@@ -288,6 +288,7 @@ public class BigReactors {
 	}
 	
 	public static void registerRadiothermalGen(int id, boolean require) {
+		/* TODO: uncomment when this ain't broke
 		if(BigReactors.blockRadiothermalGen == null) {
 			BRConfig.CONFIGURATION.load();
 			
@@ -295,6 +296,7 @@ public class BigReactors {
 			GameRegistry.registerBlock(BigReactors.blockRadiothermalGen, ItemBlockRTG.class, "BRRadiothermalGen");
 			BRConfig.CONFIGURATION.save();
 		}
+		*/
 	}
 	
 	public static void registerYelloriumLiquids(int id, boolean require) {
