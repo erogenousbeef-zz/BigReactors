@@ -23,7 +23,6 @@ public class ClientPacketHandler implements IPacketHandler {
 		
 		switch(packetType) {
 		case Packets.ReactorControllerFullUpdate:
-		case Packets.ReactorControllerTickUpdate:
 			int x, y, z;
 			try {
 				x = data.readInt();
