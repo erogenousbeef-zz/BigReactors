@@ -12,6 +12,7 @@ Known Bugs
 ----------
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
+- Reactors larger than 8 blocks on a side cause serious lag when placing additional blocks nearby
 
 TODO - Pre-Alpha
 ----------------
@@ -20,6 +21,9 @@ TODO - Pre-Alpha
 
 TODO - Alpha
 ------------
+- Profile and fix giant-machine lag
+- Add maximum-dimension API and checks to BeefCore
+
 - Finish the RTG for mid/early-game power
 - Make halfway-decent UIs with better visualizations than just text
 - Actually try to balance power production
@@ -28,7 +32,6 @@ TODO - Alpha
 
 ### Refactor fuel rods
 - Make them a pseudo-multiblock controlled/rendered by the control rod
-- Remove internal LiquidTank usage, just use integers, jesus.
 - Make sure bounding box is set properly
 - Add ability to toggle control rods on/off, changing radiation absorption properties
 
@@ -38,12 +41,7 @@ TODO - Alpha
 - Signal emitter if temperature gets above/below a certain level
 
 ### Basic fuel cycle
-- "Enricher" or some way to recycle cyanite into blutonium
-- Way to use blutonium as fuel, with different reactivity than yellorium
-
-### Proper Coolant System
-- Create cooling API, similar to the IRadiationModerator API
-- Use this for fuel rod heat transfer
+- Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
 
 TODO - Beta
 -----------
@@ -57,10 +55,16 @@ TODO - Beta
 - ComputerCraft integration!
 - Make better APIs/interfaces for extending the reactor
 - Add active cooling system
+- Blutonium. Change cyanite reprocessing to produce blutonium, give it different heat/radiation properties.
 
 Wishlist / Post-Release
 -----------------------
 
+- Different types of coolant, liquid coolant pipes
+- Indirect power generation: consume water in coolant pipes to produce steam
+- Run steam through a generator to produce even more power
+- Or run steam into a powerconverter for direct power
+
 - Expand fuel cycle
- - Add different types of fuels
- - Add different ways to refine/recycle fuels & wastes
+- Add different types of fuels
+- Add different ways to refine/recycle fuels & wastes, maybe use TE's liquid redstone/glowstone for better yield
