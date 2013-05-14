@@ -21,7 +21,7 @@ _You will need other mods_ to play with Big Reactors. This is just a power-gener
 
 *Requires Minecraft Forge for 1.5.2, version 684 or newer*
 
-Current Playtest Version: [0.0.1-playtest](http://db.tt/bFmXcZ0j)
+Current Playtest Version: [0.0.2-playtest](http://db.tt/WneV2gNF)
 
 *Warning* Playtest versions may be wildly imbalanced and are largely intended as a semi-playable preview. There may still be significant bugs! Don't use these on worlds you love; use a backup world!
 
