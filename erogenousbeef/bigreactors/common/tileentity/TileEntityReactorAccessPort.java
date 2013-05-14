@@ -233,6 +233,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	 * @return Null if the stack was distributed, the same ItemStack otherwise.
 	 */
 	protected ItemStack distributeItemToPipes(ItemStack itemToDistribute) {
+		if(itemToDistribute == null) { return null; }
 		
 		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
 										ForgeDirection.EAST, ForgeDirection.WEST };
@@ -249,5 +250,14 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		}
 		
 		return itemToDistribute;
+	}
+
+	/**
+	 * Called when new waste has been placed in the access port
+	 */
+	public void onWasteReceived() {
+		if(BlockReactorPart.ACCESSPORT_OUTLET == this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
+			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
+		}
 	}
 }

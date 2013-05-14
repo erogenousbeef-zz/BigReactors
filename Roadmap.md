@@ -12,11 +12,7 @@ Known Bugs
 ----------
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
-
-TODO - Pre-Alpha
-----------------
-
-- Add auto-emit, like MFR's machines, so BC pipes don't need power
+- Reactors are always marked as inactive when worlds are loaded
 
 TODO - Alpha
 ------------
@@ -28,6 +24,7 @@ TODO - Alpha
 - Make halfway-decent UIs with better visualizations than just text
 - Add labels to access port UI, maybe a tooltip or two
 - Make glass have a border when disassembled, no border when assembled
+- Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
 
 ### Refactor fuel rods
 - Make them a pseudo-multiblock controlled/rendered by the control rod

@@ -528,6 +528,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 					}
 				}
 			}
+			
+			port.onWasteReceived();
 		}
 	}
 
