@@ -19,6 +19,7 @@ import universalelectricity.prefab.ore.OreGenReplaceStone;
 import universalelectricity.prefab.ore.OreGenerator;
 import cpw.mods.fml.common.registry.GameRegistry;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
+import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericLiquid;
 import erogenousbeef.bigreactors.common.block.BlockRTG;
@@ -28,8 +29,10 @@ import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemBlockRTG;
 import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
+import erogenousbeef.bigreactors.common.item.ItemBlockSmallMachine;
 import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
@@ -63,6 +66,7 @@ public class BigReactors {
 	public static Block blockReactorPart;
 	public static Block blockReactorGlass;
 	public static Block blockRadiothermalGen;
+	public static Block blockSmallMachine;
 	
 	public static Block liquidYelloriumStill;
 	public static Block liquidCyaniteStill;
@@ -192,6 +196,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityReactorGlass.class,		"BRReactorGlass");
 			GameRegistry.registerTileEntity(TileEntityFuelRod.class, 			"BRFuelRod");
 			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
+			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
 			registeredTileEntities = true;
 		}
 	}
@@ -287,16 +292,17 @@ public class BigReactors {
 		}
 	}
 	
-	public static void registerRadiothermalGen(int id, boolean require) {
-		/* TODO: uncomment when this ain't broke
-		if(BigReactors.blockRadiothermalGen == null) {
+	public static void registerSmallMachines(int id, boolean require) {
+		if(BigReactors.blockSmallMachine == null) {
 			BRConfig.CONFIGURATION.load();
+
+			BigReactors.blockSmallMachine = new BlockBRSmallMachine(BRConfig.CONFIGURATION.getBlock("SmallMachine", BigReactors.BLOCK_ID_PREFIX + 8).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockSmallMachine.class, "BRSmallMachine");
 			
-			BigReactors.blockRadiothermalGen = new BlockRTG(BRConfig.CONFIGURATION.getBlock("RadiothermalGen", BigReactors.BLOCK_ID_PREFIX + 3).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockRadiothermalGen, ItemBlockRTG.class, "BRRadiothermalGen");
+			OreDictionary.registerOre("brSmallMachineCyaniteProcessor", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getCyaniteReprocessorItemStack());
+			
 			BRConfig.CONFIGURATION.save();
 		}
-		*/
 	}
 	
 	public static void registerYelloriumLiquids(int id, boolean require) {

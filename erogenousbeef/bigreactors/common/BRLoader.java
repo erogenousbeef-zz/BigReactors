@@ -30,13 +30,11 @@ public class BRLoader {
 	@PreInit
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		NetworkRegistry.instance().registerGuiHandler(this, new BRGuiHandler());
-		
 		BigReactors.registerOres(0, true);
 		BigReactors.registerIngots(0, true);
 		BigReactors.registerFuelRods(0, true);
 		BigReactors.registerReactorPartBlocks(0, true);
-		BigReactors.registerRadiothermalGen(0,  true);
+		BigReactors.registerSmallMachines(0,  true);
 		BigReactors.registerYelloriumLiquids(0,  true);
 
 		proxy.preInit();
