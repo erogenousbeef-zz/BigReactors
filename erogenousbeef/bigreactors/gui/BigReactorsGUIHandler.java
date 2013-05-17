@@ -7,6 +7,7 @@ import cpw.mods.fml.common.network.IGuiHandler;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 
 public class BigReactorsGUIHandler implements IGuiHandler {
 
@@ -20,6 +21,9 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 		}
 		else if(te instanceof TileEntityReactorPart) {
 			return ((TileEntityReactorPart)te).getContainer(player.inventory);
+		}
+		else if(te instanceof TileEntityBeefBase) {
+			return ((TileEntityBeefBase)te).getContainer(player);
 		}
 		
 		return null;
@@ -36,6 +40,9 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 		if(te instanceof TileEntityReactorPart) {
 			TileEntityReactorPart part = (TileEntityReactorPart)te;
 			return part.getGuiElement(player.inventory);
+		}
+		else if(te instanceof TileEntityBeefBase) {
+			return ((TileEntityBeefBase)te).getGUI(player);
 		}
 		
 		return null;

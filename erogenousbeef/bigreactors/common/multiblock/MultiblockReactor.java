@@ -195,6 +195,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			
 			ItemStack wasteToDistribute = null;
 			if(wasteAmt >= 1000) {
+				// TODO: Make this query for the right type of waste to create
 				wasteToDistribute = new ItemStack(BigReactors.ingotGeneric, wasteAmt/1000, 1);
 			}
 
