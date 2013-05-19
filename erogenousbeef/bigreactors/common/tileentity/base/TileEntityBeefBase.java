@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
@@ -26,23 +27,82 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.ForgeDirection;
 
 public abstract class TileEntityBeefBase extends TileEntity {
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
 
+	// A rotation matrix which assumes that the normalized forward direction is NORTH
+	// 2 = Forward, 3 = Rear, 4 = Left, 5 = Right
+	private static final int[][] ROTATION_MATRIX = {
+		{0, 1, 2, 3, 5, 4}, // DOWN
+		{0, 1, 2, 3, 5, 4}, // UP
+		{0, 1, 2, 3, 5, 4}, // NORTH
+		{0, 1, 3, 2, 4, 5}, // SOUTH
+		{0, 1, 4, 5, 3, 2}, // WEST
+		{0, 1, 5, 4, 2, 3}, // EAST
+	};
+
+	// Rotation
+	ForgeDirection forwardFace;
+	
 	public TileEntityBeefBase() {
 		super();
 		
+		forwardFace = ForgeDirection.NORTH;
+
 		ticksSinceLastUpdate = 0;
 		updatePlayers = new HashSet<EntityPlayer>();
 	}
-	
+
+	// GUI/Inventory
 	public abstract GuiScreen getGUI(EntityPlayer player);
 	
 	public abstract Container getContainer(EntityPlayer player);
 
+	// Rotation
+	public ForgeDirection getFacingDirection() {
+		return forwardFace;
+	}
+	
+	public void rotateTowards(ForgeDirection newDirection) {
+		if(forwardFace == newDirection) { return; }
+
+		forwardFace = newDirection;
+		if(!worldObj.isRemote) {
+			// TODO: Special packet for these updates
+			//worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineRotationUpdate, new Object[] { xCoord, yCoord, zCoord, newDirection.ordinal() });
+			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+		}
+	}
+	
+	public int getRotatedSide(int side) {
+		if(side == 0 || side == 1) { return side; }
+		
+		return ROTATION_MATRIX[forwardFace.ordinal()][side];
+	}
+
+	// Save/Load
+	@Override
+	public void readFromNBT(NBTTagCompound tag) {
+		super.readFromNBT(tag);
+		
+		// Rotation
+		int rotation = tag.getInteger("rotation");
+		forwardFace = ForgeDirection.getOrientation(rotation);
+	}
+	
+	@Override
+	public void writeToNBT(NBTTagCompound tag) {
+		super.writeToNBT(tag);
+		
+		// Rotation
+		tag.setInteger("rotation", forwardFace.ordinal());
+	}
+	
 	// Network Communication
 	@Override
 	public Packet getDescriptionPacket()
@@ -143,4 +203,24 @@ public abstract class TileEntityBeefBase extends TileEntity {
 	 * @param updateTag The tag which should contain your data.
 	 */
 	public void onReceiveUpdate(NBTTagCompound updateTag) {}
+	
+	/**
+	 * Called when the server packet handler receives a GUI Button press.
+	 * Do not override.
+	 * @param data Data stream associated with the packet
+	 * @throws IOException On stream read errors
+	 */
+	public final void receiveGuiButtonPacket(DataInputStream data) throws IOException {
+		String buttonName = data.readUTF();
+		
+		onReceiveGuiButtonPress(buttonName, data);
+	}
+
+	/**
+	 * Override this to handle GUI button presses
+	 * @param buttonName Name of the button pressed
+	 * @param dataStream Data stream associated with this button press event, containing your custom data.
+	 * @throws IOException On stream read errors
+	 */
+	protected abstract void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException;
 }

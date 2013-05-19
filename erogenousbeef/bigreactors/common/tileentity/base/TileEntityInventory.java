@@ -1,11 +1,15 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import buildcraft.api.transport.IPipeEntry;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -19,40 +23,19 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
-	// Rotation
-	ForgeDirection forwardFace;
 	
 	// Configurable Sides
-	
-	// Power
+	protected int[] invExposures;
+	public static final int INVENTORY_UNEXPOSED = -1;
 	
 	// Inventory
 	protected ItemStack[] _inventories;
 	
 	public TileEntityInventory() {
 		super();
-		forwardFace = ForgeDirection.NORTH;
 		_inventories = new ItemStack[getSizeInventory()];
-	}
-	
-	// Rotation
-	public ForgeDirection getFacingDirection() {
-		return forwardFace;
-	}
-	
-	public void rotateTowards(ForgeDirection newDirection) {
-		forwardFace = newDirection;
-		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		if(!worldObj.isRemote) {
-			// TODO: Special packet for these updates
-			//PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, worldObj.provider.dimensionId, 0, getUpdatePacket());
-		}
-	}
-	
-	public int getRotatedSide(int side) {
-		if(side == 0 || side == 1) { return side; }
 		
-		return ForgeDirection.ROTATION_MATRIX[ForgeDirection.UP.ordinal()][side];
+		resetInventoryExposures();
 	}
 	
 	// TileEntity overrides
@@ -60,9 +43,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public void readFromNBT(NBTTagCompound tag) {
 		super.readFromNBT(tag);
 		
-		int rotation = tag.getInteger("rotation");
-		forwardFace = ForgeDirection.getOrientation(rotation);
-		
+		// Inventories
 		_inventories = new ItemStack[getSizeInventory()];
 		if(tag.hasKey("Items")) {
 			NBTTagList tagList = tag.getTagList("Items");
@@ -76,13 +57,23 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 				}
 			}
 		}
+		
+		resetInventoryExposures();
+		if(tag.hasKey("invExposures")) {
+			NBTTagList exposureList = tag.getTagList("invExposures");
+			for(int i = 0; i < exposureList.tagCount(); i++) {
+				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.tagAt(i);
+				int exposureIdx = exposureTag.getInteger("exposureIdx");
+				invExposures[exposureIdx] = exposureTag.getInteger("direction");
+			}
+		}
 	}
 	
 	@Override
 	public void writeToNBT(NBTTagCompound tag) {
 		super.writeToNBT(tag);
-		tag.setInteger("rotation", forwardFace.ordinal());
-		
+
+		// Inventories
 		NBTTagList tagList = new NBTTagList();		
 		for(int i = 0; i < _inventories.length; i++) {
 			if((_inventories[i]) != null) {
@@ -96,6 +87,69 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		if(tagList.tagCount() > 0) {
 			tag.setTag("Items", tagList);
 		}
+		
+		// Save inventory exposure orientations
+		NBTTagList exposureTagList = new NBTTagList();
+		for(int i = 0; i < 6; i++) {
+			if(invExposures[i] == INVENTORY_UNEXPOSED) {
+				continue;
+			}
+			NBTTagCompound exposureTag = new NBTTagCompound();
+			exposureTag.setInteger("exposureIdx", i);
+			exposureTag.setInteger("direction", invExposures[i]);
+			exposureTagList.appendTag(exposureTag);
+		}
+		
+		if(exposureTagList.tagCount() > 0) {
+			tag.setTag("invExposures", exposureTagList);			
+		}
+	}
+	
+	// Inventory Exposures
+	/**
+	 * Set the exposed inventory slot on a given side.
+	 * @param side Unrotated (world) side to set
+	 * @param slot The inventory slot to expose, or -1 (INVENTORY_UNEXPOSED) if none.
+	 */
+	public void setExposedInventorySlot(int side, int slot) {
+		if(side < 0 || side > 5) {
+			return;
+		}
+		
+		if(side == this.forwardFace.ordinal()) {
+			return;
+		}
+		
+		int rotatedSide = this.getRotatedSide(side);
+		setExposedInventorySlotReference(rotatedSide, slot);
+	}
+
+	/**
+	 * Set the exposed inventory slot on a given side, using the reference side index.
+	 * Only use this if you know what you're doing.
+	 * @param side Reference side. 2 = North, 3 = South, 4 = East, 5 = West
+	 * @param slot The inventory slot to expose, or -1 (INVENTORY_UNEXPOSED) if none.
+	 */
+	public void setExposedInventorySlotReference(int referenceSide, int slot) {
+		invExposures[referenceSide] = slot;
+		
+		if(!this.worldObj.isRemote) {
+			// Send unrotated, as the rotation will be re-applied on the client
+			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineInventoryExposureUpdate,
+																new Object[] { xCoord, yCoord, zCoord, referenceSide, slot });
+			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+		}
+	}
+
+	/**
+	 * Get the exposed inventory slot from the REFERENCE side; i.e. the unrotated side, as if the machine faced north
+	 * @param side Reference side. 2 = North, 3 = South, 4 = East, 5 = West
+	 * @return The exposed inventory slot index on that side, or INVENTORY_UNEXPOSED if none.
+	 */
+	public int getExposedSlotFromReferenceSide(int side) {
+		if(side < 0 || side > 5) { return INVENTORY_UNEXPOSED; }
+		
+		return invExposures[side];
 	}
 	
 	// IInventory
@@ -181,14 +235,13 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	// ISidedInventory
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
-		if(side == 0 || side == 1) { return null; }
+		int rotatedSide = this.getRotatedSide(side);
 		
-		int[] allSlots = new int[getSizeInventory()];
-		for(int i = 0; i < getSizeInventory(); i++) {
-			allSlots[i] = i;
-		}
+		if(invExposures[rotatedSide] == INVENTORY_UNEXPOSED) { return null; }
 		
-		return allSlots;
+		int[] slots = new int[1];
+		slots[0] = invExposures[rotatedSide];
+		return slots;
 	}
 
 	@Override
@@ -205,19 +258,39 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		return isStackValidForSlot(slot, itemstack);
 	}	
 	
+	// Networked GUI
+	@Override
+	protected void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+		if(buttonName.equals("changeInvSide")) {
+			int side = dataStream.readInt();
+			int slot = invExposures[side];
+			slot++;
+			if(slot >= getSizeInventory()) {
+				slot = INVENTORY_UNEXPOSED;
+			}
+			
+			this.setExposedInventorySlotReference(side, slot);
+		}
+	}
+	
 	// Helpers
 	
 	/**
+	 * @param fromSlot The inventory slot into which this object would normally go.
 	 * @param itemToDistribute An ItemStack to distribute to pipes
 	 * @return Null if the stack was distributed, the same ItemStack otherwise.
 	 */
-	protected ItemStack distributeItemToPipes(ItemStack itemToDistribute) {
+	protected ItemStack distributeItemToPipes(int fromSlot, ItemStack itemToDistribute) {
 		if(itemToDistribute == null) { return null; }
-		
+
 		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
 										ForgeDirection.EAST, ForgeDirection.WEST };
 
 		for(ForgeDirection dir : dirsToCheck) {
+			// Are we exposed on that side?
+			int rotatedSide = this.getRotatedSide(dir.ordinal());
+			if(invExposures[rotatedSide] != fromSlot) { continue; }
+			
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 			if(te != null && te instanceof IPipeEntry) {
 				IPipeEntry pipe = (IPipeEntry)te;
@@ -229,5 +302,12 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		}
 		
 		return itemToDistribute;
-	}	
+	}
+	
+	private void resetInventoryExposures() {
+		invExposures = new int[6]; // 6 forge directions
+		for(int i = 0; i < 6; i++) {
+			invExposures[i] = INVENTORY_UNEXPOSED;
+		}
+	}
 }

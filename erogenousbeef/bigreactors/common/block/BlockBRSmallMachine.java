@@ -34,6 +34,8 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	private static String[] _subBlocks = new String[] { "cyaniteReprocessor" };
 	private Icon[] _icons = new Icon[_subBlocks.length];
+	private Icon[] _inventorySideIcons = new Icon[3];
+	private Icon[] _liquidSideIcons = new Icon[1];
 	
 	public BlockBRSmallMachine(int id, Material material) {
 		super(id, material);
@@ -47,11 +49,25 @@ public class BlockBRSmallMachine extends BlockContainer {
 	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
 	{
 		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
-		if(te instanceof TileEntityInventory)
+		if(te instanceof TileEntityBeefBase)
 		{
-			if(side == ((TileEntityInventory)te).getFacingDirection().ordinal()) {
+			if(side == ((TileEntityBeefBase)te).getFacingDirection().ordinal()) {
 				int metadata = blockAccess.getBlockMetadata(x, y, z);
 				return _icons[metadata];
+			}
+		}
+		
+		if(te instanceof TileEntityInventory) {
+			int[] slots = ((TileEntityInventory)te).getAccessibleSlotsFromSide(side);
+			if(slots != null && slots[0] != TileEntityInventory.INVENTORY_UNEXPOSED) {
+				return _inventorySideIcons[slots[0]];
+			}
+		}
+		
+		if(te instanceof TileEntityPoweredInventoryLiquid) {
+			// TODO: make this better
+			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
+				return _liquidSideIcons[0];
 			}
 		}
 
@@ -77,6 +93,13 @@ public class BlockBRSmallMachine extends BlockContainer {
 		for(int i = 0; i < _subBlocks.length; ++i) {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
 		}
+		
+		_inventorySideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".redPort");
+		_inventorySideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".greenPort");
+		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
+
+		// TODO: Better icons for these
+		_liquidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 	}
 	
 	@Override
@@ -126,16 +149,16 @@ public class BlockBRSmallMachine extends BlockContainer {
 			// TODO: Wrenches
 			// TODO: The below should only be if you're holding a wrench, numbnuts.
 			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te != null && te instanceof TileEntityInventory) {
+			if(te != null && te instanceof TileEntityBeefBase) {
 				ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
-				((TileEntityInventory)te).rotateTowards(newFacing);
+				((TileEntityBeefBase)te).rotateTowards(newFacing);
 				return true;
 			}
 		}
 		
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te == null) { return false; }
-		
+
 		// Handle buckets
 		if(te instanceof ITankContainer && LiquidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem()))
 		{
@@ -174,11 +197,11 @@ public class BlockBRSmallMachine extends BlockContainer {
 			stack.getTagCompound().setInteger("y", y);
 			stack.getTagCompound().setInteger("z", z);
 			te.readFromNBT(stack.getTagCompound());
-		}		
+		}
 		
-		if(te != null && te instanceof TileEntityInventory) {
+		if(te != null && te instanceof TileEntityBeefBase) {
 			ForgeDirection newFacing = getDirectionFacingEntity(entity);
-			((TileEntityInventory)te).rotateTowards(newFacing);
+			((TileEntityBeefBase)te).rotateTowards(newFacing);
 		}
 	}
 	

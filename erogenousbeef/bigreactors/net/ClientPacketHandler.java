@@ -10,10 +10,13 @@ import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
 
 public class ClientPacketHandler implements IPacketHandler {
 
@@ -57,14 +60,64 @@ public class ClientPacketHandler implements IPacketHandler {
 						((TileEntityBeefBase)te).onReceiveUpdate(tagCompound);
 					}
 					else {
-						System.out.println(String.format("Error coords: %d, %d, %d", x, y, z));
-						throw new IOException("Invalid TileEntity for receipt of TileEntityBeefBase packet");
+						throw new IOException("Invalid TileEntity for receipt of BeefBase UI Update packet");
 					}
 				} catch(IOException e) {
 					e.printStackTrace();
 					// TODO: Crash all the things.
 				}
 			}
+		break;
+		case Packets.SmallMachineRotationUpdate: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te != null && te instanceof TileEntityBeefBase) {
+					((TileEntityBeefBase)te).rotateTowards(ForgeDirection.getOrientation(data.readInt()));
+					((EntityPlayer)player).worldObj.markBlockForUpdate(x, y, z);
+				}
+				else {
+					throw new IOException("Invalid TileEntity for receipt of BeefBase Rotation Update packet");
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		break;
+		case Packets.SmallMachineInventoryExposureUpdate: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te != null && te instanceof TileEntityInventory) {
+					((TileEntityInventory)te).setExposedInventorySlotReference(data.readInt(), data.readInt());
+					((EntityPlayer)player).worldObj.markBlockForUpdate(x, y, z);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		break;
+		case Packets.SmallMachineLiquidExposureUpdate: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te != null && te instanceof TileEntityPoweredInventoryLiquid) {
+					((TileEntityPoweredInventoryLiquid)te).setExposedTank(ForgeDirection.getOrientation(data.readInt()), data.readInt());
+					((EntityPlayer)player).worldObj.markBlockForUpdate(x, y, z);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
 		break;
 		}
 	}
