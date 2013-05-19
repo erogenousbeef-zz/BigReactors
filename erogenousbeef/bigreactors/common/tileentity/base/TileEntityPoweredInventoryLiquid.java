@@ -1,8 +1,13 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.packet.Packet;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.liquids.ILiquidTank;
 import net.minecraftforge.liquids.ITankContainer;
@@ -24,13 +29,35 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 		for(int i = 0; i < getNumTanks(); i++) {
 			tanks[i] = new LiquidTank(getTankSize(i));
 		}
-		
-		tankExposure = new int[6]; // 6 forgedirections
-		for(int i = 0; i < 6; i++) {
-			tankExposure[i] = LIQUIDTANK_NONE;
-		}
+
+		resetLiquidExposures();
 	}
 
+	// Tank Accessors
+	/**
+	 * Set the externally-accessible liquid tank for a given reference direction.
+	 * @param side Reference direction (north/front, south/back, west/left, east/right)
+	 * @param tankIdx The index of the tank which can be accessed from that direction.
+	 */
+	public void setExposedTank(ForgeDirection side, int tankIdx) {
+		if(side == ForgeDirection.UNKNOWN) {
+			return;
+		}
+
+		if(tankExposure[side.ordinal()] == tankIdx) {
+			return;
+		}
+
+		tankExposure[side.ordinal()] = tankIdx;
+		
+		if(!this.worldObj.isRemote) {
+			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineInventoryExposureUpdate,
+																new Object[] { xCoord, yCoord, zCoord, side.ordinal(), tankIdx });
+			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+		}
+		
+	}
+	
 	// Internal Helpers
 	
 	private void readLiquidsFromNBT(NBTTagCompound tag) {
@@ -44,6 +71,7 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 			}
 		}
 		
+		resetLiquidExposures();
 		if(tag.hasKey("liquidExposures")) {
 			NBTTagList exposureList = tag.getTagList("liquidExposures");
 			for(int i = 0; i < exposureList.tagCount(); i++) {
@@ -72,11 +100,16 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 		// Save liquid tank exposure orientations
 		NBTTagList exposureTagList = new NBTTagList();
 		for(int i = 0; i < 6; i++) {
+			if(tankExposure[i] == LIQUIDTANK_NONE) { continue; } 
+
 			NBTTagCompound exposureTag = new NBTTagCompound();
 			exposureTag.setInteger("exposureIdx", i);
 			exposureTag.setInteger("direction", tankExposure[i]);
+			exposureTagList.appendTag(exposureTag);
 		}
-		tag.setTag("liquidExposures", exposureTagList);
+		if(exposureTagList.tagCount() > 0) {
+			tag.setTag("liquidExposures", exposureTagList);
+		}
 	}
 	
 	// TileEntity overrides
@@ -130,7 +163,7 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     public int fill(ForgeDirection from, LiquidStack resource, boolean doFill) {
     	int tankToFill = 0;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankToFill = tankExposure[from.ordinal()];
+    		tankToFill = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
 
     	if(tankToFill == LIQUIDTANK_NONE) {
@@ -165,7 +198,7 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     public LiquidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
     	int tankToDrain = 0;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankToDrain = tankExposure[from.ordinal()];
+    		tankToDrain = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
 
     	if(tankToDrain == LIQUIDTANK_NONE) {
@@ -196,7 +229,7 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     	}
     	else {
     		ILiquidTank[] exposedTanks = new ILiquidTank[1];
-    		exposedTanks[0] = tanks[tankExposure[direction.ordinal()]];
+    		exposedTanks[0] = tanks[tankExposure[this.getRotatedSide(direction.ordinal())]];
     		
     		return exposedTanks;
     	}
@@ -214,13 +247,13 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     		return null;
     	}
     	else {
-    		int tankIdx = tankExposure[direction.ordinal()];
+    		int tankIdx = tankExposure[this.getRotatedSide(direction.ordinal())];
     		if(tankIdx == LIQUIDTANK_NONE) {
     			return null;
     		}
     		
     		ILiquidTank t = tanks[tankIdx];
-    		if(isLiquidValidForTank(tankIdx, type)) {
+    		if(type == null || isLiquidValidForTank(tankIdx, type)) {
     			return t;
     		}
     		
@@ -237,4 +270,13 @@ public abstract class TileEntityPoweredInventoryLiquid extends
      * @return True if the liquid can go in the identified tank, false otherwise.
      */
 	protected abstract boolean isLiquidValidForTank(int tankIdx, LiquidStack type);
+	
+	// Helpers
+	
+	private void resetLiquidExposures() {
+		tankExposure = new int[6]; // 6 forgedirections
+		for(int i = 0; i < 6; i++) {
+			tankExposure[i] = LIQUIDTANK_NONE;
+		}
+	}
 }
