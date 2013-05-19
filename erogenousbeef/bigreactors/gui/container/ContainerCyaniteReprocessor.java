@@ -23,6 +23,8 @@ public class ContainerCyaniteReprocessor extends Container {
 	}
 
 	protected void addSlots() {
+		// TODO: Make remappable-slot thing that draws colors around the slots.
+		
 		// Input Slot
 		addSlotToContainer(new SlotReactorFuelOnly(_entity, 0, 44, 41));
 	

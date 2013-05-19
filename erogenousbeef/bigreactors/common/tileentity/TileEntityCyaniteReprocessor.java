@@ -105,7 +105,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 			_inventories[SLOT_OUTLET] = new ItemStack(BigReactors.ingotGeneric, 1, 3);
 		}
 		
-		_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
+		_inventories[SLOT_OUTLET] = distributeItemToPipes(SLOT_OUTLET, _inventories[SLOT_OUTLET]);
 	}
 
 	@Override

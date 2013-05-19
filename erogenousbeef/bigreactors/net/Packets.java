@@ -6,4 +6,7 @@ public final class Packets {
 	public static final int AccessPortButton = 2;
 	public static final int SmallMachineButton = 3;
 	public static final int SmallMachineUIUpdate = 4;
+	public static final int SmallMachineRotationUpdate = 5;
+	public static final int SmallMachineInventoryExposureUpdate = 6;
+	public static final int SmallMachineLiquidExposureUpdate = 7;
 }
