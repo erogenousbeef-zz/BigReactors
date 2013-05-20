@@ -129,9 +129,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		System.out.println(String.format("actionPerformed: %d", button.id));
 		if(button.id >= 0 && button.id < 6) {
-			System.out.println("Sending packet to server");
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineButton,
 						new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id }));
 			return;

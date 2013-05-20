@@ -30,8 +30,8 @@ public class TileEntityFuelRod extends TileEntity implements ITankContainer, IRa
 	public final static int numTanks = 2;
 	
 	// 1 ingot = 1 bucket
-	protected LiquidTank fuelTank = new LiquidTank(maxTotalLiquid);
-	protected LiquidTank wasteTank = new LiquidTank(maxTotalLiquid);
+	protected LiquidTank fuelTank;
+	protected LiquidTank wasteTank;
 
 	protected double localHeat;
 	protected int ticksSinceLastFuelConsumption;

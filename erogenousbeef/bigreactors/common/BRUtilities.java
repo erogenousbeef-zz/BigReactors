@@ -83,7 +83,19 @@ public class BRUtilities {
 	 */
 	public static ItemStack consumeItem(ItemStack stack)
 	{
-		if(stack.stackSize == 1)
+		return consumeItem(stack, 1);
+	}
+	
+	/**
+	 * Consume some amount of items from a stack of items. Assumes you've already validated
+	 * the consumption. If you try to consume more than the stack has, it will simply destroy
+	 * the stack, as if you'd consumed all of it.
+	 * @param stack The stack from which to consume
+	 * @return The remainder of the stack, or null if the stack was fully consumed.
+	 */
+	public static ItemStack consumeItem(ItemStack stack, int amount)
+	{
+		if(stack.stackSize <= amount)
 		{
 			if(stack.getItem().hasContainerItem())
 			{
@@ -96,7 +108,7 @@ public class BRUtilities {
 		}
 		else
 		{
-			return stack.splitStack(1);
+			return stack.splitStack(amount);
 		}	
 	}	
 }

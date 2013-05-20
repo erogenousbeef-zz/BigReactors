@@ -27,12 +27,16 @@ TODO - Alpha
 - Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
 
 ### Refactor fuel rods
-- Make them a pseudo-multiblock controlled/rendered by the control rod
-- Make sure bounding box is set properly
-- Add ability to toggle control rods on/off, changing radiation absorption properties
+- (IN PROGRESS) Make them a pseudo-multiblock controlled/rendered by the control rod
+- (DONE) Make sure bounding box is set properly
+- (IN PROGRESS) Add ability to toggle control rods on/off, changing radiation absorption properties
+- Implement game interfaces on new control rods (IRadiationModerator, etc.)
+- Fix registry, so fuels/wastes can supply dynamic colors again
+- Entirely remove TileEntityFuelRod
+- Fix internal MultiblockReactor simulation to use new control rods instead of old ones
 
 ### Balance & Completion
-- Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
+- (IN PROGRESS) Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
 - More-proper heat/radiation numbers. Reasonable heat production. See notes (on paper, sorry internet).
 
 TODO - Beta

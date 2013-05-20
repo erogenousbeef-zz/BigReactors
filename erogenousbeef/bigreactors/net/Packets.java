@@ -9,4 +9,5 @@ public final class Packets {
 	public static final int SmallMachineRotationUpdate = 5;
 	public static final int SmallMachineInventoryExposureUpdate = 6;
 	public static final int SmallMachineLiquidExposureUpdate = 7;
+	public static final int ControlRodUpdate = 8;
 }

@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.net;
+package erogenousbeef.bigreactors.client;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -13,10 +13,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 
 public class ClientPacketHandler implements IPacketHandler {
 
@@ -113,6 +116,24 @@ public class ClientPacketHandler implements IPacketHandler {
 				if(te != null && te instanceof TileEntityPoweredInventoryLiquid) {
 					((TileEntityPoweredInventoryLiquid)te).setExposedTank(ForgeDirection.getOrientation(data.readInt()), data.readInt());
 					((EntityPlayer)player).worldObj.markBlockForUpdate(x, y, z);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		break;
+		case Packets.ControlRodUpdate: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te != null && te instanceof TileEntityReactorControlRod) {
+					boolean isAssembled = data.readBoolean();
+					int minFuelRodY = data.readInt();
+					short controlRodInsertion = data.readShort();
+					((TileEntityReactorControlRod)te).onControlRodUpdate(isAssembled, minFuelRodY, controlRodInsertion);
 				}
 			} catch(IOException e) {
 				e.printStackTrace();
