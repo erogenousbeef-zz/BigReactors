@@ -23,6 +23,7 @@ import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericLiquid;
 import erogenousbeef.bigreactors.common.block.BlockRTG;
+import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
@@ -36,6 +37,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
@@ -65,6 +67,9 @@ public class BigReactors {
 	public static Block blockYelloriumFuelRod;
 	public static Block blockReactorPart;
 	public static Block blockReactorGlass;
+	// Testing purposes
+	public static Block blockReactorControlRod;
+	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
 	
@@ -96,9 +101,7 @@ public class BigReactors {
 
 		if (!INITIALIZED)
 		{
-			System.out.println("Big Reactors loaded: " + TranslationHelper.loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED) + " languages");
-
-			/**
+			/*
 			 * Register Recipes
 			 */
 			// Recipe Registry
@@ -197,6 +200,8 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityFuelRod.class, 			"BRFuelRod");
 			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
+			
+			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			registeredTileEntities = true;
 		}
 	}
@@ -258,6 +263,13 @@ public class BigReactors {
 
 
 	public static void registerFuelRods(int id, boolean require) {
+		if(BigReactors.blockReactorControlRod == null) {
+			BRConfig.CONFIGURATION.load();
+			BigReactors.blockReactorControlRod = new BlockReactorControlRod(BRConfig.CONFIGURATION.getBlock("ReactorControlRod", BigReactors.BLOCK_ID_PREFIX + 3).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockReactorControlRod, ItemBlockBigReactors.class, "ReactorControlRod");
+			BRConfig.CONFIGURATION.save();
+		}
+
 		if(BigReactors.blockYelloriumFuelRod == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockYelloriumFuelRod = new BlockFuelRod(BRConfig.CONFIGURATION.getBlock("YelloriumFuelRod", BigReactors.BLOCK_ID_PREFIX + 1).getInt(), Material.iron);

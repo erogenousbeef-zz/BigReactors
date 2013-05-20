@@ -10,7 +10,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import erogenousbeef.bigreactors.net.ClientPacketHandler;
+import erogenousbeef.bigreactors.client.ClientPacketHandler;
 import erogenousbeef.bigreactors.net.ServerPacketHandler;
 import erogenousbeef.bigreactors.net.ConnectionHandler;
 
