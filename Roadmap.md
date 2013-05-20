@@ -27,7 +27,7 @@ TODO - Alpha
 - Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
 
 ### Refactor fuel rods
-- (IN PROGRESS) Make them a pseudo-multiblock controlled/rendered by the control rod
+- (DONE) Make them a pseudo-multiblock controlled/rendered by the control rod
 - (DONE) Make sure bounding box is set properly
 - (IN PROGRESS) Add ability to toggle control rods on/off, changing radiation absorption properties
 - Implement game interfaces on new control rods (IRadiationModerator, etc.)
@@ -38,6 +38,11 @@ TODO - Alpha
 ### Balance & Completion
 - (IN PROGRESS) Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
 - More-proper heat/radiation numbers. Reasonable heat production. See notes (on paper, sorry internet).
+- Blutonium. Properly integrate it into the fuel cycle, give it different properties than yellorium.
+
+### Graphics & UI
+- Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
+- Make the current GUI's not suck quite as much. Decent alignment, colors, etc.
 
 TODO - Beta
 -----------
@@ -57,13 +62,12 @@ TODO - Beta
 - ComputerCraft integration!
 
 ### Graphics & UI
-- Finish the RTG for mid/early-game power
 - Unshitty artwork.
+- Graphical GUI meters & tooltips
 
 ### Reactor Mechanics
 - Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
 - Add active cooling system; coolant pipes and stuff
-- Blutonium. Change cyanite reprocessing to produce blutonium, give it different heat/radiation properties.
 
 Wishlist / Post-Release
 -----------------------
