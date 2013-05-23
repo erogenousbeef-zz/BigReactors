@@ -125,6 +125,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		int wasteAmt = controlRod.getWasteAmount();
 		int totalAmt = fuelAmt + wasteAmt;
 		float liquidProportion = (float)totalAmt / (float)controlRod.getSizeOfFuelTank();
+		
+		// TODO: Change back to getting the colors from the registry
 		int fuelColor = BigReactors.defaultLiquidColorFuel; //getRegisteredLiquidColor(refWasteLiquid);
 		int wasteColor = BigReactors.defaultLiquidColorWaste; //getRegisteredLiquidColor(refFuelLiquid);
         float fuelR = unpackR(fuelColor);

@@ -18,6 +18,8 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	BeefGuiLabel fuelString;
 	BeefGuiLabel wasteString;
 	BeefGuiLabel rodStatus;
+	
+	BeefGuiLabel energyStatus;
 
 	GuiButton assembleBtn;
 	GuiButton rodInsertBtn;
@@ -55,6 +57,9 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		wasteString = new BeefGuiLabel(this, "Waste: ???? (??%)", leftX, topY);
 		topY += wasteString.getHeight() + 8;
 
+		energyStatus = new BeefGuiLabel(this, "Energy Produced: ??? units", leftX, topY);
+		topY += energyStatus.getHeight() + 8;
+		
 		rodStatus = new BeefGuiLabel(this, "Control Rod: ???", leftX, topY);
 		
 		int btnLeftX = leftX + rodStatus.getWidth() + 16;
@@ -63,8 +68,8 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		rodInsertBtn = new GuiButton(1, guiLeft + btnLeftX, guiTop + topY - 6, 20, 20, "+");
 		
 		topY += rodStatus.getHeight() + 8;
-		topY += 10;
 		
+		topY += 10;
 		assembleBtn = new GuiButton(2, guiLeft + leftX, guiTop + topY, 78, 20, "Assemble");
 		dumpInteriorBtn = new GuiButton(3, guiLeft + leftX + 90, guiTop + topY, 78, 20, "Dump");
 		
@@ -74,6 +79,8 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		registerControl(fuelString);
 		registerControl(wasteString);
 		registerControl(rodStatus);
+		
+		registerControl(energyStatus);
 		
 		buttonList.add(rodRetractBtn);
 		buttonList.add(rodInsertBtn);
@@ -88,7 +95,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		heatString.setLabelText(String.format("Heat: %2.2f C", entity.getHeat()));
 		fuelString.setLabelText(String.format("Fuel: %d (%2.1f%%)", entity.getFuelAmount(), ((float)entity.getFuelAmount() / (float)entity.getTotalContainedAmount())*100f));
 		wasteString.setLabelText(String.format("Waste: %d (%2.1f%%)", entity.getWasteAmount(), ((float)entity.getWasteAmount() / (float)entity.getTotalContainedAmount())*100f));
-		
+		energyStatus.setLabelText(String.format("Energy Produced: %2.5f units", entity.energyGeneratedLastTick));
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
 		if(entity.isAssembled()) {
 			assembleBtn.displayString = "Disassemble";

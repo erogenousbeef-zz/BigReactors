@@ -4,8 +4,8 @@ import erogenousbeef.bigreactors.api.IRadiationPulse;
 
 public class RadiationPulse implements IRadiationPulse {
 
-	int fast;
-	int slow;
+	double fast;
+	double slow;
 	int ttl;
 	double power;
 	double heat;
@@ -17,21 +17,21 @@ public class RadiationPulse implements IRadiationPulse {
 		power = 0.0;
 	}
 	
-	public RadiationPulse(int fast, int slow, int timeToLive, double heat) {
+	public RadiationPulse(double fast, double slow, int timeToLive, double heat, double power) {
 		this.fast = fast;
 		this.slow = slow;
 		this.ttl = timeToLive;
-		this.power = 0.0;
+		this.power = power;
 		this.heat = heat;
 	}
 	
 	@Override
-	public int getFastRadiation() {
+	public double getFastRadiation() {
 		return fast;
 	}
 
 	@Override
-	public int getSlowRadiation() {
+	public double getSlowRadiation() {
 		return slow;
 	}
 
@@ -41,12 +41,12 @@ public class RadiationPulse implements IRadiationPulse {
 	}
 
 	@Override
-	public void setFastRadiation(int newValue) {
+	public void setFastRadiation(double newValue) {
 		fast = newValue;
 	}
 
 	@Override
-	public void setSlowRadiation(int newValue) {
+	public void setSlowRadiation(double newValue) {
 		slow = newValue;
 	}
 
@@ -61,8 +61,8 @@ public class RadiationPulse implements IRadiationPulse {
 	}
 
 	@Override
-	public int getPowerProduced() {
-		return (int)power;
+	public double getPowerProduced() {
+		return power;
 	}
 
 	@Override

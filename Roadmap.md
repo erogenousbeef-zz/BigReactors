@@ -19,6 +19,7 @@ TODO - Alpha
 
 ### Core
 - Add maximum-dimension API and checks to BeefCore
+- Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Graphics & UI
 - Make halfway-decent UIs with better visualizations than just text
@@ -30,19 +31,20 @@ TODO - Alpha
 - (DONE) Make them a pseudo-multiblock controlled/rendered by the control rod
 - (DONE) Make sure bounding box is set properly
 - (IN PROGRESS) Add ability to toggle control rods on/off, changing radiation absorption properties
-- Implement game interfaces on new control rods (IRadiationModerator, etc.)
+- (IN PROGRESS) Implement game interfaces on new control rods (IRadiationModerator, etc.)
 - Fix registry, so fuels/wastes can supply dynamic colors again
-- Entirely remove TileEntityFuelRod
 - Fix internal MultiblockReactor simulation to use new control rods instead of old ones
 
 ### Balance & Completion
-- (IN PROGRESS) Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
-- More-proper heat/radiation numbers. Reasonable heat production. See notes (on paper, sorry internet).
-- Blutonium. Properly integrate it into the fuel cycle, give it different properties than yellorium.
+- (DONE) Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
+- (DONE) More-proper heat/radiation numbers. Reasonable heat production. See notes (on paper, sorry internet).
+- (IN PROGRESS) Finish integrating new "incident radiation" system to fix above and retest numbers.
+- (DONE) Blutonium. Properly integrate it into the fuel cycle. 
 
 ### Graphics & UI
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Make the current GUI's not suck quite as much. Decent alignment, colors, etc.
+- Make the Enricher GUI not blow goats
 
 TODO - Beta
 -----------
@@ -68,6 +70,7 @@ TODO - Beta
 ### Reactor Mechanics
 - Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
 - Add active cooling system; coolant pipes and stuff
+- Blutonium: give it different properties than yellorium.
 
 Wishlist / Post-Release
 -----------------------
