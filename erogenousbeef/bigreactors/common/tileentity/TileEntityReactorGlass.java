@@ -87,7 +87,7 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	}
 
 	@Override
-	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces) {
+	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
 		double deltaTemp = source.getHeat() - getHeat();
 		
 		// If the source is cooler than the reactor, then do nothing
@@ -95,7 +95,7 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 			return 0.0;
 		}
 
-		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces);
+		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces) * contactArea;
 
 		pulse.powerProduced += heatToAbsorb*0.25;
 		pulse.heatChange += heatToAbsorb * 0.75;

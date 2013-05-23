@@ -1,7 +1,8 @@
 package erogenousbeef.bigreactors.api;
 
 public interface IHeatEntity {
-
+	public static final double ambientHeat = 20.0; // Normal ambient temperature
+	
 	/**
 	 * Returns the amount of heat in the entity, in celsius.
 	 * @return The amount of heat in the entity, in celsius.
@@ -24,9 +25,10 @@ public interface IHeatEntity {
 	 * @param source The entity attempting to radiate heat into this entity.
 	 * @param pulse The object tracking the external results of this heat exchange
 	 * @param faces The numbers of faces on which the source is radiating. Reduce your absorption proportionally to 1/faces.
+	 * @param contactArea The relative size of the area in contact, in blocks. For example, if your object is a normal block, this is 1. If it's a multiblock, it's the number of blocks in contact. Two 1x3x1 columns would use 3, for example.
 	 * @return The amount of heat absorbed by this entity from the source, 0 if none.
 	 */
-	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces);
+	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea);
 	
 	/**
 	 * Called when an entity should try to radiate heat.

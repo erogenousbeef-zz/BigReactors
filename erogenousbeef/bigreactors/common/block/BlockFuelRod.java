@@ -66,6 +66,6 @@ public class BlockFuelRod extends BlockContainer {
 	
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		return null;
+		return new TileEntityFuelRod();
 	}
 }

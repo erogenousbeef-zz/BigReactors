@@ -1,15 +1,15 @@
 package erogenousbeef.bigreactors.api;
 
 public interface IRadiationPulse {
-	public int getFastRadiation();
-	public int getSlowRadiation();
-	public int getPowerProduced();
+	public double getFastRadiation();
+	public double getSlowRadiation();
+	public double getPowerProduced();
 	public double getHeatProduced();
 	
 	public int getTimeToLive();
 	
-	public void setFastRadiation(int newValue);
-	public void setSlowRadiation(int newValue);
+	public void setFastRadiation(double newValue);
+	public void setSlowRadiation(double newValue);
 	public void addPower(double d);
 	public void changeHeat(double difference);
 

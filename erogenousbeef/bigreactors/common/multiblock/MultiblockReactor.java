@@ -163,6 +163,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			while(blockType == BigReactors.blockYelloriumFuelRod.blockID) {
 				// Do we have waste?
 				fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
+				/*
 				if(fuelRod.hasWaste()) {
 					wasteAmt += fuelRod.getWaste().amount;
 				}
@@ -172,9 +173,11 @@ public class MultiblockReactor extends MultiblockControllerBase {
 				// If we're active, radiate, produce heatz
 				if(this.isActive()) {
 					radiationResult = fuelRod.radiate();
-					this.addStoredEnergy(radiationResult.getPowerProduced());
+					// TODO: Fixme. Internal power should be stored fractionally.
+					this.addStoredEnergy((int)radiationResult.getPowerProduced());
 					newHeat += radiationResult.getHeatProduced();
 				}
+				*/
 				
 				// Active or not, leak internal heat into the reactor itself
 				HeatPulse heatPulse = fuelRod.onRadiateHeat(getHeat());
@@ -260,6 +263,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 						// Do we have waste?
 						fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
 						
+						/*
 						if(wasteToConsume > 0) {
 							LiquidStack drained = fuelRod.drain(TileEntityFuelRod.wasteTankIndex, wasteToConsume, true);
 							if(drained != null) {
@@ -270,6 +274,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 						if(fuelToDistribute.amount > 0) {
 							fuelRod.fill(TileEntityFuelRod.fuelTankIndex, fuelToDistribute, true);
 						}
+						*/
 						
 						// Move down a block
 						c.y = c.y - 1;
