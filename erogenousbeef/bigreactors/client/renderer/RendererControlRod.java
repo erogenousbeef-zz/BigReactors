@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GL11;
 
+import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.renderer.RenderHelpers.BlockInterface;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -12,6 +13,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.liquids.LiquidStack;
@@ -126,9 +128,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		int totalAmt = fuelAmt + wasteAmt;
 		float liquidProportion = (float)totalAmt / (float)controlRod.getSizeOfFuelTank();
 		
-		// TODO: Change back to getting the colors from the registry
-		int fuelColor = BigReactors.defaultLiquidColorFuel; //getRegisteredLiquidColor(refWasteLiquid);
-		int wasteColor = BigReactors.defaultLiquidColorWaste; //getRegisteredLiquidColor(refFuelLiquid);
+		int fuelColor = getRegisteredFuelColor(controlRod.getFuelType());
+		int wasteColor = getRegisteredWasteColor(controlRod.getWasteType());
         float fuelR = unpackR(fuelColor);
         float fuelG = unpackG(fuelColor);
         float fuelB = unpackB(fuelColor);
@@ -160,7 +161,7 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glTranslatef((float)x, (float)rodBottom, (float)z);
 		
-		// TODO: is there a constant for this?
+		// Why is there no constant for this? :(
 		bindTextureByName("/terrain.png");
 		GL11.glCallList(displayList);
 		
@@ -190,11 +191,22 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 	// Liquid/Color Helpers
 	
 	// Returns the registered liquid color if there is one; 0 otherwise.
-	protected int getRegisteredLiquidColor(LiquidStack liquid) {
-		if(BRRegistry.getReactorFuelLiquids().containsKey(liquid.itemID)) {
-			return BRRegistry.getReactorFuelLiquids().get(liquid.itemID).getBlendColor();
+	protected int getRegisteredFuelColor(ItemStack itemStack) {
+		IReactorFuel fuelData = BRRegistry.getDataForFuel(itemStack);
+		if(fuelData != null) {
+			return fuelData.getFuelColor();
 		}
-		return 0;
+		
+		return BigReactors.defaultLiquidColorFuel;
+	}
+	
+	protected int getRegisteredWasteColor(ItemStack itemStack) {
+		IReactorFuel fuelData = BRRegistry.getDataForWaste(itemStack);
+		if(fuelData != null) {
+			return fuelData.getFuelColor();
+		}
+
+		return BigReactors.defaultLiquidColorWaste;
 	}
 	
 	protected static float unpackR(int rgb) {
