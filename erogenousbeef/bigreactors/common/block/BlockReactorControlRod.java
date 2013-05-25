@@ -30,7 +30,6 @@ public class BlockReactorControlRod extends BlockContainer {
 
 	@Override
 	public TileEntity createNewTileEntity(World world) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -43,8 +42,7 @@ public class BlockReactorControlRod extends BlockContainer {
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IconRegister par1IconRegister)
 	{
-		// TODO: fix
-		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "tile.blockBRSmallMachine");
+		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "tile.blockReactorPart.casingDefault");
 		this.topIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 	}
 	
@@ -63,37 +61,13 @@ public class BlockReactorControlRod extends BlockContainer {
 	@Override
 	public boolean isOpaqueCube() { return false; }
 	
-	// DEBUG CODE BELOW HERE
-	
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ) {
 		if(entityPlayer.isSneaking()) {
 			return false;
 		}
 		
-		// Debug: Direct insertion of ingots
-		ItemStack currentItem = entityPlayer.inventory.getCurrentItem();
-		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(currentItem != null && te != null && te instanceof TileEntityReactorControlRod) {
-			TileEntityReactorControlRod rod = ((TileEntityReactorControlRod)te);
-			
-			int ingotsUsed = 0;
-			if(rod.addFuel(currentItem, TileEntityReactorControlRod.fuelPerIngot * currentItem.stackSize, false) > 0) {
-				int fuelAdded = rod.addFuel(currentItem, TileEntityReactorControlRod.fuelPerIngot * currentItem.stackSize, true);
-				ingotsUsed += Math.ceil((double)fuelAdded / (double) TileEntityReactorControlRod.fuelPerIngot);
-			}
-			else if(rod.addWaste(currentItem, TileEntityReactorControlRod.fuelPerIngot * currentItem.stackSize, false) > 0) {
-				int wasteAdded = rod.addWaste(currentItem, TileEntityReactorControlRod.fuelPerIngot * currentItem.stackSize, true);
-				ingotsUsed += Math.ceil((double)wasteAdded / (double) TileEntityReactorControlRod.fuelPerIngot);
-			}
-
-			if(ingotsUsed > 0) {
-				currentItem = BRUtilities.consumeItem(currentItem, ingotsUsed);
-				return true;
-			}
-		}
-		
-		// Open debug GUI
+		// Open GUI for this block
 		entityPlayer.openGui(BRLoader.instance, 0, world, x, y, z);
 		return true;
 	}

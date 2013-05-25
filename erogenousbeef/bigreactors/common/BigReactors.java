@@ -67,7 +67,6 @@ public class BigReactors {
 	public static Block blockYelloriumFuelRod;
 	public static Block blockReactorPart;
 	public static Block blockReactorGlass;
-	// Testing purposes
 	public static Block blockReactorControlRod;
 	
 	public static Block blockRadiothermalGen;
@@ -101,6 +100,8 @@ public class BigReactors {
 
 		if (!INITIALIZED)
 		{
+			TranslationHelper.loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
+
 			/*
 			 * Register Recipes
 			 */
@@ -149,9 +150,6 @@ public class BigReactors {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack(); 
 				GameRegistry.addRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
 				
-				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControlRodItemStack(); 
-				GameRegistry.addRecipe(reactorPartStack, new Object[] { "CGC", "GRG", "C C", 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
-
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack();
 				GameRegistry.addRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
 
@@ -164,6 +162,13 @@ public class BigReactors {
 				
 				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
 				GameRegistry.addRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', singleReactorCasing.getItem() } );
+			}
+			
+			if(blockReactorControlRod != null) {
+				ItemStack singleReactorCasing = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack();
+				
+				ItemStack reactorControlRodStack = new ItemStack(BigReactors.blockReactorControlRod, 1);
+				GameRegistry.addRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "C C", 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
 			}
 			
 			/* TODO: Fixme
@@ -293,7 +298,6 @@ public class BigReactors {
 
 			OreDictionary.registerOre("reactorCasing", 		((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack());
 			OreDictionary.registerOre("reactorController", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack());
-			OreDictionary.registerOre("reactorControlRod", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorControlRodItemStack());
 			OreDictionary.registerOre("reactorPowerTap", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack());
 
 			BRConfig.CONFIGURATION.save();

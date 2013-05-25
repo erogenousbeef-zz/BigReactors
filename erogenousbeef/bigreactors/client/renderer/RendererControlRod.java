@@ -107,10 +107,10 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 			double z, float f) {
 		TileEntityReactorControlRod controlRod = ((TileEntityReactorControlRod)tileEntity);
 		
-		if(!controlRod.isAssembled()) { 
+		if(!controlRod.isAssembled()) {
 			return;
 		}
-
+		
 		// Render rod itself
 		renderControlRod(controlRod, x, y, z);
 
@@ -139,9 +139,9 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
         float wasteB = unpackB(wasteColor);
 		
         float wasteProportion = (float)wasteAmt / (float)totalAmt;
-        
+
 		int[] displayList = getDisplayListsForLiquid(BigReactors.liquidFuelColumn, columnHeight, controlRod.worldObj);
-		int displayListIndex = (int) (liquidProportion * (displayStages - 1));
+		int displayListIndex = (int) (liquidProportion * (displayStages-1));
 		renderLiquidColumn(displayList[displayListIndex], BigReactors.liquidFuelColumn.getTextureSheet(),
 				lerp(fuelR, wasteR, wasteProportion), lerp(fuelR, wasteG, wasteProportion), lerp(fuelB, wasteB, wasteProportion),
 				 x, columnBottom, z);

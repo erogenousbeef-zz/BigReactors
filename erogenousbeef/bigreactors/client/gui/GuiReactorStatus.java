@@ -88,15 +88,13 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()) + " degrees C");
 		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
-		powerStoredString.setLabelText("Power Stored: " + Integer.toString(reactor.getStoredEnergy()) + " MJ");
+		powerStoredString.setLabelText(String.format("Power Stored: %.3f units", reactor.getStoredEnergy()));
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 1) {
 			boolean newValue = !reactor.isActive();
-			
-			System.out.println(String.format("Sending activation packet to server, active => %s", Boolean.toString(newValue)));
 			
 			CoordTriplet saveDelegate = reactor.getDelegateLocation();
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,

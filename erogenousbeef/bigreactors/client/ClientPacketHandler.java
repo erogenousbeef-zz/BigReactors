@@ -140,6 +140,22 @@ public class ClientPacketHandler implements IPacketHandler {
 			}
 		}
 		break;
+		case Packets.ControlRodGuiUpdate: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te != null && te instanceof TileEntityReactorControlRod) {
+					NBTTagCompound tagCompound = Packet.readNBTTagCompound(data);
+					((TileEntityReactorControlRod)te).onReceiveGuiUpdate(tagCompound);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		break;
 		}
 	}
 }

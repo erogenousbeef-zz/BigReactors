@@ -11,6 +11,7 @@ import erogenousbeef.bigreactors.common.BRConfig;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import net.minecraft.block.Block;
@@ -40,11 +41,10 @@ public class BlockReactorPart extends BlockContainer {
 	public static final int CONTROLLER_IDLE = 7;
 	public static final int CONTROLLER_ACTIVE = 8;
 
-	public static final int CONTROLROD_METADATA_BASE = 9; // Inserted, Retracted
-	public static final int POWERTAP_METADATA_BASE 	 = 11; // Disconnected, Connected
+	public static final int POWERTAP_METADATA_BASE 	 = 9; // Disconnected, Connected
 	
-	public static final int ACCESSPORT_INLET = 13;
-	public static final int ACCESSPORT_OUTLET = 14;
+	public static final int ACCESSPORT_INLET = 11;
+	public static final int ACCESSPORT_OUTLET = 12;
 	
 	private static String[] _subBlocks = new String[] { "casingDefault",
 														"casingCorner",
@@ -55,8 +55,6 @@ public class BlockReactorPart extends BlockContainer {
 														"controllerInactive",
 														"controllerIdle",
 														"controllerActive",
-														"controlRodInserted",
-														"controlRodRetracted",
 														"powerTapDisconnected",
 														"powerTapConnected",
 														"accessInlet",
@@ -64,8 +62,7 @@ public class BlockReactorPart extends BlockContainer {
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
-	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < CONTROLROD_METADATA_BASE; }
-	public static boolean isControlRod(int metadata) { return metadata >= CONTROLROD_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
+	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
 	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE && metadata < ACCESSPORT_INLET; }
 	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET; }
 	
@@ -118,14 +115,6 @@ public class BlockReactorPart extends BlockContainer {
 					return _icons[metadata];
 				}
 			
-			case CONTROLROD_METADATA_BASE:
-			case CONTROLROD_METADATA_BASE+1:
-				if(side == 1) {
-					return _icons[metadata];
-				}
-				else {
-					return _icons[CASING_METADATA_BASE];
-				}
 			default:
 				if(side == 0 || side == 1) {
 					return _icons[CASING_METADATA_BASE];
@@ -177,7 +166,6 @@ public class BlockReactorPart extends BlockContainer {
 	
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
-		// TODO: Handle connections to power conduits and shit.
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te != null && te instanceof TileEntityReactorPowerTap) {
 			TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)te;
@@ -199,7 +187,6 @@ public class BlockReactorPart extends BlockContainer {
 		// Machine isn't assembled yet...
 		if(metadata == CONTROLLER_METADATA_BASE) { return false; }
 
-		// TODO: Fixme. Causes an NPE.
 		player.openGui(BRLoader.instance, 0, world, x, y, z);
 		return true;
 	}
@@ -227,10 +214,6 @@ public class BlockReactorPart extends BlockContainer {
 		{
 			return CONTROLLER_METADATA_BASE;
 		}
-		else if(isControlRod(metadata))
-		{
-			return CONTROLROD_METADATA_BASE;
-		}
 		else if(isPowerTap(metadata)) {
 			return POWERTAP_METADATA_BASE;
 		}
@@ -250,10 +233,6 @@ public class BlockReactorPart extends BlockContainer {
 		return new ItemStack(this.blockID, 1, CONTROLLER_METADATA_BASE);
 	}
 	
-	public ItemStack getReactorControlRodItemStack() {
-		return new ItemStack(this.blockID, 1, CONTROLROD_METADATA_BASE);
-	}
-
 	public ItemStack getReactorPowerTapItemStack() {
 		return new ItemStack(this.blockID, 1, POWERTAP_METADATA_BASE);
 	}
@@ -267,7 +246,6 @@ public class BlockReactorPart extends BlockContainer {
 	{
 		par3List.add(this.getReactorCasingItemStack());
 		par3List.add(this.getReactorControllerItemStack());
-		par3List.add(this.getReactorControlRodItemStack());
 		par3List.add(this.getReactorPowerTapItemStack());
 		par3List.add(this.getAccessPortItemStack());
 	}

@@ -1,11 +1,16 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -18,19 +23,25 @@ import erogenousbeef.bigreactors.client.gui.GuiReactorControlRod;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.RadiationPulse;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
+import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorControlRod;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.ForgeDirection;
@@ -41,7 +52,7 @@ import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.liquids.LiquidTank;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class TileEntityReactorControlRod extends TileEntityBeefBase implements IRadiationSource, IRadiationModerator, IHeatEntity {
+public class TileEntityReactorControlRod extends MultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IHeatEntity, IBeefGuiEntity {
 	public final static int maxTotalLiquidPerBlock = LiquidContainerRegistry.BUCKET_VOLUME * 4;
 	public final static int maxFuelRodsBelow = 32;
 	public final static short maxInsertion = 100;
@@ -57,14 +68,15 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	private static final double powerPerNeutron = 0.001; // internal units per fission event
 	private static final double wasteNeutronPenalty = 0.01;
 	private static final double incidentNeutronFuelRate = 0.5;
-	
-	protected boolean isAssembled = false;
-	protected boolean tryAssembleOnNextFrame = true;
-	
+
 	// 1 ingot = 1 bucket = 1000 internal fuel
 	public static final int fuelPerIngot = 1000;
 	public static final int fuelPerBucket = 1000;
+	
+	protected boolean isAssembled = false;
+	protected int minFuelRodY;
 
+	// Fuel/Waste tracking
 	protected ItemStack fuelItem;
 	protected int fuelAmount;
 	
@@ -73,6 +85,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 
 	// Radiation
 	protected double incidentRadiation; // Radiation received since last radiate() call
+	protected short controlRodInsertion; // 0 = retracted fully, 100 = inserted fully
 	
 	// Heat
 	protected double localHeat;
@@ -81,16 +94,16 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	protected int neutronsSinceLastFuelConsumption;
 	protected static final double maximumNeutronsPerFuel = 2000; // Due to probabilistic effects, this is usually only a few seconds
 
-	protected int minFuelRodY;
-	protected short controlRodInsertion; // 0 = retracted fully, 100 = inserted fully
-	
 	// Fuel messaging
 	protected int fuelAtLastUpdate;
 	protected int wasteAtLastUpdate;
 	protected static final int maximumDevianceInContentsBetweenUpdates = 50; // about 20 seconds of operation
 	
-	// DEBUG TODO REMOVEME
-	public double energyGeneratedLastTick;
+	// GUI messaging
+	private Set<EntityPlayer> updatePlayers;
+	private int ticksSinceLastUpdate;
+	private static final int ticksBetweenUpdates = 3;
+	private static final int INVALID_Y = Integer.MIN_VALUE;
 	
 	public TileEntityReactorControlRod() {
 		super();
@@ -106,13 +119,15 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		incidentRadiation = 0.0;
 		localHeat = 0.0;
 		neutronsSinceLastFuelConsumption = 0;
-		minFuelRodY = 0;
+		minFuelRodY = INVALID_Y;
 		wasteAtLastUpdate = 0;
 		fuelAtLastUpdate = 0;
 		controlRodInsertion = minInsertion;
 		
-		energyGeneratedLastTick = 0;
+		updatePlayers = new HashSet<EntityPlayer>();
 	}
+	
+	// Data accessors
 
 	public ItemStack getFuelType() {
 		if(fuelItem == null) { return null; }
@@ -122,7 +137,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	}
 	
 	public ItemStack getWasteType() {
-		if(fuelItem == null) {
+		if(wasteItem == null) {
 			return null;
 		} else {
 			return wasteItem.copy();
@@ -138,11 +153,48 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	}
 	
 	public int getSizeOfFuelTank() {
-		if(!this.isAssembled) { return 0; }
+		if(this.minFuelRodY == INVALID_Y) { return 0; }
 		else {
 			return maxTotalLiquidPerBlock * getColumnHeight();
 		}
 	}
+
+	public int getFuelAmount() {
+		if(this.fuelItem == null) { return 0; }
+		return this.fuelAmount;
+	}
+
+	public int getWasteAmount() {
+		if(this.wasteItem == null) { return 0; }
+		return this.wasteAmount;
+	}
+
+	public int getTotalContainedAmount() {
+		return this.getFuelAmount() + this.getWasteAmount();
+	}
+
+	public boolean isAssembled() {
+		return isAssembled;
+	}
+	
+	public short getControlRodInsertion() {
+		return this.controlRodInsertion;
+	}
+	
+	public void setControlRodInsertion(short newInsertion) {
+		if(newInsertion > maxInsertion || newInsertion < minInsertion || newInsertion == controlRodInsertion) { return; }
+		if(!this.isAssembled) { return; }
+
+		this.controlRodInsertion = (short)Math.max(Math.min(newInsertion, maxInsertion), minInsertion);
+		this.sendControlRodUpdate();
+	}
+	
+	public int getColumnHeight() {
+		if(minFuelRodY == INVALID_Y) { return 0; }
+		return yCoord - minFuelRodY;
+	}
+	
+	// Fuel Handling
 	
 	/**
 	 * Attempt to add some fuel to the fuel rod.
@@ -221,7 +273,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			}
 			
 			if(amtToRemove > 0 && doRemove) {
-				this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				this.updateWorldIfNeeded(this.fuelItem == null);
 			}
 			return amtToRemove;
 		}
@@ -307,33 +359,12 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			}
 			
 			if(amtToRemove > 0 && doRemove) {
-				this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				this.updateWorldIfNeeded(this.wasteItem == null);
 			}
 			return amtToRemove;
 		}
 
 		return 0;
-	}
-	
-	@Override
-	public void updateEntity() {
-		super.updateEntity();
-		
-		if(this.tryAssembleOnNextFrame) {
-			tryAssembleOnNextFrame = false;
-			tryAssemble();
-		}
-		
-		if(this.worldObj.isRemote) { return; }
-		
-		// DEBUG CODE TODO REMOVEME
-		this.energyGeneratedLastTick = 0;
-		if(this.isAssembled) {
-			IRadiationPulse radPulse = this.radiate();
-			this.energyGeneratedLastTick += radPulse.getPowerProduced();
-		}
-		HeatPulse heatPulse = this.onRadiateHeat(20.0); // assume air around is always 20C
-		this.energyGeneratedLastTick += heatPulse.powerProduced;
 	}
 	
 	protected void updateWorldIfNeeded(boolean force) {
@@ -352,140 +383,36 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		}
 	}
 	
+	// TileEntity stuff
+	// We need an update loop for this class, as we show special GUIs
+	@Override
+	public boolean canUpdate() { return true; }
+
+	@Override
+	public void updateEntity() {
+		super.updateEntity();
+		
+		if(!this.worldObj.isRemote && this.updatePlayers.size() > 0) {
+			ticksSinceLastUpdate++;
+			if(ticksSinceLastUpdate >= ticksBetweenUpdates) {
+				sendGuiUpdate();
+				ticksSinceLastUpdate = 0;
+			}
+		}
+	}
+	
 	// Save/Load
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
-		
-		if(data.hasKey("localHeat")) {
-			this.localHeat = data.getDouble("localHeat");
-		}
-		
-		if(data.hasKey("incidentRadiation")) {
-			this.incidentRadiation = data.getDouble("incidentRadiation");
-		}
-		
-		if(data.hasKey("ticksSinceLastFuelConsumption")) {
-			this.neutronsSinceLastFuelConsumption = data.getInteger("ticksSinceLastFuelConsumption");
-		}
-		
-		this.fuelAmount = 0;
-		this.fuelItem = null;
-		if(data.hasKey("fuelAmount") && data.hasKey("fuelData")) {
-			this.fuelAmount = data.getInteger("fuelAmount");
-			this.fuelItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("fuelData"));
-		}
-		this.fuelAtLastUpdate = this.fuelAmount;
-
-		this.wasteAmount = 0;
-		this.wasteItem = null;
-		if(data.hasKey("wasteAmount") && data.hasKey("wasteData")) {
-			this.wasteAmount = data.getInteger("wasteAmount");
-			this.wasteItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("wasteData"));
-		}
-		this.wasteAtLastUpdate = this.wasteAmount;
-		
-		if(data.hasKey("isAssembled")) {
-			// Can't do this straight-away on chunk load, unfortunately
-			this.tryAssembleOnNextFrame = data.getBoolean("isAssembled");
-		}
-		
-		if(data.hasKey("controlRodInsertion")) {
-			this.controlRodInsertion = data.getShort("controlRodInsertion");
-		}
-		
-		if(data.hasKey("energyGeneratedLastTick")) {
-			this.energyGeneratedLastTick = data.getDouble("energyGeneratedLastTick");
-		}
-		else {
-			this.energyGeneratedLastTick = 0;
-		}
+		this.readLocalDataFromNBT(data);
 	}
 	
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		super.writeToNBT(data);
-		
-		data.setDouble("incidentRadiation", this.incidentRadiation);
-		data.setDouble("localHeat", this.localHeat);
-		data.setInteger("ticksSinceLastFuelConsumption", this.neutronsSinceLastFuelConsumption);
-		data.setBoolean("isAssembled", this.isAssembled);
-		data.setShort("controlRodInsertion", this.controlRodInsertion);
-		data.setDouble("energyGeneratedLastTick", energyGeneratedLastTick);
-		
-		if(this.fuelItem != null && this.fuelAmount > 0) {
-			NBTTagCompound fuelData = new NBTTagCompound();
-			this.fuelItem.writeToNBT(fuelData);
-			data.setInteger("fuelAmount", fuelAmount);
-			data.setCompoundTag("fuelData", fuelData);
-		}
-		
-		if(this.wasteItem != null && this.wasteAmount > 0) {
-			NBTTagCompound wasteData = new NBTTagCompound();
-			this.wasteItem.writeToNBT(wasteData);
-			data.setInteger("wasteAmount", wasteAmount);
-			data.setCompoundTag("wasteData", wasteData);
-		}
+		this.writeLocalDataToNBT(data);
 	}
-	
-	public void tryAssemble() {
-		if(isAssembled) { return; }
-
-		// Look for at least one fuel rod beneath us
-		minFuelRodY = this.yCoord - 1;
-		int blocksChecked = 0;
-		while(this.worldObj.getBlockId(xCoord, minFuelRodY, zCoord) == BigReactors.blockYelloriumFuelRod.blockID && blocksChecked <= maxFuelRodsBelow) {
-			blocksChecked++;
-			minFuelRodY--;
-		}
-		
-		minFuelRodY++;
-		
-		// If we end up back at ourself, we can't assemble.
-		if(minFuelRodY == this.yCoord) {
-			this.onDisassembled();
-		}
-		else {
-			this.onAssembled();
-		}
-	}
-
-	private void onAssembled() {
-		if(!this.isAssembled) {
-			this.isAssembled = true;
-			
-			if(!this.worldObj.isRemote) {
-				TileEntity te;
-				for(int dy = this.minFuelRodY; dy < this.yCoord; dy++) {
-					te = this.worldObj.getBlockTileEntity(xCoord, dy, zCoord);
-					if(te != null && te instanceof TileEntityFuelRod) {
-						((TileEntityFuelRod)te).onAssemble(this);
-					}
-				}
-			}
-			
-			sendControlRodUpdate();
-		}
-	}
-
-	private void onDisassembled() {
-		if(this.isAssembled) {
-			this.isAssembled = false;
-
-			if(!this.worldObj.isRemote) {
-				TileEntity te;
-				for(int dy = this.yCoord - 1; dy >= this.minFuelRodY; dy--) {
-					te = this.worldObj.getBlockTileEntity(xCoord, yCoord, zCoord);
-					if(te != null && te instanceof TileEntityFuelRod) {
-						((TileEntityFuelRod)te).onDisassemble();
-					}
-				}
-			}
-			
-			sendControlRodUpdate();
-		}
-	}
-
 	
     // IRadiationSource
 	@Override
@@ -503,7 +430,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		// Step 1a: Generate spontaneous neutrons from fuel (consumes fuel)
 		if(this.fuelAmount > 0) {
 			rawNeutronsGenerated += (double)this.fuelAmount * neutronsPerFuel;
-			rawNeutronsGenerated *= (double)this.controlRodInsertion / 100.0;
+			rawNeutronsGenerated *= 1.0 - ((double)this.controlRodInsertion / 100.0);
 
 			fuelDesired += rawNeutronsGenerated * Math.max(1.0, Math.log10(this.localHeat));
 			
@@ -515,7 +442,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
 		if(this.incidentRadiation > 0.0) {
 			double additionalNeutronsGenerated = Math.max(0.0, this.incidentRadiation * 0.5 - Math.log10(this.localHeat));
-			additionalNeutronsGenerated *= (double)this.controlRodInsertion / 100.0;
+			additionalNeutronsGenerated *= 1.0 - ((double)this.controlRodInsertion / 100.0);
 
 			if(additionalNeutronsGenerated > 0.0) {
 				fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate * Math.max(1.0, Math.log10(this.localHeat));
@@ -641,8 +568,19 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 
 		return radiation;
 	}	
-	// TileEntityBeefBase
-	
+
+	// Player updates via IBeefGuiEntity
+	@Override
+	public void beginUpdatingPlayer(EntityPlayer player) {
+		updatePlayers.add(player);
+		sendGuiUpdatePacketToClient(player);
+	}
+
+	@Override
+	public void stopUpdatingPlayer(EntityPlayer player) {
+		updatePlayers.remove(player);
+	}
+
 	@Override
 	public GuiScreen getGUI(EntityPlayer player) {
 		return new GuiReactorControlRod(getContainer(player), this);
@@ -652,66 +590,71 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	public Container getContainer(EntityPlayer player) {
 		return new ContainerReactorControlRod(this, player);
 	}
-
+	
 	@Override
-	protected void onReceiveGuiButtonPress(String buttonName,
-			DataInputStream dataStream) throws IOException {
-		System.out.println("onReceiveGuiButtonPress::" + buttonName);
-		if(buttonName.equals("assemble")) {
-			if(!this.isAssembled) {
-				tryAssemble();
-			}
-			else {
-				this.onDisassembled();
-			}
-		}
-		else if(buttonName.equals("rodInsert")) {
+	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+		if(buttonName.equals("rodInsert")) {
 			setControlRodInsertion((short)(this.controlRodInsertion + 10));
 		}
 		else if(buttonName.equals("rodRetract")) {
 			setControlRodInsertion((short)(this.controlRodInsertion - 10));
 		}
-		else if(buttonName.equals("dump")) {
-			// TODO: Debug code, removeme
-			this.fuelAmount = 0;
-			this.fuelItem = null;
-			this.wasteAmount = 0;
-			this.wasteItem = null;
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+	}
+	
+	public void onReceiveGuiUpdate(NBTTagCompound updateData) {
+		this.readFromNBT(updateData);
+	}
+	
+	
+	protected Packet getGuiUpdatePacket() {
+		NBTTagCompound childData = new NBTTagCompound();
+		this.writeToNBT(childData);
+		
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		DataOutputStream data = new DataOutputStream(bytes);
+		try
+		{
+			data.write(Packets.ControlRodGuiUpdate);
+			data.writeInt(this.xCoord);
+			data.writeInt(this.yCoord);
+			data.writeInt(this.zCoord);
+
+			// Taken from Packet.java
+            byte[] abyte = CompressedStreamTools.compress(childData);
+            data.writeShort((short)abyte.length);
+            data.write(abyte);
 		}
-	}
-
-	public int getFuelAmount() {
-		if(this.fuelItem == null) { return 0; }
-		return this.fuelAmount;
-	}
-
-	public int getWasteAmount() {
-		if(this.wasteItem == null) { return 0; }
-		return this.wasteAmount;
-	}
-
-	public int getTotalContainedAmount() {
-		return this.getFuelAmount() + this.getWasteAmount();
-	}
-
-	public boolean isAssembled() {
-		return isAssembled;
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		Packet250CustomPayload newPacket = new Packet250CustomPayload();
+		newPacket.channel = BigReactors.CHANNEL;
+		newPacket.data = bytes.toByteArray();
+		newPacket.length = newPacket.data.length;
+		
+		return newPacket;
 	}
 	
-	public short getControlRodInsertion() {
-		return this.controlRodInsertion;
-	}
-	
-	public void setControlRodInsertion(short newInsertion) {
-		if(newInsertion > maxInsertion || newInsertion < minInsertion || newInsertion == controlRodInsertion) { return; }
-		if(!this.isAssembled) { return; }
+	private void sendGuiUpdatePacketToClient(EntityPlayer recipient) {
+		if(this.worldObj.isRemote) { return; }
 
-		this.controlRodInsertion = (short)Math.max(Math.min(newInsertion, maxInsertion), minInsertion);
-		this.sendControlRodUpdate();
+		PacketDispatcher.sendPacketToPlayer(getGuiUpdatePacket(), (Player)recipient);
 	}
 	
-	// Updates
+	private void sendGuiUpdate() {
+		if(this.worldObj.isRemote) { return; }
+		if(this.updatePlayers.size() <= 0) { return; }
+		
+		Packet data = getGuiUpdatePacket();
+
+		for(EntityPlayer player : updatePlayers) {
+			PacketDispatcher.sendPacketToPlayer(data, (Player)player);
+		}
+	}	
+
+	// Control Rod Updates
 	protected void sendControlRodUpdate() {
 		if(this.worldObj == null || this.worldObj.isRemote) { return; }
 
@@ -723,15 +666,8 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	
 	@SideOnly(Side.CLIENT)
 	public void onControlRodUpdate(boolean isAssembled, int minFuelRodY, short controlRodInsertion) {
+		this.isAssembled = isAssembled;
 		this.minFuelRodY = minFuelRodY;
-		if(this.isAssembled != isAssembled) {
-			if(isAssembled) {
-				onAssembled();
-			} else {
-				onDisassembled();
-			}
-		}
-
 		this.controlRodInsertion = controlRodInsertion;
 	}
 
@@ -808,7 +744,11 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		TileEntity te;
 		IHeatEntity he;
 		double lostHeat = 0.0;
-	
+
+		if(!this.isAssembled) {
+			return null;
+		}
+		
 		// Run this along the length of the stack, in case of a nonuniform interior
 		ForgeDirection[] dirs = new ForgeDirection[] { ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.EAST, ForgeDirection.NORTH};
 		for(int dy = this.minFuelRodY; dy < yCoord; dy++) {
@@ -819,7 +759,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 					lostHeat += he.onAbsorbHeat(this, results, dirs.length, 1);
 				}
 				else {
-					lostHeat += transmitHeatByMaterial(ambientHeat, this.worldObj.getBlockMaterial(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ), results, dirs.length);
+					lostHeat += transmitHeatByMaterial(ambientHeat, this.worldObj.getBlockMaterial(xCoord + dir.offsetX, dy + dir.offsetY, zCoord + dir.offsetZ), results, dirs.length);
 				}
 			}
 		}
@@ -849,12 +789,52 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		pulse.heatChange += heatToTransfer * (1.0-conversionEfficiency);
 		
 		return heatToTransfer;
-	}	
+	}
 	
 	// Helpers
-	
-	public int getColumnHeight() {
-		return yCoord - minFuelRodY;
+	private void onControlRodAssembled() {
+		if(this.worldObj.isRemote) { return; }
+
+		this.isAssembled = true;
+		
+		// Look for at least one fuel rod beneath us
+		minFuelRodY = this.yCoord - 1;
+		int blocksChecked = 0;
+		while(blocksChecked <= maxFuelRodsBelow) {
+			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, minFuelRodY, zCoord);
+			if(te != null && te instanceof TileEntityFuelRod) {
+				((TileEntityFuelRod)te).onAssemble(this);
+			}
+			else {
+				break;
+			}
+			
+			blocksChecked++;
+			minFuelRodY--;
+		}
+		
+		minFuelRodY++;
+
+		sendControlRodUpdate();
+	}
+
+	private void onControlRodDisassembled() {
+		if(this.worldObj.isRemote) { return; }
+		if(!this.isAssembled) { return; }
+
+		// Notify all fuel rods beneath us that we're disassembling
+		if(!this.worldObj.isRemote) {
+			TileEntity te;
+			for(int dy = this.yCoord - 1; dy >= this.minFuelRodY; dy--) {
+				te = this.worldObj.getBlockTileEntity(xCoord, yCoord, zCoord);
+				if(te != null && te instanceof TileEntityFuelRod) {
+					((TileEntityFuelRod)te).onDisassemble();
+				}
+			}
+		}
+		
+		this.isAssembled = false;
+		sendControlRodUpdate();
 	}
 	
     @SideOnly(Side.CLIENT)
@@ -920,16 +900,137 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			}
 		}
 	}
-    
-	// TODO: DEBUG TEMPORARY CODE REMOVE LATER
+
+	private void readLocalDataFromNBT(NBTTagCompound data) {
+		if(data.hasKey("localHeat")) {
+			this.localHeat = data.getDouble("localHeat");
+		}
+		
+		if(data.hasKey("incidentRadiation")) {
+			this.incidentRadiation = data.getDouble("incidentRadiation");
+		}
+		
+		if(data.hasKey("ticksSinceLastFuelConsumption")) {
+			this.neutronsSinceLastFuelConsumption = data.getInteger("ticksSinceLastFuelConsumption");
+		}
+		
+		this.fuelAmount = 0;
+		this.fuelItem = null;
+		if(data.hasKey("fuelAmount") && data.hasKey("fuelData")) {
+			this.fuelAmount = data.getInteger("fuelAmount");
+			this.fuelItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("fuelData"));
+		}
+		this.fuelAtLastUpdate = this.fuelAmount;
+
+		this.wasteAmount = 0;
+		this.wasteItem = null;
+		if(data.hasKey("wasteAmount") && data.hasKey("wasteData")) {
+			this.wasteAmount = data.getInteger("wasteAmount");
+			this.wasteItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("wasteData"));
+		}
+		this.wasteAtLastUpdate = this.wasteAmount;
+		
+		if(data.hasKey("controlRodInsertion")) {
+			this.controlRodInsertion = data.getShort("controlRodInsertion");
+		}
+	}
+	
+	private void writeLocalDataToNBT(NBTTagCompound data) {
+		data.setDouble("incidentRadiation", this.incidentRadiation);
+		data.setDouble("localHeat", this.localHeat);
+		data.setInteger("ticksSinceLastFuelConsumption", this.neutronsSinceLastFuelConsumption);
+		data.setShort("controlRodInsertion", this.controlRodInsertion);
+		
+		if(this.fuelItem != null && this.fuelAmount > 0) {
+			NBTTagCompound fuelData = new NBTTagCompound();
+			this.fuelItem.writeToNBT(fuelData);
+			data.setInteger("fuelAmount", fuelAmount);
+			data.setCompoundTag("fuelData", fuelData);
+		}
+		
+		if(this.wasteItem != null && this.wasteAmount > 0) {
+			NBTTagCompound wasteData = new NBTTagCompound();
+			this.wasteItem.writeToNBT(wasteData);
+			data.setInteger("wasteAmount", wasteAmount);
+			data.setCompoundTag("wasteData", wasteData);
+		}
+	}
+	
+	// MultiblockTileEntityBase
 	@Override
-	public void onSendUpdate(NBTTagCompound data) {
-		this.writeToNBT(data);
+	public MultiblockControllerBase getNewMultiblockControllerObject() {
+		return new MultiblockReactor(this.worldObj);
+	}
+
+	@Override
+	public boolean isGoodForFrame() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForSides() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForTop() {
+		return true;
+	}
+
+	@Override
+	public boolean isGoodForBottom() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForInterior() {
+		return false;
+	}
+
+	@Override
+	public void onMachineAssembled() {
+		this.onControlRodAssembled();
+	}
+
+	@Override
+	public void onMachineBroken() {
+		this.onControlRodDisassembled();
+	}
+
+	@Override
+	public void onMachineActivated() {
+	}
+
+	@Override
+	public void onMachineDeactivated() {
 	}
 	
 	@Override
-	public void onReceiveUpdate(NBTTagCompound data) {
-		this.readFromNBT(data);
+	protected void formatDescriptionPacket(NBTTagCompound packet) {
+		super.formatDescriptionPacket(packet);
+		NBTTagCompound localData = new NBTTagCompound();
+		this.writeLocalDataToNBT(localData);
+		localData.setBoolean("isAssembled", this.isAssembled);
+		localData.setInteger("minFuelRodY", this.minFuelRodY);
+		packet.setCompoundTag("reactorControlRod", localData);
 	}
-
+	
+	@Override
+	protected void decodeDescriptionPacket(NBTTagCompound packet) {
+		super.decodeDescriptionPacket(packet);
+		
+		if(packet.hasKey("reactorControlRod")) {
+			NBTTagCompound localData = packet.getCompoundTag("reactorControlRod");
+			this.readLocalDataFromNBT(localData);
+			
+			if(localData.hasKey("isAssembled")) {
+				this.isAssembled = localData.getBoolean("isAssembled");
+			}
+			
+			if(localData.hasKey("minFuelRodY")) {
+				this.minFuelRodY = localData.getInteger("minFuelRodY");
+			}
+		}
+		
+	}
 }

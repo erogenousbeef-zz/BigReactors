@@ -28,14 +28,6 @@ TODO - Alpha
 - Make glass have a border when disassembled, no border when assembled
 - Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
 
-### Refactor fuel rods
-- (DONE) Make them a pseudo-multiblock controlled/rendered by the control rod
-- (DONE) Add ability to toggle control rods on/off, changing radiation absorption properties
-- (DONE) Make control rod insertion matter.
-- (DONE) Implement game interfaces on new control rods (IRadiationModerator, etc.)
-- Fix registry, so fuels/wastes can supply dynamic colors again
-- Fix internal MultiblockReactor simulation to use new control rods instead of old ones
-
 ### Graphics & UI
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Make the current GUI's not suck quite as much. Decent alignment, colors, etc.

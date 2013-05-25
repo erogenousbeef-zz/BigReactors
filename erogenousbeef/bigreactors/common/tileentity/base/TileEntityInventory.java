@@ -260,7 +260,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	
 	// Networked GUI
 	@Override
-	protected void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
 		if(buttonName.equals("changeInvSide")) {
 			int side = dataStream.readInt();
 			int slot = invExposures[side];

@@ -12,6 +12,7 @@ import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
+import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 
 public class ServerPacketHandler implements IPacketHandler {
 
@@ -40,18 +41,18 @@ public class ServerPacketHandler implements IPacketHandler {
 
 			} catch (IOException e) {
 				e.printStackTrace();
-				// TODO: Crash all the things.
 			}
 			
 			break;
-		case Packets.SmallMachineButton:
+		case Packets.BeefGuiButtonPress:
 			try {
 				x = data.readInt();
 				y = data.readInt();
 				z = data.readInt();
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-				if(te != null & te instanceof TileEntityBeefBase) {
-					((TileEntityBeefBase)te).receiveGuiButtonPacket(data);
+				if(te != null & te instanceof IBeefGuiEntity) {
+					String buttonName = data.readUTF();
+					((IBeefGuiEntity)te).onReceiveGuiButtonPress(buttonName, data);
 				}
 				else {
 					throw new IOException("Invalid TileEntity for receipt of ReactorControllerButton packet");
@@ -59,7 +60,6 @@ public class ServerPacketHandler implements IPacketHandler {
 
 			} catch (IOException e) {
 				e.printStackTrace();
-				// TODO: Crash all the things.
 			}
 			
 			break;

@@ -49,15 +49,13 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	@Override
 	public boolean isGoodForSides() {
-		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isControlRod(metadata)) { return false; }
-		else { return true; }
+		return true;
 	}
 
 	@Override
 	public boolean isGoodForTop() {
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isCasing(metadata) || BlockReactorPart.isControlRod(metadata)) {
+		if(BlockReactorPart.isCasing(metadata)) {
 			return true;
 		}
 		return false;
@@ -83,10 +81,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		if(BlockReactorPart.isCasing(metadata)) {
 			this.setCasingMetadataBasedOnWorldPosition();
 		}
-		else if(BlockReactorPart.isControlRod(metadata)) {
-			// Control rods start inserted.
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLROD_METADATA_BASE, 2);
-		}
 		else if(BlockReactorPart.isController(metadata)) {
 			// Controllers start idle
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);
@@ -100,9 +94,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		int metadata = this.getBlockMetadata();
 		if(BlockReactorPart.isCasing(metadata)) {
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
-		}
-		else if(BlockReactorPart.isControlRod(metadata)) {
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLROD_METADATA_BASE, 2);
 		}
 		else if(BlockReactorPart.isController(metadata)) {
 			// Controllers start idle
@@ -190,11 +181,11 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {
-			Class decodeAs[] = { Boolean.class, Double.class, Integer.class };
+			Class decodeAs[] = { Boolean.class, Double.class, Double.class };
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			boolean active = (Boolean) decodedData[0];
 			double heat = (Double) decodedData[1];
-			int storedEnergy = (Integer) decodedData[2];
+			double storedEnergy = (Double) decodedData[2];
 
 			getReactorController().setActive(active);
 			getReactorController().setHeat(heat);
@@ -268,7 +259,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
-			System.out.println("getGuiElement - null (no connection)");
 			return null;
 		}
 		
@@ -296,9 +286,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		if(BlockReactorPart.isController(oldMeta) && BlockReactorPart.isController(newMeta)) {
 			return false;
 		}
-		if(BlockReactorPart.isControlRod(oldMeta) && BlockReactorPart.isControlRod(newMeta)) {
-			return false;
-		}
 		if(BlockReactorPart.isPowerTap(oldMeta) && BlockReactorPart.isPowerTap(newMeta)) {
 			return false;
 		}
@@ -314,6 +301,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// IRadiationModerator
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
+		// TODO: FIXME
 		double newHeat = radiation.getSlowRadiation() * 0.75;
 		
 		// Convert 25% of newly-gained heat to energy (thermocouple or something)
@@ -329,7 +317,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 	
 	// IHeatEntity
-	
+	// TODO: FIXME
 	@Override
 	public double getHeat() {
 		if(!this.isConnected()) { return 0; }

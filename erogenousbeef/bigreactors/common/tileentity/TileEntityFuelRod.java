@@ -8,6 +8,10 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.RadiationPulse;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.core.multiblock.IMultiblockPart;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import net.minecraft.block.material.Material;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
@@ -21,7 +25,7 @@ import net.minecraftforge.liquids.LiquidContainerRegistry;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.liquids.LiquidTank;
 
-public class TileEntityFuelRod extends TileEntity implements IRadiationModerator, IHeatEntity {
+public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
 	// Y-value of the control rod, if this Fuel Rod is attached to one
 	protected int controlRodY;
@@ -113,5 +117,66 @@ public class TileEntityFuelRod extends TileEntity implements IRadiationModerator
 	public HeatPulse onRadiateHeat(double ambientHeat) {
 		// We don't do this.
 		return null;
+	}
+
+	@Override
+	public MultiblockControllerBase getNewMultiblockControllerObject() {
+		return new MultiblockReactor(this.worldObj);
+	}
+
+	@Override
+	public boolean isGoodForFrame() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForSides() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForTop() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForBottom() {
+		return false;
+	}
+
+	@Override
+	public boolean isGoodForInterior() {
+		// Check above and below. Above must be fuel rod or control rod.
+		TileEntity entityAbove = this.worldObj.getBlockTileEntity(xCoord, yCoord+1, zCoord);
+		if(entityAbove != null && (entityAbove instanceof TileEntityFuelRod || entityAbove instanceof TileEntityReactorControlRod)) {
+			return true;
+		}
+		
+		// Below must be fuel rod or the base of the reactor.
+		TileEntity entityBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord+1, zCoord);
+		if(entityBelow instanceof TileEntityFuelRod) {
+			return true;
+		}
+		else if(entityBelow instanceof IMultiblockPart) {
+			return ((IMultiblockPart)entityBelow).isGoodForBottom();
+		}
+		
+		return false;
+	}
+
+	@Override
+	public void onMachineAssembled() {
+	}
+
+	@Override
+	public void onMachineBroken() {
+	}
+
+	@Override
+	public void onMachineActivated() {
+	}
+
+	@Override
+	public void onMachineDeactivated() {
 	}
 }

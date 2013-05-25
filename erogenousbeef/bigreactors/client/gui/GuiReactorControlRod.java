@@ -18,13 +18,9 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	BeefGuiLabel fuelString;
 	BeefGuiLabel wasteString;
 	BeefGuiLabel rodStatus;
-	
-	BeefGuiLabel energyStatus;
 
-	GuiButton assembleBtn;
 	GuiButton rodInsertBtn;
 	GuiButton rodRetractBtn;
-	GuiButton dumpInteriorBtn;
 	
 	public GuiReactorControlRod(Container c, TileEntityReactorControlRod controlRod) {
 		super(c);
@@ -57,9 +53,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		wasteString = new BeefGuiLabel(this, "Waste: ???? (??%)", leftX, topY);
 		topY += wasteString.getHeight() + 8;
 
-		energyStatus = new BeefGuiLabel(this, "Energy Produced: ??? units", leftX, topY);
-		topY += energyStatus.getHeight() + 8;
-		
 		rodStatus = new BeefGuiLabel(this, "Control Rod: ???", leftX, topY);
 		
 		int btnLeftX = leftX + rodStatus.getWidth() + 16;
@@ -69,23 +62,14 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		
 		topY += rodStatus.getHeight() + 8;
 		
-		topY += 10;
-		assembleBtn = new GuiButton(2, guiLeft + leftX, guiTop + topY, 78, 20, "Assemble");
-		dumpInteriorBtn = new GuiButton(3, guiLeft + leftX + 90, guiTop + topY, 78, 20, "Dump");
-		
-		
 		registerControl(titleString);
 		registerControl(heatString);
 		registerControl(fuelString);
 		registerControl(wasteString);
 		registerControl(rodStatus);
 		
-		registerControl(energyStatus);
-		
 		buttonList.add(rodRetractBtn);
 		buttonList.add(rodInsertBtn);
-		buttonList.add(assembleBtn);
-		buttonList.add(dumpInteriorBtn);
 	}
 	
 	@Override
@@ -95,15 +79,12 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		heatString.setLabelText(String.format("Heat: %2.2f C", entity.getHeat()));
 		fuelString.setLabelText(String.format("Fuel: %d (%2.1f%%)", entity.getFuelAmount(), ((float)entity.getFuelAmount() / (float)entity.getTotalContainedAmount())*100f));
 		wasteString.setLabelText(String.format("Waste: %d (%2.1f%%)", entity.getWasteAmount(), ((float)entity.getWasteAmount() / (float)entity.getTotalContainedAmount())*100f));
-		energyStatus.setLabelText(String.format("Energy Produced: %2.5f units", entity.energyGeneratedLastTick));
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
 		if(entity.isAssembled()) {
-			assembleBtn.displayString = "Disassemble";
 			rodInsertBtn.enabled = true;
 			rodRetractBtn.enabled = true;
 		}
 		else {
-			assembleBtn.displayString = "Assemble";
 			rodInsertBtn.enabled = false;
 			rodRetractBtn.enabled = false;
 		}
@@ -118,18 +99,12 @@ public class GuiReactorControlRod extends BeefGuiBase {
 			btnCmd = "rodRetract";
 			break;
 		case 1:
-			btnCmd = "rodInsert";
-			break;
-		case 2:
-			btnCmd = "assemble";
-			break;
-		case 3:
 		default:
-			btnCmd = "dump";
+			btnCmd = "rodInsert";
 			break;
 		}
 		
-		PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineButton,
+		PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
 				new Object[] { entity.xCoord, entity.yCoord, entity.zCoord, btnCmd }));
 	}
 }
