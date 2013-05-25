@@ -15,8 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.liquids.LiquidDictionary;
-import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.oredict.OreDictionary;
 
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
@@ -24,6 +23,7 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -37,7 +37,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	// Game stuff
 	protected boolean active;
 	private double latentHeat;
-	private int storedEnergy;	// Internal units
+	private double storedEnergy;	// Internal units
 	
 	private LinkedList<CoordTriplet> activePowerTaps;
 	// Highest internal Y-coordinate in the fuel column
@@ -78,40 +78,42 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	
 	@Override
 	protected void onBlockAdded(IMultiblockPart part) {
+		CoordTriplet coord = part.getWorldLocation();
 		if(part instanceof TileEntityReactorAccessPort) {
-			CoordTriplet coord = part.getWorldLocation();
 			if(!attachedAccessPorts.contains(coord)) {
 				attachedAccessPorts.add(coord);
 			}
 		}
-		else if(part instanceof TileEntityReactorPart) {
-			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
-			CoordTriplet coord = part.getWorldLocation();
-			if(BlockReactorPart.isControlRod(metadata) && !attachedControlRods.contains(coord)) {
+		else if(part instanceof TileEntityReactorControlRod) {
+			if(!attachedControlRods.contains(coord)) {
 				attachedControlRods.add(coord);
 			}
-			else if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
+		}
+		else if(part instanceof TileEntityReactorPart) {
+			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
+			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
 				attachedControllers.add(coord);
 			}
 		}
-		
 	}
 	
 	@Override
 	protected void onBlockRemoved(IMultiblockPart part) {
+		CoordTriplet coord = part.getWorldLocation();
 		if(part instanceof TileEntityReactorAccessPort) {
-			CoordTriplet coord = part.getWorldLocation();
 			if(attachedAccessPorts.contains(coord)) {
 				attachedAccessPorts.remove(coord);
 			}
 		}
-		else if(part instanceof TileEntityReactorPart) {
-			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
-			CoordTriplet coord = part.getWorldLocation();
-			if(BlockReactorPart.isControlRod(metadata) && attachedControlRods.contains(coord)) {
+		else if(part instanceof TileEntityReactorControlRod) {
+			attachedControlRods.remove(coord);
+			if(attachedControlRods.contains(coord)) {
 				attachedControlRods.remove(coord);
 			}
-			else if(BlockReactorPart.isController(metadata) && attachedControllers.contains(coord)) {
+		}
+		else if(part instanceof TileEntityReactorPart) {
+			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
+			if(BlockReactorPart.isController(metadata) && attachedControllers.contains(coord)) {
 				attachedControllers.remove(coord);
 			}
 		}
@@ -145,6 +147,9 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	@Override
 	public void updateMultiblockEntity() {		
 		super.updateMultiblockEntity();
+		
+		if(!this.isWholeMachine) { return; }
+		
 		double oldHeat = this.getHeat();
 
 		// How much waste do we have?
@@ -154,42 +159,26 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		double newHeat = 0.0;
 		IRadiationPulse radiationResult;
 
-		// Look for waste and run radiation simulation
-		TileEntityFuelRod fuelRod;
+		// Look for waste and run radiation & heat simulations
+		TileEntityReactorControlRod controlRod;
 		for(CoordTriplet coord : attachedControlRods) {
-			CoordTriplet c = coord.copy();
-			c.y = c.y - 1;
-			int blockType = worldObj.getBlockId(c.x, c.y, c.z);			
-			while(blockType == BigReactors.blockYelloriumFuelRod.blockID) {
-				// Do we have waste?
-				fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
-				/*
-				if(fuelRod.hasWaste()) {
-					wasteAmt += fuelRod.getWaste().amount;
-				}
-				
-				freeFuelSpace += fuelRod.maxTotalLiquid - fuelRod.getTotalLiquid();
-				
-				// If we're active, radiate, produce heatz
-				if(this.isActive()) {
-					radiationResult = fuelRod.radiate();
-					// TODO: Fixme. Internal power should be stored fractionally.
-					this.addStoredEnergy((int)radiationResult.getPowerProduced());
-					newHeat += radiationResult.getHeatProduced();
-				}
-				*/
-				
-				// Active or not, leak internal heat into the reactor itself
-				HeatPulse heatPulse = fuelRod.onRadiateHeat(getHeat());
+			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			wasteAmt += controlRod.getWasteAmount();
+			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getFuelAmount();
+			
+			if(this.isActive()) {
+				radiationResult = controlRod.radiate();
+				this.addStoredEnergy(radiationResult.getPowerProduced());
+				newHeat += radiationResult.getHeatProduced();
+			}
+			
+			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
+			if(heatPulse != null) {
+				this.addStoredEnergy(heatPulse.powerProduced);
 				newHeat += heatPulse.heatChange;
-				this.addStoredEnergy((int)heatPulse.powerProduced);
-				
-				// Move down a block
-				c.y = c.y - 1;
-				blockType = worldObj.getBlockId(c.x, c.y, c.z);
 			}
 		}
-		
+
 		// Now apply delta-heat
 		latentHeat += newHeat;
 		
@@ -199,7 +188,8 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			ItemStack wasteToDistribute = null;
 			if(wasteAmt >= 1000) {
 				// TODO: Make this query for the right type of waste to create
-				wasteToDistribute = new ItemStack(BigReactors.ingotGeneric, wasteAmt/1000, 1);
+				wasteToDistribute = OreDictionary.getOres("ingotCyanite").get(0);
+				wasteToDistribute.stackSize = wasteAmt/1000;
 			}
 
 			int fuelIngotsToConsume = freeFuelSpace / 1000;
@@ -247,46 +237,35 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			
 			// Okay... let's modify the fuel rods now
 			if((wasteToDistribute != null && wasteToDistribute.stackSize != wasteAmt / 1000) || fuelIngotsConsumed > 0) {
-				LiquidStack fuelToDistribute = LiquidDictionary.getLiquid("yellorium", fuelIngotsConsumed * 1000);
+				int fuelToDistribute = fuelIngotsConsumed * 1000;
 				int wasteToConsume = 0;
 				if(wasteToDistribute != null) {
 					wasteToConsume = ((wasteAmt/1000) - wasteToDistribute.stackSize) * 1000;
 				}
 				
 				for(CoordTriplet coord : attachedControlRods) {
-					if(wasteToConsume <= 0 && fuelToDistribute.amount <= 0) { break; }
+					if(wasteToConsume <= 0 && fuelToDistribute <= 0) { break; }
 					
-					CoordTriplet c = coord.copy();
-					c.y = c.y - 1;
-					int blockType = worldObj.getBlockId(c.x, c.y, c.z);			
-					while(blockType == BigReactors.blockYelloriumFuelRod.blockID) {
-						// Do we have waste?
-						fuelRod = (TileEntityFuelRod)worldObj.getBlockTileEntity(c.x, c.y, c.z);
-						
-						/*
-						if(wasteToConsume > 0) {
-							LiquidStack drained = fuelRod.drain(TileEntityFuelRod.wasteTankIndex, wasteToConsume, true);
-							if(drained != null) {
-								wasteToConsume -= drained.amount;
-							}
+					controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(wasteToConsume > 0) {
+						int amtDrained = controlRod.removeWaste(controlRod.getWasteType(), wasteToConsume, true);
+						wasteToConsume -= amtDrained;
+					}
+					
+					if(fuelToDistribute > 0) {
+						if(controlRod.getFuelType() == null) {
+							// TODO: Discover fuel type
+							ItemStack fuel = OreDictionary.getOres("ingotUranium").get(0);
+							int fuelAdded = controlRod.addFuel(fuel, fuelToDistribute, true);
 						}
-						
-						if(fuelToDistribute.amount > 0) {
-							fuelRod.fill(TileEntityFuelRod.fuelTankIndex, fuelToDistribute, true);
-						}
-						*/
-						
-						// Move down a block
-						c.y = c.y - 1;
-						blockType = worldObj.getBlockId(c.x, c.y, c.z);
 					}
 				}
 			}
-		}
+		} // End fuel/waste autotransfer
 
 		if(this.isActive()) {
 			// Distribute available power
-			int energyAvailable = getStoredEnergy();
+			int energyAvailable = (int)getStoredEnergy();
 			int energyRemaining = energyAvailable;
 			if(activePowerTaps.size() > 0) {
 				for(CoordTriplet coord : activePowerTaps) {
@@ -298,7 +277,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 			}
 			
 			if(energyAvailable != energyRemaining) {
-				reduceStoredEnergy(energyAvailable - energyRemaining);		
+				reduceStoredEnergy((double)(energyAvailable - energyRemaining));
 			}
 		}
 
@@ -338,23 +317,23 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 	}
 
-	public int getStoredEnergy() {
+	public double getStoredEnergy() {
 		return storedEnergy;
 	}
 
-	public void setStoredEnergy(int newEnergy) {
+	public void setStoredEnergy(double newEnergy) {
 		storedEnergy = newEnergy;
 	}
 	
-	public void addStoredEnergy(int newEnergy) {
+	public void addStoredEnergy(double newEnergy) {
 		storedEnergy += newEnergy;
 		if(storedEnergy > maxEnergyStored) { storedEnergy = maxEnergyStored; }
 	}
 
-	protected void reduceStoredEnergy(int lostEnergy) {
-		storedEnergy -= lostEnergy;
-		if(storedEnergy < 0) {
-			storedEnergy = 0;
+	protected void reduceStoredEnergy(double energy) {
+		storedEnergy -= energy;
+		if(storedEnergy < 0.0) {
+			storedEnergy = 0.0;
 		}
 	}
 	
@@ -398,36 +377,11 @@ public class MultiblockReactor extends MultiblockControllerBase {
 
 
 	// Static validation helpers
-	// Yellorium fuel rods, water and air.
+	// Water and air.
 	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
 		Material material = world.getBlockMaterial(x, y, z);
 		if(material == net.minecraft.block.material.MaterialLiquid.water ||
 			material == net.minecraft.block.material.Material.air) {
-			return true;
-		}
-		else if(world.getBlockId(x, y, z) == BigReactors.blockYelloriumFuelRod.blockID) {
-			// Ensure that the block above is either a fuel rod or a control rod
-			int blockTypeAbove = world.getBlockId(x, y+1, z);
-			int blockMetaAbove = world.getBlockMetadata(x,  y+1, z);
-			if(blockTypeAbove != BigReactors.blockYelloriumFuelRod.blockID &&
-				!(blockTypeAbove == BigReactors.blockReactorPart.blockID && BlockReactorPart.isControlRod(blockMetaAbove))) {
-				return false;
-			}
-			// It is, ok.
-			
-			// This will always require fuel rods to run the entire height of the reactor.
-			// You can prove it by induction.
-			// Go on, do it. I'm not going to put that shit in a comment.
-			// also i'm drunk
-			
-			// Ensure that the block below is either a fuel rod or casing.
-			int blockTypeBelow = world.getBlockId(x, y-1, z);
-			int blockMetaBelow = world.getBlockMetadata(x, y-1, z);
-			if(blockTypeBelow != BigReactors.blockYelloriumFuelRod.blockID &&
-					!(blockTypeBelow == BigReactors.blockReactorPart.blockID && BlockReactorPart.isCasing(blockMetaBelow))) {
-					return false;
-				}
-			
 			return true;
 		}
 
@@ -438,7 +392,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 	public void writeToNBT(NBTTagCompound data) {
 		data.setBoolean("reactorActive", this.active);
 		data.setDouble("heat", this.latentHeat);
-		data.setInteger("storedEnergy", this.storedEnergy);
+		data.setDouble("storedEnergy", this.storedEnergy);
 	}
 
 	@Override
@@ -452,7 +406,7 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		}
 		
 		if(data.hasKey("storedEnergy")) {
-			this.storedEnergy = data.getInteger("storedEnergy");
+			this.storedEnergy = data.getDouble("storedEnergy");
 		}
 	}
 

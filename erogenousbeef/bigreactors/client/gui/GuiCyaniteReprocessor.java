@@ -130,7 +130,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id >= 0 && button.id < 6) {
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineButton,
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
 						new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id }));
 			return;
 		}

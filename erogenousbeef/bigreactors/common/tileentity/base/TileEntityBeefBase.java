@@ -11,6 +11,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
@@ -29,7 +30,7 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityBeefBase extends TileEntity {
+public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiEntity {
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
@@ -56,11 +57,6 @@ public abstract class TileEntityBeefBase extends TileEntity {
 		ticksSinceLastUpdate = 0;
 		updatePlayers = new HashSet<EntityPlayer>();
 	}
-
-	// GUI/Inventory
-	public abstract GuiScreen getGUI(EntityPlayer player);
-	
-	public abstract Container getContainer(EntityPlayer player);
 
 	// Rotation
 	public ForgeDirection getFacingDirection() {
@@ -132,12 +128,14 @@ public abstract class TileEntityBeefBase extends TileEntity {
 	}
 
 	
-	// Player updates
+	// Player updates via IBeefGuiEntity
+	@Override
 	public void beginUpdatingPlayer(EntityPlayer player) {
 		updatePlayers.add(player);
 		sendUpdatePacketToClient(player);
 	}
-	
+
+	@Override
 	public void stopUpdatingPlayer(EntityPlayer player) {
 		updatePlayers.remove(player);
 	}
@@ -206,21 +204,10 @@ public abstract class TileEntityBeefBase extends TileEntity {
 	
 	/**
 	 * Called when the server packet handler receives a GUI Button press.
-	 * Do not override.
-	 * @param data Data stream associated with the packet
-	 * @throws IOException On stream read errors
-	 */
-	public final void receiveGuiButtonPacket(DataInputStream data) throws IOException {
-		String buttonName = data.readUTF();
-		
-		onReceiveGuiButtonPress(buttonName, data);
-	}
-
-	/**
 	 * Override this to handle GUI button presses
 	 * @param buttonName Name of the button pressed
 	 * @param dataStream Data stream associated with this button press event, containing your custom data.
 	 * @throws IOException On stream read errors
 	 */
-	protected abstract void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException;
+	public abstract void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException;
 }
