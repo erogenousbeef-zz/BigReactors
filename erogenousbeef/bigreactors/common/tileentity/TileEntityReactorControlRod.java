@@ -52,10 +52,10 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 
 	// Game Balance Values
 	private static final double neutronsPerFuel = 0.001; // neutrons per fuel unit
-	private static final double heatPerNeutron = 0.025; // C per fission event
-	private static final double powerPerNeutron = 0.002; // internal units per fission event
+	private static final double heatPerNeutron = 0.05; // C per fission event
+	private static final double powerPerNeutron = 0.001; // internal units per fission event
 	private static final double wasteNeutronPenalty = 0.01;
-	private static final double incidentNeutronFuelRate = 0.8;
+	private static final double incidentNeutronFuelRate = 0.5;
 	
 	protected boolean isAssembled = false;
 	protected boolean tryAssembleOnNextFrame = true;
@@ -514,13 +514,13 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		double rawNeutronsGenerated = 0.0;
 		double fuelDesired = 0.0;
 
-		// TODO: Integrate control rod insertion into neutron generation
-		
 		// Step 1: Generate raw neutron mass
 		// Step 1a: Generate spontaneous neutrons from fuel (consumes fuel)
 		if(this.fuelAmount > 0) {
 			rawNeutronsGenerated += (double)this.fuelAmount * neutronsPerFuel;
-			fuelDesired += rawNeutronsGenerated;
+			rawNeutronsGenerated *= (double)this.controlRodInsertion / 100.0;
+
+			fuelDesired += rawNeutronsGenerated * Math.max(1.0, Math.log10(this.localHeat));
 			
 			// This will generate some side heat & power
 			internalHeatGenerated += rawNeutronsGenerated * heatPerNeutron;
@@ -530,9 +530,10 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
 		if(this.incidentRadiation > 0.0) {
 			double additionalNeutronsGenerated = Math.max(0.0, this.incidentRadiation * 0.5 - Math.log10(this.localHeat));
+			additionalNeutronsGenerated *= (double)this.controlRodInsertion / 100.0;
 
 			if(additionalNeutronsGenerated > 0.0) {
-				fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate;
+				fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate * Math.max(1.0, Math.log10(this.localHeat));
 				rawNeutronsGenerated += additionalNeutronsGenerated;
 				
 				// This will generate some side heat & power
@@ -858,7 +859,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		
 		double heatToTransfer = (localHeat - ambientHeat) * thermalConductivity * (1.0/(double)faces);
 
-		pulse.powerProduced += heatToTransfer*conversionEfficiency;
+		pulse.powerProduced += heatToTransfer * conversionEfficiency * powerPerHeat;
 		pulse.heatChange += heatToTransfer * (1.0-conversionEfficiency);
 		
 		return heatToTransfer;
@@ -906,17 +907,17 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 				moderationFactor = 0.80;
 			}
 
-			// Lose some slow radiation
+			// Remove moderated slow radiation
 			double moderated = radiation.getSlowRadiation() * moderationFactor;
 			radiation.setSlowRadiation(Math.max(0.0, radiation.getSlowRadiation() - moderated));
 			
-			// Convert some slow to power, the rest to heat, if in coolant.
+			// Convert moderated slow to power, the rest to heat, if in coolant.
 			if(material == Material.water) {
-				// Moderate 60% of fast in water and generate 60% heat as power
+				// Moderate 60% of fast in water and generate 30% heat as power
 				moderationFactor = 0.60;
 
 				// Directly generate energy based on heat
-				radiation.addPower(moderated * moderationFactor * powerPerNeutron);
+				radiation.addPower(moderated * moderationFactor/2.0 * powerPerNeutron);
 				moderated -= moderated * moderationFactor;
 				
 				// Apply the rest of the energy as reactor heat
@@ -927,7 +928,10 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 				radiation.setFastRadiation(radiation.getFastRadiation() - moderated);
 				radiation.setSlowRadiation(radiation.getSlowRadiation() + moderated);
 			}
-			
+			else {
+				// You just get some reactor heat :(
+				radiation.changeHeat(moderated * 0.2);
+			}
 		}
 	}
     
