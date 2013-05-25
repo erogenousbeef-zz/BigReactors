@@ -29,16 +29,16 @@ TODO - Alpha
 
 ### Refactor fuel rods
 - (DONE) Make them a pseudo-multiblock controlled/rendered by the control rod
-- (DONE) Make sure bounding box is set properly
 - (IN PROGRESS) Add ability to toggle control rods on/off, changing radiation absorption properties
-- (IN PROGRESS) Implement game interfaces on new control rods (IRadiationModerator, etc.)
+- (IN PROGRESS) Make control rod insertion matter.
+- (DONE) Implement game interfaces on new control rods (IRadiationModerator, etc.)
 - Fix registry, so fuels/wastes can supply dynamic colors again
 - Fix internal MultiblockReactor simulation to use new control rods instead of old ones
 
 ### Balance & Completion
 - (DONE) Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
 - (DONE) More-proper heat/radiation numbers. Reasonable heat production. See notes (on paper, sorry internet).
-- (IN PROGRESS) Finish integrating new "incident radiation" system to fix above and retest numbers.
+- (IN TESTING) Finish integrating new "incident radiation" system to fix above and retest numbers.
 - (DONE) Blutonium. Properly integrate it into the fuel cycle. 
 
 ### Graphics & UI

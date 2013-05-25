@@ -53,7 +53,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	// Game Balance Values
 	private static final double neutronsPerFuel = 0.001; // neutrons per fuel unit
 	private static final double heatPerNeutron = 0.025; // C per fission event
-	private static final double powerPerNeutron = 0.005; // internal units per fission event
+	private static final double powerPerNeutron = 0.002; // internal units per fission event
 	private static final double wasteNeutronPenalty = 0.01;
 	private static final double incidentNeutronFuelRate = 0.8;
 	
@@ -77,8 +77,8 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	protected double localHeat;
 	
 	// Fuel Consumption
-	protected int ticksSinceLastFuelConsumption;
-	protected static final int averageTicksToConsumeFuel = 600; // 60 secs (20 ticks / sec)
+	protected int neutronsSinceLastFuelConsumption;
+	protected static final double maximumNeutronsPerFuel = 2000; // Due to probabilistic effects, this is usually only a few seconds
 
 	protected int minFuelRodY;
 	protected short controlRodInsertion; // 0 = retracted fully, 100 = inserted fully
@@ -99,7 +99,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 
 		incidentRadiation = 0.0;
 		localHeat = 0.0;
-		ticksSinceLastFuelConsumption = 0;
+		neutronsSinceLastFuelConsumption = 0;
 		minFuelRodY = 0;
 		controlRodInsertion = minInsertion;
 		
@@ -336,10 +336,8 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		if(this.isAssembled) {
 			IRadiationPulse radPulse = this.radiate();
 			this.energyGeneratedLastTick += radPulse.getPowerProduced();
-			//System.out.println("[RAD] Energy Generated Last Tick: " + Double.toString(this.energyGeneratedLastTick));
 		}
 		HeatPulse heatPulse = this.onRadiateHeat(20.0); // assume air around is always 20C
-		//System.out.println("[HEAT] Energy Generated Last Tick: " + Double.toString(heatPulse.powerProduced));
 		this.energyGeneratedLastTick += heatPulse.powerProduced;
 	}
 	
@@ -357,7 +355,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		}
 		
 		if(data.hasKey("ticksSinceLastFuelConsumption")) {
-			this.ticksSinceLastFuelConsumption = data.getInteger("ticksSinceLastFuelConsumption");
+			this.neutronsSinceLastFuelConsumption = data.getInteger("ticksSinceLastFuelConsumption");
 		}
 		
 		this.fuelAmount = 0;
@@ -397,7 +395,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		
 		data.setDouble("incidentRadiation", this.incidentRadiation);
 		data.setDouble("localHeat", this.localHeat);
-		data.setInteger("ticksSinceLastFuelConsumption", this.ticksSinceLastFuelConsumption);
+		data.setInteger("ticksSinceLastFuelConsumption", this.neutronsSinceLastFuelConsumption);
 		data.setBoolean("isAssembled", this.isAssembled);
 		data.setShort("controlRodInsertion", this.controlRodInsertion);
 		data.setDouble("energyGeneratedLastTick", energyGeneratedLastTick);
@@ -445,8 +443,8 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			
 			if(!this.worldObj.isRemote) {
 				TileEntity te;
-				for(int dy = this.yCoord - 1; dy >= this.minFuelRodY; dy--) {
-					te = this.worldObj.getBlockTileEntity(xCoord, yCoord, zCoord);
+				for(int dy = this.minFuelRodY; dy < this.yCoord; dy++) {
+					te = this.worldObj.getBlockTileEntity(xCoord, dy, zCoord);
 					if(te != null && te instanceof TileEntityFuelRod) {
 						((TileEntityFuelRod)te).onAssemble(this);
 					}
@@ -501,27 +499,39 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 				
 		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
 		if(this.incidentRadiation > 0.0) {
-			double additionalNeutronsGenerated =  Math.max(0, Math.log(this.incidentRadiation)) * Math.max(0, 1/Math.log(this.localHeat));
-			fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate;
-			rawNeutronsGenerated += additionalNeutronsGenerated;
-			
-			// This will generate some side heat & power
-			internalHeatGenerated += additionalNeutronsGenerated * heatPerNeutron;
-			internalPowerGenerated += additionalNeutronsGenerated * powerPerNeutron;
+			double additionalNeutronsGenerated = Math.max(0.0, this.incidentRadiation * 0.5 - Math.log10(this.localHeat));
 
-			// For now, zero out. Perhaps later on, introduce lingering radiation?
-			this.incidentRadiation = 0.0;
+			if(additionalNeutronsGenerated > 0.0) {
+				fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate;
+				rawNeutronsGenerated += additionalNeutronsGenerated;
+				
+				// This will generate some side heat & power
+				internalHeatGenerated += additionalNeutronsGenerated * heatPerNeutron;
+				internalPowerGenerated += additionalNeutronsGenerated * powerPerNeutron;
+
+				// Reduce incident radiation that was used to produce more neutrons, some of the rest escapes, the rest sticks around
+				this.incidentRadiation -= additionalNeutronsGenerated;
+
+				if(this.incidentRadiation < 0.01) { this.incidentRadiation = 0; }
+				else if(this.localHeat > 1000.0){ this.incidentRadiation /= Math.log10(this.localHeat); }
+			}
 		}
 
 		// Step 1c: Consume fuel based on incident neutrons
 		if(fuelDesired > 0.0) {
 			// Fuel desired is a multiplier to consumption chance.
 			// Each neutron adds a 4% chance to consume fuel on top of the normal, time-based chance
-			double fuelUsageChance = fuelDesired/25.0 + ((double)ticksSinceLastFuelConsumption / (double)averageTicksToConsumeFuel);
+			neutronsSinceLastFuelConsumption += (int)fuelDesired;
+			double fuelUsageChance = (double)neutronsSinceLastFuelConsumption / maximumNeutronsPerFuel;
 
 			if(rand.nextDouble() < fuelUsageChance) {
 				// Use fuel, at least 1, but up to ln(fuelDesired) (8 neutrons = 2 fuel, etc.)
-				int fuelUsed = (int)Math.ceil(Math.max(1, Math.log(fuelDesired))); 
+				int fuelUsed = (int)Math.ceil(Math.max(1, Math.log(fuelDesired)));
+				if(fuelUsed > 1) {
+					 // Random between 1 and fuel desired
+					fuelUsed = rand.nextInt(fuelUsed) + 1;
+				}
+
 				fuelAmount -= fuelUsed;
 				
 				if(fuelAmount <= 0) {
@@ -547,10 +557,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 
 				// TODO: Use add/remove fuel methods, so we get their delta-checking.
 				
-				ticksSinceLastFuelConsumption = 0;
-			}
-			else {
-				ticksSinceLastFuelConsumption++;
+				neutronsSinceLastFuelConsumption = 0;
 			}
 		}
 		
@@ -723,23 +730,33 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
     
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		// TODO: Redo this in accordance with new system
+		// Consume thermal neutrons, with a bonus based on control rods
+		// 50% normally, scaling linearly to 100% at 100% insertion
+		double slowRadiationConsumed = radiation.getSlowRadiation() * (0.5 + (double)this.controlRodInsertion/200.0);
 		
-		// Consume a small amount of slow radiation.
-		double slowRadiationConsumed = (double)radiation.getSlowRadiation() * 0.1;
-		
-		// Convert 10% of locally-generated heat to power, to be nice.
+		// Convert 10% of locally-consumed neutrons to power
 		radiation.addPower(slowRadiationConsumed*0.1);
 		
-		// Remaining 90% will be fuel-rod heat.
-		localHeat += slowRadiationConsumed * 0.9;
+		// Remaining 90% will be retained for use in additional neutron generation
+		this.incidentRadiation += slowRadiationConsumed * 0.9;
 
-		// Remove slow radiation that got consumed, round in user's disfavor
-		radiation.setSlowRadiation(radiation.getSlowRadiation() - (int)Math.ceil(slowRadiationConsumed));
+		// Remove slow radiation that got consumed
+		radiation.setSlowRadiation(radiation.getSlowRadiation() - slowRadiationConsumed);
+
+		// Moderate some fast radiation, based on control rod settings
+		double fastRadiationModerationFactor = ((double)this.controlRodInsertion / 100.0);
+		// Reduce effectiveness of control rods in moderating fast neutrons as they overheat
+		// 1 from 0 to about 500, crosses 0.5 at 2000, 0.5 by 3500.
+		fastRadiationModerationFactor *= (-Math.tanh((this.localHeat-2000.0)/500.0)/4.0) + 0.25;
+
+		double fastRadiationModerated = radiation.getFastRadiation() * fastRadiationModerationFactor;
+		if(fastRadiationModerated > 0.0) {
+			radiation.setSlowRadiation(radiation.getSlowRadiation() + fastRadiationModerated);
+			radiation.setFastRadiation(radiation.getFastRadiation() - fastRadiationModerated);
+		}
 		
-		// Now add a bunch of fast radiation, based on local heat
-		// TODO: Modulate this based on local heat.
-		int newFastRadiation = ((int)Math.floor(radiation.getFastRadiation() * 0.25));
+		// Now generate some additional radiation, based on local heat & fuel, at a disadvantaged rate
+		double newFastRadiation = this.fuelAmount * this.neutronsPerFuel * 0.25 * Math.min(0.01, Math.max(1.0, 1.0 - this.localHeat / 2000.0));
 		radiation.setFastRadiation(radiation.getFastRadiation() + newFastRadiation);
 
 		// Strengthen the pulse so it travels further in truly huge reactors
