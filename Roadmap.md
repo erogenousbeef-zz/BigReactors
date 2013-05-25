@@ -20,6 +20,7 @@ TODO - Alpha
 ### Core
 - Add maximum-dimension API and checks to BeefCore
 - Create ITileEntityProxy to handle things like fuel columns more nicely
+- Add "regenerative worldgen" so existing worlds don't need to be restarted (see Artifice for examples)
 
 ### Graphics & UI
 - Make halfway-decent UIs with better visualizations than just text
