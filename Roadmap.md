@@ -30,17 +30,11 @@ TODO - Alpha
 
 ### Refactor fuel rods
 - (DONE) Make them a pseudo-multiblock controlled/rendered by the control rod
-- (IN PROGRESS) Add ability to toggle control rods on/off, changing radiation absorption properties
-- (IN PROGRESS) Make control rod insertion matter.
+- (DONE) Add ability to toggle control rods on/off, changing radiation absorption properties
+- (DONE) Make control rod insertion matter.
 - (DONE) Implement game interfaces on new control rods (IRadiationModerator, etc.)
 - Fix registry, so fuels/wastes can supply dynamic colors again
 - Fix internal MultiblockReactor simulation to use new control rods instead of old ones
-
-### Balance & Completion
-- (DONE) Enricher machine. Consumes cyanite and some kind of liquid to produce yellorium
-- (DONE) More-proper heat/radiation numbers. Reasonable heat production. See notes (on paper, sorry internet).
-- (IN TESTING) Finish integrating new "incident radiation" system to fix above and retest numbers.
-- (DONE) Blutonium. Properly integrate it into the fuel cycle. 
 
 ### Graphics & UI
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
@@ -72,6 +66,8 @@ TODO - Beta
 - Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
 - Add active cooling system; coolant pipes and stuff
 - Blutonium: give it different properties than yellorium.
+- Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering
+- Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
 
 Wishlist / Post-Release
 -----------------------
