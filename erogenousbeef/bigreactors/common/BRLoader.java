@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common;
 
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -45,5 +46,10 @@ public class BRLoader {
 	{
 		proxy.init();
 		BigReactors.register(this);
-	}	
+	}
+	
+	@PostInit
+	public void postInit(FMLInitializationEvent evt) {
+		proxy.postInit();
+	}
 }

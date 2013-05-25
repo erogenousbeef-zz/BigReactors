@@ -113,7 +113,6 @@ public class BigReactors {
 			}
 
 			// TODO: Configurable recipes.
-			
 			ItemStack ingotUranium = null;
 			ItemStack ingotCyanite = null;
 			ItemStack ingotGraphite = null;
@@ -121,7 +120,7 @@ public class BigReactors {
 				ingotUranium = OreDictionary.getOres("ingotUranium").get(0);
 			}
 			if(OreDictionary.getOres("ingotDepletedUranium") != null) {
-				ingotCyanite = OreDictionary.getOres("ingotDepletedUranium").get(0);
+				ingotCyanite = OreDictionary.getOres("ingotCyanite").get(0);
 			}
 			if(OreDictionary.getOres("ingotGraphite") != null) {
 				ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0);
@@ -237,12 +236,16 @@ public class BigReactors {
 
 			if (OreDictionary.getOres("ingotUranium").size() <= 0 || require)
 			{
-				OreDictionary.registerOre("ingotUranium", new ItemStack(ingotGeneric, 1, 0));
+				ItemStack yelloriumStack = new ItemStack(ingotGeneric, 1, 0);
+				OreDictionary.registerOre("ingotUranium", yelloriumStack);
+				BRRegistry.registerFuel(new ReactorFuel(yelloriumStack, BigReactors.defaultLiquidColorFuel));
 			}
 			
-			if (OreDictionary.getOres("ingotDepletedUranium").size() <= 0 || require)
+			if (OreDictionary.getOres("ingotCyanite").size() <= 0 || require)
 			{
-				OreDictionary.registerOre("ingotDepletedUranium", new ItemStack(ingotGeneric, 1, 1));
+				ItemStack cyaniteStack = new ItemStack(ingotGeneric, 1, 1);
+				OreDictionary.registerOre("ingotCyanite", cyaniteStack);
+				BRRegistry.registerWaste(new ReactorFuel(cyaniteStack, BigReactors.defaultLiquidColorWaste));
 			}
 			
 			if (OreDictionary.getOres("ingotGraphite").size() <= 0 || require)
@@ -252,7 +255,10 @@ public class BigReactors {
 			
 			if (OreDictionary.getOres("ingotPlutonium").size() <= 0 || require)
 			{
-				OreDictionary.registerOre("ingotPlutonium", new ItemStack(ingotGeneric, 1, 3));
+				ItemStack blutoniumStack = new ItemStack(ingotGeneric, 1, 3);
+				OreDictionary.registerOre("ingotPlutonium", blutoniumStack);
+				// TODO: Fix the color of this
+				BRRegistry.registerFuel(new ReactorFuel(blutoniumStack, 0x2222ee));
 			}
 			BRConfig.CONFIGURATION.save();
 		}
@@ -325,9 +331,11 @@ public class BigReactors {
 			BigReactors.liquidYelloriumStill = liqY;
 			
 			GameRegistry.registerBlock(BigReactors.liquidYelloriumStill, ItemBlockBigReactors.class, BigReactors.liquidYelloriumStill.getUnlocalizedName());
-			BigReactors.liquidYellorium = LiquidDictionary.getOrCreateLiquid("yellorium", new LiquidStack(liquidYelloriumStill, 1));
 			
-			BRRegistry.registerReactorFuel(liqY, liqY);
+			LiquidStack liquidYelloriumStack = new LiquidStack(liquidYelloriumStill, 1);
+			BigReactors.liquidYellorium = LiquidDictionary.getOrCreateLiquid("yellorium", liquidYelloriumStack);
+			
+			BRRegistry.registerFuel(new ReactorFuel(liquidYelloriumStack.asItemStack(), BigReactors.defaultLiquidColorFuel));
 			BRConfig.CONFIGURATION.save();
 		}
 		
@@ -337,9 +345,11 @@ public class BigReactors {
 			BlockBRGenericLiquid liqDY = new BlockBRGenericLiquid(BRConfig.CONFIGURATION.getBlock("LiquidCyaniteStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt(), "cyanite");
 			BigReactors.liquidCyaniteStill = liqDY;
 			GameRegistry.registerBlock(BigReactors.liquidCyaniteStill, ItemBlockBigReactors.class, BigReactors.liquidCyaniteStill.getUnlocalizedName());
-			BigReactors.liquidCyanite = LiquidDictionary.getOrCreateLiquid("cyanite", new LiquidStack(liquidCyaniteStill, 1));
 			
-			BRRegistry.registerReactorFuel(liqDY, liqDY);
+			LiquidStack liquidCyaniteStack = new LiquidStack(liquidCyaniteStill, 1);
+			BigReactors.liquidCyanite = LiquidDictionary.getOrCreateLiquid("cyanite", liquidCyaniteStack);
+			
+			BRRegistry.registerWaste(new ReactorFuel(liquidCyaniteStack.asItemStack(), BigReactors.defaultLiquidColorWaste));
 			BRConfig.CONFIGURATION.save();
 		}
 

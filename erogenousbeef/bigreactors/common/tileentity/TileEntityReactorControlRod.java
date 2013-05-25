@@ -15,6 +15,7 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.api.IRadiationSource;
 import erogenousbeef.bigreactors.client.gui.GuiReactorControlRod;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.RadiationPulse;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
@@ -194,16 +195,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	}
 
 	public boolean isAcceptedFuel(ItemStack candidateFuel) {
-		ArrayList<ItemStack> fuels = OreDictionary.getOres("ingotUranium");
-		fuels.addAll(OreDictionary.getOres("ingotPlutonium"));
-
-		for(ItemStack fuel : fuels) {
-			if(fuel.isItemEqual(candidateFuel)) {
-				return true;
-			}
-		}
-		
-		return false;
+		return BRRegistry.getDataForFuel(candidateFuel) != null;
 	}
 	
 	/**
@@ -289,14 +281,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	}
 
 	public boolean isAcceptedWaste(ItemStack candidateWaste) {
-		ArrayList<ItemStack> wastes = OreDictionary.getOres("ingotCyanite");
-		for(ItemStack wasteStack : wastes) {
-			if(wasteStack.isItemEqual(candidateWaste)) {
-				return true;
-			}
-		}
-		
-		return false;
+		return BRRegistry.getDataForWaste(candidateWaste) != null;
 	}
 	
 	/**
@@ -526,7 +511,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			internalHeatGenerated += rawNeutronsGenerated * heatPerNeutron;
 			internalPowerGenerated += rawNeutronsGenerated * powerPerNeutron;
 		}
-				
+
 		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
 		if(this.incidentRadiation > 0.0) {
 			double additionalNeutronsGenerated = Math.max(0.0, this.incidentRadiation * 0.5 - Math.log10(this.localHeat));
@@ -566,6 +551,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 				this.removeFuel(this.fuelItem, fuelUsed, true);
 				
 				if(wasteItem == null) {
+					// TODO: Add a parameter to fuels so we know what they get processed into
 					ArrayList<ItemStack> wastes = OreDictionary.getOres("ingotCyanite");
 					if(wastes != null && wastes.size() > 0) {
 						wasteItem = wastes.get(0).copy();
