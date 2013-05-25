@@ -83,6 +83,11 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 	protected int minFuelRodY;
 	protected short controlRodInsertion; // 0 = retracted fully, 100 = inserted fully
 	
+	// Fuel messaging
+	protected int fuelAtLastUpdate;
+	protected int wasteAtLastUpdate;
+	protected static final int maximumDevianceInContentsBetweenUpdates = 50; // about 20 seconds of operation
+	
 	// DEBUG TODO REMOVEME
 	public double energyGeneratedLastTick;
 	
@@ -101,6 +106,8 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		localHeat = 0.0;
 		neutronsSinceLastFuelConsumption = 0;
 		minFuelRodY = 0;
+		wasteAtLastUpdate = 0;
+		fuelAtLastUpdate = 0;
 		controlRodInsertion = minInsertion;
 		
 		energyGeneratedLastTick = 0;
@@ -150,6 +157,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		}
 		
 		int amountToAdd = 0;
+		boolean forceUpdate = false;
 		if(this.fuelItem != null) {
 			if(!this.fuelItem.isItemEqual(fuelType)) {
 				return 0;
@@ -174,12 +182,12 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			if(doAdd) {
 				this.fuelItem = fuelType.copy();
 				this.fuelAmount = amountToAdd;
+				forceUpdate = true;
 			}
 		}
 		
 		if(amountToAdd > 0 && doAdd) {
-			// TODO: Only do this occasionally, when there's been a large change in internal fuel amounts.
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			this.updateWorldIfNeeded(forceUpdate);
 		}
 
 		return amountToAdd;
@@ -243,6 +251,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		}
 		
 		int amountToAdd = 0;
+		boolean forceUpdate = false;
 		if(this.wasteItem != null) {
 			if(!this.wasteItem.isItemEqual(wasteType)) {
 				return 0;
@@ -267,12 +276,13 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			if(doAdd) {
 				this.wasteItem = wasteType.copy();
 				this.wasteAmount = amountToAdd;
+				forceUpdate = true;
 			}
 		}
-		
+
+		// Force this block's description packet to update the nearby world if there's a large variance in contents
 		if(amountToAdd > 0 && doAdd) {
-			// TODO: Only do this occasionally, or when there's been a large change in fuel amount
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			this.updateWorldIfNeeded(forceUpdate);
 		}
 
 		return amountToAdd;
@@ -341,6 +351,22 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		this.energyGeneratedLastTick += heatPulse.powerProduced;
 	}
 	
+	protected void updateWorldIfNeeded(boolean force) {
+		if(force) {
+			this.fuelAtLastUpdate = this.fuelAmount;
+			this.wasteAtLastUpdate = this.wasteAmount;
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
+		else {
+			if(Math.abs(this.fuelAtLastUpdate - this.fuelAmount) > maximumDevianceInContentsBetweenUpdates ||
+				Math.abs(this.wasteAtLastUpdate - this.wasteAmount) > maximumDevianceInContentsBetweenUpdates) {
+					this.fuelAtLastUpdate = this.fuelAmount;
+					this.wasteAtLastUpdate = this.wasteAmount;
+					this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			}
+		}
+	}
+	
 	// Save/Load
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
@@ -364,6 +390,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			this.fuelAmount = data.getInteger("fuelAmount");
 			this.fuelItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("fuelData"));
 		}
+		this.fuelAtLastUpdate = this.fuelAmount;
 
 		this.wasteAmount = 0;
 		this.wasteItem = null;
@@ -371,6 +398,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			this.wasteAmount = data.getInteger("wasteAmount");
 			this.wasteItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("wasteData"));
 		}
+		this.wasteAtLastUpdate = this.wasteAmount;
 		
 		if(data.hasKey("isAssembled")) {
 			// Can't do this straight-away on chunk load, unfortunately
@@ -485,6 +513,8 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		
 		double rawNeutronsGenerated = 0.0;
 		double fuelDesired = 0.0;
+
+		// TODO: Integrate control rod insertion into neutron generation
 		
 		// Step 1: Generate raw neutron mass
 		// Step 1a: Generate spontaneous neutrons from fuel (consumes fuel)
@@ -532,12 +562,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 					fuelUsed = rand.nextInt(fuelUsed) + 1;
 				}
 
-				fuelAmount -= fuelUsed;
-				
-				if(fuelAmount <= 0) {
-					this.fuelItem = null;
-					this.fuelAmount = 0;
-				}
+				this.removeFuel(this.fuelItem, fuelUsed, true);
 				
 				if(wasteItem == null) {
 					ArrayList<ItemStack> wastes = OreDictionary.getOres("ingotCyanite");
@@ -549,14 +574,10 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 						// Fallback plan, in case the Ore Dictionary fucks up
 						wasteItem = new ItemStack(BigReactors.ingotGeneric, 1, 1);
 					}
-					wasteAmount = fuelUsed;
 				}
-				else {
-					wasteAmount += fuelUsed;
-				}
-
-				// TODO: Use add/remove fuel methods, so we get their delta-checking.
 				
+				this.addWaste(this.wasteItem, fuelUsed, true);
+
 				neutronsSinceLastFuelConsumption = 0;
 			}
 		}
@@ -664,6 +685,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 			setControlRodInsertion((short)(this.controlRodInsertion - 10));
 		}
 		else if(buttonName.equals("dump")) {
+			// TODO: Debug code, removeme
 			this.fuelAmount = 0;
 			this.fuelItem = null;
 			this.wasteAmount = 0;
@@ -800,17 +822,18 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		IHeatEntity he;
 		double lostHeat = 0.0;
 	
-		// TODO: Pick a random place along the fuel column stack to do this.
-		
+		// Run this along the length of the stack, in case of a nonuniform interior
 		ForgeDirection[] dirs = new ForgeDirection[] { ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.EAST, ForgeDirection.NORTH};
-		for(ForgeDirection dir : dirs) {
-			te = this.worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY - 1, zCoord + dir.offsetZ);
-			if(te != null && te instanceof IHeatEntity) {
-				he = (IHeatEntity)te;
-				lostHeat += he.onAbsorbHeat(this, results, dirs.length, getColumnHeight());
-			}
-			else {
-				lostHeat += transmitHeatByMaterial(ambientHeat, this.worldObj.getBlockMaterial(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ), results, dirs.length);
+		for(int dy = this.minFuelRodY; dy < yCoord; dy++) {
+			for(ForgeDirection dir : dirs) {
+				te = this.worldObj.getBlockTileEntity(xCoord + dir.offsetX, dy, zCoord + dir.offsetZ);
+				if(te != null && te instanceof IHeatEntity) {
+					he = (IHeatEntity)te;
+					lostHeat += he.onAbsorbHeat(this, results, dirs.length, 1);
+				}
+				else {
+					lostHeat += transmitHeatByMaterial(ambientHeat, this.worldObj.getBlockMaterial(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ), results, dirs.length);
+				}
 			}
 		}
 		
@@ -833,7 +856,7 @@ public class TileEntityReactorControlRod extends TileEntityBeefBase implements I
 		}
 		
 		
-		double heatToTransfer = (localHeat - ambientHeat) * thermalConductivity * (1.0/(double)faces) * getColumnHeight();
+		double heatToTransfer = (localHeat - ambientHeat) * thermalConductivity * (1.0/(double)faces);
 
 		pulse.powerProduced += heatToTransfer*conversionEfficiency;
 		pulse.heatChange += heatToTransfer * (1.0-conversionEfficiency);

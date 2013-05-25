@@ -34,6 +34,11 @@ public class TileEntityFuelRod extends TileEntity implements IRadiationModerator
 		controlRodY = 0;
 	}
 	
+	// We're just a proxy and data-capsule.
+	@Override
+    public boolean canUpdate() { return false; }
+	
+	
 	public void onAssemble(TileEntityReactorControlRod controlRod) {
 		this.controlRodY = controlRod.yCoord;
 		this.isAssembled = true;
