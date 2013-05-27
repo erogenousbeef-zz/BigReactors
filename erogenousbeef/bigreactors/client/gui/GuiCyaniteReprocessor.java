@@ -107,19 +107,49 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		}
 
 		int exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.EAST.ordinal());
-		rightInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		int liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.EAST);
+		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
+			rightInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		}
+		else {
+			rightInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+		}
 
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.WEST.ordinal());
-		leftInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.WEST);
+		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
+			leftInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		}
+		else {
+			leftInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+		}
 		
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.UP.ordinal());
-		topInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.UP);
+		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
+			topInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		}
+		else {
+			topInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+		}
 
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.DOWN.ordinal());
-		bottomInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.DOWN);
+		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
+			bottomInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		}
+		else {
+			bottomInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+		}
 
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.SOUTH.ordinal());
-		rearInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.SOUTH);
+		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
+			rearInvExposureButton.displayString = getTextureForExposedInventory(exposed);
+		}
+		else {
+			rearInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+		}
 	}
 	
 	@Override
@@ -147,4 +177,11 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		return "";
 	}
 	
+	protected String getTextureForExposedLiquidInventory(int tank) {
+		if(tank == 0) {
+			return BigReactors.GUI_DIRECTORY + "blueSquare.png";
+		}
+		
+		return "";
+	}
 }

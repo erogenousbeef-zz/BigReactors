@@ -1,5 +1,8 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -51,11 +54,25 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 		tankExposure[side.ordinal()] = tankIdx;
 		
 		if(!this.worldObj.isRemote) {
-			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineInventoryExposureUpdate,
+			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineLiquidExposureUpdate,
 																new Object[] { xCoord, yCoord, zCoord, side.ordinal(), tankIdx });
 			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
 		}
 		
+	}
+	
+	/**
+	 * Get the externally-accessible liquid tank for a given reference direction
+	 * @param side Reference direction (north/front, south/back, west/left, east/right)
+	 * @return The index of the exposed tank, or -1 (LIQUIDTANK_NONE) if none
+	 */
+	public int getExposedTankFromReferenceSide(ForgeDirection side) {
+		if(side == ForgeDirection.UNKNOWN) {
+			return LIQUIDTANK_NONE;
+		}
+		else {
+			return tankExposure[side.ordinal()];
+		}
 	}
 	
 	// Internal Helpers
@@ -138,6 +155,53 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 		readLiquidsFromNBT(updateTag);
 	}
 
+	// Networked GUI
+	@Override
+	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+		if(buttonName.equals("changeInvSide")) {
+			// We can't call super here without fucking up the datastream
+			int side = dataStream.readInt();
+			if(tankExposure[side] != LIQUIDTANK_NONE) {
+				// Clicked on something we're already exposing, iterate the exposure
+				System.out.println("TileEntityPoweredInventoryLiquidTank - currently liquid exposed, iterating that");
+				iterateLiquidTankExposure(side);
+			}
+			else {
+				boolean wasExposed = this.getExposedSlotFromReferenceSide(side) != TileEntityInventory.INVENTORY_UNEXPOSED;
+				System.out.println("TileEntityPoweredInventoryLiquidTank - no liquid exposed, iterating normal inv");
+				iterateInventoryExposure(side);
+				
+				// If an inventory was exposed, but now no inventory is exposed, it's our turn to shine.
+				if(wasExposed && this.getExposedSlotFromReferenceSide(side) == TileEntityInventory.INVENTORY_UNEXPOSED) {
+					// Ah, it cycled back around. Our turn.
+					System.out.println("TileEntityPoweredInventoryLiquidTank - no liquid exposed, normal inv wrapped, iterating liquid exposure");
+					iterateLiquidTankExposure(side);
+				}
+				// Else: Inventory's still using the exposure.
+			}
+		}
+		else {
+			super.onReceiveGuiButtonPress(buttonName, dataStream);
+		}
+	}
+	
+	protected void iterateLiquidTankExposure(int side) {
+		int newExposure;
+		if(tankExposure[side] == LIQUIDTANK_NONE) {
+			newExposure = 0;
+		}
+		else {
+			newExposure = tankExposure[side] + 1;
+		}
+
+		if(newExposure >= getNumTanks()) {
+			newExposure = LIQUIDTANK_NONE;
+		}
+		
+		System.out.println("Setting exposed tank for " + ForgeDirection.getOrientation(side).toString() + " to " + Integer.toString(newExposure));
+		this.setExposedTank(ForgeDirection.getOrientation(side), newExposure);
+	}
+	
 	// ITankContainer
 	
 	/**
