@@ -13,6 +13,7 @@ Known Bugs
 - When a wire burns out, it does not disconnect the power tap
 - Reactor glass breaks instead of dropping a block
 - Reactors are always marked as inactive when worlds are loaded
+- Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
 
 TODO - Alpha
 ------------
@@ -60,6 +61,12 @@ TODO - Beta
 - Blutonium: give it different properties than yellorium.
 - Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering
 - Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
+
+### Multiblock Reprocessing
+- Electrode controllers & electrode stacks, discharge large amounts of electricity between nearby electrodes.
+- Any reprocessing tanks between the stacks have some waste converted to fuel
+- Reprocessing tanks are mounted atop reprocessing tank valve blocks.
+- Needs sweet lightning effects
 
 Wishlist / Post-Release
 -----------------------

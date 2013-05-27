@@ -65,7 +65,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		
 		if(te instanceof TileEntityPoweredInventoryLiquid) {
-			// TODO: make this better
 			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
 				return _liquidSideIcons[0];
 			}
@@ -77,7 +76,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 	@Override
 	public Icon getIcon(int side, int metadata)
 	{
-		// TODO: make this a rotateable, facing machine
 		if(side == 2) {
 			return _icons[metadata];
 		}

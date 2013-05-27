@@ -263,17 +263,21 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
 		if(buttonName.equals("changeInvSide")) {
 			int side = dataStream.readInt();
-			int slot = invExposures[side];
-			slot++;
-			if(slot >= getSizeInventory()) {
-				slot = INVENTORY_UNEXPOSED;
-			}
-			
-			this.setExposedInventorySlotReference(side, slot);
+			iterateInventoryExposure(side);
 		}
 	}
 	
 	// Helpers
+	protected void iterateInventoryExposure(int side) {
+		int slot = invExposures[side];
+		slot++;
+		if(slot >= getSizeInventory()) {
+			slot = INVENTORY_UNEXPOSED;
+		}
+		
+		this.setExposedInventorySlotReference(side, slot);
+	}
+	
 	
 	/**
 	 * @param fromSlot The inventory slot into which this object would normally go.

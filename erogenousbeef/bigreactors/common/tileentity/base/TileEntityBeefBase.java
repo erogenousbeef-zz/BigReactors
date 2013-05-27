@@ -42,8 +42,8 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		{0, 1, 2, 3, 5, 4}, // UP
 		{0, 1, 2, 3, 5, 4}, // NORTH
 		{0, 1, 3, 2, 4, 5}, // SOUTH
-		{0, 1, 4, 5, 3, 2}, // WEST
-		{0, 1, 5, 4, 2, 3}, // EAST
+		{0, 1, 4, 5, 2, 3}, // WEST
+		{0, 1, 5, 4, 3, 2}, // EAST
 	};
 
 	// Rotation
