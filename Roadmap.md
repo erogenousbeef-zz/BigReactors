@@ -21,7 +21,12 @@ TODO - Alpha
 ### Core
 - Add maximum-dimension API and checks to BeefCore
 - Create ITileEntityProxy to handle things like fuel columns more nicely
+
+### World Generation
+- Remove use of UE.Prefab worldgen objects
 - Add "regenerative worldgen" so existing worlds don't need to be restarted (see Artifice for examples)
+- Add a dimension blacklist for Galacticraft compatibility
+- Test & balance worldgen, do some math about avg ore per chunk v. fuel lifetime
 
 ### Graphics & UI
 - Make halfway-decent UIs with better visualizations than just text
