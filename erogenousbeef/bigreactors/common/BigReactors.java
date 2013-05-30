@@ -12,11 +12,7 @@ import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import universalelectricity.core.UniversalElectricity;
 import universalelectricity.prefab.TranslationHelper;
-import universalelectricity.prefab.ore.OreGenBase;
-import universalelectricity.prefab.ore.OreGenReplaceStone;
-import universalelectricity.prefab.ore.OreGenerator;
 import cpw.mods.fml.common.registry.GameRegistry;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
@@ -86,7 +82,7 @@ public class BigReactors {
 	public static final int ITEM_ID_PREFIX = 17750;
 	public static Item ingotGeneric;
 
-	public static OreGenBase yelloriteOreGeneration;
+	public static BRSimpleOreGenerator yelloriteOreGeneration;
 	
 	public static boolean INITIALIZED = false;
 
@@ -102,6 +98,13 @@ public class BigReactors {
 		{
 			TranslationHelper.loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
 
+			BRConfig.CONFIGURATION.load();
+			boolean enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
+			if(enableWorldGen) {
+				GameRegistry.registerWorldGenerator(new BRWorldGenerator());
+			}
+			BRConfig.CONFIGURATION.save();
+			
 			/*
 			 * Register Recipes
 			 */
@@ -221,10 +224,32 @@ public class BigReactors {
 			OreDictionary.registerOre("oreYellorite", blockYelloriteOre);
 		}
 
-		if (yelloriteOreGeneration == null)
+		boolean genYelloriteOre = BRConfig.CONFIGURATION.get("WorldGen", "GenerateYelloriteOre", true, "Add yellorite ore during world generation?").getBoolean(true);
+		if (yelloriteOreGeneration == null && genYelloriteOre)
 		{
-			yelloriteOreGeneration = new OreGenReplaceStone("Yellorite Ore", "oreYellorite", new ItemStack(BigReactors.blockYelloriteOre, 1, 0), 60, 26, 4).enable(BRConfig.CONFIGURATION);
-			OreGenerator.addOre(BigReactors.yelloriteOreGeneration);
+			// Magic number: 1 = stone
+			int clustersPerChunk;
+			int orePerCluster;
+			int maxY;
+			float oreGenChance;
+			float oreGenMultiplier;
+			
+			clustersPerChunk = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteClustersPerChunk", 4, "Target number of clusters per chunk; note that this isn't a guarantee").getInt();
+			orePerCluster = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteOrePerCluster", 4, "Minimum number of blocks to generate in each cluster; usually guaranteed").getInt();
+			maxY = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteMaxY", 50, "Maximum height (Y coordinate) in the world to generate yellorite ore").getInt();
+			oreGenChance = (float)BRConfig.CONFIGURATION.get("WorldGen", "YelloriteOreGenBaseChance", 0.75, "Base chance to generate additional ore above the minimum number per cluster").getDouble(0.75);
+			oreGenMultiplier = (float)BRConfig.CONFIGURATION.get("WorldGen", "YelloriteOreGenChanceMultiplier", 0.5, "For each additional ore generated above the minimum number, generation chance is multiplied by this").getDouble(0.5);
+			int[] dimensionBlacklist = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteDimensionBlacklist", new int[] {}, "Dimensions in which yellorite ore should not be generated; Nether/End automatically included").getIntList();
+			
+			yelloriteOreGeneration = new BRSimpleOreGenerator(blockYelloriteOre.blockID, 0, Block.stone.blockID,
+											clustersPerChunk, maxY, orePerCluster, oreGenChance, oreGenMultiplier);
+			if(dimensionBlacklist != null) {
+				for(int dimension : dimensionBlacklist) {
+					yelloriteOreGeneration.blacklistDimension(dimension);
+				}
+			}
+			
+			BRWorldGenerator.addGenerator(BigReactors.yelloriteOreGeneration);
 		}
 		
 		BRConfig.CONFIGURATION.save();
@@ -269,7 +294,6 @@ public class BigReactors {
 		}
 
 		return new ItemStack(ingotGeneric);
-		
 	}
 
 

@@ -23,10 +23,10 @@ TODO - Alpha
 - Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### World Generation
-- Remove use of UE.Prefab worldgen objects
+- (DONE) Remove use of UE.Prefab worldgen objects
 - Add "regenerative worldgen" so existing worlds don't need to be restarted (see Artifice for examples)
-- Add a dimension blacklist for Galacticraft compatibility
-- Test & balance worldgen, do some math about avg ore per chunk v. fuel lifetime
+- (DONE) Add a dimension blacklist for Galacticraft compatibility
+- (DONE) Test & balance worldgen, do some math about avg ore per chunk v. fuel lifetime
 
 ### Graphics & UI
 - Make halfway-decent UIs with better visualizations than just text
