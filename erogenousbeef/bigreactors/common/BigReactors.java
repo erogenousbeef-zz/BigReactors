@@ -85,6 +85,7 @@ public class BigReactors {
 	public static BRSimpleOreGenerator yelloriteOreGeneration;
 	
 	public static boolean INITIALIZED = false;
+	public static boolean enableWorldGenInNegativeDimensions = false;
 
 	private static boolean registeredTileEntities = false;
 	
@@ -98,8 +99,10 @@ public class BigReactors {
 		{
 			TranslationHelper.loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
 
+			// General config loading
 			BRConfig.CONFIGURATION.load();
 			boolean enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
+			enableWorldGenInNegativeDimensions = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGenInNegativeDims", false, "Run BR world generation in negative dimension IDs? (default: false) If you don't know what this is, leave it alone.").getBoolean(false);
 			if(enableWorldGen) {
 				GameRegistry.registerWorldGenerator(new BRWorldGenerator());
 			}
