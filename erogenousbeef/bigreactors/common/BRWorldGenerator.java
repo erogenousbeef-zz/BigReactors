@@ -25,6 +25,10 @@ public class BRWorldGenerator implements IWorldGenerator {
 		if(oreGenerators == null) {
 			return;
 		}
+		
+		if(world.provider.dimensionId < 0 && !BigReactors.enableWorldGenInNegativeDimensions) {
+			return;
+		}
 
 		for(BRSimpleOreGenerator generator : oreGenerators) {
 			if(generator.shouldGenerateInWorld(world, chunkProvider)) {
