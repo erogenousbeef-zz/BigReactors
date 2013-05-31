@@ -3,12 +3,12 @@ package erogenousbeef.bigreactors.common;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
-import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class CommonProxy {
 
@@ -19,7 +19,8 @@ public class CommonProxy {
 		BigReactors.registerTileEntities();
 		
 		NetworkRegistry.instance().registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
-		TickRegistry.registerTickHandler(new MultiblockServerTickHandler(), Side.SERVER);
+		BigReactors.tickHandler = new BigReactorsTickHandler();
+		TickRegistry.registerTickHandler(BigReactors.tickHandler, Side.SERVER);
 	}
 
 	public void postInit() {

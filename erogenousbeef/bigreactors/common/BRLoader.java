@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common;
 
+import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.SidedProxy;
@@ -39,6 +40,9 @@ public class BRLoader {
 		BigReactors.registerSmallMachines(0,  true);
 		BigReactors.registerYelloriumLiquids(0,  true);
 
+		BigReactors.eventHandler = new BREventHandler();
+		MinecraftForge.EVENT_BUS.register(BigReactors.eventHandler);
+		
 		proxy.preInit();
 	}
 

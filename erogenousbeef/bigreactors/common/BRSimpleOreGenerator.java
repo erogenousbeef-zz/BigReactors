@@ -209,7 +209,8 @@ public class BRSimpleOreGenerator {
 	 * @param chunkProvider
 	 * @return
 	 */
-	public boolean shouldGenerateInWorld(World world, IChunkProvider chunkProvider) {
+	public boolean shouldGenerateInWorld(World world) {
+		IChunkProvider chunkProvider = world.getChunkProvider();
 		if(dimensionBlacklist.contains(world.provider.dimensionId)) {
 			return false;
 		}
