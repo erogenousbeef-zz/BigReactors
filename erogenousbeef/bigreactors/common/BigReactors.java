@@ -85,8 +85,14 @@ public class BigReactors {
 	public static BRSimpleOreGenerator yelloriteOreGeneration;
 	
 	public static boolean INITIALIZED = false;
+	public static boolean enableWorldGen = true;
 	public static boolean enableWorldGenInNegativeDimensions = false;
+	public static boolean enableWorldRegeneration = true;
 
+	public static BREventHandler eventHandler = null;
+	public static BigReactorsTickHandler tickHandler = null;
+	public static BRWorldGenerator worldGenerator = null;
+	
 	private static boolean registeredTileEntities = false;
 	
 	/**
@@ -101,10 +107,12 @@ public class BigReactors {
 
 			// General config loading
 			BRConfig.CONFIGURATION.load();
-			boolean enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
+			enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
 			enableWorldGenInNegativeDimensions = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGenInNegativeDims", false, "Run BR world generation in negative dimension IDs? (default: false) If you don't know what this is, leave it alone.").getBoolean(false);
+			enableWorldRegeneration = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldRegeneration", false, "Run BR World Generation in chunks that have already been generated, but have not been modified by Big Reactors before. This is largely useful for worlds that existed before BigReactors was released.").getBoolean(false);
 			if(enableWorldGen) {
-				GameRegistry.registerWorldGenerator(new BRWorldGenerator());
+				worldGenerator = new BRWorldGenerator();
+				GameRegistry.registerWorldGenerator(worldGenerator);
 			}
 			BRConfig.CONFIGURATION.save();
 			

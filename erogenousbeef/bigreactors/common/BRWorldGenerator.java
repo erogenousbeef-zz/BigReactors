@@ -22,16 +22,20 @@ public class BRWorldGenerator implements IWorldGenerator {
 	@Override
 	public void generate(Random random, int chunkX, int chunkZ, World world,
 			IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
+		generateChunk(random, chunkX, chunkZ, world);
+	}
+	
+	public void generateChunk(Random random, int chunkX, int chunkZ, World world) {
 		if(oreGenerators == null) {
 			return;
 		}
-		
+
 		if(world.provider.dimensionId < 0 && !BigReactors.enableWorldGenInNegativeDimensions) {
 			return;
 		}
-
+		
 		for(BRSimpleOreGenerator generator : oreGenerators) {
-			if(generator.shouldGenerateInWorld(world, chunkProvider)) {
+			if(generator.shouldGenerateInWorld(world)) {
 				generator.generate(world, random, chunkX, chunkZ);
 			}
 		}
