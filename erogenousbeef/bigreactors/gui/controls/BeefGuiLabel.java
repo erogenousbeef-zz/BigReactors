@@ -55,13 +55,10 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 		}
 	}
 	
+	@Override
 	public void drawBackground(int mouseX, int mouseY) {
 	}
 	
-	public void renderTooltip(RenderEngine renderEngine, FontRenderer fontRenderer, int mouseX, int mouseY) {
-		fontRenderer.drawString(labelTooltip, mouseX, mouseY, 0, false);
-	}
-
 	@Override
 	public void drawForeground(int mouseX, int mouseY) {
 		FontRenderer fontRenderer = guiContainer.getFontRenderer();
@@ -71,5 +68,9 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 		else {
 			fontRenderer.drawString(labelText, x, y, color, dropShadow);
 		}
+	}
+	@Override
+	public String getTooltip() {
+		return labelTooltip;
 	}
 }

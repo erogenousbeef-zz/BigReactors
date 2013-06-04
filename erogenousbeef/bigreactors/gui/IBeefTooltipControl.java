@@ -5,5 +5,5 @@ import net.minecraft.client.renderer.RenderEngine;
 
 public interface IBeefTooltipControl {
 	boolean isMouseOver(int mouseX, int mouseY);
-	void renderTooltip(RenderEngine renderer, FontRenderer fontRenderer, int mouseX, int mouseY);
+	String getTooltip();
 }

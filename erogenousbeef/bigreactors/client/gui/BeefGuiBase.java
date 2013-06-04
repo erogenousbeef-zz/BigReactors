@@ -41,12 +41,16 @@ public abstract class BeefGuiBase extends GuiContainer {
 	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY) {
-		mouseX -= guiLeft;
-		mouseY -= guiTop;
-		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		this.mc.renderEngine.bindTexture(getGuiBackground());
 		this.drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+		
+		int relativeX, relativeY;
+		relativeX = mouseX - this.guiLeft;
+		relativeY = mouseY - this.guiTop;
+		for(IBeefGuiControl c : controls) {
+			c.drawBackground(relativeX, relativeY);
+		}
 	}
 	
 	// Override to draw your custom controls
@@ -61,8 +65,11 @@ public abstract class BeefGuiBase extends GuiContainer {
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {
 			if(tc.isMouseOver(mouseX,  mouseY)) {
-				tc.renderTooltip(this.mc.renderEngine, this.fontRenderer, mouseX, mouseY);
-				break;
+				String tooltip = tc.getTooltip();
+				if(tooltip != null && !tooltip.equals("")) {
+					drawCreativeTabHoveringText(tooltip, relativeX, relativeY);
+					break;
+				}
 			}
 		}
 	}
