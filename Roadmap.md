@@ -23,15 +23,17 @@ TODO - Alpha
 - Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Graphics & UI
-- Make halfway-decent UIs with better visualizations than just text
-- Add labels to access port UI, maybe a tooltip or two
+- Add progress indicator to cyanite reprocessor
+- Add power storage bar to Reactor Main GUI
+- Add fuel/waste bars to Control Rods
+- Add labels to access port UI + tooltips for buttons
+- Add graduation marks to liquid progress bars
+- Make an icon for power instead of using gold
 - Make glass have a border when disassembled, no border when assembled
 - Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
 
-### Graphics & UI
+### Gameplay
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
-- Make the current GUI's not suck quite as much. Decent alignment, colors, etc.
-- Make the Enricher GUI not blow goats
 
 TODO - Beta
 -----------

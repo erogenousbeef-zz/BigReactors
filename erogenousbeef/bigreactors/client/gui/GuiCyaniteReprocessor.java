@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraftforge.common.ForgeDirection;
@@ -12,6 +13,9 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiLiquidBar;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressBarVertical;
 import erogenousbeef.bigreactors.gui.controls.GuiImageButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
@@ -22,8 +26,6 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	private TileEntityCyaniteReprocessor _entity;
 
 	private BeefGuiLabel titleString;
-	private BeefGuiLabel powerStoredString;
-	private BeefGuiLabel waterStoredString;
 	private BeefGuiLabel progressString;
 	
 	private GuiImageButton leftInvExposureButton;
@@ -32,35 +34,36 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	private GuiImageButton bottomInvExposureButton;
 	private GuiImageButton rearInvExposureButton;
 	
+	private BeefGuiPowerBar powerBar;
+	private BeefGuiLiquidBar liquidBar;
+	
 	public GuiCyaniteReprocessor(Container container, TileEntityCyaniteReprocessor entity) {
 		super(container);
 		
 		_entity = entity;
 		xSize = 241;
+		ySize = 175;
 	}
 	
 	@Override
 	public void initGui() {
 		super.initGui();
 
-		int leftX = 4;
-		int topY = 4;
+		int leftX = 8;
+		int topY = 6;
 		
 		titleString = new BeefGuiLabel(this, _entity.getInvName(), leftX, topY);
 		topY += titleString.getHeight() + 8;
 		
-		waterStoredString = new BeefGuiLabel(this, "Liquid: ???", leftX+7, topY);
-		topY += waterStoredString.getHeight() + 8;
-
-		powerStoredString = new BeefGuiLabel(this, "Power: ???", leftX, topY);
-		topY += powerStoredString.getHeight() + 4;
-		
 		progressString = new BeefGuiLabel(this, "Progress: ???", leftX + titleString.getWidth() + 8, 4);
 		
+		liquidBar = new BeefGuiLiquidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);
+		powerBar = new BeefGuiPowerBar(this, guiLeft + 148, guiTop + 16, _entity);
+		
 		registerControl(titleString);
-		registerControl(powerStoredString);
-		registerControl(waterStoredString);
 		registerControl(progressString);
+		registerControl(powerBar);
+		registerControl(liquidBar);
 		
 		leftInvExposureButton = new GuiImageButton(ForgeDirection.WEST.ordinal(), guiLeft + 179, guiTop + 25, 20, 20, "");
 		buttonList.add(leftInvExposureButton);
@@ -88,17 +91,6 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	public void updateScreen() {
 		super.updateScreen();
 
-		powerStoredString.setLabelText(String.format("NRG: %d MJ", _entity.getEnergyStored()));
-		
-		LiquidStack waterStack = _entity.drain(0, _entity.getTankSize(0), false);
-		
-		
-		float waterAmt = 0f;
-		if(waterStack != null) {
-			waterAmt = (float)waterStack.amount / (float)LiquidContainerRegistry.BUCKET_VOLUME;
-		}
-		waterStoredString.setLabelText(String.format("Liquid: %1.1f", waterAmt));
-		
 		if(_entity.isActive()) {
 			progressString.setLabelText(String.format("Progress: %2.1f", _entity.getCycleCompletion() * 100f));
 		}
@@ -106,6 +98,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 			progressString.setLabelText(String.format("Progress: Inactive"));
 		}
 
+		// Exposure buttons
 		int exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.EAST.ordinal());
 		int liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.EAST);
 		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
