@@ -45,7 +45,7 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 		float progress = getProgress();
 		// Draw the bar itself, on top of the background
 		if(progress > 0.0) {
-			int barHeight = (int)Math.floor(progress * (float)(this.height - 4));
+			int barHeight = Math.min(1, (int)Math.floor(progress * (float)(this.height - 4)));
 			
 			Icon progressBarIcon = getProgressBarIcon();
 			if(progressBarIcon == null) {
@@ -74,7 +74,6 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 				tessellator.addVertexWithUV(barMaxX, slicedBarY - slicedBarHeight, 1, maxU, minV);
 				tessellator.addVertexWithUV(barMinX, slicedBarY - slicedBarHeight, 1, minU, minV);
 				tessellator.draw();
-				
 			}
 		}
 	}

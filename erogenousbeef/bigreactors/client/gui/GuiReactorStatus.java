@@ -5,6 +5,7 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
@@ -23,7 +24,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel statusString;
 	private BeefGuiLabel heatString;
 	private BeefGuiLabel fuelRodsString;
-	private BeefGuiLabel powerStoredString;
+	private BeefGuiPowerBar powerBar;
 	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
@@ -55,17 +56,16 @@ public class GuiReactorStatus extends BeefGuiBase {
 		heatString = new BeefGuiLabel(this, "Heat: -- updating --", leftX, topY);
 		topY += heatString.getHeight() + 4;
 		
-		fuelRodsString = new BeefGuiLabel(this, "Active Fuel Columns: -- updating --", leftX, topY);
+		fuelRodsString = new BeefGuiLabel(this, "Active Fuel Rods: -- updating --", leftX, topY);
 		topY += fuelRodsString.getHeight() + 4;
 		
-		powerStoredString = new BeefGuiLabel(this, "Power Exported: -- updating --", leftX, topY);
-		topY += powerStoredString.getHeight() + 4;
+		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.reactor);
 		
 		registerControl(titleString);
 		registerControl(statusString);
 		registerControl(heatString);
 		registerControl(fuelRodsString);
-		registerControl(powerStoredString);
+		registerControl(powerBar);
 	}
 
 	@Override
@@ -88,7 +88,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()) + " degrees C");
 		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
-		powerStoredString.setLabelText(String.format("Power Stored: %.3f units", reactor.getStoredEnergy()));
 	}
 	
 	@Override

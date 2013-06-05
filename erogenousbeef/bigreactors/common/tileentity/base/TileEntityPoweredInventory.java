@@ -4,6 +4,7 @@ import universalelectricity.core.block.IConnector;
 import universalelectricity.core.block.IVoltage;
 import universalelectricity.core.electricity.ElectricityNetworkHelper;
 import universalelectricity.core.electricity.ElectricityPack;
+import erogenousbeef.bigreactors.api.IBeefPowerStorage;
 import erogenousbeef.core.power.buildcraft.PowerProviderBeef;
 import buildcraft.api.power.IPowerProvider;
 import buildcraft.api.power.IPowerReceptor;
@@ -11,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IPowerReceptor, IVoltage, IConnector  {
+public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IPowerReceptor, IVoltage, IConnector, IBeefPowerStorage  {
 
 	public static int energyPerMJ = 100;
 	public static int energyPerUEWatt = 1; 
@@ -37,7 +38,9 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	}
 	
 	// Internal energy methods
+	@Override
 	public abstract int getMaxEnergyStored();
+	
 	public abstract int getCycleEnergyCost();
 	public abstract int getCycleLength();
 	public abstract boolean canBeginCycle();
@@ -46,6 +49,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	
 	protected void DEBUGaddEnergy(int nrg) { this.storedEnergy = Math.min(storedEnergy+nrg, getMaxEnergyStored()); }
 	
+	@Override
 	public int getEnergyStored() {
 		return storedEnergy;
 	}
