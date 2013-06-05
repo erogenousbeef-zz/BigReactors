@@ -14,6 +14,7 @@ Known Bugs
 - Reactor glass breaks instead of dropping a block
 - Reactors are always marked as inactive when worlds are loaded
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
+- Cyanite ingots can be placed in fuel inlet slots
 
 TODO - Alpha
 ------------
@@ -23,9 +24,6 @@ TODO - Alpha
 - Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Graphics & UI
-- Add fuel/waste bars to Control Rods
-- Add labels to access port UI + tooltips for buttons
-- Add graduation marks to liquid progress bars
 - Make an icon for power instead of using gold
 - Make glass have a border when disassembled, no border when assembled
 - Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
@@ -54,6 +52,10 @@ TODO - Beta
 - ComputerCraft integration!
 
 ### Graphics & UI
+- Add graduation marks to liquid progress bars
+- Add a cool mixed fuel/waste bar to the control rods
+- Show fuel/waste overall mix in reactor controller
+- Multi-page reactor controller to remote-control control rods
 - Unshitty artwork.
 - Cool particle effects when the reactor is on!
 - Graphical GUI meters & tooltips

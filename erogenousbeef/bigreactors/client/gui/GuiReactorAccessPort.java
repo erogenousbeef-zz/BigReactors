@@ -4,6 +4,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
@@ -14,6 +15,10 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 
 	private GuiButton _togglePort;
 	private TileEntityReactorAccessPort _port;
+	
+	protected BeefGuiLabel inletLabel;
+	protected BeefGuiLabel outletLabel;
+	protected BeefGuiLabel inventoryLabel;
 	
 	public GuiReactorAccessPort(Container container, TileEntityReactorAccessPort accessPort) {
 		super(container);
@@ -32,6 +37,13 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 		
 		_togglePort = new GuiButton(1, xCenter + 31, guiTop + 4, 50, 20, getStringFromMetadata(metadata));
 		buttonList.add(_togglePort);
+		
+		inletLabel = new BeefGuiLabel(this, "IN", 25, 46);
+		outletLabel = new BeefGuiLabel(this, "OUT", 142, 46);
+		inventoryLabel = new BeefGuiLabel(this, "Inventory", 8, 64);
+		registerControl(inletLabel);
+		registerControl(outletLabel);
+		registerControl(inventoryLabel);
 	}
 
 	@Override
@@ -45,6 +57,15 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 		
 		int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
 		_togglePort.displayString = getStringFromMetadata(metadata);
+		
+		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
+			inletLabel.setLabelTooltip("Blocks from pipes will enter here");
+			outletLabel.setLabelTooltip("Will NOT eject waste into pipes");
+		}
+		else {
+			inletLabel.setLabelTooltip("Blocks from pipes will NOT be accepted");
+			outletLabel.setLabelTooltip("Will eject waste into pipes");			
+		}
 	}
 	
 	@Override

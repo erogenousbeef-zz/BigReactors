@@ -75,4 +75,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 	}
 	
 	public abstract String getGuiBackground();
+	
+	public int getGuiLeft() { return guiLeft; }
+	public int getGuiTop() { return guiTop; }
 }

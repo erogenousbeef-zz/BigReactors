@@ -73,4 +73,20 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 	public String getTooltip() {
 		return labelTooltip;
 	}
+	
+	@Override
+	/**
+	 * Check if the mouse is over this control.
+	 * @param mouseX Screen-relative mouse X coordinate.
+	 * @param mouseY Screen-relative mouse Y coordinate.
+	 * @return True if the mouse is over this control, false otherwise.
+	 */
+	public boolean isMouseOver(int mouseX, int mouseY) {
+		// Gotta transform these, as labels work in window-relative space, THANKS FONTRENDERER.
+		mouseX -= guiContainer.getGuiLeft();
+		mouseY -= guiContainer.getGuiTop();
+		if(mouseX < x || mouseX > x+width || mouseY < y || mouseY > y+height) { return false; }
+		return true;
+	}
+	
 }
