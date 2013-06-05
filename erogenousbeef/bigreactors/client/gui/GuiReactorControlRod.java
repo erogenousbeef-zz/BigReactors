@@ -29,7 +29,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	}
 	
 	@Override
-	protected String getGuiBackground() {
+	public String getGuiBackground() {
 		// TODO: Real gui?
 		return BigReactors.GUI_DIRECTORY + "ReactorController.png";
 	}

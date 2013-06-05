@@ -35,7 +35,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	}
 
 	@Override
-	protected String getGuiBackground() {
+	public String getGuiBackground() {
 		return BigReactors.GUI_DIRECTORY + "ReactorAccessPort.png";
 	}
 

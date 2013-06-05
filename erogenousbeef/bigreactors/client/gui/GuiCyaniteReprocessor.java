@@ -15,6 +15,7 @@ import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLiquidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressArrow;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressBarVertical;
 import erogenousbeef.bigreactors.gui.controls.GuiImageButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -36,6 +37,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	
 	private BeefGuiPowerBar powerBar;
 	private BeefGuiLiquidBar liquidBar;
+	private BeefGuiProgressArrow progressArrow;
 	
 	public GuiCyaniteReprocessor(Container container, TileEntityCyaniteReprocessor entity) {
 		super(container);
@@ -59,11 +61,13 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		
 		liquidBar = new BeefGuiLiquidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 148, guiTop + 16, _entity);
+		progressArrow = new BeefGuiProgressArrow(this, guiLeft + 76, guiTop + 41, 0, 178, _entity);
 		
 		registerControl(titleString);
 		registerControl(progressString);
 		registerControl(powerBar);
 		registerControl(liquidBar);
+		registerControl(progressArrow);
 		
 		leftInvExposureButton = new GuiImageButton(ForgeDirection.WEST.ordinal(), guiLeft + 179, guiTop + 25, 20, 20, "");
 		buttonList.add(leftInvExposureButton);
@@ -83,7 +87,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	}
 
 	@Override
-	protected String getGuiBackground() {
+	public String getGuiBackground() {
 		return BigReactors.GUI_DIRECTORY + "CyaniteReprocessor.png";
 	}
 
@@ -91,6 +95,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	public void updateScreen() {
 		super.updateScreen();
 
+		// TODO: REMOVEME
 		if(_entity.isActive()) {
 			progressString.setLabelText(String.format("Progress: %2.1f", _entity.getCycleCompletion() * 100f));
 		}
