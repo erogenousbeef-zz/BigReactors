@@ -69,7 +69,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	}
 
 	@Override
-	protected String getGuiBackground() {
+	public String getGuiBackground() {
 		return BigReactors.GUI_DIRECTORY + "ReactorController.png";
 	}
 
