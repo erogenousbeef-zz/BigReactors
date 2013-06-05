@@ -23,8 +23,6 @@ TODO - Alpha
 - Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Graphics & UI
-- Add progress indicator to cyanite reprocessor
-- Add power storage bar to Reactor Main GUI
 - Add fuel/waste bars to Control Rods
 - Add labels to access port UI + tooltips for buttons
 - Add graduation marks to liquid progress bars
@@ -34,6 +32,9 @@ TODO - Alpha
 
 ### Gameplay
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
+- Fix inventory object consumption for the cyanite reprocessor.
+- Fix PoweredInventory object to check for items on start & during the cycle. Halt cycle if items are removed.
+- Only consume objects when cycle is done.
 
 TODO - Beta
 -----------

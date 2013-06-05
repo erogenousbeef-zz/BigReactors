@@ -18,6 +18,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
 import erogenousbeef.bigreactors.api.HeatPulse;
+import erogenousbeef.bigreactors.api.IBeefPowerStorage;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -33,7 +34,7 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockRegistry;
 
-public class MultiblockReactor extends MultiblockControllerBase {
+public class MultiblockReactor extends MultiblockControllerBase implements IBeefPowerStorage {
 	// Game stuff
 	protected boolean active;
 	private double latentHeat;
@@ -499,5 +500,16 @@ public class MultiblockReactor extends MultiblockControllerBase {
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
+	}
+
+	// IBeefPowerStorage
+	@Override
+	public int getEnergyStored() {
+		return (int)storedEnergy;
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return maxEnergyStored;
 	}
 }
