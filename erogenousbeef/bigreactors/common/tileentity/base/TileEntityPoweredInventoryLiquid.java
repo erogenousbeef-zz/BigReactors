@@ -168,18 +168,15 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 			int side = dataStream.readInt();
 			if(tankExposure[side] != LIQUIDTANK_NONE) {
 				// Clicked on something we're already exposing, iterate the exposure
-				System.out.println("TileEntityPoweredInventoryLiquidTank - currently liquid exposed, iterating that");
 				iterateLiquidTankExposure(side);
 			}
 			else {
 				boolean wasExposed = this.getExposedSlotFromReferenceSide(side) != TileEntityInventory.INVENTORY_UNEXPOSED;
-				System.out.println("TileEntityPoweredInventoryLiquidTank - no liquid exposed, iterating normal inv");
 				iterateInventoryExposure(side);
 				
 				// If an inventory was exposed, but now no inventory is exposed, it's our turn to shine.
 				if(wasExposed && this.getExposedSlotFromReferenceSide(side) == TileEntityInventory.INVENTORY_UNEXPOSED) {
 					// Ah, it cycled back around. Our turn.
-					System.out.println("TileEntityPoweredInventoryLiquidTank - no liquid exposed, normal inv wrapped, iterating liquid exposure");
 					iterateLiquidTankExposure(side);
 				}
 				// Else: Inventory's still using the exposure.
@@ -203,7 +200,6 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 			newExposure = LIQUIDTANK_NONE;
 		}
 		
-		System.out.println("Setting exposed tank for " + ForgeDirection.getOrientation(side).toString() + " to " + Integer.toString(newExposure));
 		this.setExposedTank(ForgeDirection.getOrientation(side), newExposure);
 	}
 	

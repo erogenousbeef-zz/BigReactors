@@ -32,7 +32,6 @@ public class BigReactorsTickHandler extends MultiblockServerTickHandler {
 		}
 		else {
 			if(!chunkRegenMap.get(dimensionId).contains(chunkCoord)) {
-				System.out.println("ACTUALLY adding chunk");
 				chunkRegenMap.get(dimensionId).add(chunkCoord);
 			}
 		}
