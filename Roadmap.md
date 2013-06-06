@@ -23,12 +23,7 @@ TODO - Alpha
 - Add maximum-dimension API and checks to BeefCore
 
 ### Graphics & UI
-- Make an icon for power instead of using gold
-- Make glass have a border when disassembled, no border when assembled
 - Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
-
-### Gameplay
-- Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 
 TODO - Beta
 -----------
@@ -46,6 +41,9 @@ TODO - Beta
 - Add nasty side effects for going near pools of yellorium
 - RedNet integration
 - ComputerCraft integration!
+
+### Gameplay
+- Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 
 ### Graphics & UI
 - Add graduation marks to liquid progress bars
