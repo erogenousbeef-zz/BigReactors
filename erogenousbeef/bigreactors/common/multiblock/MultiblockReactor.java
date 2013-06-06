@@ -20,6 +20,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IBeefPowerStorage;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
+import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
@@ -207,15 +208,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				
 				if(fuelStack != null) {
 					if(fuelStack.stackSize >= fuelIngotsToConsume) {
-						fuelStack.stackSize -= fuelIngotsToConsume;
+						fuelStack = BRUtilities.consumeItem(fuelStack, fuelIngotsToConsume);
 						fuelIngotsConsumed = fuelIngotsToConsume;
 						fuelIngotsToConsume = 0;
 					}
 					else {
 						fuelIngotsConsumed += fuelStack.stackSize;
 						fuelIngotsToConsume -= fuelStack.stackSize;
-						port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, null);
+						fuelStack = BRUtilities.consumeItem(fuelStack, fuelStack.stackSize);
 					}
+					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
 				}
 
 				if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {

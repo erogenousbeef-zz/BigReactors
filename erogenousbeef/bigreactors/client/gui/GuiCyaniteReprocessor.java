@@ -27,7 +27,6 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	private TileEntityCyaniteReprocessor _entity;
 
 	private BeefGuiLabel titleString;
-	private BeefGuiLabel progressString;
 	
 	private GuiImageButton leftInvExposureButton;
 	private GuiImageButton rightInvExposureButton;
@@ -57,14 +56,11 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		titleString = new BeefGuiLabel(this, _entity.getInvName(), leftX, topY);
 		topY += titleString.getHeight() + 8;
 		
-		progressString = new BeefGuiLabel(this, "Progress: ???", leftX + titleString.getWidth() + 8, 4);
-		
 		liquidBar = new BeefGuiLiquidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 148, guiTop + 16, _entity);
 		progressArrow = new BeefGuiProgressArrow(this, guiLeft + 76, guiTop + 41, 0, 178, _entity);
 		
 		registerControl(titleString);
-		registerControl(progressString);
 		registerControl(powerBar);
 		registerControl(liquidBar);
 		registerControl(progressArrow);
@@ -94,14 +90,6 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-
-		// TODO: REMOVEME
-		if(_entity.isActive()) {
-			progressString.setLabelText(String.format("Progress: %2.1f", _entity.getCycleCompletion() * 100f));
-		}
-		else {
-			progressString.setLabelText(String.format("Progress: Inactive"));
-		}
 
 		// Exposure buttons
 		int exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.EAST.ordinal());

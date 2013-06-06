@@ -78,6 +78,11 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 	// Internal Helpers
 	
 	private void readLiquidsFromNBT(NBTTagCompound tag) {
+		// Initialize tanks to empty, as we send sparse updates.
+		for(int i = 0; i < tanks.length; i++) {
+			tanks[i].setLiquid(null);
+		}
+
 		if(tag.hasKey("liquids")) {
 			NBTTagList tagList = tag.getTagList("liquids");
 			for(int i = 0; i < tagList.tagCount(); i++) {

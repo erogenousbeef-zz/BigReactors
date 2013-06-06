@@ -14,14 +14,13 @@ Known Bugs
 - Reactor glass breaks instead of dropping a block
 - Reactors are always marked as inactive when worlds are loaded
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
-- Cyanite ingots can be placed in fuel inlet slots
+- Reactors do not keep their chunks loaded if placed across multiple chunks; use external chunkloaders for now!
 
 TODO - Alpha
 ------------
 
 ### Core
 - Add maximum-dimension API and checks to BeefCore
-- Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Graphics & UI
 - Make an icon for power instead of using gold
@@ -30,9 +29,6 @@ TODO - Alpha
 
 ### Gameplay
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
-- Fix inventory object consumption for the cyanite reprocessor.
-- Fix PoweredInventory object to check for items on start & during the cycle. Halt cycle if items are removed.
-- Only consume objects when cycle is done.
 
 TODO - Beta
 -----------
@@ -72,6 +68,9 @@ TODO - Beta
 - Any reprocessing tanks between the stacks have some waste converted to fuel
 - Reprocessing tanks are mounted atop reprocessing tank valve blocks.
 - Needs sweet lightning effects
+
+### Core
+- Create ITileEntityProxy to handle things like fuel columns more nicely
 
 Wishlist / Post-Release
 -----------------------

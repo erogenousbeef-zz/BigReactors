@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import java.util.ArrayList;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -12,7 +14,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.liquids.LiquidContainerRegistry;
 import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
@@ -91,21 +95,37 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 
 	@Override
 	public void onPoweredCycleBegin() {
-		decrStackSize(SLOT_INLET, 1);
-		drain(0, LIQUID_CONSUMED, true);
 	}
 
 	@Override
 	public void onPoweredCycleEnd() {
 		if(_inventories[SLOT_OUTLET] != null) {
-			_inventories[SLOT_OUTLET].stackSize += 1;
+			if(consumeInputs()) {
+				_inventories[SLOT_OUTLET].stackSize += 1;
+			}
 		}
 		else {
-			// TODO: Make this query for the right type of fuel to create
-			_inventories[SLOT_OUTLET] = new ItemStack(BigReactors.ingotGeneric, 1, 3);
+			// TODO: Make this query the input for the right type of output to create.
+			ArrayList<ItemStack> candidates = OreDictionary.getOres("ingotPlutonium");
+			if(candidates.isEmpty()) {
+				// WTF?
+				return;
+			}
+			
+			if(consumeInputs()) {
+				_inventories[SLOT_OUTLET] = candidates.get(0).copy();
+				_inventories[SLOT_OUTLET].stackSize = 1;
+			}
 		}
 		
 		_inventories[SLOT_OUTLET] = distributeItemToPipes(SLOT_OUTLET, _inventories[SLOT_OUTLET]);
+	}
+	
+	private boolean consumeInputs() {
+		_inventories[SLOT_INLET] = BRUtilities.consumeItem(_inventories[SLOT_INLET]);
+		drain(0, LIQUID_CONSUMED, true);
+		
+		return true;
 	}
 
 	@Override
@@ -132,15 +152,5 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 	@Override
 	public Container getContainer(EntityPlayer player) {
 		return new ContainerCyaniteReprocessor(this, player);
-	}
-	
-	// DEBUG
-	@Override
-	public void updateEntity() {
-		super.updateEntity();
-		
-		if(!this.worldObj.isRemote) {
-			DEBUGaddEnergy(1);
-		}
 	}
 }
