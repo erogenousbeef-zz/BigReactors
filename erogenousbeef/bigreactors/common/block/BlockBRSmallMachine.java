@@ -10,10 +10,12 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
@@ -34,8 +36,11 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	private static String[] _subBlocks = new String[] { "cyaniteReprocessor" };
 	private Icon[] _icons = new Icon[_subBlocks.length];
+	private Icon[] _activeIcons = new Icon[_subBlocks.length];
 	private Icon[] _inventorySideIcons = new Icon[3];
 	private Icon[] _liquidSideIcons = new Icon[1];
+	
+	protected static Icon powerIcon = null; // find a better home for this.
 	
 	public BlockBRSmallMachine(int id, Material material) {
 		super(id, material);
@@ -43,6 +48,10 @@ public class BlockBRSmallMachine extends BlockContainer {
 		setHardness(1.0f);
 		setUnlocalizedName("blockBRSmallMachine");
 		setCreativeTab(BigReactors.TAB);
+	}
+	
+	public static Icon getPowerIcon() {
+		return powerIcon;
 	}
 
 	@Override
@@ -53,6 +62,11 @@ public class BlockBRSmallMachine extends BlockContainer {
 		{
 			if(side == ((TileEntityBeefBase)te).getFacingDirection().ordinal()) {
 				int metadata = blockAccess.getBlockMetadata(x, y, z);
+				if(te instanceof TileEntityPoweredInventory) {
+					if(((TileEntityPoweredInventory)te).isActive()) {
+						return _activeIcons[metadata];
+					}
+				}
 				return _icons[metadata];
 			}
 		}
@@ -76,7 +90,8 @@ public class BlockBRSmallMachine extends BlockContainer {
 	@Override
 	public Icon getIcon(int side, int metadata)
 	{
-		if(side == 2) {
+		// This is used when rendering in-inventory. 4 == front here.
+		if(side == 4) {
 			return _icons[metadata];
 		}
 		return this.blockIcon;
@@ -90,6 +105,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		
 		for(int i = 0; i < _subBlocks.length; ++i) {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
+			_activeIcons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i] + ".active");
 		}
 		
 		_inventorySideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".redPort");
@@ -98,6 +114,9 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 		// TODO: Better icons for these
 		_liquidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
+		
+		// Ugly hack, fix later.
+		powerIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "gui.power");
 	}
 	
 	@Override
