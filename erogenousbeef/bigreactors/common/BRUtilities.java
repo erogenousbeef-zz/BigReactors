@@ -108,7 +108,8 @@ public class BRUtilities {
 		}
 		else
 		{
-			return stack.splitStack(amount);
+			stack.stackSize -= amount;
+			return stack;
 		}	
 	}	
 }

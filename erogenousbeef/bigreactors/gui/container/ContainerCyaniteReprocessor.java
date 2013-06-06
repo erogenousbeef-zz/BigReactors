@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.gui.container;
 
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.gui.slot.SlotReactorFuelOnly;
+import erogenousbeef.bigreactors.gui.slot.SlotRestrictedOreTypes;
 import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -23,10 +23,8 @@ public class ContainerCyaniteReprocessor extends Container {
 	}
 
 	protected void addSlots() {
-		// TODO: Make remappable-slot thing that draws colors around the slots.
-		
 		// Input Slot
-		addSlotToContainer(new SlotReactorFuelOnly(_entity, 0, 44, 41));
+		addSlotToContainer(new SlotRestrictedOreTypes(_entity, 0, 44, 41, new String[] { "ingotCyanite" }));
 	
 		// Output Slot
 		addSlotToContainer(new SlotRemoveOnly(_entity, 1, 116, 41));
@@ -34,7 +32,7 @@ public class ContainerCyaniteReprocessor extends Container {
 	
 	protected int getPlayerInventoryVerticalOffset()
 	{
-		return 74;
+		return 93;
 	}
 
 	protected void addPlayerInventory(InventoryPlayer inventoryPlayer)

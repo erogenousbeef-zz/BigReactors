@@ -41,12 +41,36 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	@Override
 	public abstract int getMaxEnergyStored();
 	
+	/**
+	 * Returns the energy cost to run a cycle. Consumed instantly when a cycle begins.
+	 * @return Number of MJ needed to start a cycle.
+	 */
 	public abstract int getCycleEnergyCost();
 	public abstract int getCycleLength();
+	
+	/**
+	 * Check material/non-energy requirements for starting a cycle.
+	 * These requirements should NOT be consumed at the start of a cycle.
+	 * @return True if a cycle can start/continue, false otherwise.
+	 */
 	public abstract boolean canBeginCycle();
+	
+	/**
+	 * Perform any necessary operations at the start of a cycle.
+	 * Do NOT consume resources here. Powered cycles should only consume
+	 * resources at the end of a cycle.
+	 * canBeginCycle() will be called each tick to ensure that the necessary
+	 * conditions remain met throughout the cycle.
+	 */
 	public abstract void onPoweredCycleBegin();
+	
+	/**
+	 * Perform any necessary operations at the end of a cycle.
+	 * Consume and produce resources here.
+	 */
 	public abstract void onPoweredCycleEnd();
 	
+	// DEBUG method. For debugging only. :)
 	protected void DEBUGaddEnergy(int nrg) { this.storedEnergy = Math.min(storedEnergy+nrg, getMaxEnergyStored()); }
 	
 	@Override
@@ -124,13 +148,16 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 				storedEnergy += ueProduced;
 				internalUEStorage -= ueProduced * energyPerUEWatt;			
 			}
-			
-	
 	
 			// If we're running, continue the cycle until we're done.
 			if(cycledTicks >= 0) {
 				cycledTicks++;
-				if(cycledTicks >= getCycleLength()) {
+				
+				// If we don't have the stuff to begin a cycle, stop now
+				if(!canBeginCycle()) {
+					cycledTicks = -1;
+				}
+				else if(cycledTicks >= getCycleLength()) {
 					onPoweredCycleEnd();
 					cycledTicks = -1;
 				}

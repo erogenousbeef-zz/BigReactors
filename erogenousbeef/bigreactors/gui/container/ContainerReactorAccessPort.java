@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.gui.container;
 
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.gui.slot.SlotReactorFuelOnly;
+import erogenousbeef.bigreactors.gui.slot.SlotRestrictedOreTypes;
 import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -22,7 +22,7 @@ public class ContainerReactorAccessPort extends Container {
 
 	protected void addSlots() {
 		// Input Slot
-		addSlotToContainer(new SlotReactorFuelOnly(_port, 0, 44, 41));
+		addSlotToContainer(new SlotRestrictedOreTypes(_port, 0, 44, 41, new String[] { "ingotUranium", "ingotPlutonium" }));
 	
 		// Output Slot
 		addSlotToContainer(new SlotRemoveOnly(_port, 1, 116, 41));
