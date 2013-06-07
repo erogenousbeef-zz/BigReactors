@@ -20,9 +20,6 @@ TODO - Alpha
 - Add maximum-dimension API and checks to BeefCore
 - Fix onDisassemble and invalidate(). Use onChunkUnload to remove a block and disassemble the machine without fucking up the user's settings. Also have it disable the machine due to chunk-unload.
 
-### Graphics & UI
-- (IN PROGRESS) Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
-
 TODO - Beta
 -----------
 
@@ -42,6 +39,8 @@ TODO - Beta
 
 ### Gameplay
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
+- Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
+  and prevents problems with unbalanced fuel distribution across rods.
 
 ### Graphics & UI
 - Add graduation marks to liquid progress bars
