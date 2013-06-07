@@ -66,6 +66,9 @@ TODO - Beta
 
 ### Core
 - Create ITileEntityProxy to handle things like fuel columns more nicely
+- Add ChunkLoading mechanic. Either reactors must act as chunkloaders for all occupied chunks,
+or they must somehow keep all of their constituent chunks loaded if any single chunk is loaded
+by players.
 
 Wishlist / Post-Release
 -----------------------
