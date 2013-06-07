@@ -18,6 +18,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 
 	private GuiButton _toggleReactorOn;
 	private GuiButton _reactorWastePolicy;
+	private GuiButton _ejectWaste;
 	
 	private TileEntityReactorPart part;
 	private MultiblockReactor reactor;
@@ -44,10 +45,12 @@ public class GuiReactorStatus extends BeefGuiBase {
 		int yCenter = this.ySize / 2;
 		
 		_toggleReactorOn = new GuiButton(1, xCenter - (this.xSize/2) + 4, yCenter + (this.height/2) - 24, 70, 20, getReactorToggleText() );
-		_reactorWastePolicy = new GuiButton(2, xCenter - (this.xSize/2) + 4, yCenter + (this.height / 2) - 46, 120, 20, getReactorWastePolicyText(part.getReactorController().getWasteEjection()));
-		
+		_reactorWastePolicy = new GuiButton(2, xCenter - (this.xSize/2) + 4, yCenter + (this.height / 2) - 46, 114, 20, getReactorWastePolicyText(reactor.getWasteEjection()));
+		_ejectWaste = new GuiButton(3, xCenter - (this.xSize/2) + 122, yCenter + (this.height / 2) - 46, 50, 20, "Eject");
+
 		this.buttonList.add(_toggleReactorOn);
 		this.buttonList.add(_reactorWastePolicy);
+		this.buttonList.add(_ejectWaste);
 
 		int leftX = 4;
 		int topY = 4;
@@ -107,24 +110,28 @@ public class GuiReactorStatus extends BeefGuiBase {
 		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()) + " degrees C");
 		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
 		
-		_reactorWastePolicy.displayString = getReactorWastePolicyText(part.getReactorController().getWasteEjection());
+		MultiblockReactor.WasteEjectionSetting wasteSetting = reactor.getWasteEjection();
+		_reactorWastePolicy.displayString = getReactorWastePolicyText(wasteSetting);
+		
+		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
+		CoordTriplet saveDelegate = reactor.getDelegateLocation();
 		if(button.id == 1) {
 			boolean newValue = !reactor.isActive();
-			
-			CoordTriplet saveDelegate = reactor.getDelegateLocation();
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", newValue }));
 		}
 		else if(button.id == 2) {
-			System.out.println("Reactor waste policy change");
-			
-			CoordTriplet saveDelegate = reactor.getDelegateLocation();
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z } ));
+		}
+		else if(button.id == 3) {
+			// Boolean value is ignored here.
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "ejectWaste", false }));
 		}
 	}
 	

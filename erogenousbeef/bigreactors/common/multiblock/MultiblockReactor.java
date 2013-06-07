@@ -173,8 +173,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		TileEntityReactorControlRod controlRod;
 		for(CoordTriplet coord : attachedControlRods) {
 			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			wasteAmt += controlRod.getWasteAmount();
-			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getFuelAmount();
 			
 			if(this.isActive()) {
 				radiationResult = controlRod.radiate();
@@ -187,92 +185,47 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				this.addStoredEnergy(heatPulse.powerProduced);
 				newHeat += heatPulse.heatChange;
 			}
+			
+			wasteAmt += controlRod.getWasteAmount();
+			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getTotalContainedAmount();
 		}
 
 		// Now apply delta-heat
 		latentHeat += newHeat;
 		
-		// If we can, poop out waste and inject new fuel
+		// If we can, poop out waste and inject new fuel.
 		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
-			
-			ItemStack wasteToDistribute = null;
-			if(wasteAmt >= 1000) {
-				// TODO: Make this query the existing fuel type for the right type of waste to create
-				wasteToDistribute = OreDictionary.getOres("ingotCyanite").get(0).copy();
-				wasteToDistribute.stackSize = wasteAmt/1000;
-			}
-
-			int fuelIngotsToConsume = freeFuelSpace / 1000;
-			int fuelIngotsConsumed = 0;
-			
-			// Distribute waste, slurp in ingots.
-			for(CoordTriplet coord : attachedAccessPorts) {
-				if(fuelIngotsToConsume <= 0 && (wasteToDistribute == null || wasteToDistribute.stackSize <= 0)) {
-					break;
-				}
-
-				TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-				ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
-				
-				if(fuelStack != null) {
-					if(fuelStack.stackSize >= fuelIngotsToConsume) {
-						fuelStack = BRUtilities.consumeItem(fuelStack, fuelIngotsToConsume);
-						fuelIngotsConsumed = fuelIngotsToConsume;
-						fuelIngotsToConsume = 0;
-					}
-					else {
-						fuelIngotsConsumed += fuelStack.stackSize;
-						fuelIngotsToConsume -= fuelStack.stackSize;
-						fuelStack = BRUtilities.consumeItem(fuelStack, fuelStack.stackSize);
-					}
-					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
-				}
-
-				if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {
-					tryDistributeWaste(port, coord, wasteToDistribute, false);
-				}
-			}
-			
-			// If we have waste leftover and we have multiple ports, go back over them for the
-			// outlets.
-			if(wasteToDistribute != null && wasteToDistribute.stackSize > 0 && attachedAccessPorts.size() > 1) {
+			// Auto/Replace: Discover amount of available fuel and peg wasteAmt to that.
+			if(this.wasteEjection == WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
+				int fuelIngotsAvailable = 0;
 				for(CoordTriplet coord : attachedAccessPorts) {
-					if(wasteToDistribute == null || wasteToDistribute.stackSize <= 0) {
-						break;
-					}
-
 					TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					tryDistributeWaste(port, coord, wasteToDistribute, true);
+					ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
+					if(fuelStack != null) {
+						fuelIngotsAvailable += fuelStack.stackSize;
+					}
+					
 				}
-			}
-			
-			// Okay... let's modify the fuel rods now
-			if((wasteToDistribute != null && wasteToDistribute.stackSize != wasteAmt / 1000) || fuelIngotsConsumed > 0) {
-				int fuelToDistribute = fuelIngotsConsumed * 1000;
-				int wasteToConsume = 0;
-				if(wasteToDistribute != null) {
-					wasteToConsume = ((wasteAmt/1000) - wasteToDistribute.stackSize) * 1000;
+
+				if(wasteAmt/1000 > fuelIngotsAvailable) {
+					wasteAmt = fuelIngotsAvailable * 1000;
 				}
 				
-				for(CoordTriplet coord : attachedControlRods) {
-					if(wasteToConsume <= 0 && fuelToDistribute <= 0) { break; }
-					
-					controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					if(wasteToConsume > 0) {
-						int amtDrained = controlRod.removeWaste(controlRod.getWasteType(), wasteToConsume, true);
-						wasteToConsume -= amtDrained;
-					}
-					
-					if(fuelToDistribute > 0) {
-						if(controlRod.getFuelType() == null) {
-							// TODO: Discover fuel type
-							ItemStack fuel = OreDictionary.getOres("ingotUranium").get(0).copy();
-							int fuelAdded = controlRod.addFuel(fuel, fuelToDistribute, true);
-						}
-					}
-				}
+				// Consider any space made by distributable waste to be free space.
+				freeFuelSpace += wasteAmt;
+			} else if(this.wasteEjection == WasteEjectionSetting.kManual) {
+				// Manual just means to suppress waste injection, not ignore incoming fuel. Sooo..
+				wasteAmt = 0;
 			}
-		} // End fuel/waste autotransfer
+			else {
+				// Automatic - consider waste to be spare space for fuel
+				freeFuelSpace += wasteAmt;
+			}
+			
+			if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
+				tryEjectWaste(freeFuelSpace, wasteAmt);
+			}
+		}
 
 		if(this.isActive()) {
 			// Distribute available power
@@ -490,7 +443,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, newStack);
 				}
 				else {
-					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, wasteToDistribute);
+					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, wasteToDistribute.copy());
 					wasteToDistribute.stackSize = 0;
 				}
 			}
@@ -576,4 +529,111 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	public WasteEjectionSetting getWasteEjection() {
 		return this.wasteEjection;
 	}
+	
+	public void ejectWaste() {
+		TileEntityReactorControlRod controlRod;
+		int wasteAmt = 0;
+		int freeFuelSpace = 0;
+		for(CoordTriplet coord : attachedControlRods) {
+			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			wasteAmt += controlRod.getWasteAmount();
+			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getFuelAmount();
+		}
+		
+		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
+			tryEjectWaste(freeFuelSpace, wasteAmt);
+		}
+	}
+	
+	/**
+	 * Honestly attempt to eject waste and inject fuel, up to a certain amount.
+	 * @param fuelAmt Amount of fuel to inject.
+	 * @param wasteAmt Amount of waste to eject.
+	 */
+	protected void tryEjectWaste(int fuelAmt, int wasteAmt) {
+		if(fuelAmt < 1000 && wasteAmt < 1000) { return; }
+
+		ItemStack wasteToDistribute = null;
+		if(wasteAmt >= 1000) {
+			// TODO: Make this query the existing fuel type for the right type of waste to create
+			wasteToDistribute = OreDictionary.getOres("ingotCyanite").get(0).copy();
+			wasteToDistribute.stackSize = wasteAmt/1000;
+		}
+
+		int fuelIngotsToConsume = fuelAmt / 1000;
+		//System.out.println(String.format("Ingots to consume: %d, fuelAmt: %d", fuelIngotsToConsume, fuelAmt));
+		int fuelIngotsConsumed = 0;
+		
+		// Distribute waste, slurp in ingots.
+		for(CoordTriplet coord : attachedAccessPorts) {
+			if(fuelIngotsToConsume <= 0 && (wasteToDistribute == null || wasteToDistribute.stackSize <= 0)) {
+				break;
+			}
+
+			TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
+			
+			if(fuelStack != null) {
+				if(fuelStack.stackSize >= fuelIngotsToConsume) {
+					fuelStack = BRUtilities.consumeItem(fuelStack, fuelIngotsToConsume);
+					fuelIngotsConsumed = fuelIngotsToConsume;
+					fuelIngotsToConsume = 0;
+				}
+				else {
+					fuelIngotsConsumed += fuelStack.stackSize;
+					fuelIngotsToConsume -= fuelStack.stackSize;
+					fuelStack = BRUtilities.consumeItem(fuelStack, fuelStack.stackSize);
+				}
+				port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
+			}
+
+			if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {
+				tryDistributeWaste(port, coord, wasteToDistribute, false);
+			}
+		}
+		
+		// If we have waste leftover and we have multiple ports, go back over them for the
+		// outlets.
+		if(wasteToDistribute != null && wasteToDistribute.stackSize > 0 && attachedAccessPorts.size() > 1) {
+			for(CoordTriplet coord : attachedAccessPorts) {
+				if(wasteToDistribute == null || wasteToDistribute.stackSize <= 0) {
+					break;
+				}
+
+				TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				tryDistributeWaste(port, coord, wasteToDistribute, true);
+			}
+		}
+		
+		// Okay... let's modify the fuel rods now
+		if((wasteToDistribute != null && wasteToDistribute.stackSize != wasteAmt / 1000) || fuelIngotsConsumed > 0) {
+			int fuelToDistribute = fuelIngotsConsumed * 1000;
+			int wasteToConsume = 0;
+			if(wasteToDistribute != null) {
+				wasteToConsume = ((wasteAmt/1000) - wasteToDistribute.stackSize) * 1000;
+			}
+			
+			TileEntityReactorControlRod controlRod;
+			for(CoordTriplet coord : attachedControlRods) {
+				if(wasteToConsume <= 0 && fuelToDistribute <= 0) { break; }
+				
+				controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				if(wasteToConsume > 0) {
+					int amtDrained = controlRod.removeWaste(controlRod.getWasteType(), wasteToConsume, true);
+					wasteToConsume -= amtDrained;
+				}
+				
+				if(fuelToDistribute > 0) {
+					if(controlRod.getFuelType() == null) {
+						// TODO: Discover fuel type
+						ItemStack fuel = OreDictionary.getOres("ingotUranium").get(0).copy();
+						fuelToDistribute -= controlRod.addFuel(fuel, fuelToDistribute, true);
+					}
+					else {
+						fuelToDistribute -= controlRod.addFuel(controlRod.getFuelType(), fuelToDistribute, true);
+					}
+				}
+			}
+		}
+	} // End fuel/waste autotransfer		
 }

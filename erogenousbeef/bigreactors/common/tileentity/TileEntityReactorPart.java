@@ -180,6 +180,9 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 			if(buttonName.equals("activate")) {
 				getReactorController().setActive(newValue);
 			}
+			else if(buttonName.equals("ejectWaste")) {
+				getReactorController().ejectWaste();
+			}
 		}
 		
 		if(packetType == Packets.ReactorWasteEjectionSettingUpdate) {
