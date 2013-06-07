@@ -82,8 +82,13 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 			this.setCasingMetadataBasedOnWorldPosition();
 		}
 		else if(BlockReactorPart.isController(metadata)) {
-			// Controllers start idle
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);
+			// This is called during world loading as well, so controllers can start active.
+			if(!this.getReactorController().isActive()) {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);				
+			}
+			else {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);				
+			}
 		}
 	}
 
@@ -96,7 +101,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
 		}
 		else if(BlockReactorPart.isController(metadata)) {
-			// Controllers start idle
 			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_METADATA_BASE, 2);
 		}
 	}

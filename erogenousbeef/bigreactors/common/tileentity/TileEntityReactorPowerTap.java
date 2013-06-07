@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -127,9 +128,17 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	// This will be called by the Reactor Controller when this tap should be providing power.
 	// Returns units remaining after consumption.
 	public int onProvidePower(int units) {
+		ArrayList<CoordTriplet> deadCoords = null;
+		
 		for(CoordTriplet outputCoord : powerConnections) {
 			TileEntity te = this.worldObj.getBlockTileEntity(outputCoord.x, outputCoord.y, outputCoord.z);
-			if(te == null) { continue; }
+			if(te == null) { 
+				if(deadCoords == null) {
+					deadCoords = new ArrayList<CoordTriplet>();
+				}
+				deadCoords.add(outputCoord);
+				continue;
+			}
 			else if(te instanceof IPowerReceptor) {
 				// Buildcraft
 				int mjAvailable = units / bcPowerFactor;
@@ -163,6 +172,19 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 						network.stopProducing(this);
 					}
 				}
+			}
+		}
+		
+		// Handle burnt-out connections that didn't trigger a neighbor update (UE, mostly)
+		if(deadCoords != null && deadCoords.size() > 0) {
+			powerConnections.removeAll(deadCoords);
+			if(powerConnections.size() <= 0) {
+				// No longer connected
+				worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
+			}
+			
+			if(this.isConnected()) {
+				getReactorController().onPowerTapConnectionChanged(xCoord, yCoord, zCoord, powerConnections.size());
 			}
 		}
 		

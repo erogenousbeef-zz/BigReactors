@@ -10,9 +10,6 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Known Bugs
 ----------
-- When a wire burns out, it does not disconnect the power tap
-- Reactor glass breaks instead of dropping a block
-- Reactors are always marked as inactive when worlds are loaded
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
 - Reactors do not keep their chunks loaded if placed across multiple chunks; use external chunkloaders for now!
 

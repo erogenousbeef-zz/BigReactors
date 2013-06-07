@@ -123,12 +123,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	
 	@Override
 	protected void assembleMachine() {
-		this.active = false;
 		super.assembleMachine();
 	}
 	
 	@Override
 	protected void disassembleMachine() {
+		this.active = false;
 		super.disassembleMachine();
 	}
 
@@ -189,8 +189,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			
 			ItemStack wasteToDistribute = null;
 			if(wasteAmt >= 1000) {
-				// TODO: Make this query for the right type of waste to create
-				wasteToDistribute = OreDictionary.getOres("ingotCyanite").get(0);
+				// TODO: Make this query the existing fuel type for the right type of waste to create
+				wasteToDistribute = OreDictionary.getOres("ingotCyanite").get(0).copy();
 				wasteToDistribute.stackSize = wasteAmt/1000;
 			}
 
@@ -258,7 +258,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 					if(fuelToDistribute > 0) {
 						if(controlRod.getFuelType() == null) {
 							// TODO: Discover fuel type
-							ItemStack fuel = OreDictionary.getOres("ingotUranium").get(0);
+							ItemStack fuel = OreDictionary.getOres("ingotUranium").get(0).copy();
 							int fuelAdded = controlRod.addFuel(fuel, fuelToDistribute, true);
 						}
 					}
