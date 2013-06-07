@@ -182,6 +182,10 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 			}
 		}
 		
+		if(packetType == Packets.ReactorWasteEjectionSettingUpdate) {
+			getReactorController().changeWasteEjection();
+		}
+		
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {

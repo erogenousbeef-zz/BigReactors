@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.client.gui;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
@@ -16,6 +17,7 @@ import net.minecraft.inventory.Container;
 public class GuiReactorStatus extends BeefGuiBase {
 
 	private GuiButton _toggleReactorOn;
+	private GuiButton _reactorWastePolicy;
 	
 	private TileEntityReactorPart part;
 	private MultiblockReactor reactor;
@@ -42,7 +44,10 @@ public class GuiReactorStatus extends BeefGuiBase {
 		int yCenter = this.ySize / 2;
 		
 		_toggleReactorOn = new GuiButton(1, xCenter - (this.xSize/2) + 4, yCenter + (this.height/2) - 24, 70, 20, getReactorToggleText() );
+		_reactorWastePolicy = new GuiButton(2, xCenter - (this.xSize/2) + 4, yCenter + (this.height / 2) - 46, 120, 20, getReactorWastePolicyText(part.getReactorController().getWasteEjection()));
+		
 		this.buttonList.add(_toggleReactorOn);
+		this.buttonList.add(_reactorWastePolicy);
 
 		int leftX = 4;
 		int topY = 4;
@@ -68,6 +73,19 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(powerBar);
 	}
 
+	private String getReactorWastePolicyText(WasteEjectionSetting setting) {
+		// TODO Auto-generated method stub
+		switch(setting) {
+		case kAutomatic:
+			return "Waste: Auto-Eject";
+		case kAutomaticOnlyIfCanReplace:
+			return "Waste: Auto-Replace";
+		case kManual:
+		default:
+			return "Waste: Manual";
+		}
+	}
+
 	@Override
 	public String getGuiBackground() {
 		return BigReactors.GUI_DIRECTORY + "ReactorController.png";
@@ -88,6 +106,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()) + " degrees C");
 		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
+		
+		_reactorWastePolicy.displayString = getReactorWastePolicyText(part.getReactorController().getWasteEjection());
 	}
 	
 	@Override
@@ -98,6 +118,13 @@ public class GuiReactorStatus extends BeefGuiBase {
 			CoordTriplet saveDelegate = reactor.getDelegateLocation();
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", newValue }));
+		}
+		else if(button.id == 2) {
+			System.out.println("Reactor waste policy change");
+			
+			CoordTriplet saveDelegate = reactor.getDelegateLocation();
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z } ));
 		}
 	}
 	

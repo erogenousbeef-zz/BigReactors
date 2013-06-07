@@ -18,9 +18,10 @@ TODO - Alpha
 
 ### Core
 - Add maximum-dimension API and checks to BeefCore
+- Fix onDisassemble and invalidate(). Use onChunkUnload to remove a block and disassemble the machine without fucking up the user's settings. Also have it disable the machine due to chunk-unload.
 
 ### Graphics & UI
-- Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
+- (IN PROGRESS) Make waste ejection a setting; manual waste ejection (button-activated)/automatic waste ejection (threshold-activated)
 
 TODO - Beta
 -----------
