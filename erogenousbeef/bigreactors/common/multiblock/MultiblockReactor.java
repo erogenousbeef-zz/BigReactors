@@ -40,6 +40,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	protected boolean active;
 	private double latentHeat;
 	private double storedEnergy;	// Internal units
+	private WasteEjectionSetting wasteEjection;
+	
+	public enum WasteEjectionSetting {
+		kAutomatic,					// Full auto, always remove waste
+		kAutomaticOnlyIfCanReplace, // Remove only if it can be replaced with fuel
+		kManual, 					// Manual, only on button press
+	}
 	
 	private LinkedList<CoordTriplet> activePowerTaps;
 	// Highest internal Y-coordinate in the fuel column
@@ -59,6 +66,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		active = false;
 		latentHeat = 0.0;
 		storedEnergy = 0;
+		wasteEjection = WasteEjectionSetting.kAutomatic;
 		activePowerTaps = new LinkedList<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
@@ -396,12 +404,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		data.setBoolean("reactorActive", this.active);
 		data.setDouble("heat", this.latentHeat);
 		data.setDouble("storedEnergy", this.storedEnergy);
+		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		if(data.hasKey("reactorActive")) {
-			this.active = data.getBoolean("reactorActive");
+			setActive(data.getBoolean("reactorActive"));
 		}
 		
 		if(data.hasKey("heat")) {
@@ -410,6 +419,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		
 		if(data.hasKey("storedEnergy")) {
 			this.storedEnergy = data.getDouble("storedEnergy");
+		}
+		
+		if(data.hasKey("wasteEjection")) {
+			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection")];
 		}
 	}
 
@@ -421,10 +434,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
+		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
+		if(data.hasKey("wasteEjection")) {
+			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection")];
+		}
 	}
 
 	protected Packet getUpdatePacket() {
@@ -513,5 +530,50 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	@Override
 	public int getMaxEnergyStored() {
 		return maxEnergyStored;
+	}
+
+	/**
+	 * Increment the waste ejection setting by 1 value.
+	 */
+	public void changeWasteEjection() {
+		WasteEjectionSetting[] settings = WasteEjectionSetting.values();
+		int newIdx = this.wasteEjection.ordinal() + 1;
+		if(newIdx >= settings.length) {
+			newIdx = 0;
+		}
+		
+		WasteEjectionSetting newSetting = settings[newIdx];
+		
+		setWasteEjection(newSetting);
+	}
+	
+	/**
+	 * Directly set the waste ejection setting. Will dispatch network updates
+	 * from server to interested clients.
+	 * @param newSetting The new waste ejection setting.
+	 */
+	public void setWasteEjection(WasteEjectionSetting newSetting) {
+		if(this.wasteEjection != newSetting) {
+			this.wasteEjection = newSetting;
+			
+			if(!this.worldObj.isRemote) {
+				if(this.updatePlayers.size() > 0) {
+					Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL,
+							 Packets.ReactorWasteEjectionSettingUpdate,
+							 new Object[] { referenceCoord.x,
+											referenceCoord.y,
+											referenceCoord.z,
+											this.wasteEjection.ordinal() });
+					
+					for(EntityPlayer player : updatePlayers) {
+						PacketDispatcher.sendPacketToPlayer(updatePacket, (Player)player);
+					}
+				}
+			}
+		}
+	}
+	
+	public WasteEjectionSetting getWasteEjection() {
+		return this.wasteEjection;
 	}
 }

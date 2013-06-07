@@ -11,4 +11,5 @@ public final class Packets {
 	public static final int SmallMachineLiquidExposureUpdate = 7;
 	public static final int ControlRodUpdate = 8;
 	public static final int ControlRodGuiUpdate = 9;
+	public static final int ReactorWasteEjectionSettingUpdate = 10;
 }

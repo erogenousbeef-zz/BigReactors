@@ -13,6 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
@@ -49,6 +50,22 @@ public class ClientPacketHandler implements IPacketHandler {
 					e.printStackTrace();
 					// TODO: Crash all the things.
 				}			
+			}
+		break;
+		case Packets.ReactorWasteEjectionSettingUpdate: {
+				try {
+					x = data.readInt();
+					y = data.readInt();
+					z = data.readInt();
+					
+					TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+					if(te instanceof TileEntityReactorPart) {
+						MultiblockReactor.WasteEjectionSetting newSetting = MultiblockReactor.WasteEjectionSetting.values()[data.readInt()];
+						((TileEntityReactorPart)te).getReactorController().setWasteEjection(newSetting);
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		break;
 		case Packets.SmallMachineUIUpdate: {
