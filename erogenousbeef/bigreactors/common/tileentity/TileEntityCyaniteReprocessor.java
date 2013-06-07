@@ -30,6 +30,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 	public static final int NUM_SLOTS = 2;
 	
 	protected static final int LIQUID_CONSUMED = LiquidContainerRegistry.BUCKET_VOLUME * 1;
+	protected static final int INGOTS_CONSUMED = 2;
 	
 	public TileEntityCyaniteReprocessor() {
 		super();
@@ -83,7 +84,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 			return false;
 		}
 
-		if(_inventories[SLOT_INLET] != null && _inventories[SLOT_INLET].stackSize > 0) {
+		if(_inventories[SLOT_INLET] != null && _inventories[SLOT_INLET].stackSize >= INGOTS_CONSUMED) {
 			if(_inventories[SLOT_OUTLET] != null && _inventories[SLOT_OUTLET].stackSize >= getInventoryStackLimit()) {
 				return false;
 			}
@@ -122,7 +123,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 	}
 	
 	private boolean consumeInputs() {
-		_inventories[SLOT_INLET] = BRUtilities.consumeItem(_inventories[SLOT_INLET]);
+		_inventories[SLOT_INLET] = BRUtilities.consumeItem(_inventories[SLOT_INLET], INGOTS_CONSUMED);
 		drain(0, LIQUID_CONSUMED, true);
 		
 		return true;
