@@ -130,17 +130,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	}
 	
 	@Override
-	protected void assembleMachine() {
-		super.assembleMachine();
-	}
-	
-	@Override
-	protected void disassembleMachine() {
-		this.active = false;
-		super.disassembleMachine();
-	}
-
-	@Override
 	protected boolean isMachineWhole() {
 		// Ensure that there is at least one controller and control rod attached.
 		if(attachedControlRods.size() < 1) {
@@ -154,12 +143,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		return super.isMachineWhole();
 	}
 	
+	// Update loop. Only called when the machine is assembled.
 	@Override
-	public void updateMultiblockEntity() {		
-		super.updateMultiblockEntity();
-		
-		if(!this.isWholeMachine) { return; }
-		
+	public void update() {
 		double oldHeat = this.getHeat();
 
 		// How much waste do we have?
@@ -636,4 +622,27 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			}
 		}
 	} // End fuel/waste autotransfer		
+
+	// TODO: Remove debug statements
+	
+	@Override
+	protected void onMachineAssembled() {
+		System.out.println("[DEBUG] Reactor assembled");
+	}
+
+	@Override
+	protected void onMachineRestored() {
+		System.out.println("[DEBUG] Reactor restored");
+	}
+
+	@Override
+	protected void onMachinePaused() {
+		System.out.println("[DEBUG] Reactor paused");
+	}
+
+	@Override
+	protected void onMachineDisassembled() {
+		this.active = false;
+		System.out.println("[DEBUG] Reactor disassembled");
+	}
 }
