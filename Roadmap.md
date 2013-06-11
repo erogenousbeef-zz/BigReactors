@@ -11,14 +11,13 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Known Bugs
 ----------
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
-- Reactors do not keep their chunks loaded if placed across multiple chunks; use external chunkloaders for now!
 
 TODO - Alpha
 ------------
 
 ### Core
 - Add maximum-dimension API and checks to BeefCore
-- Fix onDisassemble and invalidate(). Use onChunkUnload to remove a block and disassemble the machine without fucking up the user's settings. Also have it disable the machine due to chunk-unload.
+- (IN PROGRESS) Finish testing chunk-unload compat. Looking good right now.
 
 TODO - Beta
 -----------
