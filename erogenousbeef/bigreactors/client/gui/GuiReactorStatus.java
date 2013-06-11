@@ -118,7 +118,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		CoordTriplet saveDelegate = reactor.getDelegateLocation();
+		CoordTriplet saveDelegate = reactor.getReferenceCoord();
 		if(button.id == 1) {
 			boolean newValue = !reactor.isActive();
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
