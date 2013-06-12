@@ -1,0 +1,17 @@
+{
+  "modinfoversion": 2,
+  "modlist": [{
+    "modid": "BigReactors",
+    "name": "Big Reactors",
+    "description": "Adds large, multiblock power generation machines to Minecraft. Compatible with BuildCraft (MJ) and Universal Electricity power systems.",
+    "version": "0.1.0A",
+    "mcversion": "1.5.2",
+    "url": "http://github.com/erogenousbeef/bigreactors",
+    "updateUrl": "",
+    "authors": [ "ErogenousBeef" ],
+    "credits": "Mod by ErogenousBeef. Special thanks: powercrystals, King_Lemming, & Calclavia for example code.",
+    "requiredMods": [ "Forge" ],
+    "dependencies": [ "mod_BuildCraftCore", "BasicComponents" ],
+    "useDependencyInformation": "true"
+  }]
+}

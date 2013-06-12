@@ -23,7 +23,7 @@ import erogenousbeef.bigreactors.net.ConnectionHandler;
 import erogenousbeef.core.multiblock.MultiblockEventHandler;
 
 
-@Mod(modid = BigReactors.CHANNEL, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = "[1.5,)")
+@Mod(modid = BigReactors.CHANNEL, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = "[1.5.2,)")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, connectionHandler = ConnectionHandler.class, 
 			clientPacketHandlerSpec = @SidedPacketHandler(channels = { BigReactors.CHANNEL }, packetHandler = ClientPacketHandler.class),
 			serverPacketHandlerSpec = @SidedPacketHandler(channels = { BigReactors.CHANNEL }, packetHandler = ServerPacketHandler.class))
