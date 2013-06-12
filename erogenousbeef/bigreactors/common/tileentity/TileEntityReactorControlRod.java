@@ -541,7 +541,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 
 		// Propagate radiation up to 4 blocks away
 		int i = 1;
-		while(radiation.getTimeToLive() > 0 && !(radiation.getFastRadiation() <= 0 && radiation.getSlowRadiation() <= 0)) {
+		while(radiation.getTimeToLive() > 0 && (radiation.getFastRadiation() > 0 || radiation.getSlowRadiation() > 0)) {
 			te = worldObj.getBlockTileEntity(xCoord + (dx*i), dy, zCoord+(dz*i));
 			if(te != null && te instanceof IRadiationModerator) {
 				ir = (IRadiationModerator)te;
@@ -728,6 +728,11 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 
 		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces) * contactArea;
 
+		// Just zero it out after a while
+		if(deltaTemp < 0.01) {
+			heatToAbsorb = deltaTemp;
+		}
+
 		localHeat += heatToAbsorb;
 		return heatToAbsorb;
 	}
@@ -765,7 +770,6 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 		
 		localHeat -= lostHeat;
-		
 		return results;
 	}
 
@@ -782,8 +786,10 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			conversionEfficiency = 0.75;
 		}
 		
-		
 		double heatToTransfer = (localHeat - ambientHeat) * thermalConductivity * (1.0/(double)faces);
+		if((localHeat - ambientHeat) < 0.01) {
+			heatToTransfer = localHeat - ambientHeat;
+		}
 
 		pulse.powerProduced += heatToTransfer * conversionEfficiency * powerPerHeat;
 		pulse.heatChange += heatToTransfer * (1.0-conversionEfficiency);
@@ -904,6 +910,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	private void readLocalDataFromNBT(NBTTagCompound data) {
 		if(data.hasKey("localHeat")) {
 			this.localHeat = data.getDouble("localHeat");
+			if(Double.isNaN(localHeat)) { localHeat = 0.0; }
 		}
 		
 		if(data.hasKey("incidentRadiation")) {

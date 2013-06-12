@@ -145,8 +145,17 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	
 	// Update loop. Only called when the machine is assembled.
 	@Override
-	public void update() {
+	public boolean update() {
+		if(Double.isNaN(this.getHeat())) {
+			this.setHeat(20.0);
+		}
+		
+		if(Double.isNaN(this.storedEnergy)) {
+			this.storedEnergy = 0.0;
+		}
+
 		double oldHeat = this.getHeat();
+		double oldEnergy = this.storedEnergy;
 
 		// How much waste do we have?
 		int wasteAmt = 0;
@@ -176,7 +185,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			wasteAmt += controlRod.getWasteAmount();
 			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getTotalContainedAmount();
 		}
-
+		
 		// Now apply delta-heat
 		latentHeat += newHeat;
 		
@@ -256,6 +265,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 		
 		// TODO: Overload/overheat
+
+		// Return true if we've changed either variable
+		return (oldHeat != this.getHeat() || oldEnergy != this.storedEnergy);
 	}
 	
 	public void onPowerTapConnectionChanged(int x, int y, int z, int numConnections) {
@@ -361,9 +373,15 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		if(data.hasKey("heat")) {
 			this.latentHeat = data.getDouble("heat");
 		}
+		else {
+			this.latentHeat = 0.0;
+		}
 		
 		if(data.hasKey("storedEnergy")) {
 			this.storedEnergy = data.getDouble("storedEnergy");
+		}
+		else {
+			this.storedEnergy = 0.0;
 		}
 		
 		if(data.hasKey("wasteEjection")) {
@@ -555,7 +573,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 
 		int fuelIngotsToConsume = fuelAmt / 1000;
-		//System.out.println(String.format("Ingots to consume: %d, fuelAmt: %d", fuelIngotsToConsume, fuelAmt));
 		int fuelIngotsConsumed = 0;
 		
 		// Distribute waste, slurp in ingots.
@@ -637,26 +654,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 	} // End fuel/waste autotransfer		
 
-	// TODO: Remove debug statements
-	
 	@Override
 	protected void onMachineAssembled() {
-		System.out.println("[DEBUG] Reactor assembled");
 	}
 
 	@Override
 	protected void onMachineRestored() {
-		System.out.println("[DEBUG] Reactor restored");
 	}
 
 	@Override
 	protected void onMachinePaused() {
-		System.out.println("[DEBUG] Reactor paused");
 	}
 
 	@Override
 	protected void onMachineDisassembled() {
 		this.active = false;
-		System.out.println("[DEBUG] Reactor disassembled");
 	}
 }
