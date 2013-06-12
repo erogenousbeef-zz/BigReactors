@@ -6,6 +6,7 @@ import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -70,5 +71,14 @@ public class BlockReactorControlRod extends BlockContainer {
 		// Open GUI for this block
 		entityPlayer.openGui(BRLoader.instance, 0, world, x, y, z);
 		return true;
+	}
+	
+	@Override
+	public void onBlockAdded(World world, int x, int y, int z) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorControlRod) {
+			TileEntityReactorControlRod rp = (TileEntityReactorControlRod)te;
+			rp.onBlockAdded(world, x, y, z);
+		}
 	}
 }
