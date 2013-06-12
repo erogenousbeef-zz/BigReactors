@@ -63,6 +63,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	public final static int numTanks = 2;
 
 	// Game Balance Values
+	// TODO: Make these configurable
+	private static final double maximumNeutronsPerFuel = 50000; // Should be a few minutes per ingot, on average.
 	private static final double neutronsPerFuel = 0.001; // neutrons per fuel unit
 	private static final double heatPerNeutron = 0.05; // C per fission event
 	private static final double powerPerNeutron = 0.001; // internal units per fission event
@@ -92,7 +94,6 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	
 	// Fuel Consumption
 	protected int neutronsSinceLastFuelConsumption;
-	protected static final double maximumNeutronsPerFuel = 2000; // Due to probabilistic effects, this is usually only a few seconds
 
 	// Fuel messaging
 	protected int fuelAtLastUpdate;
