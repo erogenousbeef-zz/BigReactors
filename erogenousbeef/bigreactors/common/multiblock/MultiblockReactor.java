@@ -226,24 +226,22 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			}
 		}
 
-		if(this.isActive()) {
-			// Distribute available power
-			int energyAvailable = (int)getStoredEnergy();
-			int energyRemaining = energyAvailable;
-			if(activePowerTaps.size() > 0) {
-				for(CoordTriplet coord : activePowerTaps) {
-					if(energyRemaining <= 0) { break; }
-					
-					TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					if(tap == null) { continue; }
+		// Distribute available power
+		int energyAvailable = (int)getStoredEnergy();
+		int energyRemaining = energyAvailable;
+		if(activePowerTaps.size() > 0 && energyRemaining > 0) {
+			for(CoordTriplet coord : activePowerTaps) {
+				if(energyRemaining <= 0) { break; }
+				
+				TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				if(tap == null) { continue; }
 
-					energyRemaining = tap.onProvidePower(energyRemaining);
-				}
+				energyRemaining = tap.onProvidePower(energyRemaining);
 			}
-			
-			if(energyAvailable != energyRemaining) {
-				reduceStoredEnergy((double)(energyAvailable - energyRemaining));
-			}
+		}
+		
+		if(energyAvailable != energyRemaining) {
+			reduceStoredEnergy((double)(energyAvailable - energyRemaining));
 		}
 
 		// leak 1% of heat to the environment
@@ -257,6 +255,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		latentHeat -= latentHeatLoss;
 		if(latentHeat < 0.0) { latentHeat = 0.0; }
 
+		// Generate power based on the amount of heat lost
+		this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+		
 		// Send updates periodically
 		ticksSinceLastUpdate++;
 		if(ticksSinceLastUpdate >= ticksBetweenUpdates) {

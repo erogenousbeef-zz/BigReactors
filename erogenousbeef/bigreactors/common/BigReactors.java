@@ -95,6 +95,9 @@ public class BigReactors {
 	
 	private static boolean registeredTileEntities = false;
 	
+	// Game Balance values
+	public static final float powerPerHeat = 2.0f; // Power units per C dissipated
+	
 	/**
 	 * Call this function in your mod init stage.
 	 */
