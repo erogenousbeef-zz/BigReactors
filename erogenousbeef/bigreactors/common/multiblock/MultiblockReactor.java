@@ -159,7 +159,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		TileEntityReactorControlRod controlRod;
 		for(CoordTriplet coord : attachedControlRods) {
 			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			
+			if(controlRod == null) { continue; } // Happens due to chunk unloads
+
 			if(this.isActive()) {
 				radiationResult = controlRod.radiate();
 				this.addStoredEnergy(radiationResult.getPowerProduced());
@@ -180,17 +181,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		latentHeat += newHeat;
 		
 		// If we can, poop out waste and inject new fuel.
+		// TODO: Change so control rods are individually considered for fueling instead
+		// of doing it in aggregate.
 		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
 			// Auto/Replace: Discover amount of available fuel and peg wasteAmt to that.
 			if(this.wasteEjection == WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
 				int fuelIngotsAvailable = 0;
 				for(CoordTriplet coord : attachedAccessPorts) {
 					TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(port == null) { continue; }
+
 					ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
 					if(fuelStack != null) {
 						fuelIngotsAvailable += fuelStack.stackSize;
 					}
-					
 				}
 
 				if(wasteAmt/1000 > fuelIngotsAvailable) {
@@ -222,6 +226,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 					if(energyRemaining <= 0) { break; }
 					
 					TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(tap == null) { continue; }
+
 					energyRemaining = tap.onProvidePower(energyRemaining);
 				}
 			}
@@ -303,7 +309,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		IMultiblockPart part = null;
 		for(CoordTriplet coord : connectedBlocks) {
 			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te != null && te instanceof IMultiblockPart) {
+			if(te instanceof IMultiblockPart) {
 				part = (IMultiblockPart)te;
 				if(this.active) { part.onMachineActivated(); }
 				else { part.onMachineDeactivated(); }
@@ -522,6 +528,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		int freeFuelSpace = 0;
 		for(CoordTriplet coord : attachedControlRods) {
 			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(controlRod == null) { continue; }
+
 			wasteAmt += controlRod.getWasteAmount();
 			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getFuelAmount();
 		}
@@ -557,6 +565,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			}
 
 			TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(port == null) { continue; }
+
 			ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
 			
 			if(fuelStack != null) {
@@ -587,6 +597,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				}
 
 				TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				if(port == null) { continue; }
+
 				tryDistributeWaste(port, coord, wasteToDistribute, true);
 			}
 		}
@@ -604,6 +616,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				if(wasteToConsume <= 0 && fuelToDistribute <= 0) { break; }
 				
 				controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				if(controlRod == null) { continue; }
+
 				if(wasteToConsume > 0) {
 					int amtDrained = controlRod.removeWaste(controlRod.getWasteType(), wasteToConsume, true);
 					wasteToConsume -= amtDrained;
