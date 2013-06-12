@@ -23,8 +23,8 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IVoltage, IConnector, IPowerReceptor {
 
-	public static final int uePowerFactor = 1;	// 1 UE watt per 1 internal power
-	public static final int bcPowerFactor = 1;  // 1 MJ per 1 internal power
+	public static final float uePowerFactor = 0.01f;	 // 100 UE watts per 1 internal power
+	public static final float bcPowerFactor = 1.00f;  // 1 MJ per 1 internal power
 	
 	Set<CoordTriplet> powerConnections;
 	IPowerProvider powerProvider;
@@ -141,7 +141,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			}
 			else if(te instanceof IPowerReceptor) {
 				// Buildcraft
-				int mjAvailable = units / bcPowerFactor;
+				int mjAvailable = (int)Math.floor((float)units / bcPowerFactor);
 				
 				IPowerReceptor ipr = (IPowerReceptor)te;
 				IPowerProvider ipp = ipr.getPowerProvider();
@@ -151,7 +151,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 					int energyUsed = Math.min(Math.min(ipp.getMaxEnergyReceived(), mjAvailable), ipp.getMaxEnergyStored() - (int)Math.floor(ipp.getEnergyStored()));
 					ipp.receiveEnergy(energyUsed, approachDirection);
 					
-					units -= energyUsed * bcPowerFactor;
+					units -= (int)((float)energyUsed * bcPowerFactor);
 				}
 			}
 			else if(te instanceof IConnector) { 
@@ -159,15 +159,16 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 				ForgeDirection approachDirection = outputCoord.getDirectionFromSourceCoords(this.xCoord, this.yCoord, this.zCoord);
 				IElectricityNetwork network = ElectricityNetworkHelper.getNetworkFromTileEntity(te, approachDirection);
 				if(network != null) {
+					double wattsAvailable = (double)units / (double)uePowerFactor;
 					double wattsWanted = network.getRequest().getWatts();
 					if(wattsWanted > 0) {
-						if(wattsWanted > units) {
-							wattsWanted = units;
+						if(wattsWanted > wattsAvailable) {
+							wattsWanted = wattsAvailable;
 						}
 						
 						network.startProducing(this, wattsWanted/getVoltage(), getVoltage());
 						 // Rounding up to prevent free energy. Sorry bro, thermodynamics says so.
-						units -= (int)Math.ceil(wattsWanted);
+						units -= (int)Math.ceil(wattsWanted * uePowerFactor);
 					} else {
 						network.stopProducing(this);
 					}
