@@ -66,8 +66,6 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 
 		forwardFace = newDirection;
 		if(!worldObj.isRemote) {
-			// TODO: Special packet for these updates
-			//worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineRotationUpdate, new Object[] { xCoord, yCoord, zCoord, newDirection.ordinal() });
 			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
 		}

@@ -417,7 +417,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
     // IRadiationSource
 	@Override
 	public IRadiationPulse radiate() {
-		Random rand = new Random(); // todo: fix
+		Random rand = this.worldObj.rand;
 
 		// Generate new heat based on internal fuel state, broadcast radiation pulse
 		double internalHeatGenerated = 0.0;

@@ -77,7 +77,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 	}
 
 	private String getReactorWastePolicyText(WasteEjectionSetting setting) {
-		// TODO Auto-generated method stub
 		switch(setting) {
 		case kAutomatic:
 			return "Waste: Auto-Eject";

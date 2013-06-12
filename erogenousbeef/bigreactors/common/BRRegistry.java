@@ -13,7 +13,6 @@ import net.minecraftforge.liquids.ILiquid;
 
 public abstract class BRRegistry {
 	
-	// TODO: Fixme. This does not work, ItemStack does not implement equals().
 	private static List<IReactorFuel> _reactorFuels = new LinkedList<IReactorFuel>();
 	private static List<IReactorFuel> _reactorWastes = new LinkedList<IReactorFuel>();
 	

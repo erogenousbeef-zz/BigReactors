@@ -133,13 +133,11 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	@Override
 	protected void formatDescriptionPacket(NBTTagCompound packetData) {
 		super.formatDescriptionPacket(packetData);
-		// TODO: this.
 	}
 	
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		super.decodeDescriptionPacket(packetData);
-		// TODO: This.
 	}
 
 	// NBT - Save/Load
@@ -163,7 +161,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	///// Network communication
 
-	// TODO: Fix this. Communication with the controller should...
 	public void onNetworkPacket(int packetType, DataInputStream data) {
 		if(!this.isConnected()) {
 			return;
@@ -312,12 +309,11 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// IRadiationModerator
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		// TODO: FIXME
-		double newHeat = radiation.getSlowRadiation() * 0.75;
+		double newHeat = radiation.getSlowRadiation() * 0.5;
 		
-		// Convert 25% of newly-gained heat to energy (thermocouple or something)
+		// Convert 15% of newly-gained heat to energy (thermocouple or something)
 		radiation.addPower(newHeat*0.15);
-		newHeat *= 0.85;
+		newHeat *= 0.85 * 0.5;
 		radiation.changeHeat(newHeat);
 		
 		// Slow radiation is all lost now
@@ -328,7 +324,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 	
 	// IHeatEntity
-	// TODO: FIXME
 	@Override
 	public double getHeat() {
 		if(!this.isConnected()) { return 0; }
@@ -346,7 +341,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		double heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0/(double)faces) * contactArea;
 
 		pulse.powerProduced += heatToAbsorb * 0.15;
-		pulse.heatChange += heatToAbsorb * 0.85;
+		pulse.heatChange += heatToAbsorb * 0.85 * 0.5;
 
 		return heatToAbsorb;
 	}
