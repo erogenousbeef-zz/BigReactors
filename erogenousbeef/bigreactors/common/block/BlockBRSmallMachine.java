@@ -159,22 +159,26 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ) {
-		if(entityPlayer.isSneaking()) {
-			// return false;
-			
-			// TODO: The below should also work if you're holding a wrench, numbnuts.
-			if(entityPlayer.inventory.getCurrentItem() == null) {
-				TileEntity te = world.getBlockTileEntity(x, y, z);
-				if(te != null && te instanceof TileEntityBeefBase) {
-					ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
-					((TileEntityBeefBase)te).rotateTowards(newFacing);
-					return true;
-				}
-			}
-		}
-		
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te == null) { return false; }
+
+		if(entityPlayer.isSneaking()) {
+			// Empty-handed sneaking also works to rotate the machine, because it's easier on pre-wrench players.
+			if(entityPlayer.inventory.getCurrentItem() == null && te instanceof TileEntityBeefBase) {
+				ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
+				((TileEntityBeefBase)te).rotateTowards(newFacing);
+				return true;
+			}
+			
+			return false;
+		}
+
+		// WRENCH SUPPORT HAH.
+		if(te instanceof TileEntityBeefBase && BRUtilities.isPlayerHoldingWrench(entityPlayer)) {
+			ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
+			((TileEntityBeefBase)te).rotateTowards(newFacing);
+			return true;
+		}
 
 		// Handle buckets
 		if(te instanceof ITankContainer && LiquidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem()))

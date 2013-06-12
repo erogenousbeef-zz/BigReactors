@@ -1,6 +1,8 @@
 package erogenousbeef.bigreactors.common;
 
+import buildcraft.api.tools.IToolWrench;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.liquids.ILiquidTank;
@@ -111,5 +113,17 @@ public class BRUtilities {
 			stack.stackSize -= amount;
 			return stack;
 		}	
-	}	
+	}
+	
+	/**
+	 * Is this player holding a goddamn wrench?
+	 * @return True if the player is holding a goddamn wrench. BC only, screw you.
+	 */
+	public static boolean isPlayerHoldingWrench(EntityPlayer player) {
+		if(player.inventory.getCurrentItem() == null) { 
+			return false;
+		}
+		Item currentItem = Item.itemsList[player.inventory.getCurrentItem().itemID];
+		return currentItem instanceof IToolWrench;
+	}
 }
