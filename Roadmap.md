@@ -12,13 +12,6 @@ Known Bugs
 ----------
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
 
-TODO - Alpha
-------------
-
-### Core
-- Add maximum-dimension API and checks to BeefCore
-- (IN PROGRESS) Finish testing chunk-unload compat. Looking good right now.
-
 TODO - Beta
 -----------
 
@@ -64,6 +57,7 @@ TODO - Beta
 - Needs sweet lightning effects
 
 ### Core
+- Add maximum-dimension API and checks to BeefCore
 - Create ITileEntityProxy to handle things like fuel columns more nicely
 - Add ChunkLoading mechanic. Either reactors must act as chunkloaders for all occupied chunks,
 or they must somehow keep all of their constituent chunks loaded if any single chunk is loaded
