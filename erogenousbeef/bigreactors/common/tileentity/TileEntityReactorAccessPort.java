@@ -191,7 +191,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	@Override
 	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
-		// TODO: Do I need to include the metadata restriction here too?
 		if(side == 0 || side == 1) { return false; }
 		
 		return isStackValidForSlot(slot, itemstack);
@@ -199,7 +198,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	@Override
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
-		// TODO: Do I need to include the metadata restriction here too?
 		if(side == 0 || side == 1) { return false; }
 		
 		return isStackValidForSlot(slot, itemstack);

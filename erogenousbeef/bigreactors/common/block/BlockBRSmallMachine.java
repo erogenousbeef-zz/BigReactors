@@ -126,7 +126,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		// TODO: This
 		return new TileEntityCyaniteReprocessor();
 	}
 
@@ -163,13 +162,14 @@ public class BlockBRSmallMachine extends BlockContainer {
 		if(entityPlayer.isSneaking()) {
 			// return false;
 			
-			// TODO: Wrenches
-			// TODO: The below should only be if you're holding a wrench, numbnuts.
-			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te != null && te instanceof TileEntityBeefBase) {
-				ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
-				((TileEntityBeefBase)te).rotateTowards(newFacing);
-				return true;
+			// TODO: The below should also work if you're holding a wrench, numbnuts.
+			if(entityPlayer.inventory.getCurrentItem() == null) {
+				TileEntity te = world.getBlockTileEntity(x, y, z);
+				if(te != null && te instanceof TileEntityBeefBase) {
+					ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
+					((TileEntityBeefBase)te).rotateTowards(newFacing);
+					return true;
+				}
 			}
 		}
 		

@@ -142,7 +142,6 @@ public class BlockRTG extends BlockContainer {
 
 	@Override
 	public TileEntity createNewTileEntity(World world) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

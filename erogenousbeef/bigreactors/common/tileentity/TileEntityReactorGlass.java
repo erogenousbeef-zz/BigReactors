@@ -58,11 +58,11 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		double newHeat = radiation.getSlowRadiation() * 0.75;
+		double newHeat = radiation.getSlowRadiation() * 0.25;
 		
-		// Convert 10% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower(newHeat*0.1);
-		newHeat *= 0.9;
+		// Convert 15% of newly-gained heat to energy (thermocouple or something)
+		radiation.addPower(newHeat*0.15);
+		newHeat *= 0.85 * 0.5;
 		radiation.changeHeat(newHeat);
 		
 		// Slow radiation is all lost now
@@ -74,10 +74,8 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 
 	@Override
 	public double getHeat() {
-		if(this.isConnected()) {
-			return ((MultiblockReactor)getMultiblockController()).getHeat();
-		}
-		return 0;
+		if(!this.isConnected()) { return 0; }
+		return ((MultiblockReactor)getMultiblockController()).getHeat();
 	}
 
 	@Override
@@ -89,17 +87,16 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	@Override
 	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
 		double deltaTemp = source.getHeat() - getHeat();
-		
 		// If the source is cooler than the reactor, then do nothing
 		if(deltaTemp <= 0.0) {
 			return 0.0;
 		}
 
-		double heatToAbsorb = deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces) * contactArea;
+		double heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0/(double)faces) * contactArea;
 
-		pulse.powerProduced += heatToAbsorb*0.25;
-		pulse.heatChange += heatToAbsorb * 0.75;
-		
+		pulse.powerProduced += heatToAbsorb * 0.15;
+		pulse.heatChange += heatToAbsorb * 0.85 * 0.5;
+
 		return heatToAbsorb;
 	}
 

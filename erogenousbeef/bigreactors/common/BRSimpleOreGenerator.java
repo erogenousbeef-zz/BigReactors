@@ -194,7 +194,6 @@ public class BRSimpleOreGenerator {
 	
 	// Simple Fisher-Yates shuffle.
 	private void shuffleArray(int[] dirs, Random random) {
-		// TODO Auto-generated method stub
 		for(int i = dirs.length - 1; i >= 0; i--) {
 			int idx = random.nextInt(i+1);
 			int tmp = dirs[idx];
