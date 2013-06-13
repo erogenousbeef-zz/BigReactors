@@ -12,27 +12,32 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 
 public class ItemBase extends Item {
-	protected final List<Icon> icons = new ArrayList<Icon>();
+	protected Icon[] icons;
 
 	public ItemBase(String name, int id)
 	{
 		super(id);
 		this.setUnlocalizedName(name);
 		this.setCreativeTab(BigReactors.TAB);
+		icons = new Icon[getNumberOfSubItems()];
 	}
 
+	protected int getNumberOfSubItems() {
+		return 0;
+	}
+	
+	protected String[] getSubItemNames() {
+		return null;
+	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IconRegister iconRegister)
 	{
-		List<ItemStack> list = new ArrayList<ItemStack>();
-		this.getSubItems(this.itemID, this.getCreativeTab(), list);
-
-		if (list.size() > 1)
-		{
-			for (ItemStack itemStack : list)
-			{
-				this.icons.add(iconRegister.registerIcon(this.getUnlocalizedName(itemStack).replace("item.", BigReactors.TEXTURE_NAME_PREFIX)));
+		String[] subItemNames = getSubItemNames();
+		if(subItemNames != null) {
+			for(int i = 0; i < subItemNames.length; i++) {
+				icons[i] = iconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + subItemNames[i]);
 			}
 		}
 		else
@@ -45,11 +50,15 @@ public class ItemBase extends Item {
 	@SideOnly(Side.CLIENT)
 	public Icon getIconFromDamage(int damage)
 	{
-		if (this.icons.size() > damage && !this.isDamageable())
-		{
-			return icons.get(damage);
+		if(icons.length > damage && !this.isDamageable()) {
+			return icons[damage];
 		}
 
 		return super.getIconFromDamage(damage);
+	}
+	
+	@Override
+	public int getMetadata(int metadata) {
+		return metadata;
 	}
 }
