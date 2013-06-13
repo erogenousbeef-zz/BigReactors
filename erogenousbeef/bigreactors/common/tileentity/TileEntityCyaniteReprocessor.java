@@ -50,6 +50,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 	public boolean isStackValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 		
+		// TODO: Fix this to use the registry
 		if(itemstack.itemID == BigReactors.ingotGeneric.itemID) {
 			if(ItemIngot.isFuel(itemstack.getItemDamage()) && slot == SLOT_OUTLET) {
 				return true;
