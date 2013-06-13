@@ -3,6 +3,10 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.1.1)
 -----------------------------------------
+- Fixed crash bug when connecting liquid pipes to cyanite reprocessors
+- Fixed liquid pipe connectivity in general
+- Fixed inventory item slots accepting the wrong item type on shift-click
+- Fixed inventory item slots duplicating items
 
 Current Release (0.1.0A)
 --------------------------------
