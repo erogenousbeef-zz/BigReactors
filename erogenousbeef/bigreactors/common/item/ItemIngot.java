@@ -17,6 +17,16 @@ public class ItemIngot extends ItemBase
 	}
 
 	@Override
+	protected int getNumberOfSubItems() {
+		return TYPES.length;
+	}
+	
+	@Override
+	protected String[] getSubItemNames() {
+		return TYPES;
+	}
+
+	@Override
 	public int getMetadata(int damage)
 	{
 		return damage;
@@ -38,7 +48,7 @@ public class ItemIngot extends ItemBase
 	}
 
 	public static boolean isFuel(int itemDamage) {
-		return itemDamage == 0;
+		return itemDamage == 0 || itemDamage == 3;
 	}
 
 	public static boolean isWaste(int itemDamage) {
