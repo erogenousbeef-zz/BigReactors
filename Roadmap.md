@@ -35,13 +35,12 @@ TODO - Beta
   and prevents problems with unbalanced fuel distribution across rods.
 
 ### Graphics & UI
+- Highlight inventory slots when they are exposed via the right-hand-side buttons
 - Add graduation marks to liquid progress bars
 - Add a cool mixed fuel/waste bar to the control rods
 - Show fuel/waste overall mix in reactor controller
 - Multi-page reactor controller to remote-control control rods
-- Unshitty artwork.
 - Cool particle effects when the reactor is on!
-- Graphical GUI meters & tooltips
 
 ### Reactor Mechanics
 - Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
@@ -59,9 +58,6 @@ TODO - Beta
 ### Core
 - Add maximum-dimension API and checks to BeefCore
 - Create ITileEntityProxy to handle things like fuel columns more nicely
-- Add ChunkLoading mechanic. Either reactors must act as chunkloaders for all occupied chunks,
-or they must somehow keep all of their constituent chunks loaded if any single chunk is loaded
-by players.
 
 Wishlist / Post-Release
 -----------------------
