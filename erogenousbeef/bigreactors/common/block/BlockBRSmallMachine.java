@@ -79,7 +79,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		
 		if(te instanceof TileEntityPoweredInventoryLiquid) {
-			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
+			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side).getOpposite(), null) != null) {
 				return _liquidSideIcons[0];
 			}
 		}

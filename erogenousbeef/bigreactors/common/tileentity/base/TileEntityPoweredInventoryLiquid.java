@@ -226,7 +226,7 @@ public abstract class TileEntityPoweredInventoryLiquid extends
      * @return Amount of resource that was filled into internal tanks.
      */
     public int fill(ForgeDirection from, LiquidStack resource, boolean doFill) {
-    	int tankToFill = 0;
+    	int tankToFill = LIQUIDTANK_NONE;
     	if(from != ForgeDirection.UNKNOWN) {
     		tankToFill = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
@@ -293,9 +293,14 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     		return tanks;
     	}
     	else {
+    		direction = direction.getOpposite();
+    		int exposure = tankExposure[this.getRotatedSide(direction.ordinal())];
+    		if(exposure == LIQUIDTANK_NONE) {
+    			return null;
+    		}
+
     		ILiquidTank[] exposedTanks = new ILiquidTank[1];
-    		exposedTanks[0] = tanks[tankExposure[this.getRotatedSide(direction.ordinal())]];
-    		
+    		exposedTanks[0] = tanks[exposure];
     		return exposedTanks;
     	}
     }
@@ -312,6 +317,8 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     		return null;
     	}
     	else {
+    		direction = direction.getOpposite();
+
     		int tankIdx = tankExposure[this.getRotatedSide(direction.ordinal())];
     		if(tankIdx == LIQUIDTANK_NONE) {
     			return null;
