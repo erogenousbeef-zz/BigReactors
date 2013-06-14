@@ -8,6 +8,7 @@ Current Release (0.1.2A)
 --------------------------------
 - (BeefCore) Fixed a rare crash on load
 - Fixed: Reactors no longer become "corrupted" if you activate them with an empty fuel rod inside
+- Fixed: Fuel rods no longer go into negative heat due to floating point error, causing reactor corruption
 - Fixed: Reprocessors no longer give you 100x the energy you actually input
 - NOTE: Due to the above fix, any existing reprocessors in your worlds will have bad data in them. Break and re-place them.
 - Fixed pipes connecting to the wrong inventories when inventories should not have been exposed

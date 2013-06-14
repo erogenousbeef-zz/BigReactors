@@ -173,21 +173,18 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			if(this.isActive()) {
 				radiationResult = controlRod.radiate();
 				this.addStoredEnergy(radiationResult.getPowerProduced());
-				newHeat += radiationResult.getHeatProduced();
+				this.addLatentHeat(radiationResult.getHeatProduced());
 			}
 			
 			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
 			if(heatPulse != null) {
 				this.addStoredEnergy(heatPulse.powerProduced);
-				newHeat += heatPulse.heatChange;
+				this.addLatentHeat(heatPulse.heatChange);
 			}
 			
 			wasteAmt += controlRod.getWasteAmount();
 			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getTotalContainedAmount();
 		}
-		
-		// Now apply delta-heat
-		latentHeat += newHeat;
 		
 		// If we can, poop out waste and inject new fuel.
 		// TODO: Change so control rods are individually considered for fueling instead
@@ -253,13 +250,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		if(latentHeat > 0.0) {
 			double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
 			double latentHeatLoss = Math.max(0.02, this.latentHeat * 0.01);
-			latentHeat -= latentHeatLoss;
-			if(latentHeat < 0.0) { latentHeat = 0.0; }
+			this.addLatentHeat(-1 * latentHeatLoss);
 
 			// Generate power based on the amount of heat lost
 			this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
 		}
 		
+		if(latentHeat < 0.0) { setHeat(0.0); }
+
 		// Send updates periodically
 		ticksSinceLastUpdate++;
 		if(ticksSinceLastUpdate >= ticksBetweenUpdates) {
@@ -294,14 +292,21 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 	public void setStoredEnergy(double newEnergy) {
 		storedEnergy = newEnergy;
+		if(storedEnergy < 0.0 || Double.isNaN(storedEnergy)) {
+			storedEnergy = 0.0;
+		}
 	}
 	
 	public void addStoredEnergy(double newEnergy) {
+		if(Double.isNaN(newEnergy)) { return; }
+
 		storedEnergy += newEnergy;
 		if(storedEnergy > maxEnergyStored) { storedEnergy = maxEnergyStored; }
 	}
 
 	protected void reduceStoredEnergy(double energy) {
+		if(Double.isNaN(energy)) { return; }
+
 		storedEnergy -= energy;
 		if(storedEnergy < 0.0) {
 			storedEnergy = 0.0;
@@ -309,6 +314,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	}
 	
 	public void addLatentHeat(double newCasingHeat) {
+		if(Double.isNaN(newCasingHeat)) {
+			return;
+		}
+
 		latentHeat += newCasingHeat;
 	}
 
@@ -339,7 +348,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	}
 	
 	public void setHeat(double newHeat) {
-		latentHeat = newHeat;
+		if(Double.isNaN(newHeat)) {
+			latentHeat = 0.0;
+		}
+		else {
+			latentHeat = newHeat;
+		}
 	}
 
 	public int getFuelColumnCount() {
@@ -374,25 +388,17 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 		
 		if(data.hasKey("heat")) {
-			this.latentHeat = data.getDouble("heat");
+			setHeat(data.getDouble("heat"));
 		}
 		else {
-			this.latentHeat = 0.0;
-		}
-		
-		if(Double.isNaN(this.latentHeat)) {
-			this.latentHeat = 0;
+			setHeat(0.0);
 		}
 		
 		if(data.hasKey("storedEnergy")) {
-			this.storedEnergy = data.getDouble("storedEnergy");
+			setStoredEnergy(data.getDouble("storedEnergy"));
 		}
 		else {
-			this.storedEnergy = 0.0;
-		}
-		
-		if(Double.isNaN(this.storedEnergy)) {
-			this.storedEnergy = 0.0;
+			setStoredEnergy(0.0);
 		}
 		
 		if(data.hasKey("wasteEjection")) {
