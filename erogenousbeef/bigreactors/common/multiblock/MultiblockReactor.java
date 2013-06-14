@@ -244,19 +244,21 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			reduceStoredEnergy((double)(energyAvailable - energyRemaining));
 		}
 
-		// leak 1% of heat to the environment
+		// leak 1% of heat to the environment per second
 		// TODO: Replace this with a better equation, so low heats leak less
 		// and high heats leak far more.
 		
 		// 1% base loss rate, +1% per thousand degrees C
-		double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
 		
-		double latentHeatLoss = Math.max(1.0, this.latentHeat * 0.01);
-		latentHeat -= latentHeatLoss;
-		if(latentHeat < 0.0) { latentHeat = 0.0; }
+		if(latentHeat > 0.0) {
+			double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
+			double latentHeatLoss = Math.max(0.02, this.latentHeat * 0.01);
+			latentHeat -= latentHeatLoss;
+			if(latentHeat < 0.0) { latentHeat = 0.0; }
 
-		// Generate power based on the amount of heat lost
-		this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+			// Generate power based on the amount of heat lost
+			this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+		}
 		
 		// Send updates periodically
 		ticksSinceLastUpdate++;

@@ -1,15 +1,22 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.1.1)
+Next Release (Anticipated Version: 0.1.2)
 -----------------------------------------
+
+Current Release (0.1.1A)
+--------------------------------
+- Balance: Reactor heat loss minimum changed to 1% or 1C/sec instead of 1% or 1C/tick
 - Fixed crash bug when connecting liquid pipes to cyanite reprocessors
 - Fixed liquid pipe connectivity in general
 - Fixed inventory item slots accepting the wrong item type on shift-click
 - Fixed inventory item slots duplicating items
+- Fixed reactors generating 1 free MJ/t for no reason whatsoever
 
-Current Release (0.1.0A)
---------------------------------
+Older Releases
+--------------
+
+### Release 0.1.0A
 - Control rods now have an actual control rod to extend/retract, and it affects the radiation simulation
 - Lots of internal refactoring. Tall fuel columns are now markedly more efficient in both messaging and rendering.
 - Heat/Radiation simulation rewritten to be more comprehensible than the original. Fuel = radiation. Radiation = heat & more radiation. Most power comes from heat, but some from radiation in certain coolants (e.g. water).
@@ -17,9 +24,7 @@ Current Release (0.1.0A)
 - Blutonium is now usable as reactor fuel. At the moment, it is identical to yellorium aside from the item's appearance.
 - Yellorite generation is now controllable via config, in the WorldGen section
 - Several new or reworked textures
-
-Older Releases
---------------
+- This was an internal playtest version, no public release
 
 ### Release 0.0.2-playtest
 - First-pass optimization of BeefCore. Truly large reactors (16x16x16 at least) are now possible.
