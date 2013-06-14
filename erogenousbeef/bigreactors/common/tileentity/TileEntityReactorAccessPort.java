@@ -241,7 +241,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			if(te != null && te instanceof IPipeEntry) {
 				IPipeEntry pipe = (IPipeEntry)te;
 				if(pipe.acceptItems()) {
-					pipe.entityEntering(itemToDistribute.copy(), dir.getOpposite());
+					pipe.entityEntering(itemToDistribute.copy(), dir);
 					return null;
 				}
 			}
