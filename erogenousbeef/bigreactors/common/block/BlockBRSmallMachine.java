@@ -73,13 +73,13 @@ public class BlockBRSmallMachine extends BlockContainer {
 		
 		if(te instanceof TileEntityInventory) {
 			int[] slots = ((TileEntityInventory)te).getAccessibleSlotsFromSide(side);
-			if(slots != null && slots[0] != TileEntityInventory.INVENTORY_UNEXPOSED) {
+			if(slots != null && slots.length > 0 && slots[0] != TileEntityInventory.INVENTORY_UNEXPOSED) {
 				return _inventorySideIcons[slots[0]];
 			}
 		}
 		
 		if(te instanceof TileEntityPoweredInventoryLiquid) {
-			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side).getOpposite(), null) != null) {
+			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
 				return _liquidSideIcons[0];
 			}
 		}

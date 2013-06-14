@@ -237,7 +237,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public int[] getAccessibleSlotsFromSide(int side) {
 		int rotatedSide = this.getRotatedSide(side);
 		
-		if(invExposures[rotatedSide] == INVENTORY_UNEXPOSED) { return null; }
+		if(invExposures[rotatedSide] == INVENTORY_UNEXPOSED) { return new int[0]; }
 		
 		int[] slots = new int[1];
 		slots[0] = invExposures[rotatedSide];
