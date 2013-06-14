@@ -1,15 +1,21 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.1.2)
+Next Release (Anticipated Version: 0.1.3)
 -----------------------------------------
+
+Current Release (0.1.2A)
+--------------------------------
 - (BeefCore) Fixed a rare crash on load
 - Fixed: Reprocessors no longer give you 100x the energy you actually input
+- NOTE: Due to the above fix, any existing reprocessors in your worlds will have bad data in them. Break and re-place them.
 - Fixed pipes connecting to the wrong inventories when inventories should not have been exposed
 - Fixed pipes not connecting/disconnecting when liquid tanks become exposed or unexposed
 
-Current Release (0.1.1A)
---------------------------------
+Older Releases
+--------------
+
+### Release 0.1.1A
 - Balance: Reactor heat loss minimum changed to 1% or 1C/sec instead of 1% or 1C/tick
 - Fixed crash bug when connecting liquid pipes to cyanite reprocessors
 - Fixed liquid pipe connectivity in general
@@ -17,9 +23,7 @@ Current Release (0.1.1A)
 - Fixed inventory item slots duplicating items
 - Fixed reactors generating 1 free MJ/t for no reason whatsoever
 - Fixed liquiduct crashes
-
-Older Releases
---------------
+- This was an internal playtest version, no public release
 
 ### Release 0.1.0A
 - Control rods now have an actual control rod to extend/retract, and it affects the radiation simulation
