@@ -12,6 +12,8 @@ Current Release (0.1.1A)
 - Fixed inventory item slots accepting the wrong item type on shift-click
 - Fixed inventory item slots duplicating items
 - Fixed reactors generating 1 free MJ/t for no reason whatsoever
+- Fixed liquiduct crashes
+- Fixed pipes connecting to the wrong inventories when inventories should not have been exposed
 
 Older Releases
 --------------
