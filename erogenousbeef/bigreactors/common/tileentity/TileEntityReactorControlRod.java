@@ -426,6 +426,11 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		
 		double rawNeutronsGenerated = 0.0;
 		double fuelDesired = 0.0;
+		
+		if(this.localHeat < 0.0) {
+			// We do not deal with cryogenic reactors.
+			this.localHeat = 0.0;
+		}
 
 		// Step 1: Generate raw neutron mass
 		// Step 1a: Generate spontaneous neutrons from fuel (consumes fuel)
