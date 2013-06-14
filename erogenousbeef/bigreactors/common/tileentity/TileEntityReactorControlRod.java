@@ -427,6 +427,9 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		double rawNeutronsGenerated = 0.0;
 		double fuelDesired = 0.0;
 		
+		// Nothing to do.
+		if(this.fuelAmount <= 0 && this.wasteAmount <= 0) { return new RadiationPulse(); }
+		
 		if(this.localHeat < 0.0) {
 			// We do not deal with cryogenic reactors.
 			this.localHeat = 0.0;
@@ -517,7 +520,10 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		
 		// Step 3: Generate initial radiation packet
 		// Step 3a: Calculate initial TTL based off of size of pulse
-		int ttl = 2 + (int)Math.min(1.0, Math.log10(rawNeutronsGenerated));
+		int ttl = 2;
+		if(rawNeutronsGenerated > 0) {
+			ttl = 2 + (int)Math.min(1.0, Math.log10(rawNeutronsGenerated));
+		}
 		
 		// Step 3b: Create pulse
 		RadiationPulse radiation = new RadiationPulse(fastNeutrons, slowNeutrons, ttl, 0.0, internalPowerGenerated);
@@ -921,6 +927,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		
 		if(data.hasKey("incidentRadiation")) {
 			this.incidentRadiation = data.getDouble("incidentRadiation");
+			if(Double.isNaN(incidentRadiation)) { incidentRadiation = 0.0; }
 		}
 		
 		if(data.hasKey("ticksSinceLastFuelConsumption")) {
