@@ -3,6 +3,10 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.1.2)
 -----------------------------------------
+- (BeefCore) Fixed a rare crash on load
+- Fixed: Reprocessors no longer give you 100x the energy you actually input
+- Fixed pipes connecting to the wrong inventories when inventories should not have been exposed
+- Fixed pipes not connecting/disconnecting when liquid tanks become exposed or unexposed
 
 Current Release (0.1.1A)
 --------------------------------
@@ -13,7 +17,6 @@ Current Release (0.1.1A)
 - Fixed inventory item slots duplicating items
 - Fixed reactors generating 1 free MJ/t for no reason whatsoever
 - Fixed liquiduct crashes
-- Fixed pipes connecting to the wrong inventories when inventories should not have been exposed
 
 Older Releases
 --------------

@@ -10,11 +10,11 @@ public interface IBeefPowerStorage {
 	/**
 	 * @return Returns the amount of energy stored, in internal units (MJ)
 	 */
-	public int getEnergyStored();
+	public float getEnergyStored();
 	
 	/**
 	 * @return Returns the amount of energy stored, in internal units (MJ)
 	 */
-	public int getMaxEnergyStored();
+	public float getMaxEnergyStored();
 	
 }

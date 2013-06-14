@@ -14,18 +14,15 @@ import net.minecraftforge.common.ForgeDirection;
 
 public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IPowerReceptor, IVoltage, IConnector, IBeefPowerStorage  {
 
-	public static int energyPerMJ = 100;
-	public static int energyPerUEWatt = 1; 
+	public static float energyPerMJ = 1f;
+	public static float energyPerUEWatt = 0.01f; 
 	
 	// Internal power
-	private int storedEnergy;
+	private float storedEnergy;
 	private int cycledTicks;
 	
 	// Buildcraft
 	IPowerProvider _powerProvider;
-	
-	// Universal Electricity
-	int internalUEStorage;
 	
 	public TileEntityPoweredInventory() {
 		super();
@@ -33,19 +30,22 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 		_powerProvider = new PowerProviderBeef();
 		_powerProvider.configure(25, 1, 10, 1, 1000);
 		
-		internalUEStorage = 0;
 		cycledTicks = -1;
 	}
 	
 	// Internal energy methods
 	@Override
-	public abstract int getMaxEnergyStored();
+	public abstract float getMaxEnergyStored();
 	
 	/**
 	 * Returns the energy cost to run a cycle. Consumed instantly when a cycle begins.
 	 * @return Number of MJ needed to start a cycle.
 	 */
-	public abstract int getCycleEnergyCost();
+	public abstract float getCycleEnergyCost();
+	
+	/**
+	 * @return The length of a powered processing cycle, in ticks.
+	 */
 	public abstract int getCycleLength();
 	
 	/**
@@ -70,11 +70,8 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	 */
 	public abstract void onPoweredCycleEnd();
 	
-	// DEBUG method. For debugging only. :)
-	protected void DEBUGaddEnergy(int nrg) { this.storedEnergy = Math.min(storedEnergy+nrg, getMaxEnergyStored()); }
-	
 	@Override
-	public int getEnergyStored() {
+	public float getEnergyStored() {
 		return storedEnergy;
 	}
 	
@@ -96,7 +93,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	public void readFromNBT(NBTTagCompound tag) {
 		super.readFromNBT(tag);
 		if(tag.hasKey("storedEnergy")) {
-			storedEnergy = tag.getInteger("storedEnergy");
+			storedEnergy = tag.getFloat("storedEnergy");
 		}
 		
 		if(tag.hasKey("cycledTicks")) {
@@ -107,7 +104,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	@Override
 	public void writeToNBT(NBTTagCompound tag) {
 		super.writeToNBT(tag);
-		tag.setInteger("storedEnergy", storedEnergy);
+		tag.setFloat("storedEnergy", storedEnergy);
 		tag.setInteger("cycledTicks", cycledTicks);
 	}
 	
@@ -131,7 +128,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 				{
 					getPowerProvider().update(this);
 	
-					int mjRequired = (getMaxEnergyStored() - getEnergyStored()) / energyPerMJ;
+					float mjRequired = (getMaxEnergyStored() - getEnergyStored()) * energyPerMJ;
 					if(getPowerProvider().useEnergy(1, mjRequired, false) > 0)
 					{
 						int mjConsumed = (int)(getPowerProvider().useEnergy(1, mjRequired, true));
@@ -142,11 +139,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 				// Consume UE energy
 				ElectricityPack powerRequested = new ElectricityPack((getMaxEnergyStored() - getEnergyStored()) * energyPerUEWatt / getVoltage(), getVoltage());
 				ElectricityPack powerPack = ElectricityNetworkHelper.consumeFromMultipleSides(this, powerRequested);
-				internalUEStorage += powerPack.getWatts();
-				
-				int ueProduced = (int)Math.min((internalUEStorage + powerPack.getWatts()) / energyPerUEWatt, getMaxEnergyStored() - getEnergyStored());
-				storedEnergy += ueProduced;
-				internalUEStorage -= ueProduced * energyPerUEWatt;			
+				storedEnergy += powerPack.getWatts() * energyPerUEWatt;
 			}
 	
 			// If we're running, continue the cycle until we're done.
@@ -176,14 +169,14 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	@Override
 	protected void onSendUpdate(NBTTagCompound updateTag) {
 		super.onSendUpdate(updateTag);
-		updateTag.setInteger("storedEnergy", this.storedEnergy);
+		updateTag.setFloat("storedEnergy", this.storedEnergy);
 		updateTag.setInteger("cycledTicks", this.cycledTicks);
 	}
 	
 	@Override
 	public void onReceiveUpdate(NBTTagCompound updateTag) {
 		super.onReceiveUpdate(updateTag);
-		this.storedEnergy = updateTag.getInteger("storedEnergy");
+		this.storedEnergy = updateTag.getFloat("storedEnergy");
 		this.cycledTicks = updateTag.getInteger("cycledTicks");
 	}
 	
