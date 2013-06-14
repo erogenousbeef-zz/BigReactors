@@ -293,10 +293,9 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     		return tanks;
     	}
     	else {
-    		direction = direction.getOpposite();
     		int exposure = tankExposure[this.getRotatedSide(direction.ordinal())];
     		if(exposure == LIQUIDTANK_NONE) {
-    			return null;
+    			return new ILiquidTank[0];
     		}
 
     		ILiquidTank[] exposedTanks = new ILiquidTank[1];
@@ -317,8 +316,6 @@ public abstract class TileEntityPoweredInventoryLiquid extends
     		return null;
     	}
     	else {
-    		direction = direction.getOpposite();
-
     		int tankIdx = tankExposure[this.getRotatedSide(direction.ordinal())];
     		if(tankIdx == LIQUIDTANK_NONE) {
     			return null;
