@@ -57,6 +57,7 @@ public abstract class TileEntityPoweredInventoryLiquid extends
 			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineLiquidExposureUpdate,
 																new Object[] { xCoord, yCoord, zCoord, side.ordinal(), tankIdx });
 			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord));
 		}
 		
 	}

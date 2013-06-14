@@ -131,6 +131,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	 * @param slot The inventory slot to expose, or -1 (INVENTORY_UNEXPOSED) if none.
 	 */
 	public void setExposedInventorySlotReference(int referenceSide, int slot) {
+		if(referenceSide < 0 || referenceSide >= invExposures.length) { return; }
+		if(invExposures[referenceSide] == slot) {
+			return;
+		}
+
 		invExposures[referenceSide] = slot;
 		
 		if(!this.worldObj.isRemote) {
@@ -138,6 +143,8 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineInventoryExposureUpdate,
 																new Object[] { xCoord, yCoord, zCoord, referenceSide, slot });
 			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+			
+			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord));
 		}
 	}
 
