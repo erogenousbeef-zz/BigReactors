@@ -27,11 +27,11 @@ public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
 	
 	@Override
 	protected float getProgress() {
-		return (float)_entity.getEnergyStored() / (float)_entity.getMaxEnergyStored();
+		return _entity.getEnergyStored() / _entity.getMaxEnergyStored();
 	}
 	
 	@Override
 	public String getTooltip() {
-		return String.format("%d / %d MJ", _entity.getEnergyStored(), _entity.getMaxEnergyStored());
+		return String.format("%1.0f / %1.0f MJ", _entity.getEnergyStored(), _entity.getMaxEnergyStored());
 	}
 }

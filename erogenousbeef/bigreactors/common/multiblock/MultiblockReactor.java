@@ -489,12 +489,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 	// IBeefPowerStorage
 	@Override
-	public int getEnergyStored() {
-		return (int)storedEnergy;
+	public float getEnergyStored() {
+		return (float)storedEnergy;
 	}
 
 	@Override
-	public int getMaxEnergyStored() {
+	public float getMaxEnergyStored() {
 		return maxEnergyStored;
 	}
 
