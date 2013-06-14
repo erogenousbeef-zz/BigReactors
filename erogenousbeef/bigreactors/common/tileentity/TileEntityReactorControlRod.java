@@ -746,6 +746,9 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 
 		localHeat += heatToAbsorb;
+		
+		if(localHeat < 0.0) { localHeat = 0.0; }
+
 		return heatToAbsorb;
 	}
 
@@ -782,6 +785,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 		
 		localHeat -= lostHeat;
+		if(localHeat < 0.0) { localHeat = 0.0; }
 		return results;
 	}
 
