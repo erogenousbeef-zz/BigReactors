@@ -147,7 +147,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	@Override
 	public boolean update() {
 		if(Double.isNaN(this.getHeat())) {
-			this.setHeat(20.0);
+			this.setHeat(0.0);
 		}
 		
 		if(Double.isNaN(this.storedEnergy)) {
@@ -380,10 +380,18 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			this.latentHeat = 0.0;
 		}
 		
+		if(Double.isNaN(this.latentHeat)) {
+			this.latentHeat = 0;
+		}
+		
 		if(data.hasKey("storedEnergy")) {
 			this.storedEnergy = data.getDouble("storedEnergy");
 		}
 		else {
+			this.storedEnergy = 0.0;
+		}
+		
+		if(Double.isNaN(this.storedEnergy)) {
 			this.storedEnergy = 0.0;
 		}
 		
