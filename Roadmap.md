@@ -15,24 +15,16 @@ Known Bugs
 TODO - Beta
 -----------
 
-### Add redstone interfaces
-- Reactor on/off switch
-- Control rod in/out switch
-- Signal emitter if temperature gets above/below a certain level
-
-### Interoperability
-- Add graphite dust if a mod with grinders is detected
-- Refactor liquids using new Forge liquid interfaces
-- Making flowing-liquid blocks
-- Add MFR compatibility for drinking with a straw
-- Add nasty side effects for going near pools of yellorium
-- RedNet integration
-- ComputerCraft integration!
+### Core
+- Add maximum-dimension API and checks to BeefCore
+- Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Gameplay
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
+- Add graphite dust & coal dust
+- Add yellorite dust
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
@@ -42,9 +34,18 @@ TODO - Beta
 - Multi-page reactor controller to remote-control control rods
 - Cool particle effects when the reactor is on!
 
+### Add redstone interfaces
+- RedNet Interface block
+- Redstone Interface block
+- These are configurable. RedNet allows for up to 16 I/O channels with continuous I/O.
+- Reactor on/off
+- Control rod in/out, or set specific % insertion via RedNet
+- Signal emitter if temperature goes below X
+- Signal emitter if global waste % goes over X
+- RedNet Versions: Emit waste %/amt, Emit raw temperature
+
 ### Reactor Mechanics
-- Liquid interface blocks, so fuel can be pumped into/out of a reactor as a liquid
-- Add active cooling system; coolant pipes and stuff
+- Add fuel->waste and waste->fuel item mappings to registry; remove hardcoded references to Ore Dictionary
 - Blutonium: give it different properties than yellorium.
 - Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering
 - Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
@@ -55,14 +56,29 @@ TODO - Beta
 - Reprocessing tanks are mounted atop reprocessing tank valve blocks.
 - Needs sweet lightning effects
 
-### Core
-- Add maximum-dimension API and checks to BeefCore
-- Create ITileEntityProxy to handle things like fuel columns more nicely
-
 Wishlist / Post-Release
 -----------------------
 - Make better APIs/interfaces for extending the reactor
 - Add different ways to refine/recycle fuels & wastes, maybe use TE's liquid redstone/glowstone for better yield
-- Different types of coolant, liquid coolant pipes
-- Indirect power generation: consume water in coolant pipes to produce steam
-- Run steam through a generator to produce even more power
+
+### ComputerCraft
+- Reactor peripheral? Requires research.
+
+### Liquids Refactor (minecraft 1.6)
+- Refactor liquids using new Forge liquid interfaces
+- Making flowing-liquid blocks
+- Add nasty side effects for going near pools of yellorium
+- Add MFR compatibility for drinking with a straw
+- Add liquid interfaces/liquid fuel cycle
+
+### Active Coolant Loop
+- Coolant buffer in main reactor controller
+- Coolant I/O interface blocks
+- Reactor no longer generates power from heat directly, but instead converts coolant to superheated coolant
+- Too much superheated coolant = EXPLOSION!
+- Superheated Coolant can be processed directly into power, converts back into regular coolant
+
+### Advanced coolant add-ons
+- Coolant manifolds inside reactor allow fuel rod heat to convert coolant
+- Heat exchanger allows conversion of superheated coolant + water -> steam + coolant
+- Different types of coolant with different transference properties
