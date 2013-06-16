@@ -6,25 +6,18 @@ What is this?
 
 An upcoming mod for Minecraft, based on adding new and fun ways to generate power through big multi-block structures. Don't just plop blocks, design the machines yourself!
 
-This is a heavy WIP. More info coming soon.
-
 For near-future plans and development status, see the Roadmap file.
 
-Playtest
+Big Reactors has an official website at [www.big-reactors.com](http://www.big-reactors.com)
+
+Alpha
 --------
 
-Big Reactors is slowly becoming playable, at last! However, the balance is awful and I'm only one guy - I can't totally break all the combinations you crazy folks will discover. The internal radiation/power production simulation is very complicated.
+Big Reactors is in an alpha state. The major features exist, and there are no _known_ serious bugs. However, it's not fully balanced. I'm only one guy - I can't totally break all the combinations you crazy folks will discover. The internal radiation/power production simulation is very complicated.
 
-As a result, I'm going to occasionally post a public playtest version. These have been _lightly_ bugtested to work properly with a small set of other mods.
+You can download the latest alpha from [the big-reactors.com download page](http://www.big-reactors.com/download.html).
 
 _You will need other mods_ to play with Big Reactors. This is just a power-generation mod, so you will need a mod that supports the Universal Electricity or Buildcraft power systems. I personally recommend [Thermal Expansion](http://thermalexpansion.wikispaces.com).
-
-*Requires Minecraft Forge for 1.5.2, version 684 or newer*
-
-Current Playtest Version: [0.0.2-playtest](http://db.tt/WneV2gNF)
-
-*Warning* Playtest versions may be wildly imbalanced and are largely intended as a semi-playable preview. There may still be significant bugs! Don't use these on worlds you love; use a backup world!
-
 
 License
 -------
