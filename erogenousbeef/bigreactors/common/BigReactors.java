@@ -163,35 +163,29 @@ public class BigReactors {
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack(); 
 				reactorPartStack.stackSize = 4;
-				GameRegistry.addRecipe(reactorPartStack, new Object[] { "ICI", "C C", "ICI", 'I', Item.ingotIron, 'C', ingotGraphite.getItem() });
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" }));
 			}
 			
 			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
 			if(blockReactorPart != null) {
-				ItemStack singleReactorCasing = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack();
-				
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack(); 
-				GameRegistry.addRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotUranium", 'C', "reactorCasing", 'R', Item.redstone }));
 				
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack();
-				GameRegistry.addRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
 
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
-				GameRegistry.addRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', singleReactorCasing.getItem(), 'V', Block.chest, 'P', Block.pistonBase });
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
 			}
 			
 			if(blockReactorGlass != null) {
-				ItemStack singleReactorCasing = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack();
-				
 				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
-				GameRegistry.addRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', singleReactorCasing.getItem() } );
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', "reactorCasing" } ));
 			}
 			
 			if(blockReactorControlRod != null) {
-				ItemStack singleReactorCasing = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack();
-				
 				ItemStack reactorControlRodStack = new ItemStack(BigReactors.blockReactorControlRod, 1);
-				GameRegistry.addRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "C C", 'G', ingotGraphite.getItem(), 'C', singleReactorCasing.getItem(), 'R', Item.redstone });
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotUranium" }));
 			}
 			
 			/* TODO: Fixme
