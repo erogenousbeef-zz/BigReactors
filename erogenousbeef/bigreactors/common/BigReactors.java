@@ -188,6 +188,11 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotUranium" }));
 			}
 			
+			if(blockSmallMachine != null) {
+				ItemStack cyaniteReprocessorStack = ((BlockBRSmallMachine)blockSmallMachine).getCyaniteReprocessorItemStack();
+				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, new Object[] { "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', "ingotIron", 'F', blockYelloriumFuelRod, 'P', Block.pistonBase, 'R', Item.redstone}));
+			}
+			
 			/* TODO: Fixme
 			if(blockRadiothermalGen != null) {
 				GameRegistry.addRecipe(new ItemStack(blockRadiothermalGen, 1), new Object[] {
