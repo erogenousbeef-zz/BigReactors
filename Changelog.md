@@ -3,6 +3,8 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.1.3)
 -----------------------------------------
+- (BeefCore) Maximum dimension checks added
+- Maximum valid reactor dimensions can now be controlled via config, defaults to 32 blocks horizontal, 48 blocks vertical.
 
 Current Release (0.1.2A)
 --------------------------------

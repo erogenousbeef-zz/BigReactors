@@ -16,7 +16,6 @@ TODO - Beta
 -----------
 
 ### Core
-- Add maximum-dimension API and checks to BeefCore
 - Create ITileEntityProxy to handle things like fuel columns more nicely
 
 ### Gameplay

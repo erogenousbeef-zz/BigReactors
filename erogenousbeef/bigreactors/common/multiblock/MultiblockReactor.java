@@ -338,8 +338,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				if(this.active) { part.onMachineActivated(); }
 				else { part.onMachineDeactivated(); }
 			}
-			else {
-			}
 		}
 	}
 
@@ -686,5 +684,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	@Override
 	protected void onMachineDisassembled() {
 		this.active = false;
+	}
+
+	@Override
+	protected int getMaximumXSize() {
+		return 4;//BigReactors.maximumReactorSize;
+	}
+
+	@Override
+	protected int getMaximumZSize() {
+		return 4;//BigReactors.maximumReactorSize;
+	}
+
+	@Override
+	protected int getMaximumYSize() {
+		return 4;//BigReactors.maximumReactorHeight;
 	}
 }
