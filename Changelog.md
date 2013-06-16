@@ -1,13 +1,21 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.1.3)
+Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
+
+Current Release (0.1.3A)
+--------------------------------
+- First public alpha!
 - (BeefCore) Maximum dimension checks added
 - Maximum valid reactor dimensions can now be controlled via config, defaults to 32 blocks horizontal, 48 blocks vertical.
+- Fixed: Recipes use ore dictionary properly.
+- Changed: Recipes use much less yellorium in general, much more graphite, as originally intended.
 
-Current Release (0.1.2A)
---------------------------------
+Older Releases
+--------------
+
+### Release 0.1.2A
 - (BeefCore) Fixed a rare crash on load
 - Fixed: Reactors no longer become "corrupted" if you activate them with an empty fuel rod inside
 - Fixed: Fuel rods no longer go into negative heat due to floating point error, causing reactor corruption
@@ -15,9 +23,7 @@ Current Release (0.1.2A)
 - NOTE: Due to the above fix, any existing reprocessors in your worlds will have bad data in them. Break and re-place them.
 - Fixed pipes connecting to the wrong inventories when inventories should not have been exposed
 - Fixed pipes not connecting/disconnecting when liquid tanks become exposed or unexposed
-
-Older Releases
---------------
+- This was an internal playtest version, no public release.
 
 ### Release 0.1.1A
 - Balance: Reactor heat loss minimum changed to 1% or 1C/sec instead of 1% or 1C/tick
