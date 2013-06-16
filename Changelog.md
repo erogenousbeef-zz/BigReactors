@@ -4,16 +4,19 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.3A)
+Current Release (0.1.4A)
 --------------------------------
+- Cyanite reprocessors are now craftable. Oops.
+
+Older Releases
+--------------
+
+### Release 0.1.3A
 - First public alpha!
 - (BeefCore) Maximum dimension checks added
 - Maximum valid reactor dimensions can now be controlled via config, defaults to 32 blocks horizontal, 48 blocks vertical.
 - Fixed: Recipes use ore dictionary properly.
 - Changed: Recipes use much less yellorium in general, much more graphite, as originally intended.
-
-Older Releases
---------------
 
 ### Release 0.1.2A
 - (BeefCore) Fixed a rare crash on load
