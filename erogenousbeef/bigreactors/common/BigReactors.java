@@ -29,6 +29,7 @@ import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockSmallMachine;
 import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
@@ -94,6 +95,8 @@ public class BigReactors {
 	public static BRWorldGenerator worldGenerator = null;
 	
 	private static boolean registeredTileEntities = false;
+	public static int maximumReactorSize = MultiblockReactor.DIMENSION_UNBOUNDED;
+	public static int maximumReactorHeight = MultiblockReactor.DIMENSION_UNBOUNDED;
 	
 	// Game Balance values
 	public static final float powerPerHeat = 2.0f; // Power units per C dissipated
@@ -117,6 +120,9 @@ public class BigReactors {
 				worldGenerator = new BRWorldGenerator();
 				GameRegistry.registerWorldGenerator(worldGenerator);
 			}
+			
+			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
+			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 			BRConfig.CONFIGURATION.save();
 			
 			/*
