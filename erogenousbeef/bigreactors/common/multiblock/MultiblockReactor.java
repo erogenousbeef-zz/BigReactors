@@ -688,16 +688,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 	@Override
 	protected int getMaximumXSize() {
-		return 4;//BigReactors.maximumReactorSize;
+		return BigReactors.maximumReactorSize;
 	}
 
 	@Override
 	protected int getMaximumZSize() {
-		return 4;//BigReactors.maximumReactorSize;
+		return BigReactors.maximumReactorSize;
 	}
 
 	@Override
 	protected int getMaximumYSize() {
-		return 4;//BigReactors.maximumReactorHeight;
+		return BigReactors.maximumReactorHeight;
 	}
 }
