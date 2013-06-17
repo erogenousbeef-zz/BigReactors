@@ -593,6 +593,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		updatePlayers.remove(player);
 	}
 
+	@SideOnly(Side.CLIENT)
 	@Override
 	public GuiScreen getGUI(EntityPlayer player) {
 		return new GuiReactorControlRod(getContainer(player), this);

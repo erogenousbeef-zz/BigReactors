@@ -187,7 +187,9 @@ public class BlockReactorPart extends BlockContainer {
 		// Machine isn't assembled yet...
 		if(metadata == CONTROLLER_METADATA_BASE) { return false; }
 
-		player.openGui(BRLoader.instance, 0, world, x, y, z);
+		if(!world.isRemote) {
+			player.openGui(BRLoader.instance, 0, world, x, y, z);
+		}
 		return true;
 	}
 	

@@ -2,6 +2,9 @@ package erogenousbeef.bigreactors.common.tileentity;
 
 import java.util.ArrayList;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -146,6 +149,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 		return type.isLiquidEqual(LiquidDictionary.getCanonicalLiquid("Water"));
 	}
 
+	@SideOnly(Side.CLIENT)
 	@Override
 	public GuiScreen getGUI(EntityPlayer player) {
 		return new GuiCyaniteReprocessor(getContainer(player), this);

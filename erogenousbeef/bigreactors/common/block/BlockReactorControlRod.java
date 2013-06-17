@@ -69,7 +69,9 @@ public class BlockReactorControlRod extends BlockContainer {
 		}
 		
 		// Open GUI for this block
-		entityPlayer.openGui(BRLoader.instance, 0, world, x, y, z);
+		if(!world.isRemote) {
+			entityPlayer.openGui(BRLoader.instance, 0, world, x, y, z);
+		}
 		return true;
 	}
 	

@@ -4,6 +4,9 @@ import java.io.DataInputStream;
 
 import com.google.common.io.ByteArrayDataInput;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
@@ -265,6 +268,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		return null;
 	}
 
+	@SideOnly(Side.CLIENT)
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
 			return null;

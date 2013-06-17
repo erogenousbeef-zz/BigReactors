@@ -4,12 +4,15 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.4A)
+Current Release (0.1.5A)
 --------------------------------
-- Cyanite reprocessors are now craftable. Oops.
+- Fixed: SMP servers no longer crash on opening a Big Reactors GUI
 
 Older Releases
 --------------
+
+### Release 0.1.4A
+- Cyanite reprocessors are now craftable. Oops.
 
 ### Release 0.1.3A
 - First public alpha!
