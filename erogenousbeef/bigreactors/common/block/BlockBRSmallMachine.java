@@ -198,7 +198,9 @@ public class BlockBRSmallMachine extends BlockContainer {
 		
 		// Show GUI
 		if(te instanceof TileEntityBeefBase) {
-			entityPlayer.openGui(BRLoader.instance, 0, world, x, y, z);
+			if(!world.isRemote) {
+				entityPlayer.openGui(BRLoader.instance, 0, world, x, y, z);
+			}
 			return true;
 		}
 		

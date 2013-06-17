@@ -3,6 +3,9 @@ package erogenousbeef.bigreactors.common.tileentity;
 import java.io.DataInputStream;
 import java.util.HashMap;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import buildcraft.api.transport.IPipeEntry;
 import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -221,6 +224,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		return new ContainerReactorAccessPort(this, inventoryPlayer);
 	}
 
+	@SideOnly(Side.CLIENT)
 	@Override
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		return new GuiReactorAccessPort(new ContainerReactorAccessPort(this, inventoryPlayer), this);
