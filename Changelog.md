@@ -6,6 +6,8 @@ Next Release (Anticipated Version: 0.2.0)
 
 Current Release (0.1.6A)
 --------------------------------
+- Fixed: Some very large reactors would bug out, eat all their fuel and produces infinite power. They have been taught to behave.
+- Fixed: Automation objects (pipes, ME buses) on the top/bottom sides of a cyanite reprocessor now work.
 - Dusts for yellorium, cyanite, blutonium and graphite now exist.
 - All dusts can be smelted into ingots in any smelter.
 - Dusts can also be smelted in TE Induction Smelters.

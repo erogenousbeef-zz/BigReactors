@@ -60,6 +60,10 @@ public class CommonProxy {
 		List<ItemStack> dustBlutonums = OreDictionary.getOres("dustPlutonium");
 
 		if(Loader.isModLoaded("ThermalExpansion")) {
+			if(yelloriteOres != null && !yelloriteOres.isEmpty() && yelloriumIngots != null && !yelloriumIngots.isEmpty()) {
+				CraftingHelpers.addSmelterOreToIngotsRecipe(yelloriteOres.get(0), yelloriumIngots.get(0));
+			}
+			
 			if(yelloriteOres != null && !yelloriteOres.isEmpty() && dustYelloriums != null && !dustYelloriums.isEmpty()) {
 				CraftingHelpers.addPulverizerOreToDustRecipe(yelloriteOres.get(0), dustYelloriums.get(0));
 			}
