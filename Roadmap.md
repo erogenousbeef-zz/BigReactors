@@ -11,6 +11,7 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Known Bugs
 ----------
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
+- AE's grindstone does not accept BR ingots or yellorite, despite the code existing for it. Fix this.
 
 TODO - Beta
 -----------
@@ -22,8 +23,6 @@ TODO - Beta
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
-- Add graphite dust & coal dust
-- Add yellorite dust
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
