@@ -135,7 +135,14 @@ public class BigReactors {
 			{
 				FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotUranium").get(0), 0.5f);
 			}
-
+			
+			if(ingotGeneric != null) {
+				// Kind of a hack. Maps all ItemIngot dusts to ingots.
+				for(int i = 0; i < ItemIngot.DUST_OFFSET; i++) {
+					FurnaceRecipes.smelting().addSmelting(ingotGeneric.itemID, i+ItemIngot.DUST_OFFSET, new ItemStack(ingotGeneric, 1, i), 0f);
+				}
+			}
+			
 			// TODO: Configurable recipes.
 			ItemStack ingotUranium = null;
 			ItemStack ingotCyanite = null;
@@ -309,6 +316,33 @@ public class BigReactors {
 				// TODO: Fix the color of this
 				BRRegistry.registerFuel(new ReactorFuel(blutoniumStack, 0x2222ee));
 			}
+
+			// Dusts
+			
+			if (OreDictionary.getOres("dustUranium").size() <= 0 || require)
+			{
+				ItemStack yelloriumDustStack = new ItemStack(ingotGeneric, 1, 4);
+				OreDictionary.registerOre("dustUranium", yelloriumDustStack);
+			}
+
+			if (OreDictionary.getOres("dustCyanite").size() <= 0 || require)
+			{
+				ItemStack cyaniteDustStack = new ItemStack(ingotGeneric, 1, 5);
+				OreDictionary.registerOre("dustCyanite", cyaniteDustStack);
+			}
+
+			if (OreDictionary.getOres("dustGraphite").size() <= 0 || require)
+			{
+				ItemStack graphiteDustStack = new ItemStack(ingotGeneric, 1, 6);
+				OreDictionary.registerOre("dustGraphite", graphiteDustStack);
+			}
+
+			if (OreDictionary.getOres("dustPlutonium").size() <= 0 || require)
+			{
+				ItemStack blutoniumDustStack = new ItemStack(ingotGeneric, 1, 7);
+				OreDictionary.registerOre("dustPlutonium", blutoniumDustStack);
+			}
+			
 			BRConfig.CONFIGURATION.save();
 		}
 

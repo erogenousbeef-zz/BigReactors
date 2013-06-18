@@ -4,12 +4,21 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.5A)
+Current Release (0.1.6A)
 --------------------------------
-- Fixed: SMP servers no longer crash on opening a Big Reactors GUI
+- Dusts for yellorium, cyanite, blutonium and graphite now exist.
+- All dusts can be smelted into ingots in any smelter.
+- Dusts can also be smelted in TE Induction Smelters.
+- Yellorite ore can be ground into 2 Yellorium Dusts
+- All ingots can be ground into dusts (1:1 ratio).
+- Dusts can only be obtained with other mods' grinders (e.g. TE Pulverizer)
+- Known Bug: Ores, ingots cannot be crushed with AE's Grindstone as of AE rv 10.n.
 
 Older Releases
 --------------
+
+### Release 0.1.5A
+- Fixed: SMP servers no longer crash on opening a Big Reactors GUI
 
 ### Release 0.1.4A
 - Cyanite reprocessors are now craftable. Oops.
