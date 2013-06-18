@@ -253,15 +253,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 
 	@Override
 	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
-		if(side == 0 || side == 1) { return false; }
-		
 		return isStackValidForSlot(slot, itemstack);
 	}
 
 	@Override
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
-		if(side == 0 || side == 1) { return false; }
-		
 		return isStackValidForSlot(slot, itemstack);
 	}	
 	
@@ -295,7 +291,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		if(itemToDistribute == null) { return null; }
 
 		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
-										ForgeDirection.EAST, ForgeDirection.WEST };
+										ForgeDirection.EAST, ForgeDirection.WEST, ForgeDirection.UP, ForgeDirection.DOWN };
 
 		for(ForgeDirection dir : dirsToCheck) {
 			// Are we exposed on that side?
