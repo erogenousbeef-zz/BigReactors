@@ -430,9 +430,14 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		// Nothing to do.
 		if(this.fuelAmount <= 0 && this.wasteAmount <= 0) { return new RadiationPulse(); }
 		
-		if(this.localHeat < 0.0) {
-			// We do not deal with cryogenic reactors.
+		if(this.localHeat < 0.0 || Double.isNaN(this.localHeat) || Double.isInfinite(this.localHeat)) {
+			// We do not deal with cryogenic reactors. Repair thine self.
 			this.localHeat = 0.0;
+		}
+		
+		if(this.incidentRadiation < 0.0 || Double.isNaN(this.incidentRadiation) || Double.isInfinite(this.incidentRadiation)) {
+			// Wacky shit has happened. Try to auto-repair thine self.
+			this.incidentRadiation = 0.0;
 		}
 
 		// Step 1: Generate raw neutron mass
@@ -449,7 +454,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 
 		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
-		if(this.incidentRadiation > 0.0) {
+		if(this.incidentRadiation > 0.0 && this.localHeat > 0.0) {
 			double additionalNeutronsGenerated = Math.max(0.0, this.incidentRadiation * 0.5 - Math.log10(this.localHeat));
 			additionalNeutronsGenerated *= 1.0 - ((double)this.controlRodInsertion / 100.0);
 
@@ -514,7 +519,11 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		// Step 2: Calculate split between fast and slow neutrons.
 		// Higher heat = more fast, fewer slow.
 		// Forgives the first few hundred degrees before ramping up swiftly, then very swiftly after 1000
-		double neutronSplit = 0.1 + Math.max(0.0, Math.min(0.9, Math.min(0.0, Math.log(this.localHeat/75.0)/9.0) + Math.min(0.0, Math.log(this.localHeat/300.0)/5.0)));
+		double neutronSplit = 0.1;
+		if(this.localHeat > 0.0) {
+			neutronSplit = 0.1 + Math.max(0.0, Math.min(0.9, Math.min(0.0, Math.log(this.localHeat/75.0)/9.0) + Math.min(0.0, Math.log(this.localHeat/300.0)/5.0)));
+		}
+
 		double fastNeutrons = neutronSplit * rawNeutronsGenerated;
 		double slowNeutrons = (1.0-neutronSplit) * rawNeutronsGenerated;
 		
@@ -714,7 +723,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 		
 		// Now generate some additional radiation, based on local heat & fuel, at a disadvantaged rate
-		double newFastRadiation = this.fuelAmount * this.neutronsPerFuel * 0.25 * Math.min(0.01, Math.max(1.0, 1.0 - this.localHeat / 2000.0));
+		double newFastRadiation = this.fuelAmount * this.neutronsPerFuel * 0.25 * Math.min(0.01, Math.max(1.0, 1.0 - (this.localHeat / 2000.0)));
 		radiation.setFastRadiation(radiation.getFastRadiation() + newFastRadiation);
 
 		// Strengthen the pulse so it travels further in truly huge reactors
