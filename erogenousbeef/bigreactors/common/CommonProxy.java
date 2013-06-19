@@ -55,7 +55,7 @@ public class CommonProxy {
 		ItemStack ingotYellorium= ingotGeneric.getItemStackForType("ingotYellorium");
 		ItemStack ingotCyanite 	= ingotGeneric.getItemStackForType("ingotCyanite");
 		ItemStack ingotGraphite = ingotGeneric.getItemStackForType("ingotGraphite");
-		ItemStack ingotBlutonium= ingotGeneric.getItemStackForType("dustBlutonium");
+		ItemStack ingotBlutonium= ingotGeneric.getItemStackForType("ingotBlutonium");
 		ItemStack dustYellorium = ingotGeneric.getItemStackForType("dustYellorium");
 		ItemStack dustCyanite 	= ingotGeneric.getItemStackForType("dustCyanite");
 		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
@@ -96,7 +96,9 @@ public class CommonProxy {
 
 			if(grinderRM != null) {
 				if(yelloriteOre != null && dustYellorium != null) {
-					grinderRM.addRecipe(yelloriteOre, dustYellorium, 4);
+					ItemStack doubledYelloriumDust = dustYellorium.copy();
+					doubledYelloriumDust.stackSize = 2;
+					grinderRM.addRecipe(yelloriteOre, doubledYelloriumDust, 4);
 				}
 			
 				if(ingotYellorium != null && dustYellorium != null) {
