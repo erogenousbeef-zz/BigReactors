@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
 public class ItemIngot extends ItemBase
 {
 	public static final int DUST_OFFSET = 4;
-	public static final String[] TYPES = { "ingotYellorium", "ingotCyanite", "ingotGraphite", "dustBlutonium", "dustYellorium", "dustCyanite", "dustGraphite", "dustBlutonium" };
+	public static final String[] TYPES = { "ingotYellorium", "ingotCyanite", "ingotGraphite", "ingotBlutonium", "dustYellorium", "dustCyanite", "dustGraphite", "dustBlutonium" };
 
 	public ItemIngot(int id)
 	{

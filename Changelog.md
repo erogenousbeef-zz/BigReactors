@@ -4,8 +4,16 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.7A)
+Current Release (0.1.8A)
 --------------------------------
+- Bugfix: Blutonium ingots no longer show up as blutonium dusts
+- Bugfix: Grinders no longer convert yellorite ore into 2 blutonium dusts
+- Bugfix: AE's grindstone now properly doubles yellorite ore into 2 yellorite dusts instead of 1
+
+Older Releases
+--------------
+
+### Release 0.1.7A
 - Bugfix: Applied Energistics grindstone recipes now work, if you're using AE v.11b or above
 - Bugfix: Reactors now only tick once per world tick. Significant CPU usage reduction, fixes many strange bugs.
 - Bugfix: Reprocessor textures now show up as on/off at the appropriate times.
@@ -14,8 +22,6 @@ Current Release (0.1.7A)
 - Feature: Reactors now show their average power production per tick in their main UI
 - Feature: Mekanism machines now recognize BR ores and ingots, can produce dusts. Mekanism 5.5.4+.
 
-Older Releases
---------------
 
 ### Release 0.1.6A
 - Fixed: Some very large reactors would bug out, eat all their fuel and produces infinite power. They have been taught to behave.
