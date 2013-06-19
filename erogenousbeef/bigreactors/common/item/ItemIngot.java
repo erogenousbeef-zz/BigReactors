@@ -2,13 +2,15 @@ package erogenousbeef.bigreactors.common.item;
 
 import java.util.List;
 
+import erogenousbeef.bigreactors.common.BigReactors;
+
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 
 public class ItemIngot extends ItemBase
 {
 	public static final int DUST_OFFSET = 4;
-	public static final String[] TYPES = { "ingotYellorium", "ingotCyanite", "ingotGraphite", "ingotBlutonium", "dustYellorium", "dustCyanite", "dustGraphite", "dustBlutonium" };
+	public static final String[] TYPES = { "ingotYellorium", "ingotCyanite", "ingotGraphite", "dustBlutonium", "dustYellorium", "dustCyanite", "dustGraphite", "dustBlutonium" };
 
 	public ItemIngot(int id)
 	{
@@ -58,5 +60,15 @@ public class ItemIngot extends ItemBase
 	
 	public static boolean isGraphite(int itemDamage) {
 		return itemDamage == 2;
+	}
+	
+	public ItemStack getItemStackForType(String typeName) {
+		for(int i = 0; i < TYPES.length; i++) {
+			if(TYPES[i].equals(typeName)) {
+				return new ItemStack(this, 1, i);
+			}
+		}
+
+		return null;
 	}
 }
