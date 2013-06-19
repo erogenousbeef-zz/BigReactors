@@ -17,6 +17,7 @@ import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
+import erogenousbeef.bigreactors.common.item.ItemIngot;
 
 public class CommonProxy {
 
@@ -48,72 +49,145 @@ public class CommonProxy {
 
 		BRConfig.CONFIGURATION.save();
 		
+		ItemIngot ingotGeneric = ((ItemIngot)BigReactors.ingotGeneric);
 		
-		List<ItemStack> yelloriteOres = OreDictionary.getOres("oreYellorite");
-		List<ItemStack> yelloriumIngots = OreDictionary.getOres("ingotUranium");
-		List<ItemStack> cyaniteIngots = OreDictionary.getOres("ingotCyanite");
-		List<ItemStack> graphiteIngots = OreDictionary.getOres("ingotGraphite");
-		List<ItemStack> blutoniumIngots = OreDictionary.getOres("ingotPlutonium");
-		List<ItemStack> dustYelloriums = OreDictionary.getOres("dustUranium");
-		List<ItemStack> dustCyanites = OreDictionary.getOres("dustCyanite");
-		List<ItemStack> dustGraphites = OreDictionary.getOres("dustGraphite");
-		List<ItemStack> dustBlutonums = OreDictionary.getOres("dustPlutonium");
+		ItemStack yelloriteOre 	= new ItemStack(BigReactors.blockYelloriteOre, 1);
+		ItemStack ingotYellorium= ingotGeneric.getItemStackForType("ingotYellorium");
+		ItemStack ingotCyanite 	= ingotGeneric.getItemStackForType("ingotCyanite");
+		ItemStack ingotGraphite = ingotGeneric.getItemStackForType("ingotGraphite");
+		ItemStack ingotBlutonium= ingotGeneric.getItemStackForType("dustBlutonium");
+		ItemStack dustYellorium = ingotGeneric.getItemStackForType("dustYellorium");
+		ItemStack dustCyanite 	= ingotGeneric.getItemStackForType("dustCyanite");
+		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
+		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
 
 		if(Loader.isModLoaded("ThermalExpansion")) {
-			if(yelloriteOres != null && !yelloriteOres.isEmpty() && yelloriumIngots != null && !yelloriumIngots.isEmpty()) {
-				CraftingHelpers.addSmelterOreToIngotsRecipe(yelloriteOres.get(0), yelloriumIngots.get(0));
+			if(yelloriteOre != null && ingotYellorium != null) {
+				CraftingHelpers.addSmelterOreToIngotsRecipe(yelloriteOre, ingotYellorium);
 			}
 			
-			if(yelloriteOres != null && !yelloriteOres.isEmpty() && dustYelloriums != null && !dustYelloriums.isEmpty()) {
-				CraftingHelpers.addPulverizerOreToDustRecipe(yelloriteOres.get(0), dustYelloriums.get(0));
+			if(yelloriteOre != null && dustYellorium != null) {
+				CraftingHelpers.addPulverizerOreToDustRecipe(yelloriteOre, dustYellorium);
 			}
 			
-			if(yelloriumIngots != null && !yelloriumIngots.isEmpty() && dustYelloriums != null && !dustYelloriums.isEmpty()) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(yelloriumIngots.get(0), dustYelloriums.get(0));
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustYelloriums.get(0), yelloriumIngots.get(0));
+			if(ingotYellorium != null && dustYellorium != null) {
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotYellorium, dustYellorium);
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustYellorium, ingotYellorium);
 			}
 
-			if(cyaniteIngots != null && !cyaniteIngots.isEmpty() && dustCyanites != null && !dustCyanites.isEmpty()) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(cyaniteIngots.get(0), dustCyanites.get(0));
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustCyanites.get(0), cyaniteIngots.get(0));
+			if(ingotCyanite != null && dustCyanite != null) {
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotCyanite, dustCyanite);
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustCyanite, ingotCyanite);
 			}
 
-			if(graphiteIngots != null && !graphiteIngots.isEmpty() && dustGraphites != null && !dustGraphites.isEmpty()) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(graphiteIngots.get(0), dustGraphites.get(0));
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustGraphites.get(0), graphiteIngots.get(0));
+			if(ingotGraphite != null && dustGraphite != null) {
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotGraphite, dustGraphite);
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustGraphite, ingotGraphite);
 			}
 
-			if(blutoniumIngots != null && !blutoniumIngots.isEmpty() && dustBlutonums != null && !dustBlutonums.isEmpty()) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(blutoniumIngots.get(0), dustBlutonums.get(0));
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustBlutonums.get(0), blutoniumIngots.get(0));
+			if(ingotBlutonium != null && dustBlutonium != null) {
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotBlutonium, dustBlutonium);
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustBlutonium, ingotBlutonium);
 			}
 		}
 		
 		if(Loader.isModLoaded("AppliedEnergistics")) {
-			// TODO: Tell AlgorithmX2 that this method is broken :(
 			appeng.api.IGrinderRecipeManager grinderRM = appeng.api.Util.getGrinderRecipeManage();
 
 			if(grinderRM != null) {
-				if(yelloriteOres != null && !yelloriteOres.isEmpty() && dustYelloriums != null && !dustYelloriums.isEmpty()) {
-					grinderRM.addRecipe(yelloriteOres.get(0), dustYelloriums.get(0), 4);
+				if(yelloriteOre != null && dustYellorium != null) {
+					grinderRM.addRecipe(yelloriteOre, dustYellorium, 4);
 				}
 			
-				if(yelloriumIngots != null && !yelloriumIngots.isEmpty() && dustYelloriums != null && !dustYelloriums.isEmpty()) {
-					grinderRM.addRecipe(yelloriumIngots.get(0), dustYelloriums.get(0), 2);
+				if(ingotYellorium != null && dustYellorium != null) {
+					grinderRM.addRecipe(ingotYellorium, dustYellorium, 2);
 				}
 
-				if(cyaniteIngots != null && !cyaniteIngots.isEmpty() && dustCyanites != null && !dustCyanites.isEmpty()) {
-					grinderRM.addRecipe(cyaniteIngots.get(0), dustCyanites.get(0), 2);
+				if(ingotCyanite != null && dustCyanite != null) {
+					grinderRM.addRecipe(ingotCyanite, dustCyanite, 2);
 				}
 
-				if(graphiteIngots != null && !graphiteIngots.isEmpty() && dustGraphites != null && !dustGraphites.isEmpty()) {
-					grinderRM.addRecipe(graphiteIngots.get(0), dustGraphites.get(0), 2);
+				if(ingotGraphite != null && dustGraphite != null) {
+					grinderRM.addRecipe(ingotGraphite, dustGraphite, 2);
 				}
 
-				if(blutoniumIngots != null && !blutoniumIngots.isEmpty() && dustBlutonums != null && !dustBlutonums.isEmpty()) {
-					grinderRM.addRecipe(blutoniumIngots.get(0), dustBlutonums.get(0), 2);
+				if(ingotBlutonium != null && dustBlutonium != null) {
+					grinderRM.addRecipe(ingotBlutonium, dustBlutonium, 2);
 				}
 			}
 		}
+		
+		if(Loader.isModLoaded("Mekanism")) {
+			if(yelloriteOre != null && dustYellorium != null) {
+				addMekanismEnrichmentChamberRecipe(yelloriteOre, dustYellorium);
+				addMekanismCombinerRecipe(dustYellorium, yelloriteOre);
+			}
+		
+			if(ingotYellorium != null && dustYellorium != null) {
+				addMekanismCrusherRecipe(ingotYellorium, dustYellorium);
+			}
+
+			if(ingotCyanite != null && dustCyanite != null) {
+				addMekanismCrusherRecipe(ingotCyanite, dustCyanite);
+			}
+
+			if(ingotGraphite != null && dustGraphite != null) {
+				addMekanismCrusherRecipe(ingotGraphite, dustGraphite);
+			}
+
+			if(ingotBlutonium != null && dustBlutonium != null) {
+				addMekanismCrusherRecipe(dustGraphite, dustBlutonium);
+			}
+		}
 	}
+	
+	/// Mekanism Compat - taken from Mekanism's API. Extracted to allow compat with last known green build.
+	/**
+	 * Add an Enrichment Chamber recipe. (Ore -> 2 Dust)
+	 * @param input - input ItemStack
+	 * @param output - output ItemStack
+	 */
+	public static void addMekanismEnrichmentChamberRecipe(ItemStack input, ItemStack output)
+	{
+		try {
+			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
+			Method m = recipeClass.getMethod("addEnrichmentChamberRecipe", ItemStack.class, ItemStack.class);
+			m.invoke(null, input, output);
+		} catch(Exception e) {
+			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
+		}
+	}
+
+	
+	/**
+	 * Add a Combiner recipe. (2 Dust + Cobble -> Ore)
+	 * @param input - input ItemStack
+	 * @param output - output ItemStack
+	 */
+	public static void addMekanismCombinerRecipe(ItemStack input, ItemStack output)
+	{
+		try {
+			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
+			Method m = recipeClass.getMethod("addCombinerRecipe", ItemStack.class, ItemStack.class);
+			m.invoke(null, input, output);
+		} catch(Exception e) {
+			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Add a Crusher recipe. (Ingot -> Dust)
+	 * @param input - input ItemStack
+	 * @param output - output ItemStack
+	 */
+	public static void addMekanismCrusherRecipe(ItemStack input, ItemStack output)
+	{
+		try {
+			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
+			Method m = recipeClass.getMethod("addCrusherRecipe", ItemStack.class, ItemStack.class);
+			m.invoke(null, input, output);
+		} catch(Exception e) {
+			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
+		}
+	}	
 }
