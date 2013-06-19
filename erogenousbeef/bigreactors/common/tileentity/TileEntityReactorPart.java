@@ -192,15 +192,17 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {
-			Class decodeAs[] = { Boolean.class, Double.class, Double.class };
+			Class decodeAs[] = { Boolean.class, Double.class, Double.class, Double.class};
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			boolean active = (Boolean) decodedData[0];
 			double heat = (Double) decodedData[1];
 			double storedEnergy = (Double) decodedData[2];
+			double energyGeneratedLastTick = (Double) decodedData[3];
 
 			getReactorController().setActive(active);
 			getReactorController().setHeat(heat);
 			getReactorController().setStoredEnergy(storedEnergy);
+			getReactorController().setEnergyGeneratedLastTick(energyGeneratedLastTick);
 		}		
 	}
 

@@ -132,14 +132,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		
 		for(CoordTriplet outputCoord : powerConnections) {
 			TileEntity te = this.worldObj.getBlockTileEntity(outputCoord.x, outputCoord.y, outputCoord.z);
-			if(te == null) { 
-				if(deadCoords == null) {
-					deadCoords = new ArrayList<CoordTriplet>();
-				}
-				deadCoords.add(outputCoord);
-				continue;
-			}
-			else if(te instanceof IPowerReceptor) {
+			if(te instanceof IPowerReceptor) {
 				// Buildcraft
 				int mjAvailable = (int)Math.floor((float)units / bcPowerFactor);
 				
@@ -173,6 +166,13 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 						network.stopProducing(this);
 					}
 				}
+			}
+			else {
+				// Unrecognized TE, assume disconnected.
+				if(deadCoords == null) {
+					deadCoords = new ArrayList<CoordTriplet>();
+				}
+				deadCoords.add(outputCoord);
 			}
 		}
 		

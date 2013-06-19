@@ -4,8 +4,20 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.6A)
+Current Release (0.1.7A)
 --------------------------------
+- Bugfix: Applied Energistics grindstone recipes now work, if you're using AE v.11b or above
+- Bugfix: Reactors now only tick once per world tick. Significant CPU usage reduction, fixes many strange bugs.
+- Bugfix: Reprocessor textures now show up as on/off at the appropriate times.
+- Due to above, reactors needed a rebalance, as they were actually only producing at least 1/3 of their observed output, maybe less.
+- Rebalance: Reactor designs with water are mildly nerfed, waterless reactors are considerably worse.
+- Feature: Reactors now show their average power production per tick in their main UI
+- Feature: Mekanism machines now recognize BR ores and ingots, can produce dusts. Mekanism 5.5.4+.
+
+Older Releases
+--------------
+
+### Release 0.1.6A
 - Fixed: Some very large reactors would bug out, eat all their fuel and produces infinite power. They have been taught to behave.
 - Fixed: Automation objects (pipes, ME buses) on the top/bottom sides of a cyanite reprocessor now work.
 - Dusts for yellorium, cyanite, blutonium and graphite now exist.
@@ -15,9 +27,6 @@ Current Release (0.1.6A)
 - All ingots can be ground into dusts (1:1 ratio).
 - Dusts can only be obtained with other mods' grinders (e.g. TE Pulverizer)
 - Known Bug: Ores, ingots cannot be crushed with AE's Grindstone as of AE rv 10.n.
-
-Older Releases
---------------
 
 ### Release 0.1.5A
 - Fixed: SMP servers no longer crash on opening a Big Reactors GUI

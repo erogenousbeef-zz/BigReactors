@@ -99,7 +99,7 @@ public class BigReactors {
 	public static int maximumReactorHeight = MultiblockReactor.DIMENSION_UNBOUNDED;
 	
 	// Game Balance values
-	public static final float powerPerHeat = 2.0f; // Power units per C dissipated
+	public static final float powerPerHeat = 1.0f; // Power units per C dissipated
 	
 	/**
 	 * Call this function in your mod init stage.

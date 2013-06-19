@@ -149,10 +149,12 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 				// If we don't have the stuff to begin a cycle, stop now
 				if(!canBeginCycle()) {
 					cycledTicks = -1;
+					this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 				}
 				else if(cycledTicks >= getCycleLength()) {
 					onPoweredCycleEnd();
 					cycledTicks = -1;
+					this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 				}
 			}
 			
@@ -161,6 +163,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 				cycledTicks = 0;
 				storedEnergy -= getCycleEnergyCost();
 				onPoweredCycleBegin();
+				this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
 		}
 	}
