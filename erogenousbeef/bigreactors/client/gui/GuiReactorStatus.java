@@ -27,6 +27,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel statusString;
 	private BeefGuiLabel heatString;
 	private BeefGuiLabel fuelRodsString;
+	private BeefGuiLabel energyGeneratedString;
 	private BeefGuiPowerBar powerBar;
 	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
@@ -66,6 +67,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		fuelRodsString = new BeefGuiLabel(this, "Active Fuel Rods: -- updating --", leftX, topY);
 		topY += fuelRodsString.getHeight() + 4;
+
+		energyGeneratedString = new BeefGuiLabel(this, "Power Output: -- updating --", leftX, topY);
+		topY += fuelRodsString.getHeight() + 4;
 		
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.reactor);
 		
@@ -73,6 +77,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(statusString);
 		registerControl(heatString);
 		registerControl(fuelRodsString);
+		registerControl(energyGeneratedString);
 		registerControl(powerBar);
 	}
 
@@ -113,6 +118,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		_reactorWastePolicy.displayString = getReactorWastePolicyText(wasteSetting);
 		
 		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
+		
+		energyGeneratedString.setLabelText(String.format("Power Output: %1.1f MJ", reactor.getEnergyGeneratedLastTick()));
 	}
 	
 	@Override

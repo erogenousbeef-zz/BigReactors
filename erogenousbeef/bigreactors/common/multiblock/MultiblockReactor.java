@@ -41,6 +41,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	private double latentHeat;
 	private double storedEnergy;	// Internal units
 	private WasteEjectionSetting wasteEjection;
+
+	// UI stuff
+	private double energyGeneratedLastTick;
 	
 	public enum WasteEjectionSetting {
 		kAutomatic,					// Full auto, always remove waste
@@ -66,6 +69,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		active = false;
 		latentHeat = 0.0;
 		storedEnergy = 0;
+		energyGeneratedLastTick = 0.0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		activePowerTaps = new LinkedList<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
@@ -156,6 +160,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 		double oldHeat = this.getHeat();
 		double oldEnergy = this.storedEnergy;
+		energyGeneratedLastTick = 0.0;
 
 		// How much waste do we have?
 		int wasteAmt = 0;
@@ -223,6 +228,25 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			}
 		}
 
+		energyGeneratedLastTick = getStoredEnergy() - oldEnergy;
+		// leak 1% of heat to the environment per second
+		// TODO: Replace this with a better equation, so low heats leak less
+		// and high heats leak far more.
+		
+		// 1% base loss rate, +1% per thousand degrees C
+		
+		if(latentHeat > 0.0) {
+			double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
+			double latentHeatLoss = Math.max(0.02, this.latentHeat * 0.01);
+			this.addLatentHeat(-1 * latentHeatLoss);
+
+			// Generate power based on the amount of heat lost
+			this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+			energyGeneratedLastTick += latentHeatLoss * BigReactors.powerPerHeat;
+		}
+		
+		if(latentHeat < 0.0) { setHeat(0.0); }
+		
 		// Distribute available power
 		int energyAvailable = (int)getStoredEnergy();
 		int energyRemaining = energyAvailable;
@@ -240,23 +264,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		if(energyAvailable != energyRemaining) {
 			reduceStoredEnergy((double)(energyAvailable - energyRemaining));
 		}
-
-		// leak 1% of heat to the environment per second
-		// TODO: Replace this with a better equation, so low heats leak less
-		// and high heats leak far more.
-		
-		// 1% base loss rate, +1% per thousand degrees C
-		
-		if(latentHeat > 0.0) {
-			double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
-			double latentHeatLoss = Math.max(0.02, this.latentHeat * 0.01);
-			this.addLatentHeat(-1 * latentHeatLoss);
-
-			// Generate power based on the amount of heat lost
-			this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
-		}
-		
-		if(latentHeat < 0.0) { setHeat(0.0); }
 
 		// Send updates periodically
 		ticksSinceLastUpdate++;
@@ -294,6 +301,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		storedEnergy = newEnergy;
 		if(storedEnergy < 0.0 || Double.isNaN(storedEnergy)) {
 			storedEnergy = 0.0;
+		}
+		else if(storedEnergy > maxEnergyStored) {
+			storedEnergy = maxEnergyStored;
 		}
 	}
 	
@@ -430,7 +440,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 								referenceCoord.z,
 								this.active,
 								this.latentHeat,
-								this.storedEnergy});
+								this.storedEnergy,
+								this.energyGeneratedLastTick});
 	}
 	
 	/**
@@ -444,6 +455,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	
 	/**
 	 * Send an update to any clients with GUIs open
+	 * @param energyGenerated 
 	 */
 	protected void sendTickUpdate() {
 		if(this.worldObj.isRemote) { return; }
@@ -699,5 +711,19 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	@Override
 	protected int getMaximumYSize() {
 		return BigReactors.maximumReactorHeight;
+	}
+
+	/**
+	 * Used to update the UI
+	 */
+	public void setEnergyGeneratedLastTick(double energyGeneratedLastTick) {
+		this.energyGeneratedLastTick = energyGeneratedLastTick;
+	}
+
+	/**
+	 * UI Helper
+	 */
+	public double getEnergyGeneratedLastTick() {
+		return this.energyGeneratedLastTick;
 	}
 }

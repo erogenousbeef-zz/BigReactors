@@ -11,7 +11,6 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Known Bugs
 ----------
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
-- AE's grindstone does not accept BR ingots or yellorite, despite the code existing for it. Fix this.
 
 TODO - Beta
 -----------
@@ -59,8 +58,9 @@ Wishlist / Post-Release
 - Make better APIs/interfaces for extending the reactor
 - Add different ways to refine/recycle fuels & wastes, maybe use TE's liquid redstone/glowstone for better yield
 
-### ComputerCraft
-- Reactor peripheral? Requires research.
+### Interoperability
+- ComputerCraft reactor peripheral? Requires research.
+- Add IAntiPoisonBlock interface to reactor blocks from Atomic Science
 
 ### Liquids Refactor (minecraft 1.6)
 - Refactor liquids using new Forge liquid interfaces

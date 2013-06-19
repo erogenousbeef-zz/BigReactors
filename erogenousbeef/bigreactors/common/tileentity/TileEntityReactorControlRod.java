@@ -66,8 +66,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	// TODO: Make these configurable
 	private static final double maximumNeutronsPerFuel = 50000; // Should be a few minutes per ingot, on average.
 	private static final double neutronsPerFuel = 0.001; // neutrons per fuel unit
-	private static final double heatPerNeutron = 0.05; // C per fission event
-	private static final double powerPerNeutron = 0.005; // internal units per fission event
+	private static final double heatPerNeutron = 0.5; // C per fission event
+	private static final double powerPerNeutron = 0.5; // internal units per fission event
 	private static final double wasteNeutronPenalty = 0.01;
 	private static final double incidentNeutronFuelRate = 0.5;
 
