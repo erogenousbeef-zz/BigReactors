@@ -4,14 +4,20 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.8A)
+Current Release (0.1.9A)
 --------------------------------
+- Bugfix: Fixed a crash in BeefCore that occasionally happens when players log out from SMP servers
+- Bugfix: Mekanism 5.5.6.63 + BigReactors 0.1.8A would crash when BR added TE pulverizer recipes. This is fixed.
+- Bugfix: Mekanism enrichment chamber recipe was not producing 2 dusts per yellorite ore. This is fixed.
+
+Older Releases
+--------------
+
+### Release 0.1.8A
 - Bugfix: Blutonium ingots no longer show up as blutonium dusts
 - Bugfix: Grinders no longer convert yellorite ore into 2 blutonium dusts
 - Bugfix: AE's grindstone now properly doubles yellorite ore into 2 yellorite dusts instead of 1
 
-Older Releases
---------------
 
 ### Release 0.1.7A
 - Bugfix: Applied Energistics grindstone recipes now work, if you're using AE v.11b or above
