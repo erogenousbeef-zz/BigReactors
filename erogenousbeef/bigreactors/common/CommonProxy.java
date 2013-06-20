@@ -61,33 +61,38 @@ public class CommonProxy {
 		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
 		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
 
+		// Some mods make me do this myself. :V
+		ItemStack doubledYelloriumDust = dustYellorium.copy();
+		doubledYelloriumDust.stackSize = 2;
+		
+		
 		if(Loader.isModLoaded("ThermalExpansion")) {
 			if(yelloriteOre != null && ingotYellorium != null) {
-				CraftingHelpers.addSmelterOreToIngotsRecipe(yelloriteOre, ingotYellorium);
+				CraftingHelpers.addSmelterOreToIngotsRecipe(yelloriteOre.copy(), ingotYellorium.copy());
 			}
 			
 			if(yelloriteOre != null && dustYellorium != null) {
-				CraftingHelpers.addPulverizerOreToDustRecipe(yelloriteOre, dustYellorium);
+				CraftingHelpers.addPulverizerOreToDustRecipe(yelloriteOre.copy(), dustYellorium.copy());
 			}
 			
 			if(ingotYellorium != null && dustYellorium != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotYellorium, dustYellorium);
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustYellorium, ingotYellorium);
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotYellorium.copy(), dustYellorium.copy());
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustYellorium.copy(), ingotYellorium.copy());
 			}
 
 			if(ingotCyanite != null && dustCyanite != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotCyanite, dustCyanite);
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustCyanite, ingotCyanite);
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotCyanite.copy(), dustCyanite.copy());
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustCyanite.copy(), ingotCyanite.copy());
 			}
 
 			if(ingotGraphite != null && dustGraphite != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotGraphite, dustGraphite);
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustGraphite, ingotGraphite);
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotGraphite.copy(), dustGraphite.copy());
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustGraphite.copy(), ingotGraphite.copy());
 			}
 
 			if(ingotBlutonium != null && dustBlutonium != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotBlutonium, dustBlutonium);
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustBlutonium, ingotBlutonium);
+				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
+				CraftingHelpers.addSmelterDustToIngotsRecipe(dustBlutonium.copy(), ingotBlutonium.copy());
 			}
 		}
 		
@@ -96,49 +101,47 @@ public class CommonProxy {
 
 			if(grinderRM != null) {
 				if(yelloriteOre != null && dustYellorium != null) {
-					ItemStack doubledYelloriumDust = dustYellorium.copy();
-					doubledYelloriumDust.stackSize = 2;
-					grinderRM.addRecipe(yelloriteOre, doubledYelloriumDust, 4);
+					grinderRM.addRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy(), 4);
 				}
 			
 				if(ingotYellorium != null && dustYellorium != null) {
-					grinderRM.addRecipe(ingotYellorium, dustYellorium, 2);
+					grinderRM.addRecipe(ingotYellorium.copy(), dustYellorium.copy(), 2);
 				}
 
 				if(ingotCyanite != null && dustCyanite != null) {
-					grinderRM.addRecipe(ingotCyanite, dustCyanite, 2);
+					grinderRM.addRecipe(ingotCyanite.copy(), dustCyanite.copy(), 2);
 				}
 
 				if(ingotGraphite != null && dustGraphite != null) {
-					grinderRM.addRecipe(ingotGraphite, dustGraphite, 2);
+					grinderRM.addRecipe(ingotGraphite.copy(), dustGraphite.copy(), 2);
 				}
 
 				if(ingotBlutonium != null && dustBlutonium != null) {
-					grinderRM.addRecipe(ingotBlutonium, dustBlutonium, 2);
+					grinderRM.addRecipe(ingotBlutonium.copy(), dustBlutonium.copy(), 2);
 				}
 			}
 		}
 		
 		if(Loader.isModLoaded("Mekanism")) {
 			if(yelloriteOre != null && dustYellorium != null) {
-				addMekanismEnrichmentChamberRecipe(yelloriteOre, dustYellorium);
-				addMekanismCombinerRecipe(dustYellorium, yelloriteOre);
+				addMekanismEnrichmentChamberRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy());
+				addMekanismCombinerRecipe(dustYellorium.copy(), yelloriteOre.copy());
 			}
 		
 			if(ingotYellorium != null && dustYellorium != null) {
-				addMekanismCrusherRecipe(ingotYellorium, dustYellorium);
+				addMekanismCrusherRecipe(ingotYellorium.copy(), dustYellorium.copy());
 			}
 
 			if(ingotCyanite != null && dustCyanite != null) {
-				addMekanismCrusherRecipe(ingotCyanite, dustCyanite);
+				addMekanismCrusherRecipe(ingotCyanite.copy(), dustCyanite.copy());
 			}
 
 			if(ingotGraphite != null && dustGraphite != null) {
-				addMekanismCrusherRecipe(ingotGraphite, dustGraphite);
+				addMekanismCrusherRecipe(ingotGraphite.copy(), dustGraphite.copy());
 			}
 
 			if(ingotBlutonium != null && dustBlutonium != null) {
-				addMekanismCrusherRecipe(dustGraphite, dustBlutonium);
+				addMekanismCrusherRecipe(dustGraphite.copy(), dustBlutonium.copy());
 			}
 		}
 	}
