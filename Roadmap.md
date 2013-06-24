@@ -11,7 +11,7 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Known Bugs
 ----------
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
-- Mousing over MJ meters inverts NEI item shader colors
+- Tooltips in BeefGUI seem to cause NEI GUI colors to get inverted. Fix this.
 
 TODO - Beta
 -----------
@@ -33,14 +33,14 @@ TODO - Beta
 - Cool particle effects when the reactor is on!
 
 ### Add redstone interfaces
-- RedNet Interface block
+- (DONE/0.2) RedNet Interface block
 - Redstone Interface block
-- These are configurable. RedNet allows for up to 16 I/O channels with continuous I/O.
-- Reactor on/off
-- Control rod in/out, or set specific % insertion via RedNet
-- Signal emitter if temperature goes below X
+- (IN PROGRESS/0.2) These are configurable. RedNet allows for up to 16 I/O channels with continuous I/O.
+- (DONE/0.2) Reactor on/off
+- (DONE/0.2) Control rod in/out, or set specific % insertion via RedNet
+- (DONE/0.2) Emit reactor & control rod temperature
 - Signal emitter if global waste % goes over X
-- RedNet Versions: Emit waste %/amt, Emit raw temperature
+- (DONE/0.2) RedNet Versions: Emit waste %/amt, Emit raw temperature
 
 ### Reactor Mechanics
 - Add fuel->waste and waste->fuel item mappings to registry; remove hardcoded references to Ore Dictionary

@@ -117,14 +117,21 @@ public class BigReactors {
 			enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
 			enableWorldGenInNegativeDimensions = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGenInNegativeDims", false, "Run BR world generation in negative dimension IDs? (default: false) If you don't know what this is, leave it alone.").getBoolean(false);
 			enableWorldRegeneration = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldRegeneration", false, "Run BR World Generation in chunks that have already been generated, but have not been modified by Big Reactors before. This is largely useful for worlds that existed before BigReactors was released.").getBoolean(false);
+			
+			boolean registerCoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCoalForSmelting", true, "If set, coal will be smeltable into graphite bars. Disable this if other mods need to smelt coal into their own products. (Default: true)").getBoolean(true);
+			boolean registerCharcoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCharcoalForSmelting", true, "If set, charcoal will be smeltable into graphite bars. Disable this if other mods need to smelt charcoal into their own products. (Default: true)").getBoolean(true);
+			boolean registerCoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 coal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
+			boolean registerCharcoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCharcoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 charcoal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
+
+			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
+			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
+
+			BRConfig.CONFIGURATION.save();
+
 			if(enableWorldGen) {
 				worldGenerator = new BRWorldGenerator();
 				GameRegistry.registerWorldGenerator(worldGenerator);
 			}
-			
-			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
-			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
-			BRConfig.CONFIGURATION.save();
 			
 			/*
 			 * Register Recipes
@@ -144,7 +151,6 @@ public class BigReactors {
 				}
 			}
 			
-			// TODO: Configurable recipes.
 			ItemStack ingotUranium = null;
 			ItemStack ingotCyanite = null;
 			ItemStack ingotGraphite = null;
@@ -158,10 +164,23 @@ public class BigReactors {
 				ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0);
 			}
 			
-			// Coal -> Graphite
-			FurnaceRecipes.smelting().addSmelting(Item.coal.itemID, 0, ingotGraphite, 1);
-			// Charcoal -> Graphite
-			FurnaceRecipes.smelting().addSmelting(Item.coal.itemID, 1, ingotGraphite, 1);
+			if(registerCoalFurnaceRecipe) {
+				// Coal -> Graphite
+				FurnaceRecipes.smelting().addSmelting(Item.coal.itemID, 0, ingotGraphite, 1);				
+			}
+			
+			if(registerCharcoalFurnaceRecipe) {
+				// Charcoal -> Graphite
+				FurnaceRecipes.smelting().addSmelting(Item.coal.itemID, 1, ingotGraphite, 1);
+			}
+			
+			if(registerCoalCraftingRecipe) {
+				GameRegistry.addRecipe(new ShapedOreRecipe( ingotGraphite.copy(), new Object[] { "GCG", 'G', Block.gravel, 'C', new ItemStack(Item.coal, 1, 0) } ));
+			}
+			
+			if(registerCharcoalCraftingRecipe) {
+				GameRegistry.addRecipe(new ShapedOreRecipe( ingotGraphite.copy(), new Object[] { "GCG", 'G', Block.gravel, 'C', new ItemStack(Item.coal, 1, 1) } ));
+			}
 			
 			// Basic Parts: Reactor Casing, Fuel Rods
 			if(blockYelloriumFuelRod != null) {

@@ -111,6 +111,10 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 			return;
 		}
 		
+		if(controlRod.getSizeOfFuelTank() <= 0) {
+			return;
+		}
+		
 		// Render rod itself
 		renderControlRod(controlRod, x, y, z);
 
