@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
 
@@ -21,14 +23,20 @@ public abstract class BeefGuiBase extends GuiContainer {
 
 	protected List<IBeefGuiControl> controls;
 	protected List<IBeefTooltipControl> controlsWithTooltips;
+	protected List<GuiTextField> textFields;
 	
 	public BeefGuiBase(Container container) {
 		super(container);
 		
-		controls = new LinkedList<IBeefGuiControl>();
-		controlsWithTooltips = new LinkedList<IBeefTooltipControl>();
+		controls = new ArrayList<IBeefGuiControl>();
+		controlsWithTooltips = new ArrayList<IBeefTooltipControl>();
+		textFields = new ArrayList<GuiTextField>();
 	}
 
+	public void registerControl(GuiTextField newTextField) {
+		textFields.add(newTextField);
+	}
+	
 	public void registerControl(IBeefGuiControl newControl) {
 		controls.add(newControl);
 		
@@ -50,6 +58,10 @@ public abstract class BeefGuiBase extends GuiContainer {
 		relativeY = mouseY - this.guiTop;
 		for(IBeefGuiControl c : controls) {
 			c.drawBackground(relativeX, relativeY);
+		}
+		
+		for(GuiTextField field : textFields) {
+			field.drawTextBox();
 		}
 	}
 	
@@ -73,6 +85,19 @@ public abstract class BeefGuiBase extends GuiContainer {
 			}
 		}
 	}
+	
+	@Override
+	protected void mouseClicked(int x, int y, int buttonIndex) {
+		super.mouseClicked(x, y, buttonIndex);
+		for(GuiTextField field : textFields) {
+			field.mouseClicked(x, y, buttonIndex);
+		}
+		
+		for(IBeefGuiControl c: controls) {
+			c.onMouseClicked(x, y, buttonIndex);
+		}
+	}
+	
 	
 	public abstract String getGuiBackground();
 	

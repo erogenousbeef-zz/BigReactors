@@ -17,4 +17,12 @@ public interface IBeefGuiControl {
 	 * @param mouseY Window-relative Y position of the mouse cursor.
 	 */
 	public void drawForeground(int mouseX, int mouseY);
+
+	/**
+	 * Handle mouse clicks. Called for all clicks, not just ones inside the control.
+	 * @param mouseX Screen-relative mouse X coordinate.
+	 * @param mouseY Screen-relative mouse Y coordinate.
+	 * @param mouseButton Button being pressed. 0 = left, 1 = right, 2 = middle.
+	 */
+	public void onMouseClicked(int mouseX, int mouseY, int mouseButton);
 }

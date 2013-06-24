@@ -36,8 +36,11 @@ public class ItemBlockReactorPart extends ItemBlock {
 		else if (BlockReactorPart.isPowerTap(damage)){
 			metadata = 2;
 		}
-		else {
+		else if (BlockReactorPart.isAccessPort(damage)) {
 			metadata = 3;
+		}
+		else if (BlockReactorPart.isRedNetPort(damage)) {
+			metadata = 4;
 		}
 
 		return BigReactors.blockReactorPart.getUnlocalizedName() + "." + metadata;

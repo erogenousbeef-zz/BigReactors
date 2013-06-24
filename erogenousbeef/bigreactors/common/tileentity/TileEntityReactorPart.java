@@ -303,6 +303,9 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		if(BlockReactorPart.isPowerTap(oldMeta) && BlockReactorPart.isPowerTap(newMeta)) {
 			return false;
 		}
+		if(BlockReactorPart.isRedNetPort(oldMeta) && BlockReactorPart.isPowerTap(newMeta)) {
+			return false;
+		}
 		return true;
     }
 
