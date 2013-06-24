@@ -94,6 +94,9 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	
 	// Fuel Consumption
 	protected int neutronsSinceLastFuelConsumption;
+	
+	// User settings
+	protected String name;
 
 	// Fuel messaging
 	protected int fuelAtLastUpdate;
@@ -124,6 +127,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		wasteAtLastUpdate = 0;
 		fuelAtLastUpdate = 0;
 		controlRodInsertion = minInsertion;
+		
+		name = "";
 		
 		updatePlayers = new HashSet<EntityPlayer>();
 	}
@@ -407,12 +412,20 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
 		this.readLocalDataFromNBT(data);
+		
+		if(data.hasKey("name")) {
+			this.name = data.getString("name");
+		}
 	}
 	
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		super.writeToNBT(data);
 		this.writeLocalDataToNBT(data);
+		
+		if(!this.name.isEmpty()) {
+			data.setString("name", this.name);
+		}
 	}
 	
     // IRadiationSource
@@ -1046,6 +1059,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		this.writeLocalDataToNBT(localData);
 		localData.setBoolean("isAssembled", this.isAssembled);
 		localData.setInteger("minFuelRodY", this.minFuelRodY);
+		localData.setString("name", this.name);
 		packet.setCompoundTag("reactorControlRod", localData);
 	}
 	
@@ -1064,7 +1078,23 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			if(localData.hasKey("minFuelRodY")) {
 				this.minFuelRodY = localData.getInteger("minFuelRodY");
 			}
+			
+			if(localData.hasKey("name")) {
+				this.name = localData.getString("name");
+			}
 		}
+	}
+	
+	public void setName(String newName) {
+		if(this.name.equals(newName)) { return; }
 		
+		this.name = newName;
+		if(!this.worldObj.isRemote) {
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
+	}
+	
+	public String getName() {
+		return this.name;
 	}
 }

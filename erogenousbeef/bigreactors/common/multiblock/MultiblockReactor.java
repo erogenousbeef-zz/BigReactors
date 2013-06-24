@@ -726,4 +726,19 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	public double getEnergyGeneratedLastTick() {
 		return this.energyGeneratedLastTick;
 	}
+	
+	// Redstone helper
+	public void setAllControlRodInsertionValues(int newValue) {
+		if(this.assemblyState != AssemblyState.Assembled) { return; }
+		
+		TileEntity te;
+		TileEntityReactorControlRod cr;
+		for(CoordTriplet coord : attachedControlRods) {
+			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(te instanceof TileEntityReactorControlRod) {
+				cr = (TileEntityReactorControlRod)te;
+				cr.setControlRodInsertion((short)newValue);
+			}
+		}
+	}
 }

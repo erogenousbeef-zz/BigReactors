@@ -31,4 +31,13 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 	
 	public int getWidth() { return width; }
 	public int getHeight() { return height; }
+	
+	
+	/**
+	 * Handle mouse clicks. Called for all clicks, not just ones inside the control.
+	 * @param mouseX Screen-relative mouse X coordinate.
+	 * @param mouseY Screen-relative mouse Y coordinate.
+	 * @param mouseButton Button being pressed. 0 = left, 1 = right, 2 = middle.
+	 */
+	public void onMouseClicked(int mouseX, int mouseY, int mouseButton) {}
 }

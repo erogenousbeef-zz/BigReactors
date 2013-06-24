@@ -38,6 +38,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 
 public class BigReactors {
 
@@ -183,6 +184,10 @@ public class BigReactors {
 
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
+
+				// TODO FIXME. Only load this recipe if MFR is loaded, and use MFR parts.
+				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RRR", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
 			}
 			
 			if(blockReactorGlass != null) {
@@ -235,6 +240,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
+			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
 			registeredTileEntities = true;
 		}
 	}
@@ -376,6 +382,7 @@ public class BigReactors {
 			OreDictionary.registerOre("reactorCasing", 		((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack());
 			OreDictionary.registerOre("reactorController", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack());
 			OreDictionary.registerOre("reactorPowerTap", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack());
+			OreDictionary.registerOre("reactorRedNetPort", 	((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack());
 
 			BRConfig.CONFIGURATION.save();
 		}

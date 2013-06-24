@@ -3,6 +3,8 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
+- Control Rods can now be named via their UI
+- RedNet connectivity via MineFactory Reloaded's RedNet!
 
 Current Release (0.1.9A)
 --------------------------------
