@@ -1008,7 +1008,9 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 
 	@Override
 	public boolean isGoodForTop() {
-		return true;
+		// Check that the space below us is a fuel rod
+		TileEntity teBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
+		return teBelow instanceof TileEntityFuelRod;
 	}
 
 	@Override
