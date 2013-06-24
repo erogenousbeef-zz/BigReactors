@@ -4,14 +4,20 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.9A)
+Current Release (0.1.10A)
 --------------------------------
-- Bugfix: Fixed a crash in BeefCore that occasionally happens when players log out from SMP servers
-- Bugfix: Mekanism 5.5.6.63 + BigReactors 0.1.8A would crash when BR added TE pulverizer recipes. This is fixed.
-- Bugfix: Mekanism enrichment chamber recipe was not producing 2 dusts per yellorite ore. This is fixed.
+- Added: Optional new recipes to craft graphite bars from 2 gravel and 1 coal or charcoal, for compatibility with UE mods. They default to off.
+- Added: Four new config options, which control the recipes for creating graphite bars, two for smelting and two for crafting.
+- Bugfix: Reactors can no longer be built without yellorium fuel rods inside
+- Bugfix: Reactors that were built without yellorium fuel rods no longer crash the client
 
 Older Releases
 --------------
+
+### Release 0.1.9A
+- Bugfix: Fixed a crash in BeefCore that occasionally happens when players log out from SMP servers
+- Bugfix: Mekanism 5.5.6.63 + BigReactors 0.1.8A would crash when BR added TE pulverizer recipes. This is fixed.
+- Bugfix: Mekanism enrichment chamber recipe was not producing 2 dusts per yellorite ore. This is fixed.
 
 ### Release 0.1.8A
 - Bugfix: Blutonium ingots no longer show up as blutonium dusts

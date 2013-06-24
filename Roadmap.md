@@ -11,6 +11,7 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Known Bugs
 ----------
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
+- Tooltips in BeefGUI seem to cause NEI GUI colors to get inverted. Fix this.
 
 TODO - Beta
 -----------
