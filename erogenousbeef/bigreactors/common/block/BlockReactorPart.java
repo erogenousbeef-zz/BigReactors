@@ -69,6 +69,9 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	
+	@SideOnly(Side.CLIENT)
+	private Icon[] _redNetPortConfigIcons = new Icon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
+	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
 	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
 	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE && metadata < ACCESSPORT_INLET; }
@@ -142,6 +145,21 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		
 		for(int i = 0; i < _subBlocks.length; ++i) {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
+		}
+		
+		// We do this to skip DISABLED
+		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
+		for(int i = 1; i < circuitTypes.length; ++i) {
+			_redNetPortConfigIcons[i - 1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "config.redNetPort." + circuitTypes[i].name());
+		}
+	}
+	
+	// We do this to skip DISABLED
+	@SideOnly(Side.CLIENT)
+	public Icon getRedNetConfigIcon(TileEntityReactorRedNetPort.CircuitType circuitType) {
+		if(circuitType == TileEntityReactorRedNetPort.CircuitType.DISABLED) { return null; }
+		else {
+			return _redNetPortConfigIcons[circuitType.ordinal() - 1];
 		}
 	}
 
