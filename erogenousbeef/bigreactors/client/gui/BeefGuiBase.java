@@ -10,13 +10,18 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import erogenousbeef.bigreactors.gui.IBeefGuiControl;
+import erogenousbeef.bigreactors.gui.IBeefListBoxEntry;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiListBox;
+import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
+import erogenousbeef.bigreactors.gui.controls.grab.IBeefGuiGrabbable;
 
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.Icon;
 
 @SideOnly(Side.CLIENT)
 public abstract class BeefGuiBase extends GuiContainer {
@@ -25,12 +30,16 @@ public abstract class BeefGuiBase extends GuiContainer {
 	protected List<IBeefTooltipControl> controlsWithTooltips;
 	protected List<GuiTextField> textFields;
 	
+	protected IBeefGuiGrabbable grabbedItem;
+	
 	public BeefGuiBase(Container container) {
 		super(container);
 		
 		controls = new ArrayList<IBeefGuiControl>();
 		controlsWithTooltips = new ArrayList<IBeefTooltipControl>();
 		textFields = new ArrayList<GuiTextField>();
+		
+		grabbedItem = null;
 	}
 
 	public void registerControl(GuiTextField newTextField) {
@@ -84,6 +93,12 @@ public abstract class BeefGuiBase extends GuiContainer {
 				}
 			}
 		}
+		
+		if(this.grabbedItem != null) {
+			// Render grabbed item next to mouse
+            this.mc.renderEngine.bindTexture("/gui/items.png");
+            this.drawTexturedModelRectFromIcon(mouseX + 16, mouseY + 16, this.grabbedItem.getIcon(), 16, 16);
+		}
 	}
 	
 	@Override
@@ -98,9 +113,19 @@ public abstract class BeefGuiBase extends GuiContainer {
 		}
 	}
 	
-	
 	public abstract String getGuiBackground();
 	
 	public int getGuiLeft() { return guiLeft; }
 	public int getGuiTop() { return guiTop; }
+	
+	public void onListBoxSelectionChanged(BeefGuiListBox listBox, IBeefListBoxEntry selectedEntry) {}
+	public void onListBoxEntryClicked(BeefGuiListBox listBox, IBeefListBoxEntry clickedEntry) {}
+
+	public void setGrabbedItem(IBeefGuiGrabbable grabbedSource) {
+		this.grabbedItem = grabbedSource;
+	}
+	
+	public IBeefGuiGrabbable getGrabbedItem() {
+		return this.grabbedItem;
+	}
 }

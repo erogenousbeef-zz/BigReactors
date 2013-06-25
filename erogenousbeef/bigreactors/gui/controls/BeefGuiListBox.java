@@ -27,7 +27,7 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 	private static final int NO_ENTRY = -1;
 	private static final int margin = 2;
 	
-	protected BeefGuiListBox(BeefGuiBase container, int x, int y, int width,
+	public BeefGuiListBox(BeefGuiBase container, int x, int y, int width,
 			int height) {
 		super(container, x, y, width, height);
 		
@@ -54,7 +54,6 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 
 	@Override
 	public void drawForeground(int mouseX, int mouseY) {
-		// TODO Auto-generated method stub
 		int drawnY = 0;
 		IBeefListBoxEntry entry;
 		for(int i = displayTop; i < entries.size(); i++) {
@@ -62,10 +61,10 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 			if(entry.getHeight() + drawnY > this.height) { break; }
 			else {
 				if(this.selectedEntryIdx == i) {
-					entry.draw(x+margin, y+margin+drawnY, selectedLineColor, selectedTextColor);
+					entry.draw(this.guiContainer.getFontRenderer(), x+margin, y+margin+drawnY, selectedLineColor, selectedTextColor);
 				}
 				else {
-					entry.draw(x+margin, y+margin+drawnY, backgroundColor, textColor);
+					entry.draw(this.guiContainer.getFontRenderer(), x+margin, y+margin+drawnY, backgroundColor, textColor);
 				}
 			}
 			if(drawnY >= this.height) { break; }
@@ -93,51 +92,13 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 	
 	protected void setSelectedIndex(int newSelectedIdx) {
 		if(newSelectedIdx < 0 || newSelectedIdx >= this.entries.size()) { return; }
+		if(this.selectedEntryIdx == newSelectedIdx) { return; }
 		this.selectedEntryIdx = newSelectedIdx;
-		onSelectionChanged();
+		this.guiContainer.onListBoxSelectionChanged(this, entries.get(this.selectedEntryIdx));
 	}
 	
 	public void onEntryClicked(IBeefListBoxEntry entry) {
-		
+		this.guiContainer.onListBoxEntryClicked(this, entry);
 	}
 	
-	public void onSelectionChanged() {
-		
-	}
-	
-	// Static Helpers
-	protected static void drawRect(int xMin, int yMin, int xMax, int yMax, int color)
-	{
-		int temp;
-
-		if (xMax < xMin) {
-			temp = xMin;
-			xMin = xMax;
-			xMax = temp;
-		}
-
-		if (yMax < yMin) {
-			temp = yMin;
-			yMin = yMax;
-			yMax = temp;
-		}
-
-		float a = (float)(color >> 24 & 255) / 255.0F;
-		float r = (float)(color >> 16 & 255) / 255.0F;
-		float g = (float)(color >> 8 & 255) / 255.0F;
-		float b = (float)(color & 255) / 255.0F;
-		Tessellator tessellator = Tessellator.instance;
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glColor4f(r, g, b, a);
-		tessellator.startDrawingQuads();
-		tessellator.addVertex(xMin, yMax, 0.0D);
-		tessellator.addVertex(xMax, yMax, 0.0D);
-		tessellator.addVertex(xMax, yMin, 0.0D);
-		tessellator.addVertex(xMin, yMin, 0.0D);
-		tessellator.draw();
-		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glDisable(GL11.GL_BLEND);
-	}	
 }
