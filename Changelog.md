@@ -4,15 +4,21 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.10A)
+Current Release (0.1.11A)
 --------------------------------
+- (BeefCore) Fixed many bugs related to chunks loading/unloading as you move about the world
+- (BeefCore) Fixing UI jitter caused by improper tick updates
+- (BeefCore) Fixes some bugs where machines wouldn't re-assemble properly
+- (BeefCore) Eliminated a lot of chunk-thrashing when blocks load or get removed on chunk boundaries
+
+Older Releases
+--------------
+
+### Release 0.1.10A
 - Added: Optional new recipes to craft graphite bars from 2 gravel and 1 coal or charcoal, for compatibility with UE mods. They default to off.
 - Added: Four new config options, which control the recipes for creating graphite bars, two for smelting and two for crafting.
 - Bugfix: Reactors can no longer be built without yellorium fuel rods inside
 - Bugfix: Reactors that were built without yellorium fuel rods no longer crash the client
-
-Older Releases
---------------
 
 ### Release 0.1.9A
 - Bugfix: Fixed a crash in BeefCore that occasionally happens when players log out from SMP servers
