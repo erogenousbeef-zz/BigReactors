@@ -50,12 +50,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		}
 	}
 */
-	@Override
-	public void onAttached(MultiblockControllerBase newController) {
-		super.onAttached(newController);
-		
-		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
-	}
 	
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		if(isConnected()) {
@@ -64,22 +58,44 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	}
 	
 	// IMultiblockPart
-	public void onMachineAssembled(CoordTriplet machineMinCoords, CoordTriplet machineMaxCoords) {
+	@Override
+	public void onAttached(MultiblockControllerBase newController) {
+		super.onAttached(newController);
+		
+		checkOutwardDirection();
+		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+	}
+	
+	@Override
+	public void onMachineAssembled() {
+		super.onMachineAssembled();
+
+		if(this.worldObj.isRemote) { return; } 
+		
+		checkOutwardDirection();
+		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+	}
+
+	// Custom PowerTap methods
+	/**
+	 * Discover which direction is normal to the multiblock face.
+	 */
+	protected void checkOutwardDirection() {
 		MultiblockControllerBase controller = this.getMultiblockController();
 		CoordTriplet minCoord = controller.getMinimumCoord();
 		CoordTriplet maxCoord = controller.getMaximumCoord();
 		
 		if(this.xCoord == minCoord.x) {
-			out = ForgeDirection.EAST;
-		}
-		else if(this.xCoord == maxCoord.x){
 			out = ForgeDirection.WEST;
 		}
+		else if(this.xCoord == maxCoord.x){
+			out = ForgeDirection.EAST;
+		}
 		else if(this.zCoord == minCoord.z) {
-			out = ForgeDirection.NORTH;
+			out = ForgeDirection.SOUTH;
 		}
 		else if(this.zCoord == maxCoord.z) {
-			out = ForgeDirection.SOUTH;
+			out = ForgeDirection.NORTH;
 		}
 		else if(this.yCoord == minCoord.y) {
 			// Just in case I end up making omnidirectional taps.
@@ -91,17 +107,18 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		}
 		else {
 			// WTF BRO
-			System.err.println("Invalid power tap position (" + this.getWorldLocation().toString() + ") detected - block appears to be on the interior!");
+			System.err.println("[BigReactors] Invalid power tap position (" + this.getWorldLocation().toString() + ") detected - block appears to be on the interior!");
 			out = ForgeDirection.UNKNOWN;
 		}
-		
-		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
-	}
-
-	public void onMachineBroken() {
-		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 	
+	/**
+	 * Check for a world connection, if we're assembled.
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	protected void checkForConnections(World world, int x, int y, int z) {
 		boolean wasConnected = isConnected;
 		if(out == ForgeDirection.UNKNOWN) {
