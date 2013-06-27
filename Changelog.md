@@ -4,15 +4,23 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.11A)
+Current Release (0.1.12A)
 --------------------------------
+- Feature: Global reactor output can now be modified with the floating-point "powerOutputMultiplier" config setting. Defaults to 1.0.
+- Bugfix: Reactors no longer cause crashes if you replace power taps with non-power-tap blocks
+- Bugfix: Reactors now reconnect to wires properly when a world reloads
+- Bugfix: Can now insert non-BR fuels (e.g. UE uranium) into access ports via pipes/automation
+- Bugfix: Can now insert non-BR wastes & fuels (e.g. UE uranium) into the cyanite reprocessor via pipes/automation
+- Bugfix: Mekanism's crusher can no longer refine graphite dust into blutonium dust, but it can properly crush blutonium ingots.
+
+Older Releases
+--------------
+
+### Release 0.1.11A
 - (BeefCore) Fixed many bugs related to chunks loading/unloading as you move about the world
 - (BeefCore) Fixing UI jitter caused by improper tick updates
 - (BeefCore) Fixes some bugs where machines wouldn't re-assemble properly
 - (BeefCore) Eliminated a lot of chunk-thrashing when blocks load or get removed on chunk boundaries
-
-Older Releases
---------------
 
 ### Release 0.1.10A
 - Added: Optional new recipes to craft graphite bars from 2 gravel and 1 coal or charcoal, for compatibility with UE mods. They default to off.
