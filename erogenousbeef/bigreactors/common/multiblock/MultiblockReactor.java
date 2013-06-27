@@ -301,7 +301,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	public void addStoredEnergy(double newEnergy) {
 		if(Double.isNaN(newEnergy)) { return; }
 
-		storedEnergy += newEnergy;
+		storedEnergy += newEnergy * BigReactors.powerProductionMultiplier;
 		if(storedEnergy > maxEnergyStored) { storedEnergy = maxEnergyStored; }
 	}
 
