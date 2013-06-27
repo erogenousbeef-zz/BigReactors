@@ -26,21 +26,22 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	public static final float uePowerFactor = 0.01f;	 // 100 UE watts per 1 internal power
 	public static final float bcPowerFactor = 1.00f;  // 1 MJ per 1 internal power
 	
-	Set<CoordTriplet> powerConnections;
+	boolean isConnected;
 	IPowerProvider powerProvider;
 	
-	Set<IConductor> activeConductors;
+	ForgeDirection out;
 	
 	public TileEntityReactorPowerTap() {
 		super();
 		
-		powerConnections = new HashSet<CoordTriplet>();
-		activeConductors = new HashSet<IConductor>();
+		isConnected = false;
 		
 		powerProvider = new PowerProviderBeef();
+		
+		out = ForgeDirection.UNKNOWN;
 	}
 	
-	@Override
+/*	@Override
 	public void onBlockAdded(World world, int x, int y, int z) {
 		super.onBlockAdded(world, x, y, z);
 
@@ -48,15 +49,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			checkForConnections(world, x, y, z);
 		}
 	}
-	
-	@Override
-	public void onAttached(MultiblockControllerBase newController) {
-		super.onAttached(newController);
-		
-		if(isConnected()) {
-			checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
-		}
-	}
+*/
 	
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		if(isConnected()) {
@@ -65,128 +58,155 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	}
 	
 	// IMultiblockPart
-	public void onMachineAssembled(CoordTriplet machineMinCoords, CoordTriplet machineMaxCoords) {
-		checkForConnections(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
-	}
-
-	public void onMachineBroken() {
-		checkForConnections(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+	@Override
+	public void onAttached(MultiblockControllerBase newController) {
+		super.onAttached(newController);
+		
+		checkOutwardDirection();
+		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 	
-	protected void checkForConnections(World world, int x, int y, int z) {
-		CoordTriplet[] blocksToCheck = new CoordTriplet[] {
-				new CoordTriplet(x+1, y, z),
-				new CoordTriplet(x-1, y, z),
-				new CoordTriplet(x, y+1, z),
-				new CoordTriplet(x, y-1, z),
-				new CoordTriplet(x, y, z+1),
-				new CoordTriplet(x, y, z-1),
-		};
+	@Override
+	public void onMachineAssembled() {
+		super.onMachineAssembled();
 
-		boolean wasConnected = powerConnections.size() > 0;
+		if(this.worldObj.isRemote) { return; } 
 		
-		for(CoordTriplet coord : blocksToCheck) {
-			TileEntity te = world.getBlockTileEntity(coord.x, coord.y, coord.z);
-			boolean shouldAdd = false;
-			
+		checkOutwardDirection();
+		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+	}
+
+	// Custom PowerTap methods
+	/**
+	 * Discover which direction is normal to the multiblock face.
+	 */
+	protected void checkOutwardDirection() {
+		MultiblockControllerBase controller = this.getMultiblockController();
+		CoordTriplet minCoord = controller.getMinimumCoord();
+		CoordTriplet maxCoord = controller.getMaximumCoord();
+		
+		if(this.xCoord == minCoord.x) {
+			out = ForgeDirection.WEST;
+		}
+		else if(this.xCoord == maxCoord.x){
+			out = ForgeDirection.EAST;
+		}
+		else if(this.zCoord == minCoord.z) {
+			out = ForgeDirection.SOUTH;
+		}
+		else if(this.zCoord == maxCoord.z) {
+			out = ForgeDirection.NORTH;
+		}
+		else if(this.yCoord == minCoord.y) {
+			// Just in case I end up making omnidirectional taps.
+			out = ForgeDirection.DOWN;
+		}
+		else if(this.yCoord == maxCoord.y){
+			// Just in case I end up making omnidirectional taps.
+			out = ForgeDirection.UP;
+		}
+		else {
+			// WTF BRO
+			System.err.println("[BigReactors] Invalid power tap position (" + this.getWorldLocation().toString() + ") detected - block appears to be on the interior!");
+			out = ForgeDirection.UNKNOWN;
+		}
+	}
+	
+	/**
+	 * Check for a world connection, if we're assembled.
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	protected void checkForConnections(World world, int x, int y, int z) {
+		boolean wasConnected = isConnected;
+		if(out == ForgeDirection.UNKNOWN) {
+			wasConnected = false;
+			isConnected = false;
+		}
+		else {
+			// See if our adjacent non-reactor coordinate has a TE
+			TileEntity te = world.getBlockTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(te == null || te instanceof TileEntityReactorPowerTap) {
-				shouldAdd = false;
+				isConnected = false;
 			}
 			else if(te instanceof IPowerReceptor) {
-				shouldAdd = true;
+				isConnected = true;
 			}
 			else if(te instanceof IConnector) {
 				IConnector connector = (IConnector)te;
-				ForgeDirection directionFromThereToHere = coord.getOppositeDirectionFromSourceCoords(this.xCoord, this.yCoord, this.zCoord);
-				if(connector.canConnect(directionFromThereToHere)) {
-					shouldAdd = true;
+				if(connector.canConnect(out.getOpposite())) {
+					isConnected = true;
+				}
+				else {
+					isConnected = false;
 				}
 			}
-			
-			if(shouldAdd && !powerConnections.contains(coord)) {
-				powerConnections.add(coord);
-			}
-			else if(!shouldAdd && powerConnections.contains(coord)) {
-				powerConnections.remove(coord);
-			}
 		}
 		
-		if(wasConnected && powerConnections.size() == 0) {
-			// No longer connected
-			world.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
-		}
-		else if(!wasConnected && powerConnections.size() > 0) {
-			// Newly connected
-			world.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE+1, 2);
-		}
-		
-		if(this.isConnected()) {
-			getReactorController().onPowerTapConnectionChanged(x, y, z, powerConnections.size());
+		if(wasConnected != isConnected) {
+			if(isConnected) {
+				// Newly connected
+				world.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE+1, 2);
+			}
+			else {
+				// No longer connected
+				world.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
+			}
 		}
 	}
 
-	// This will be called by the Reactor Controller when this tap should be providing power.
-	// Returns units remaining after consumption.
+	/** This will be called by the Reactor Controller when this tap should be providing power.
+	 * @return Power units remaining after consumption.
+	 */
 	public int onProvidePower(int units) {
 		ArrayList<CoordTriplet> deadCoords = null;
 		
-		for(CoordTriplet outputCoord : powerConnections) {
-			TileEntity te = this.worldObj.getBlockTileEntity(outputCoord.x, outputCoord.y, outputCoord.z);
-			if(te instanceof IPowerReceptor) {
-				// Buildcraft
-				int mjAvailable = (int)Math.floor((float)units / bcPowerFactor);
-				
-				IPowerReceptor ipr = (IPowerReceptor)te;
-				IPowerProvider ipp = ipr.getPowerProvider();
-				ForgeDirection approachDirection = outputCoord.getOppositeDirectionFromSourceCoords(this.xCoord, this.yCoord, this.zCoord);
-				
-				if(ipp != null && ipp.preConditions(ipr) && ipp.getMinEnergyReceived() <= mjAvailable) {
-					int energyUsed = Math.min(Math.min(ipp.getMaxEnergyReceived(), mjAvailable), ipp.getMaxEnergyStored() - (int)Math.floor(ipp.getEnergyStored()));
-					ipp.receiveEnergy(energyUsed, approachDirection);
-					
-					units -= (int)((float)energyUsed * bcPowerFactor);
-				}
-			}
-			else if(te instanceof IConnector) { 
-				// Universal Electricity
-				ForgeDirection approachDirection = outputCoord.getDirectionFromSourceCoords(this.xCoord, this.yCoord, this.zCoord);
-				IElectricityNetwork network = ElectricityNetworkHelper.getNetworkFromTileEntity(te, approachDirection);
-				if(network != null) {
-					double wattsAvailable = (double)units / (double)uePowerFactor;
-					double wattsWanted = network.getRequest().getWatts();
-					if(wattsWanted > 0) {
-						if(wattsWanted > wattsAvailable) {
-							wattsWanted = wattsAvailable;
-						}
-						
-						network.startProducing(this, wattsWanted/getVoltage(), getVoltage());
-						 // Rounding up to prevent free energy. Sorry bro, thermodynamics says so.
-						units -= (int)Math.ceil(wattsWanted * uePowerFactor);
-					} else {
-						network.stopProducing(this);
-					}
-				}
-			}
-			else {
-				// Unrecognized TE, assume disconnected.
-				if(deadCoords == null) {
-					deadCoords = new ArrayList<CoordTriplet>();
-				}
-				deadCoords.add(outputCoord);
-			}
+		if(!isConnected) {
+			return units;
 		}
 		
-		// Handle burnt-out connections that didn't trigger a neighbor update (UE, mostly)
-		if(deadCoords != null && deadCoords.size() > 0) {
-			powerConnections.removeAll(deadCoords);
-			if(powerConnections.size() <= 0) {
-				// No longer connected
-				worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
-			}
+		TileEntity te = this.worldObj.getBlockTileEntity(xCoord + out.offsetX, yCoord + out.offsetY, zCoord + out.offsetZ);
+		if(te instanceof IPowerReceptor) {
+			// Buildcraft
+			int mjAvailable = (int)Math.floor((float)units / bcPowerFactor);
 			
-			if(this.isConnected()) {
-				getReactorController().onPowerTapConnectionChanged(xCoord, yCoord, zCoord, powerConnections.size());
+			IPowerReceptor ipr = (IPowerReceptor)te;
+			IPowerProvider ipp = ipr.getPowerProvider();
+			ForgeDirection approachDirection = out.getOpposite();
+			
+			if(ipp != null && ipp.preConditions(ipr) && ipp.getMinEnergyReceived() <= mjAvailable) {
+				int energyUsed = Math.min(Math.min(ipp.getMaxEnergyReceived(), mjAvailable), ipp.getMaxEnergyStored() - (int)Math.floor(ipp.getEnergyStored()));
+				ipp.receiveEnergy(energyUsed, approachDirection);
+				
+				units -= (int)((float)energyUsed * bcPowerFactor);
 			}
+		}
+		else if(te instanceof IConnector) { 
+			// Universal Electricity
+			ForgeDirection approachDirection = out.getOpposite();
+			IElectricityNetwork network = ElectricityNetworkHelper.getNetworkFromTileEntity(te, approachDirection);
+			if(network != null) {
+				double wattsAvailable = (double)units / (double)uePowerFactor;
+				double wattsWanted = network.getRequest().getWatts();
+				if(wattsWanted > 0) {
+					if(wattsWanted > wattsAvailable) {
+						wattsWanted = wattsAvailable;
+					}
+					
+					network.startProducing(this, wattsWanted/getVoltage(), getVoltage());
+					 // Rounding up to prevent free energy. Sorry bro, thermodynamics says so.
+					units -= (int)Math.ceil(wattsWanted * uePowerFactor);
+				} else {
+					network.stopProducing(this);
+				}
+			}
+		}
+		else {
+			// Handle burnt-out connections that didn't trigger a neighbor update (UE, mostly)
+			isConnected = false;
+			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
 		}
 		
 		return units;
@@ -203,8 +223,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	
 	@Override
 	public boolean canConnect(ForgeDirection direction) {
-		if(direction == ForgeDirection.UP || direction == ForgeDirection.DOWN) { return false; }
-		else { return true; }
+		return direction == out;
 	}
 
 	@Override
@@ -217,13 +236,11 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	
 	@Override
 	public void setPowerProvider(IPowerProvider provider) {
-		// TODO Auto-generated method stub
 		this.powerProvider = provider;
 	}
 
 	@Override
 	public IPowerProvider getPowerProvider() {
-		// TODO Auto-generated method stub
 		return this.powerProvider;
 	}
 

@@ -7,7 +7,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import buildcraft.api.transport.IPipeEntry;
+import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
@@ -163,14 +165,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	@Override
 	public boolean isStackValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
-		
-		if(itemstack.itemID == BigReactors.ingotGeneric.itemID) {
-			if(ItemIngot.isFuel(itemstack.getItemDamage()) && slot == SLOT_INLET) {
-				return true;
-			}
-			else if(ItemIngot.isWaste(itemstack.getItemDamage()) && slot == SLOT_OUTLET) {
-				return true;
-			}
+
+		if(slot == SLOT_INLET) {
+			return BRRegistry.getDataForFuel(itemstack) != null;
+		}
+		else if(slot == SLOT_OUTLET) {
+			return BRRegistry.getDataForWaste(itemstack) != null;
 		}
 		
 		return false;
