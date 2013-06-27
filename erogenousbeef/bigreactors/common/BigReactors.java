@@ -99,6 +99,8 @@ public class BigReactors {
 	public static int maximumReactorSize = MultiblockReactor.DIMENSION_UNBOUNDED;
 	public static int maximumReactorHeight = MultiblockReactor.DIMENSION_UNBOUNDED;
 	
+	public static double powerProductionMultiplier = 1.0;
+	
 	// Game Balance values
 	public static final float powerPerHeat = 1.0f; // Power units per C dissipated
 	
@@ -126,6 +128,8 @@ public class BigReactors {
 			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 
+			powerProductionMultiplier = BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
+			
 			BRConfig.CONFIGURATION.save();
 
 			if(enableWorldGen) {

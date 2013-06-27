@@ -19,6 +19,7 @@ import net.minecraftforge.liquids.LiquidDictionary;
 import net.minecraftforge.liquids.LiquidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -54,13 +55,11 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 		if(itemstack == null) { return true; }
 		
 		// TODO: Fix this to use the registry
-		if(itemstack.itemID == BigReactors.ingotGeneric.itemID) {
-			if(ItemIngot.isFuel(itemstack.getItemDamage()) && slot == SLOT_OUTLET) {
-				return true;
-			}
-			else if(ItemIngot.isWaste(itemstack.getItemDamage()) && slot == SLOT_INLET) {
-				return true;
-			}
+		if(slot == SLOT_OUTLET) {
+			return BRRegistry.getDataForFuel(itemstack) != null;
+		}
+		else if(slot == SLOT_INLET) {
+			return BRRegistry.getDataForWaste(itemstack) != null;
 		}
 		
 		return false;
