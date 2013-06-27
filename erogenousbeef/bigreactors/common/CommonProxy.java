@@ -141,7 +141,7 @@ public class CommonProxy {
 			}
 
 			if(ingotBlutonium != null && dustBlutonium != null) {
-				addMekanismCrusherRecipe(dustGraphite.copy(), dustBlutonium.copy());
+				addMekanismCrusherRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
 			}
 		}
 	}
