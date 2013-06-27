@@ -51,9 +51,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		kManual, 					// Manual, only on button press
 	}
 	
-	private LinkedList<CoordTriplet> activePowerTaps;
-	// Highest internal Y-coordinate in the fuel column
-	private LinkedList<CoordTriplet> attachedControlRods;
+	private Set<CoordTriplet> attachedPowerTaps;
+	// TODO: Convert these to sets.
+	private LinkedList<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
 	private LinkedList<CoordTriplet> attachedAccessPorts;
 	private LinkedList<CoordTriplet> attachedControllers;
 
@@ -71,7 +71,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		storedEnergy = 0;
 		energyGeneratedLastTick = 0.0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
-		activePowerTaps = new LinkedList<CoordTriplet>();
+		attachedPowerTaps = new HashSet<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
 		attachedControllers = new LinkedList<CoordTriplet>();
@@ -103,6 +103,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				attachedControlRods.add(coord);
 			}
 		}
+		else if(part instanceof TileEntityReactorPowerTap) {
+			attachedPowerTaps.add(coord);
+		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
 			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
@@ -124,6 +127,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			if(attachedControlRods.contains(coord)) {
 				attachedControlRods.remove(coord);
 			}
+		}
+		else if(part instanceof TileEntityReactorPowerTap) {
+			attachedPowerTaps.remove(coord);
 		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
@@ -250,8 +256,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		// Distribute available power
 		int energyAvailable = (int)getStoredEnergy();
 		int energyRemaining = energyAvailable;
-		if(activePowerTaps.size() > 0 && energyRemaining > 0) {
-			for(CoordTriplet coord : activePowerTaps) {
+		if(attachedPowerTaps.size() > 0 && energyRemaining > 0) {
+			for(CoordTriplet coord : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
 				
 				TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
@@ -278,21 +284,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		return (oldHeat != this.getHeat() || oldEnergy != this.storedEnergy);
 	}
 	
-	public void onPowerTapConnectionChanged(int x, int y, int z, int numConnections) {
-		CoordTriplet coord = new CoordTriplet(x, y, z);
-		int prevActive = activePowerTaps.size();
-		
-		if(numConnections > 0) {
-			// Tap has connected
-			if(!activePowerTaps.contains(coord)) {
-				activePowerTaps.add(coord);
-			}
-		} else {
-			// Tap has disconnected
-			activePowerTaps.remove(coord);
-		}
-	}
-
 	public double getStoredEnergy() {
 		return storedEnergy;
 	}
@@ -505,7 +496,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 	@Override
 	protected void onMachineMerge(MultiblockControllerBase otherMachine) {
-		this.activePowerTaps.clear();
+		this.attachedPowerTaps.clear();
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
