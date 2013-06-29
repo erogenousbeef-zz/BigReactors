@@ -92,10 +92,10 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			out = ForgeDirection.EAST;
 		}
 		else if(this.zCoord == minCoord.z) {
-			out = ForgeDirection.SOUTH;
+			out = ForgeDirection.NORTH;
 		}
 		else if(this.zCoord == maxCoord.z) {
-			out = ForgeDirection.NORTH;
+			out = ForgeDirection.SOUTH;
 		}
 		else if(this.yCoord == minCoord.y) {
 			// Just in case I end up making omnidirectional taps.
