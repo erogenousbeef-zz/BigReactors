@@ -62,9 +62,11 @@ public class CommonProxy {
 		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
 
 		// Some mods make me do this myself. :V
-		ItemStack doubledYelloriumDust = dustYellorium.copy();
-		doubledYelloriumDust.stackSize = 2;
-		
+		ItemStack doubledYelloriumDust = null;
+		if(dustYellorium != null) {
+			doubledYelloriumDust = dustYellorium.copy();
+			doubledYelloriumDust.stackSize = 2;
+		}
 		
 		if(Loader.isModLoaded("ThermalExpansion")) {
 			if(yelloriteOre != null && ingotYellorium != null) {
@@ -123,9 +125,9 @@ public class CommonProxy {
 		}
 		
 		if(Loader.isModLoaded("Mekanism")) {
-			if(yelloriteOre != null && dustYellorium != null) {
+			if(yelloriteOre != null && doubledYelloriumDust != null) {
 				addMekanismEnrichmentChamberRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy());
-				addMekanismCombinerRecipe(dustYellorium.copy(), yelloriteOre.copy());
+				addMekanismCombinerRecipe(doubledYelloriumDust.copy(), yelloriteOre.copy());
 			}
 		
 			if(ingotYellorium != null && dustYellorium != null) {
