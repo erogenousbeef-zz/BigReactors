@@ -4,17 +4,25 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
 
-Current Release (0.1.12A)
+Current Release (0.1.13A)
 --------------------------------
+- BeefCore: Fixed a SMP server load crash that happened when chunkloaders were used in conjunction with reactors (#16)
+- BeefCore: Fixed several issues that caused reactors to corrupt and crash related to breaking/re-assembling reactors (#18)
+- BeefCore: Multiblocks on client now properly fission and reconnect when a reactor is broken/assembled (#19)
+- BeefCore: Fixed a memory clean in singleplayer; reactors were not being cleaned up from the registry
+- Bugfix: Mekanism combiners no longer provide free yellorium doubling
+- Bugfix: Power taps now work on all 4 faces, not just east/west. Derp. (#15)
+
+Older Releases
+--------------
+
+### Release 0.1.12A
 - Feature: Global reactor output can now be modified with the floating-point "powerOutputMultiplier" config setting. Defaults to 1.0.
 - Bugfix: Reactors no longer cause crashes if you replace power taps with non-power-tap blocks
 - Bugfix: Reactors now reconnect to wires properly when a world reloads
 - Bugfix: Can now insert non-BR fuels (e.g. UE uranium) into access ports via pipes/automation
 - Bugfix: Can now insert non-BR wastes & fuels (e.g. UE uranium) into the cyanite reprocessor via pipes/automation
 - Bugfix: Mekanism's crusher can no longer refine graphite dust into blutonium dust, but it can properly crush blutonium ingots.
-
-Older Releases
---------------
 
 ### Release 0.1.11A
 - (BeefCore) Fixed many bugs related to chunks loading/unloading as you move about the world
