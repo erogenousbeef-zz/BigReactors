@@ -19,6 +19,7 @@ TODO - Beta
 
 ### Core
 - Create ITileEntityProxy to handle things like fuel columns more nicely
+- Move away from using metadata to distinguish assembled/disassembled blocks; this will fix client lag on assembly/disassembly
 
 ### Gameplay
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
@@ -46,6 +47,7 @@ TODO - Beta
 ### Reactor Mechanics
 - Add fuel->waste and waste->fuel item mappings to registry; remove hardcoded references to Ore Dictionary
 - Blutonium: give it different properties than yellorium.
+- Control Rods: Add "dump contents" button so they can be forcibly emptied
 - Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering
 - Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
 

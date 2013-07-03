@@ -41,16 +41,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		out = ForgeDirection.UNKNOWN;
 	}
 	
-/*	@Override
-	public void onBlockAdded(World world, int x, int y, int z) {
-		super.onBlockAdded(world, x, y, z);
-
-		if(isConnected()) {
-			checkForConnections(world, x, y, z);
-		}
-	}
-*/
-	
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		if(isConnected()) {
 			checkForConnections(world, x, y, z);
@@ -107,7 +97,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		}
 		else {
 			// WTF BRO
-			System.err.println("[BigReactors] Invalid power tap position (" + this.getWorldLocation().toString() + ") detected - block appears to be on the interior!");
 			out = ForgeDirection.UNKNOWN;
 		}
 	}
