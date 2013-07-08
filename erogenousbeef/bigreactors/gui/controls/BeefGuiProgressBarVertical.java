@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.gui.controls;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.Icon;
@@ -30,10 +31,10 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 	}
 	
 	@Override
-	public void drawBackground(int mouseX, int mouseY) {
+	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
 		// Draw the background
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		Minecraft.getMinecraft().renderEngine.bindTexture(BigReactors.GUI_DIRECTORY + controlTexture);
+		renderEngine.bindTexture(BigReactors.GUI_DIRECTORY + controlTexture);
 		Tessellator tessellator = Tessellator.instance;
 		tessellator.startDrawingQuads();
 		tessellator.addVertexWithUV(this.x, this.y + this.height, 0, 0, 1.0);
@@ -58,7 +59,7 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 			double maxV = progressBarIcon.getMaxV();
 			
 			// derp?
-			Minecraft.getMinecraft().renderEngine.bindTexture(getTextureSheet());
+			renderEngine.bindTexture(getTextureSheet());
 			
 			int barMinX = this.x + 2;
 			int barMaxX = this.x + this.width - 2;
@@ -78,7 +79,7 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 		}
 	}
 	
-	@Override public void drawForeground(int mouseX, int mouseY) {
+	@Override public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
 		
 	}
 }

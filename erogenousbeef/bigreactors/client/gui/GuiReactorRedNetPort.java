@@ -9,15 +9,20 @@ import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
 import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabbable;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 
 public class GuiReactorRedNetPort extends BeefGuiBase {
 
+	protected static final int numChannels = 16;
+	
 	TileEntityReactorRedNetPort port;
 	BeefGuiLabel titleString;
-	BeefGuiLabel[] channelLabels;
+	BeefGuiLabel[] channelLabels = new BeefGuiLabel[numChannels];
 	
-	String[] channelLabelStrings = new String[] {
+	private GuiButton commitBtn;
+	
+	protected static final String[] channelLabelStrings = new String[] {
 			"White", "Orange", "Magenta", "LightBlue", "Yellow", "Lime", "Pink", "Gray",
 			"LightGray", "Cyan", "Purple", "Blue", "Brown", "Green", "Red", "Black"
 	};
@@ -33,13 +38,15 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		"Output: Control rod waste amount"
 	};
 	
-	RedNetConfigGrabTarget[] grabTargets = new RedNetConfigGrabTarget[16];
+	RedNetConfigGrabTarget[] grabTargets = new RedNetConfigGrabTarget[numChannels];
 	
-	BeefGuiListBox lbOptions;
-	
-	public GuiReactorRedNetPort(TileEntityReactorRedNetPort redNetPort, Container container) {
+	public GuiReactorRedNetPort(Container container, TileEntityReactorRedNetPort redNetPort) {
 		super(container);
 		port = redNetPort;
+		
+		//xSize = 241;
+		ySize = 220;
+		
 	}
 
 	@Override
@@ -60,17 +67,20 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		int halfLength = channelLabelStrings.length / 2;
 		for(int i = 0; i < channelLabelStrings.length / 2; i++) {
-			channelLabels[i] = new BeefGuiLabel(this, channelLabelStrings[i], leftX, topY);
-			grabTargets[i] = new RedNetConfigGrabTarget(this, leftX + 30, topY, port, i);
-			leftX += 60;
+			channelLabels[i] = new BeefGuiLabel(this, channelLabelStrings[i], leftX, topY+2);
+			grabTargets[i] = new RedNetConfigGrabTarget(this, leftX + 60, topY, port, i);
+			leftX += 82;
 			
-			channelLabels[i + halfLength] = new BeefGuiLabel(this, channelLabelStrings[i + halfLength], leftX, topY);
-			grabTargets[i + halfLength] = new RedNetConfigGrabTarget(this, leftX + 30, topY, port, i + halfLength);
-			topY += 24;
+			channelLabels[i + halfLength] = new BeefGuiLabel(this, channelLabelStrings[i + halfLength], leftX, topY+2);
+			grabTargets[i + halfLength] = new RedNetConfigGrabTarget(this, leftX + 60, topY, port, i + halfLength);
+			topY += 22;
 			leftX = 4;
 			
 			registerControl(channelLabels[i]);
 			registerControl(channelLabels[i+halfLength]);
+			
+			registerControl(grabTargets[i]);
+			registerControl(grabTargets[i+halfLength]);
 		}
 		
 		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
@@ -78,11 +88,40 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		RedNetConfigGrabbable[] grabbables = new RedNetConfigGrabbable[circuitTypes.length - 1];
 		for(int i = 1; i < circuitTypes.length; i++) {
 			grabbables[i-1] = new RedNetConfigGrabbable(grabbableTooltips[i-1], reactorPartBlock.getRedNetConfigIcon(circuitTypes[i]), circuitTypes[i]);
-			BeefGuiGrabSource source = new BeefGuiGrabSource(this, leftX, topY, grabbables[i - 1]);
+			BeefGuiGrabSource source = new BeefGuiGrabSource(this, leftX, topY, grabbables[i - 1]);			
+			registerControl(source);
 			leftX += 18;
 		}
+
+		// TODO: Populate all the channels with existing settings
+		
 		registerControl(titleString);
-		registerControl(lbOptions);
+		
+		commitBtn = new GuiButton(0, guiLeft + width - 60, guiTop + height - 24, 56, 20, "Commit");
+		commitBtn.enabled = false;
+	}
+	
+	@Override
+	public void updateScreen() {
+		super.updateScreen();
+		
+		boolean hasChanges = false;
+		for(RedNetConfigGrabTarget target : grabTargets) {
+			if(target.hasChanged()) {
+				hasChanges = true;
+				break;
+			}
+		}
+		
+		commitBtn.enabled = hasChanges;
+	}
+	
+	@Override
+	protected void actionPerformed(GuiButton button) {
+		if(button.id == 0) {
+			// TODO: Send update packet
+			System.out.println("TODO: Send update packet");
+		}
 	}
 
 }

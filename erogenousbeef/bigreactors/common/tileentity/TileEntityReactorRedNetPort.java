@@ -1,7 +1,12 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.tileentity.TileEntity;
+import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.gui.container.ContainerReactorRedNetPort;
 import erogenousbeef.core.common.CoordTriplet;
 
 public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
@@ -189,5 +194,16 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		if(te instanceof TileEntityReactorControlRod) {
 			((TileEntityReactorControlRod)te).setControlRodInsertion((short)newValue);
 		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
+		return new GuiReactorRedNetPort(new ContainerReactorRedNetPort(), this);
+	}
+	
+	@Override
+	public Object getContainer(InventoryPlayer inventoryPlayer) {
+		return new ContainerReactorRedNetPort();
 	}
 }

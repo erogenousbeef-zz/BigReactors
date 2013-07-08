@@ -56,11 +56,11 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 	}
 	
 	@Override
-	public void drawBackground(int mouseX, int mouseY) {
+	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
 	}
 	
 	@Override
-	public void drawForeground(int mouseX, int mouseY) {
+	public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
 		FontRenderer fontRenderer = guiContainer.getFontRenderer();
 		if(xMax > 0) {
 			fontRenderer.drawSplitString(labelText, x, y, color, xMax);
