@@ -66,7 +66,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 		relativeX = mouseX - this.guiLeft;
 		relativeY = mouseY - this.guiTop;
 		for(IBeefGuiControl c : controls) {
-			c.drawBackground(relativeX, relativeY);
+			c.drawBackground(this.mc.renderEngine, relativeX, relativeY);
 		}
 		
 		for(GuiTextField field : textFields) {
@@ -77,18 +77,18 @@ public abstract class BeefGuiBase extends GuiContainer {
 	// Override to draw your custom controls
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		int relativeX, relativeY;
-		relativeX = mouseX - this.guiLeft;
-		relativeY = mouseY - this.guiTop;
+		int absoluteX, absoluteY;
+		absoluteX = mouseX - this.guiLeft;
+		absoluteY = mouseY - this.guiTop;
 		for(IBeefGuiControl c : controls) {
-			c.drawForeground(relativeX, relativeY);
+			c.drawForeground(this.mc.renderEngine, absoluteX, absoluteY);
 		}
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {
-			if(tc.isMouseOver(mouseX,  mouseY)) {
+			if(tc.isMouseOver(absoluteX,  absoluteY)) {
 				String tooltip = tc.getTooltip();
 				if(tooltip != null && !tooltip.equals("")) {
-					drawCreativeTabHoveringText(tooltip, relativeX, relativeY);
+					drawCreativeTabHoveringText(tooltip, absoluteX, absoluteY);
 					break;
 				}
 			}
@@ -96,20 +96,25 @@ public abstract class BeefGuiBase extends GuiContainer {
 		
 		if(this.grabbedItem != null) {
 			// Render grabbed item next to mouse
-            this.mc.renderEngine.bindTexture("/gui/items.png");
-            this.drawTexturedModelRectFromIcon(mouseX + 16, mouseY + 16, this.grabbedItem.getIcon(), 16, 16);
+            this.mc.renderEngine.bindTexture("/terrain.png");
+            GL11.glColor4f(1f, 1f, 1f, 1f);
+            this.drawTexturedModelRectFromIcon(absoluteX+1, absoluteY+1, this.grabbedItem.getIcon(), 16, 16);
 		}
 	}
 	
 	@Override
 	protected void mouseClicked(int x, int y, int buttonIndex) {
+		int absoluteX, absoluteY;
+		absoluteX = x - this.guiLeft;
+		absoluteY = y - this.guiTop;
+		
 		super.mouseClicked(x, y, buttonIndex);
 		for(GuiTextField field : textFields) {
 			field.mouseClicked(x, y, buttonIndex);
 		}
 		
 		for(IBeefGuiControl c: controls) {
-			c.onMouseClicked(x, y, buttonIndex);
+			c.onMouseClicked(absoluteX, absoluteY, buttonIndex);
 		}
 	}
 	

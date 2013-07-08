@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+//import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+//import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -33,7 +33,7 @@ import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class BlockReactorPart extends BlockContainer implements IConnectableRedNet {
+public class BlockReactorPart extends BlockContainer { //implements IConnectableRedNet {
 	
 	public static final int CASING_METADATA_BASE = 0;	// Requires 5 "block types" to do properly.
 	public static final int CASING_CORNER = 1;
@@ -339,7 +339,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	// IConnectableRedNet
-
+/*
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
 			int z, ForgeDirection side) {
@@ -391,5 +391,6 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
 		System.err.println("[BlockReactorPart] - Unused function: onInputChanged with value " + Integer.toString(inputValue));
-	}	
+	}
+	*/
 }

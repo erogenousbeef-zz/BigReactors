@@ -1,8 +1,11 @@
 package erogenousbeef.bigreactors.gui.controls.grab;
 
+import org.lwjgl.opengl.GL11;
+
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
+import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.util.Icon;
 
 /**
@@ -22,9 +25,14 @@ public class BeefGuiGrabSource extends BeefGuiControlBase implements IBeefToolti
 	}
 
 	@Override
-	public void drawForeground(int mouseX, int mouseY) {
+	public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
 		if(this.grabbable != null) {
+			renderEngine.bindTexture("/terrain.png");
+			GL11.glColor4f(1f, 1f, 1f, 1f);
 			this.guiContainer.drawTexturedModelRectFromIcon(x, y, grabbable.getIcon(), width, height);
+		}
+		else {
+			this.drawRect(this.x, this.y, this.x+this.width, this.y+this.height, 0x66ff0000); // Red error spot			
 		}
 		
 		if(this.isMouseOver(mouseX, mouseY)) {
@@ -35,7 +43,7 @@ public class BeefGuiGrabSource extends BeefGuiControlBase implements IBeefToolti
 	public IBeefGuiGrabbable getGrabbable() { return grabbable; }
 
 	@Override
-	public void drawBackground(int mouseX, int mouseY) {
+	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
 	}
 	
 	@Override
