@@ -47,6 +47,15 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 	// Static Helpers
 	protected static void drawRect(int xMin, int yMin, int xMax, int yMax, int color)
 	{
+		float a = (float)(color >> 24 & 255) / 255.0F;
+		float r = (float)(color >> 16 & 255) / 255.0F;
+		float g = (float)(color >> 8 & 255) / 255.0F;
+		float b = (float)(color & 255) / 255.0F;
+		drawRect(xMin, yMin, xMax, yMax, r, g, b, a);
+	}
+	
+	protected static void drawRect(int xMin, int yMin, int xMax, int yMax, float r, float g, float b, float a)
+	{
 		int temp;
 
 		if (xMax < xMin) {
@@ -61,10 +70,6 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 			yMax = temp;
 		}
 
-		float a = (float)(color >> 24 & 255) / 255.0F;
-		float r = (float)(color >> 16 & 255) / 255.0F;
-		float g = (float)(color >> 8 & 255) / 255.0F;
-		float b = (float)(color & 255) / 255.0F;
 		Tessellator tessellator = Tessellator.instance;
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -78,5 +83,5 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 		tessellator.draw();
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_BLEND);
-	}	
+	}
 }

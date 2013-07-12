@@ -44,6 +44,14 @@ public class BeefGuiGrabSource extends BeefGuiControlBase implements IBeefToolti
 
 	@Override
 	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
+		int relativeX = guiContainer.getGuiLeft() + x;
+		int relativeY = guiContainer.getGuiTop() + y;
+
+		// Draw Border
+		this.drawRect(relativeX-1, relativeY-1, relativeX+width+1, relativeY+height+1, 0xff222222);
+		
+		// Draw Background
+		this.drawRect(relativeX, relativeY, relativeX+width, relativeY+height, 0xff777777);
 	}
 	
 	@Override
