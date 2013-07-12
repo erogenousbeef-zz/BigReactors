@@ -133,4 +133,6 @@ public abstract class BeefGuiBase extends GuiContainer {
 	public IBeefGuiGrabbable getGrabbedItem() {
 		return this.grabbedItem;
 	}
+	
+	public void onControlClicked(IBeefGuiControl control) {}
 }
