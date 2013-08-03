@@ -732,4 +732,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			}
 		}
 	}
+
+	public CoordTriplet[] getControlRodLocations() {
+		CoordTriplet[] coords = new CoordTriplet[this.attachedControlRods.size()];
+		int i = 0;
+		for(CoordTriplet coord : this.attachedControlRods) {
+			coords[i++] = coord.copy();
+		}
+		return coords;
+	}
 }

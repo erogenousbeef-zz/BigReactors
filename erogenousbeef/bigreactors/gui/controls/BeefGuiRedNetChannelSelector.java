@@ -11,7 +11,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 		IBeefTooltipControl {
 
 	String caption;
-	int colorIdx;
+	int channelIdx;
 	boolean selected;
 	
 	protected int barHeight = 4;
@@ -20,7 +20,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	 * 
 	 * @param container
 	 * @param caption
-	 * @param colorIdx Index in the EntitySheep color table. Always 100% opacity.
+	 * @param channelIdx Index of the channel, also the color index in the EntitySheep color table. (Always 100% opacity.)
 	 * @param x
 	 * @param y
 	 * @param width
@@ -29,7 +29,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	public BeefGuiRedNetChannelSelector(BeefGuiBase container, String caption, int colorIdx, int x, int y, int width, int height) {
 		super(container, x, y, width, height);
 		this.caption = caption;
-		this.colorIdx = colorIdx;
+		this.channelIdx = colorIdx;
 		this.selected = false;
 	}
 	
@@ -67,7 +67,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 		this.drawRect(relativeX+width-height, relativeY, relativeX+width, relativeY+height, borderColor);
 		this.drawRect(relativeX+height, barTop, relativeX+width-height, barTop+barHeight, borderColor);
 		
-		float[] color = EntitySheep.fleeceColorTable[this.colorIdx];
+		float[] color = EntitySheep.fleeceColorTable[this.channelIdx];
 		
 		this.drawRect(relativeX+1, relativeY+1, relativeX+height-1, relativeY+height-1, color[0], color[1], color[2], 1.0f);
 		this.drawRect(relativeX+width-height+1, relativeY+1, relativeX+width-1, relativeY+height-1, 0xff777777);
@@ -88,4 +88,12 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 		this.selected = selected;
 	}
 
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public int getChannel() {
+		return channelIdx;
+	}
+	
 }

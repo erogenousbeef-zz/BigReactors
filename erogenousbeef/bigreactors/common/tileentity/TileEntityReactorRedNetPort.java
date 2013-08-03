@@ -196,6 +196,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		}
 	}
 	
+	public void setMappedCoord(int channel, CoordTriplet mappedCoord) {
+		this.coordMappings[channel] = mappedCoord;
+	}
+	
+	public CoordTriplet getMappedCoord(int channel) {
+		return this.coordMappings[channel];
+	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
@@ -205,5 +213,18 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		return new ContainerReactorRedNetPort();
+	}
+	
+	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
+		switch(circuitType) {
+			case inputSetControlRod:
+			case outputControlRodTemperature:
+			case outputControlRodFuelMix:
+			case outputControlRodFuelAmount:
+			case outputControlRodWasteAmount:
+				return true;
+			default:
+				return false;
+		}
 	}
 }
