@@ -1,6 +1,10 @@
 package erogenousbeef.bigreactors.client.gui;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -14,9 +18,12 @@ import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
 import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabbable;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
 
 public class GuiReactorRedNetPort extends BeefGuiBase {
 
@@ -62,10 +69,6 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		xSize = 255;
 		ySize = 214;
-		
-		for(int i = 0; i < subSettingCoords.length; i++) {
-			subSettingCoords[i] = redNetPort.getMappedCoord(i);
-		}
 	}
 
 	@Override
@@ -147,7 +150,22 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		this.buttonList.add(subSettingForwardBtn);
 		this.buttonList.add(subSettingBackBtn);
 
-		// TODO: Populate all the channels with existing settings
+		// Populate all the channels with existing settings
+		TileEntityReactorRedNetPort.CircuitType currentCircuitType;
+		for(int i = 0; i < TileEntityReactorRedNetPort.numChannels; i++) {
+			currentCircuitType = port.getChannelCircuitType(i);
+			if(currentCircuitType == TileEntityReactorRedNetPort.CircuitType.DISABLED) {
+				grabTargets[i].setSlotContents(null);
+			}
+			else {
+				grabTargets[i].setSlotContents( grabbables[currentCircuitType.ordinal() - 1 ]);
+			}
+		}
+		
+		for(int i = 0; i < subSettingCoords.length; i++) {
+			subSettingCoords[i] = port.getMappedCoord(i);
+		}
+
 	}
 	
 	@Override
@@ -155,10 +173,15 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		super.updateScreen();
 		
 		boolean hasChanges = false;
+		boolean invalidSetting = false;
 		for(RedNetConfigGrabTarget target : grabTargets) {
+			if( TileEntityReactorRedNetPort.circuitTypeHasSubSetting(target.getCircuitType()) &&
+						subSettingCoords[target.getChannel()] == null) {
+				invalidSetting = true;
+			}
+
 			if(target.hasChanged()) {
 				hasChanges = true;
-				break;
 			}
 		}
 		
@@ -178,13 +201,21 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			}
 		}
 		
-		commitBtn.enabled = hasChanges;
+		commitBtn.enabled = hasChanges && !invalidSetting;
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 0) {
 			// TODO: Send update packet
+			Object[] packetData = getUpdatePacketData();
+			
+			PacketDispatcher.sendPacketToServer(
+					PacketWrapper.createPacket(BigReactors.CHANNEL,
+							Packets.RedNetSetData,
+							packetData)
+				);
+
 			System.out.println("TODO: Send update packet");
 		}
 		
@@ -193,6 +224,29 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		}
 	}
 	
+	private Object[] getUpdatePacketData() {
+		List<Object> packetData = new LinkedList<Object>();
+		
+		packetData.add(port.xCoord);
+		packetData.add(port.yCoord);
+		packetData.add(port.zCoord);
+
+		for(int i = 0; i < TileEntityReactorRedNetPort.numChannels; i++) {
+			if(grabTargets[i].hasChanged()) {
+				packetData.add(i);
+				packetData.add(grabTargets[i].getCircuitType().ordinal());
+				if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(grabTargets[i].getCircuitType())) {
+					CoordTriplet coord = this.subSettingCoords[i];
+					packetData.add(coord.x);
+					packetData.add(coord.y);
+					packetData.add(coord.z);
+				}
+			}
+		}
+		
+		return packetData.toArray();
+	}
+
 	@Override
 	public void onControlClicked(IBeefGuiControl clickedControl) {
 		if(clickedControl instanceof BeefGuiRedNetChannelSelector) {
@@ -221,7 +275,6 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(grabTargets[selectedChannel].getCircuitType())) {
 			subSettingString.setLabelText("Control Rod: ");
-			subSettingValueString.setLabelText( getControlRodLabelFromLocation(subSettingCoords[selectedChannel]) );
 			subSettingForwardBtn.drawButton = true;
 			subSettingBackBtn.drawButton = true;
 		}
@@ -231,24 +284,34 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			subSettingForwardBtn.drawButton = false;
 			subSettingBackBtn.drawButton = false;
 		}
-	}
+
+		updateSubSettingValueText();
+}
 	
 	private String getControlRodLabelFromLocation(CoordTriplet location) {
 		if(location == null) {
-			return "-- NONE --";
+			return "-- NONE -- ";
 		}
-		
-		TileEntityReactorControlRod controlRod = (TileEntityReactorControlRod)port.worldObj.getBlockTileEntity(location.x, location.y,  location.z);
-		if(controlRod == null) {
-			throw new IllegalArgumentException("No control rod found at coords " + location.toString());
+		else {
+			TileEntity te = port.worldObj.getBlockTileEntity(location.x, location.y, location.z);
+			if( te instanceof TileEntityReactorControlRod ) {
+				TileEntityReactorControlRod rod = (TileEntityReactorControlRod)te;
+				if( rod.getName().equals("")) {
+					return location.toString();
+				}
+				else {
+					return rod.getName();
+				}
+			}
+			else {
+				return "INVALID: " + location.toString();
+			}
 		}
-		
-		return controlRod.getName();
 	}
-	
+
 	private void changeSelectedCoord(boolean forward) {
 		CoordTriplet[] controlRodLocations = port.getReactorController().getControlRodLocations();
-		
+		System.out.println("control rod locations: " + Integer.toString(controlRodLocations.length));
 		int newIdx = 0;
 		// Locate current idx; will be -1 if not found, which is expected.
 		int oldIdx = Arrays.asList(controlRodLocations).indexOf( subSettingCoords[selectedChannel] );
@@ -270,5 +333,19 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		else {
 			subSettingCoords[selectedChannel] = controlRodLocations[newIdx];
 		}
+		
+		updateSubSettingValueText();
 	}
+	
+	private void updateSubSettingValueText() {
+		subSettingValueString.setLabelTooltip("");
+
+		if( !TileEntityReactorRedNetPort.circuitTypeHasSubSetting(grabTargets[selectedChannel].getCircuitType()) ) {
+			subSettingValueString.setLabelText( "-- NONE -- ");
+			return;
+		}
+	
+		subSettingValueString.setLabelText( getControlRodLabelFromLocation(subSettingCoords[selectedChannel]) );
+	}
+
 }

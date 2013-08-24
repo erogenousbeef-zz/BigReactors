@@ -16,6 +16,7 @@ import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
@@ -167,6 +168,20 @@ public class ClientPacketHandler implements IPacketHandler {
 				if(te != null && te instanceof TileEntityReactorControlRod) {
 					NBTTagCompound tagCompound = Packet.readNBTTagCompound(data);
 					((TileEntityReactorControlRod)te).onReceiveGuiUpdate(tagCompound);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		case Packets.RedNetSetData: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te instanceof TileEntityReactorRedNetPort) {
+					((TileEntityReactorRedNetPort)te).decodeSettings(data, false);
 				}
 			} catch(IOException e) {
 				e.printStackTrace();

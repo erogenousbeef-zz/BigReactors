@@ -1,8 +1,14 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
@@ -35,7 +41,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	
 	protected CircuitType[] channelCircuitTypes;
 	protected CoordTriplet[] coordMappings;
-	protected final static int numChannels = 16;
+	public final static int numChannels = 16;
 	
 	public TileEntityReactorRedNetPort() {
 		super();
@@ -75,6 +81,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				return (int)Math.floor(((TileEntityReactorControlRod)te).getHeat());
 			}
 			else {
+				clearChannel(channel);
 				return 0;
 			}
 		case outputControlRodFuelMix:
@@ -87,6 +94,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				}
 			}
 			else {
+				clearChannel(channel);
 				return 0;
 			}
 		case outputControlRodFuelAmount:
@@ -95,6 +103,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				return ((TileEntityReactorControlRod)te).getFuelAmount();
 			}
 			else {
+				clearChannel(channel);
 				return 0;
 			}
 		case outputControlRodWasteAmount:
@@ -103,6 +112,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				return ((TileEntityReactorControlRod)te).getWasteAmount();
 			}
 			else {
+				clearChannel(channel);
 				return 0;
 			}
 		default:
@@ -110,6 +120,11 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		}
 	}
 	
+	private void clearChannel(int channel) {
+		channelCircuitTypes[channel] = CircuitType.DISABLED;
+		coordMappings[channel] = null;
+	}
+
 	public TileEntity getMappedTileEntity(int channel) {
 		if(channel < 0 || channel >= numChannels) { return null; }
 		if(coordMappings[channel] == null) { return null; }
@@ -171,7 +186,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 			}
 			break;
 		case inputSetControlRod:
-			setControlRodInsertion(coordMappings[channel], newValue);
+			setControlRodInsertion(channel, coordMappings[channel], newValue);
 			break;
 		case inputSetAllControlRods:
 			reactor = getReactorController();
@@ -180,10 +195,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		default:
 			break;
 		}
-		
 	}
 
-	private void setControlRodInsertion(CoordTriplet coordTriplet, int newValue) {
+	private void setControlRodInsertion(int channel, CoordTriplet coordTriplet, int newValue) {
 		if(!this.isConnected()) { return; }
 		if(!this.worldObj.checkChunksExist(coordTriplet.x, coordTriplet.y, coordTriplet.z,
 											coordTriplet.x, coordTriplet.y, coordTriplet.z)) {
@@ -193,6 +207,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		TileEntity te = this.worldObj.getBlockTileEntity(coordTriplet.x, coordTriplet.y, coordTriplet.z);
 		if(te instanceof TileEntityReactorControlRod) {
 			((TileEntityReactorControlRod)te).setControlRodInsertion((short)newValue);
+		}
+		else {
+			clearChannel(channel);
 		}
 	}
 	
@@ -215,6 +232,60 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		return new ContainerReactorRedNetPort();
 	}
 	
+	@Override
+	protected void formatDescriptionPacket(NBTTagCompound packetData) {
+		super.formatDescriptionPacket(packetData);
+		
+		NBTTagList tagArray = new NBTTagList();
+		
+		for(int i = 0; i < numChannels; i++) {
+			tagArray.appendTag(encodeSetting(i));
+		}
+		
+		packetData.setTag("redNetConfig", tagArray);
+	}
+	
+	@Override
+	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
+		super.decodeDescriptionPacket(packetData);
+		
+		NBTTagList tagArray = packetData.getTagList("redNetConfig");
+		for(int i = 0; i < tagArray.tagCount(); i++) {
+			decodeSetting( (NBTTagCompound)tagArray.tagAt(i) );
+		}
+	}
+	
+	protected NBTTagCompound encodeSetting(int channel) {
+		NBTTagCompound entry = new NBTTagCompound();
+		
+		entry.setInteger("channel", channel);
+		entry.setInteger("setting", this.channelCircuitTypes[channel].ordinal());
+		if( circuitTypeHasSubSetting(this.channelCircuitTypes[channel]) ) {
+			CoordTriplet coord = this.coordMappings[channel];
+			entry.setInteger("x", coord.x);
+			entry.setInteger("y", coord.y);
+			entry.setInteger("z", coord.z);
+		}
+		
+		return entry;
+	}
+
+	protected void decodeSetting(NBTTagCompound settingTag) {
+		int channel = settingTag.getInteger("channel");
+		int settingIdx = settingTag.getInteger("setting");
+		
+		channelCircuitTypes[channel] = CircuitType.values()[settingIdx];
+		if( circuitTypeHasSubSetting(channelCircuitTypes[channel]) ) {
+			int x, y, z;
+			x = settingTag.getInteger("x");
+			y = settingTag.getInteger("y");
+			z = settingTag.getInteger("z");
+			coordMappings[channel] = new CoordTriplet(x, y, z);
+		} else {
+			coordMappings[channel] = null;
+		}
+	}
+	
 	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
 		switch(circuitType) {
 			case inputSetControlRod:
@@ -225,6 +296,38 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				return true;
 			default:
 				return false;
+		}
+	}
+
+	// Decodes setting changes from an update packet
+	public void decodeSettings(DataInputStream data, boolean doValidation) throws IOException {
+		int channel;
+		for(;;) {
+			try {
+				channel = data.readInt();
+				CircuitType newSetting = CircuitType.values()[ data.readInt() ];
+
+				channelCircuitTypes[channel] = newSetting;
+
+				if(circuitTypeHasSubSetting(newSetting)) {
+					CoordTriplet coord = new CoordTriplet( data.readInt(), data.readInt(), data.readInt() );
+					
+					if(doValidation) {
+						TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+						if(!(te instanceof TileEntityReactorControlRod)) {
+							throw new IOException("Invalid TileEntity for RedNet Port settings at " + coord.toString());
+						}
+					}
+					
+					coordMappings[channel] = coord;
+				}
+			}
+			catch(EOFException e) {
+				// Expected, halt execution
+				// And send the update to all nearby clients
+				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				return;
+			}
 		}
 	}
 }

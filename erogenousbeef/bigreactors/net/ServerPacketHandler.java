@@ -12,6 +12,7 @@ import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 
@@ -78,6 +79,26 @@ public class ServerPacketHandler implements IPacketHandler {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			break;
+			
+		case Packets.RedNetSetData:
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				// TODO: Validate received data
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te instanceof TileEntityReactorRedNetPort) {
+					((TileEntityReactorRedNetPort)te).decodeSettings(data, true);
+				}
+				else {
+					throw new IOException("Invalid TileEntity for receipt of RedNetSetData packet");
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			break;
 			
 		}
 	}
