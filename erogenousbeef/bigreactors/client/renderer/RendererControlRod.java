@@ -130,7 +130,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		int fuelAmt = controlRod.getFuelAmount();
 		int wasteAmt = controlRod.getWasteAmount();
 		int totalAmt = fuelAmt + wasteAmt;
-		float liquidProportion = (float)totalAmt / (float)controlRod.getSizeOfFuelTank();
+		// Clamp proportion to [0.0,1.0] to eliminate overflow possibility
+		float liquidProportion = Math.max(0.0f, Math.min(1.0f, (float)totalAmt / (float)controlRod.getSizeOfFuelTank()));
 		
 		int fuelColor = getRegisteredFuelColor(controlRod.getFuelType());
 		int wasteColor = getRegisteredWasteColor(controlRod.getWasteType());
@@ -145,7 +146,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
         float wasteProportion = (float)wasteAmt / (float)totalAmt;
 
 		int[] displayList = getDisplayListsForLiquid(BigReactors.liquidFuelColumn, columnHeight, controlRod.worldObj);
-		int displayListIndex = (int) (liquidProportion * (displayStages-1));
+		// Clamp index to [0,displaystages) to prevent index out of bounds exceptions due to floating point error
+		int displayListIndex = Math.max(0, Math.min( displayStages-1, (int)(liquidProportion * (displayStages-1)) ));
 		renderLiquidColumn(displayList[displayListIndex], BigReactors.liquidFuelColumn.getTextureSheet(),
 				lerp(fuelR, wasteR, wasteProportion), lerp(fuelR, wasteG, wasteProportion), lerp(fuelB, wasteB, wasteProportion),
 				 x, columnBottom, z);
