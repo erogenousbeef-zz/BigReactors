@@ -13,4 +13,5 @@ public final class Packets {
 	public static final int ControlRodGuiUpdate = 9;
 	public static final int ReactorWasteEjectionSettingUpdate = 10;
 	public static final int ControlRodSetName = 11;
+	public static final int RedNetSetData = 12;
 }

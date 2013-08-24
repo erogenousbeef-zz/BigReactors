@@ -46,7 +46,7 @@ public class RedNetConfigGrabTarget extends BeefGuiGrabTarget implements IBeefTo
 	}
 	
 	public boolean hasChanged() {
-		return currentCircuitType == this.port.getChannelCircuitType(channel);
+		return currentCircuitType != this.port.getChannelCircuitType(channel);
 	}
 	
 	public int getChannel() { return channel; }
