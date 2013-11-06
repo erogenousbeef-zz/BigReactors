@@ -58,11 +58,11 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		double newHeat = radiation.getSlowRadiation() * 0.25;
+		float newHeat = radiation.getSlowRadiation() * 0.25f;
 		
 		// Convert 15% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower(newHeat*0.15);
-		newHeat *= 0.85 * 0.5;
+		radiation.addPower(newHeat*0.15f);
+		newHeat *= 0.85f * 0.5f;
 		radiation.changeHeat(newHeat);
 		
 		// Slow radiation is all lost now
@@ -73,35 +73,35 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	}
 
 	@Override
-	public double getHeat() {
-		if(!this.isConnected()) { return 0; }
+	public float getHeat() {
+		if(!this.isConnected()) { return 0f; }
 		return ((MultiblockReactor)getMultiblockController()).getHeat();
 	}
 
 	@Override
-	public double getThermalConductivity() {
+	public float getThermalConductivity() {
 		// Using iron so there's no disadvantage to reactor glass.
 		return IHeatEntity.conductivityIron;
 	}
 
 	@Override
-	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
-		double deltaTemp = source.getHeat() - getHeat();
+	public float onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
+		float deltaTemp = source.getHeat() - getHeat();
 		// If the source is cooler than the reactor, then do nothing
-		if(deltaTemp <= 0.0) {
-			return 0.0;
+		if(deltaTemp <= 0.0f) {
+			return 0.0f;
 		}
 
-		double heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0/(double)faces) * contactArea;
+		float heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0f/(float)faces) * contactArea;
 
-		pulse.powerProduced += heatToAbsorb * 0.15;
-		pulse.heatChange += heatToAbsorb * 0.85 * 0.5;
+		pulse.powerProduced += heatToAbsorb * 0.15f;
+		pulse.heatChange += heatToAbsorb * 0.85f * 0.5f;
 
 		return heatToAbsorb;
 	}
 
 	@Override
-	public HeatPulse onRadiateHeat(double ambientHeat) {
+	public HeatPulse onRadiateHeat(float ambientHeat) {
 		// Ignore, glass doesn't re-radiate heat
 		return null;
 	}

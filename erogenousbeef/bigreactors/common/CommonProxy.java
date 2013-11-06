@@ -43,7 +43,7 @@ public class CommonProxy {
 			List<ItemStack> candidates = OreDictionary.getOres("ingotUranium");
 			for(ItemStack candidate : candidates) {
 				// If they're already registered, this will NOT overwrite the existing registration
-				BRRegistry.registerFuel(new ReactorFuel(candidate, BigReactors.defaultLiquidColorFuel));
+				BRRegistry.registerFuel(new ReactorFuel(candidate, BigReactors.defaultFluidColorFuel));
 			}
 		}
 

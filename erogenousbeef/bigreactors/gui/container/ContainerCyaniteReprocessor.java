@@ -198,8 +198,8 @@ public class ContainerCyaniteReprocessor extends Container {
 	// Update subscription
 	
 	@Override
-    public void onCraftGuiClosed(EntityPlayer player) {
-		super.onCraftGuiClosed(player);
+    public void onContainerClosed(EntityPlayer player) {
+		super.onContainerClosed(player);
 		
 		_entity.stopUpdatingPlayer(player);
 	}

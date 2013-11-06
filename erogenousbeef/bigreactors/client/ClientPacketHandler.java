@@ -18,7 +18,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
@@ -123,15 +123,15 @@ public class ClientPacketHandler implements IPacketHandler {
 			}
 		}
 		break;
-		case Packets.SmallMachineLiquidExposureUpdate: {
+		case Packets.SmallMachineFluidExposureUpdate: {
 			try {
 				x = data.readInt();
 				y = data.readInt();
 				z = data.readInt();
 				
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-				if(te != null && te instanceof TileEntityPoweredInventoryLiquid) {
-					((TileEntityPoweredInventoryLiquid)te).setExposedTank(ForgeDirection.getOrientation(data.readInt()), data.readInt());
+				if(te != null && te instanceof TileEntityPoweredInventoryFluid) {
+					((TileEntityPoweredInventoryFluid)te).setExposedTank(ForgeDirection.getOrientation(data.readInt()), data.readInt());
 					((EntityPlayer)player).worldObj.markBlockForUpdate(x, y, z);
 				}
 			} catch(IOException e) {

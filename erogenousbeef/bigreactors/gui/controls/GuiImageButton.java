@@ -20,6 +20,7 @@ public class GuiImageButton extends GuiButton {
     {
         if (this.drawButton)
         {
+        	/*
             FontRenderer fontrenderer = par1Minecraft.fontRenderer;
             par1Minecraft.renderEngine.bindTexture("/gui/gui.png");
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -34,6 +35,8 @@ public class GuiImageButton extends GuiButton {
                 par1Minecraft.renderEngine.bindTexture(this.displayString);
                 this.drawTexturedModalRect(this.xPosition + 2 , this.yPosition + 2, 0, 0, this.width - 4, this.height - 4);
             }
+            */
+        	// TODO: FIX ALL OF THIS
         }
     }
 	

@@ -10,6 +10,7 @@ import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorAccessPort extends BeefGuiBase {
 
@@ -47,8 +48,8 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	}
 
 	@Override
-	public String getGuiBackground() {
-		return BigReactors.GUI_DIRECTORY + "ReactorAccessPort.png";
+	public ResourceLocation getGuiBackground() {
+		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "ReactorAccessPort.png");
 	}
 
 	@Override

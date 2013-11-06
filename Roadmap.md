@@ -8,6 +8,13 @@ This is a tentative plan for the development of Big Reactors. It serves as somet
 
 Nothing that you see in this file should be taken as gospel. It's a collection of notes, little more. If, in the course of implementing a feature, it turns out that something does not work nicely as described here, I will not hestitate to do what's fun rather than what's planned.
 
+Technical Debt / Fixes
+----------------------
+- Fluids must be properly registered as fuel somehow, possibly with a fluid<->solid mapping
+- Radiothermal generator needs to get fixed
+- Image Buttons are broken entirely
+- Blocks and items don't have textures and just show up as purple/black boxes
+
 Known Bugs
 ----------
 - (CRITICAL) Investigate reports of crashes due to people placing parts while inside a machine
@@ -25,6 +32,7 @@ TODO - Beta
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
+- Create a "fear engine"
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons

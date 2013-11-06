@@ -9,65 +9,38 @@ import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.liquids.ILiquid;
-import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.fluids.BlockFluidClassic;
+import net.minecraftforge.fluids.Fluid;
 
-public class BlockBRGenericLiquid extends Block implements ILiquid {
+public class BlockBRGenericFluid extends BlockFluidClassic {
 
+	/*
 	private Icon _iconFlowing;
 	private Icon _iconStill;
+	*/
 	
-	public BlockBRGenericLiquid(int blockID, String unlocalizedName) {
-		super(blockID, Material.water);
-		
+	public BlockBRGenericFluid(int blockID, Fluid fluid, String unlocalizedName) {
+		super(blockID, fluid, Material.water);
 
-		setUnlocalizedName("liquid." + unlocalizedName + ".still");
-		setHardness(100F);
-		setLightOpacity(3);
+		setUnlocalizedName("fluid." + unlocalizedName + ".still");
 	}
 
-	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z) {
-		if(blockID == BigReactors.liquidYelloriumStill.blockID) {
-			return 12;
-		}
-		else if(blockID == BigReactors.liquidCyaniteStill.blockID) {
-			return 4;
-		}
-		else if(blockID == BigReactors.liquidFuelColumnStill.blockID) {
-			return 8;
-		}
-		else {
-			return 0;
-		}
-	}
-
+	// TODO: Remove if no longer needed
+	/*
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerIcons(IconRegister iconRegistry) {
 		_iconStill   = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		_iconFlowing = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName().replace(".still", ".flowing"));
 	}
-	
+	*/
+
+	// TODO: Remove me if no longer needed
+	/*
 	@SideOnly(Side.CLIENT)
 	@Override
 	public Icon getIcon(int side, int metadata) {
 		return side <= 1 ? _iconStill : _iconFlowing;
 	}
-	
-	// ILiquid
-	@Override
-	public int stillLiquidId() {
-		return blockID;
-	}
-
-	@Override
-	public boolean isMetaSensitive() {
-		return false;
-	}
-
-	@Override
-	public int stillLiquidMeta() {
-		return 0;
-	}
+	*/
 }
