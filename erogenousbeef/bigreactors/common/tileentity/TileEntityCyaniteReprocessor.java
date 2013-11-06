@@ -14,9 +14,9 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.liquids.LiquidContainerRegistry;
-import net.minecraftforge.liquids.LiquidDictionary;
-import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.BRRegistry;
@@ -24,16 +24,16 @@ import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.container.ContainerCyaniteReprocessor;
 
-public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiquid {
+public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFluid {
 
 	public static final int SLOT_INLET = 0;
 	public static final int SLOT_OUTLET = 1;
 	public static final int NUM_SLOTS = 2;
 	
-	protected static final int LIQUID_CONSUMED = LiquidContainerRegistry.BUCKET_VOLUME * 1;
+	protected static final int FLUID_CONSUMED = FluidContainerRegistry.BUCKET_VOLUME * 1;
 	protected static final int INGOTS_CONSUMED = 2;
 	
 	public TileEntityCyaniteReprocessor() {
@@ -51,7 +51,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 	}
 
 	@Override
-	public boolean isStackValidForSlot(int slot, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 		
 		// TODO: Fix this to use the registry
@@ -82,8 +82,8 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 
 	@Override
 	public boolean canBeginCycle() {
-		LiquidStack liquid = drain(0, LIQUID_CONSUMED, false);
-		if(liquid == null || liquid.amount < LIQUID_CONSUMED) {
+		FluidStack fluid = drain(0, FLUID_CONSUMED, false);
+		if(fluid == null || fluid.amount < FLUID_CONSUMED) {
 			return false;
 		}
 
@@ -127,7 +127,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 	
 	private boolean consumeInputs() {
 		_inventories[SLOT_INLET] = BRUtilities.consumeItem(_inventories[SLOT_INLET], INGOTS_CONSUMED);
-		drain(0, LIQUID_CONSUMED, true);
+		drain(0, FLUID_CONSUMED, true);
 		
 		return true;
 	}
@@ -139,13 +139,13 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryLiqu
 
 	@Override
 	public int getTankSize(int tankIndex) {
-		return LiquidContainerRegistry.BUCKET_VOLUME * 5;
+		return FluidContainerRegistry.BUCKET_VOLUME * 5;
 	}
 
 	@Override
-	protected boolean isLiquidValidForTank(int tankIdx, LiquidStack type) {
+	protected boolean isFluidValidForTank(int tankIdx, FluidStack type) {
 		if(type == null) { return false; }
-		return type.isLiquidEqual(LiquidDictionary.getCanonicalLiquid("Water"));
+		return type.getFluid().getID() == FluidRegistry.getFluid("water").getID();
 	}
 
 	@SideOnly(Side.CLIENT)

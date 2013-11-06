@@ -9,7 +9,6 @@ import java.util.Map;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.liquids.ILiquid;
 
 public abstract class BRRegistry {
 	

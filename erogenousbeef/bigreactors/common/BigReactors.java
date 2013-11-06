@@ -4,12 +4,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.Icon;
-import net.minecraftforge.liquids.LiquidDictionary;
-import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import universalelectricity.prefab.TranslationHelper;
@@ -17,7 +19,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
-import erogenousbeef.bigreactors.common.block.BlockBRGenericLiquid;
+import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockRTG;
 import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.block.BlockReactorGlass;
@@ -69,16 +71,16 @@ public class BigReactors {
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
 	
-	public static Block liquidYelloriumStill;
-	public static Block liquidCyaniteStill;
-	public static Block liquidFuelColumnStill;
+	public static Block fluidYelloriumStill;
+	public static Block fluidCyaniteStill;
+	public static Block fluidFuelColumnStill;
 	
-	public static LiquidStack liquidYellorium;
-	public static LiquidStack liquidCyanite;
-	public static LiquidStack liquidFuelColumn;
+	public static Fluid fluidYellorium;
+	public static Fluid fluidCyanite;
+	public static Fluid fluidFuelColumn;
 	
-	public static final int defaultLiquidColorFuel = 0xbcba50;
-	public static final int defaultLiquidColorWaste = 0x4d92b5;
+	public static final int defaultFluidColorFuel = 0xbcba50;
+	public static final int defaultFluidColorWaste = 0x4d92b5;
 	
 	public static final int ITEM_ID_PREFIX = 17750;
 	public static Item ingotGeneric;
@@ -98,7 +100,7 @@ public class BigReactors {
 	public static int maximumReactorSize = MultiblockReactor.DIMENSION_UNBOUNDED;
 	public static int maximumReactorHeight = MultiblockReactor.DIMENSION_UNBOUNDED;
 	
-	public static double powerProductionMultiplier = 1.0;
+	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
 	public static final float powerPerHeat = 1.0f; // Power units per C dissipated
@@ -127,7 +129,7 @@ public class BigReactors {
 			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 
-			powerProductionMultiplier = BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
+			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
 			
 			BRConfig.CONFIGURATION.save();
 
@@ -317,14 +319,14 @@ public class BigReactors {
 			{
 				ItemStack yelloriumStack = new ItemStack(ingotGeneric, 1, 0);
 				OreDictionary.registerOre("ingotUranium", yelloriumStack);
-				BRRegistry.registerFuel(new ReactorFuel(yelloriumStack, BigReactors.defaultLiquidColorFuel));
+				BRRegistry.registerFuel(new ReactorFuel(yelloriumStack, BigReactors.defaultFluidColorFuel));
 			}
 			
 			if (OreDictionary.getOres("ingotCyanite").size() <= 0 || require)
 			{
 				ItemStack cyaniteStack = new ItemStack(ingotGeneric, 1, 1);
 				OreDictionary.registerOre("ingotCyanite", cyaniteStack);
-				BRRegistry.registerWaste(new ReactorFuel(cyaniteStack, BigReactors.defaultLiquidColorWaste));
+				BRRegistry.registerWaste(new ReactorFuel(cyaniteStack, BigReactors.defaultFluidColorWaste));
 			}
 			
 			if (OreDictionary.getOres("ingotGraphite").size() <= 0 || require)
@@ -427,43 +429,80 @@ public class BigReactors {
 		}
 	}
 	
-	public static void registerYelloriumLiquids(int id, boolean require) {
-		if(BigReactors.liquidYelloriumStill == null) {
+	public static void registerYelloriumFluids(int id, boolean require) {
+		if(BigReactors.fluidYelloriumStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			BlockBRGenericLiquid liqY = new BlockBRGenericLiquid(BRConfig.CONFIGURATION.getBlock("LiquidYelloriumStill", BigReactors.BLOCK_ID_PREFIX + 4).getInt(), "yellorium");
-			BigReactors.liquidYelloriumStill = liqY;
+			int fluidYelloriumID = BRConfig.CONFIGURATION.getBlock("LiquidYelloriumStill", BigReactors.BLOCK_ID_PREFIX + 4).getInt();
 			
-			GameRegistry.registerBlock(BigReactors.liquidYelloriumStill, ItemBlockBigReactors.class, BigReactors.liquidYelloriumStill.getUnlocalizedName());
+			BigReactors.fluidYellorium = FluidRegistry.getFluid("yellorium");
+			if(fluidYellorium == null) {
+				fluidYellorium = new Fluid("yellorium");
+				fluidYellorium.setBlockID(fluidYelloriumID);
+				fluidYellorium.setDensity(100);
+				fluidYellorium.setGaseous(false);
+				fluidYellorium.setLuminosity(10);
+				fluidYellorium.setRarity(EnumRarity.uncommon);
+				fluidYellorium.setTemperature(20);
+				fluidYellorium.setViscosity(100);
+				fluidYellorium.setUnlocalizedName("bigreactors.yellorium.still");
+				FluidRegistry.registerFluid(fluidYellorium);
+			}
+
+			BlockBRGenericFluid liqY = new BlockBRGenericFluid(fluidYelloriumID, BigReactors.fluidYellorium, "yellorium");
+			BigReactors.fluidYelloriumStill = liqY;
 			
-			LiquidStack liquidYelloriumStack = new LiquidStack(liquidYelloriumStill, 1);
-			BigReactors.liquidYellorium = LiquidDictionary.getOrCreateLiquid("yellorium", liquidYelloriumStack);
+			GameRegistry.registerBlock(BigReactors.fluidYelloriumStill, ItemBlockBigReactors.class, BigReactors.fluidYelloriumStill.getUnlocalizedName());
 			
-			BRRegistry.registerFuel(new ReactorFuel(liquidYelloriumStack.asItemStack(), BigReactors.defaultLiquidColorFuel));
+			// TODO: See if we can work around this somehow. registerFluidFuel?
+			//BRRegistry.registerFuel(new ReactorFuel(fluidYellorium, BigReactors.defaultLiquidColorFuel));
 			BRConfig.CONFIGURATION.save();
 		}
 		
-		if(BigReactors.liquidCyaniteStill == null) {
+		if(BigReactors.fluidCyaniteStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			BlockBRGenericLiquid liqDY = new BlockBRGenericLiquid(BRConfig.CONFIGURATION.getBlock("LiquidCyaniteStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt(), "cyanite");
-			BigReactors.liquidCyaniteStill = liqDY;
-			GameRegistry.registerBlock(BigReactors.liquidCyaniteStill, ItemBlockBigReactors.class, BigReactors.liquidCyaniteStill.getUnlocalizedName());
+			int fluidCyaniteID = BRConfig.CONFIGURATION.getBlock("LiquidCyaniteStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt();
 			
-			LiquidStack liquidCyaniteStack = new LiquidStack(liquidCyaniteStill, 1);
-			BigReactors.liquidCyanite = LiquidDictionary.getOrCreateLiquid("cyanite", liquidCyaniteStack);
+			BigReactors.fluidCyanite = FluidRegistry.getFluid("cyanite");
+			if(fluidCyanite == null) {
+				fluidCyanite = new Fluid("cyanite");
+				fluidCyanite.setBlockID(fluidCyaniteID);
+				fluidCyanite.setDensity(100);
+				fluidCyanite.setGaseous(false);
+				fluidCyanite.setLuminosity(6);
+				fluidCyanite.setRarity(EnumRarity.uncommon);
+				fluidCyanite.setTemperature(20);
+				fluidCyanite.setViscosity(100);
+				fluidCyanite.setUnlocalizedName("bigreactors.cyanite.still");
+				FluidRegistry.registerFluid(fluidCyanite);
+			}
+
+			BlockBRGenericFluid liqDY = new BlockBRGenericFluid(fluidCyaniteID, fluidCyanite, "cyanite");
+			BigReactors.fluidCyaniteStill = liqDY;
+			GameRegistry.registerBlock(BigReactors.fluidCyaniteStill, ItemBlockBigReactors.class, BigReactors.fluidCyaniteStill.getUnlocalizedName());
 			
-			BRRegistry.registerWaste(new ReactorFuel(liquidCyaniteStack.asItemStack(), BigReactors.defaultLiquidColorWaste));
+			// TODO: Work around this somehow
+			//BRRegistry.registerWaste(new ReactorFuel(liquidCyaniteStack.asItemStack(), BigReactors.defaultLiquidColorWaste));
 			BRConfig.CONFIGURATION.save();
 		}
 
-		if(BigReactors.liquidFuelColumnStill == null) {
+		if(BigReactors.fluidFuelColumnStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			BlockBRGenericLiquid liqFC = new BlockBRGenericLiquid(BRConfig.CONFIGURATION.getBlock("LiquidFuelColumnStill", BigReactors.BLOCK_ID_PREFIX + 6).getInt(), "fuelColumn");
-			BigReactors.liquidFuelColumnStill = liqFC;
-			GameRegistry.registerBlock(BigReactors.liquidFuelColumnStill, ItemBlockBigReactors.class, BigReactors.liquidFuelColumnStill.getUnlocalizedName());
-			BigReactors.liquidFuelColumn = LiquidDictionary.getOrCreateLiquid("brFuelColumnVisualLiquid", new LiquidStack(liquidFuelColumnStill, 1));
+			int fuelColumnFluidID = BRConfig.CONFIGURATION.getBlock("LiquidFuelColumnStill", BigReactors.BLOCK_ID_PREFIX + 6).getInt();
+			
+			BigReactors.fluidFuelColumn = FluidRegistry.getFluid("fuelColumn");
+			if(fluidFuelColumn == null) {
+				fluidFuelColumn = new Fluid("fuelColumn");
+				fluidFuelColumn.setBlockID(fuelColumnFluidID);
+				fluidFuelColumn.setUnlocalizedName("bigreactors.fuelColumn.still");
+				FluidRegistry.registerFluid(fluidFuelColumn);				
+			}
+			
+			BlockBRGenericFluid liqFC = new BlockBRGenericFluid(fuelColumnFluidID, fluidFuelColumn, "fuelColumn");
+			BigReactors.fluidFuelColumnStill = liqFC;
+			GameRegistry.registerBlock(BigReactors.fluidFuelColumnStill, ItemBlockBigReactors.class, BigReactors.fluidFuelColumnStill.getUnlocalizedName());
 
 			BRConfig.CONFIGURATION.save();
 		}

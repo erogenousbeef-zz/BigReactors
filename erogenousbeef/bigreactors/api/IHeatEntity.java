@@ -1,14 +1,14 @@
 package erogenousbeef.bigreactors.api;
 
 public interface IHeatEntity {
-	public static final double ambientHeat = 20.0; // Normal ambient temperature
-	public static final double powerPerHeat = 3.0; // Internal power units per C radiated
+	public static final float ambientHeat = 20.0f; // Normal ambient temperature
+	public static final float powerPerHeat = 3.0f; // Internal power units per C radiated
 	
 	/**
 	 * Returns the amount of heat in the entity, in celsius.
 	 * @return The amount of heat in the entity, in celsius.
 	 */
-	public double getHeat();
+	public float getHeat();
 	
 	/**
 	 * The thermal conductivity of the entity.
@@ -17,7 +17,7 @@ public interface IHeatEntity {
 	 * Numbers over 1 are ignored.
 	 * @return Thermal conductivity constant, the percentage heat difference to absorb in 1 sec
 	 */
-	public double getThermalConductivity();
+	public float getThermalConductivity();
 	
 	/**
 	 * Called when a nearby heat radiator would like this
@@ -29,7 +29,7 @@ public interface IHeatEntity {
 	 * @param contactArea The relative size of the area in contact, in blocks. For example, if your object is a normal block, this is 1. If it's a multiblock, it's the number of blocks in contact. Two 1x3x1 columns would use 3, for example.
 	 * @return The amount of heat absorbed by this entity from the source, 0 if none.
 	 */
-	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea);
+	public float onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea);
 	
 	/**
 	 * Called when an entity should try to radiate heat.
@@ -38,16 +38,16 @@ public interface IHeatEntity {
 	 * @param ambientHeat The ambient heat of the environment around the object.
 	 * @return A HeatPulse object containing the results of heat radiation
 	 */
-	public HeatPulse onRadiateHeat(double ambientHeat);
+	public HeatPulse onRadiateHeat(float ambientHeat);
 	
 	
-	public static final double conductivityAir = 0.0005;
-	public static final double conductivityRubber = 0.001;
-	public static final double conductivityWater = 0.01;
-	public static final double conductivityStone = 0.02;
-	public static final double conductivityGlass = 0.02;
-	public static final double conductivityIron = 0.05; // Stainless steel, really.
-	public static final double conductivityCopper = 0.1;
-	public static final double conductivityDiamond = 0.15;
-	public static final double conductivityGraphene = 0.25;
+	public static final float conductivityAir = 0.0005f;
+	public static final float conductivityRubber = 0.001f;
+	public static final float conductivityWater = 0.01f;
+	public static final float conductivityStone = 0.02f;
+	public static final float conductivityGlass = 0.02f;
+	public static final float conductivityIron = 0.05f; // Stainless steel, really.
+	public static final float conductivityCopper = 0.1f;
+	public static final float conductivityDiamond = 0.15f;
+	public static final float conductivityGraphene = 0.25f;
 }

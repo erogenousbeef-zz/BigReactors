@@ -5,6 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import buildcraft.api.power.IPowerReceptor;
+import buildcraft.api.power.PowerHandler;
+import buildcraft.api.power.PowerHandler.PowerReceiver;
+
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
@@ -15,6 +19,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
 
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -35,13 +40,14 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockRegistry;
 
-public class MultiblockReactor extends MultiblockControllerBase implements IBeefPowerStorage {
+public class MultiblockReactor extends MultiblockControllerBase implements IBeefPowerStorage, IPowerReceptor {
 	// Game stuff
 	protected boolean active;
-	private double latentHeat;
-	private double storedEnergy;	// Internal units
+	private float latentHeat;
 	private WasteEjectionSetting wasteEjection;
 
+	private PowerHandler powerHandler;
+	
 	// UI stuff
 	private double energyGeneratedLastTick;
 	
@@ -67,8 +73,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 		// Game stuff
 		active = false;
-		latentHeat = 0.0;
-		storedEnergy = 0;
+		latentHeat = 0.0f;
 		energyGeneratedLastTick = 0.0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
@@ -79,6 +84,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		updatePlayers = new HashSet<EntityPlayer>();
 		
 		ticksSinceLastUpdate = 0;
+		
+		powerHandler = new PowerHandler(this, PowerHandler.Type.STORAGE);
+		powerHandler.configure(0f, Float.MAX_VALUE, Float.MAX_VALUE, maxEnergyStored);
+		powerHandler.configurePowerPerdition(0, 0);
 	}
 	
 	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
@@ -156,16 +165,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	// Update loop. Only called when the machine is assembled.
 	@Override
 	public boolean update() {
-		if(Double.isNaN(this.getHeat())) {
-			this.setHeat(0.0);
+		if(Float.isNaN(this.getHeat())) {
+			this.setHeat(0.0f);
 		}
 		
-		if(Double.isNaN(this.storedEnergy)) {
-			this.storedEnergy = 0.0;
-		}
-
 		double oldHeat = this.getHeat();
-		double oldEnergy = this.storedEnergy;
+		float oldEnergy = this.getEnergyStored();
 		energyGeneratedLastTick = 0.0;
 
 		// How much waste do we have?
@@ -234,7 +239,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			}
 		}
 
-		energyGeneratedLastTick = getStoredEnergy() - oldEnergy;
+		energyGeneratedLastTick = getEnergyStored() - oldEnergy;
 		// leak 1% of heat to the environment per second
 		// TODO: Replace this with a better equation, so low heats leak less
 		// and high heats leak far more.
@@ -242,8 +247,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		// 1% base loss rate, +1% per thousand degrees C
 		
 		if(latentHeat > 0.0) {
-			double lossRate = 0.01 + ((double)this.latentHeat * 0.000001);
-			double latentHeatLoss = Math.max(0.02, this.latentHeat * 0.01);
+			float lossRate = 0.01f + (this.latentHeat * 0.000001f);
+			float latentHeatLoss = Math.max(0.02f, this.latentHeat * 0.01f);
 			this.addLatentHeat(-1 * latentHeatLoss);
 
 			// Generate power based on the amount of heat lost
@@ -251,10 +256,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			energyGeneratedLastTick += latentHeatLoss * BigReactors.powerPerHeat;
 		}
 		
-		if(latentHeat < 0.0) { setHeat(0.0); }
+		if(latentHeat < 0.0f) { setHeat(0.0f); }
 		
 		// Distribute available power
-		int energyAvailable = (int)getStoredEnergy();
+		int energyAvailable = (int)getEnergyStored();
 		int energyRemaining = energyAvailable;
 		if(attachedPowerTaps.size() > 0 && energyRemaining > 0) {
 			for(CoordTriplet coord : attachedPowerTaps) {
@@ -268,7 +273,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 		
 		if(energyAvailable != energyRemaining) {
-			reduceStoredEnergy((double)(energyAvailable - energyRemaining));
+			reduceStoredEnergy((energyAvailable - energyRemaining));
 		}
 
 		// Send updates periodically
@@ -281,37 +286,31 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		// TODO: Overload/overheat
 
 		// Return true if we've changed either variable
-		return (oldHeat != this.getHeat() || oldEnergy != this.storedEnergy);
+		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
-	public double getStoredEnergy() {
-		return storedEnergy;
-	}
-
-	public void setStoredEnergy(double newEnergy) {
-		storedEnergy = newEnergy;
-		if(storedEnergy < 0.0 || Double.isNaN(storedEnergy)) {
-			storedEnergy = 0.0;
+	public void setStoredEnergy(float newEnergy) {
+		float storedEnergy = newEnergy;
+		if(storedEnergy < 0.0 || Float.isNaN(storedEnergy)) {
+			storedEnergy = 0.0f;
 		}
 		else if(storedEnergy > maxEnergyStored) {
 			storedEnergy = maxEnergyStored;
 		}
+		
+		this.powerHandler.setEnergy(storedEnergy);
 	}
 	
-	public void addStoredEnergy(double newEnergy) {
-		if(Double.isNaN(newEnergy)) { return; }
+	public void addStoredEnergy(float newEnergy) {
+		if(Float.isNaN(newEnergy)) { return; }
 
-		storedEnergy += newEnergy * BigReactors.powerProductionMultiplier;
-		if(storedEnergy > maxEnergyStored) { storedEnergy = maxEnergyStored; }
+		this.powerHandler.addEnergy(newEnergy * BigReactors.powerProductionMultiplier);
 	}
 
-	protected void reduceStoredEnergy(double energy) {
-		if(Double.isNaN(energy)) { return; }
+	protected void reduceStoredEnergy(float energy) {
+		if(Float.isNaN(energy)) { return; }
 
-		storedEnergy -= energy;
-		if(storedEnergy < 0.0) {
-			storedEnergy = 0.0;
-		}
+		this.powerHandler.addEnergy(-1.0f * energy);
 	}
 	
 	public void addLatentHeat(double newCasingHeat) {
@@ -342,13 +341,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 	}
 
-	public double getHeat() {
+	public float getHeat() {
 		return latentHeat;
 	}
 	
-	public void setHeat(double newHeat) {
-		if(Double.isNaN(newHeat)) {
-			latentHeat = 0.0;
+	public void setHeat(float newHeat) {
+		if(Float.isNaN(newHeat)) {
+			latentHeat = 0.0f;
 		}
 		else {
 			latentHeat = newHeat;
@@ -376,7 +375,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	public void writeToNBT(NBTTagCompound data) {
 		data.setBoolean("reactorActive", this.active);
 		data.setDouble("heat", this.latentHeat);
-		data.setDouble("storedEnergy", this.storedEnergy);
+		data.setFloat("storedEnergy", this.powerHandler.getEnergyStored());
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 	}
 
@@ -387,17 +386,29 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 		
 		if(data.hasKey("heat")) {
-			setHeat(data.getDouble("heat"));
+			double oldHeat = data.getDouble("heat");
+			if(oldHeat > 0.0) {
+				setHeat((float)oldHeat);
+			}
+			else {
+				setHeat(data.getFloat("heat"));
+			}
 		}
 		else {
-			setHeat(0.0);
+			setHeat(0.0f);
 		}
 		
 		if(data.hasKey("storedEnergy")) {
-			setStoredEnergy(data.getDouble("storedEnergy"));
+			double oldEnergy = data.getDouble("storedEnergy");
+			if(oldEnergy > 0.0) {
+				setStoredEnergy((float)oldEnergy);
+			}
+			else {
+				setStoredEnergy(data.getFloat("storedEnergy"));
+			}
 		}
 		else {
-			setStoredEnergy(0.0);
+			setStoredEnergy(0.0f);
 		}
 		
 		if(data.hasKey("wasteEjection")) {
@@ -431,7 +442,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 								referenceCoord.z,
 								this.active,
 								this.latentHeat,
-								this.storedEnergy,
+								this.powerHandler.getEnergyStored(),
 								this.energyGeneratedLastTick});
 	}
 	
@@ -505,9 +516,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	// IBeefPowerStorage
 	@Override
 	public float getEnergyStored() {
-		return (float)storedEnergy;
-	}
-
+		return this.powerHandler.getEnergyStored();
+	}	
+	
 	@Override
 	public float getMaxEnergyStored() {
 		return maxEnergyStored;
@@ -716,5 +727,28 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	 */
 	public double getEnergyGeneratedLastTick() {
 		return this.energyGeneratedLastTick;
+	}
+
+	/**
+	 * Used so that Power Taps all draw off the same reservoir.
+	 * @return The internal PowerHandler used to store energy for this reactor.
+	 */
+	
+	public PowerHandler getPowerHandler() {
+		return powerHandler;
+	}
+
+	@Override
+	public PowerReceiver getPowerReceiver(ForgeDirection side) {
+		return powerHandler.getPowerReceiver();
+	}
+
+	@Override
+	public void doWork(PowerHandler workProvider) {
+	}
+
+	@Override
+	public World getWorld() {
+		return this.worldObj;
 	}
 }

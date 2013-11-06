@@ -3,7 +3,7 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import buildcraft.api.transport.IPipeEntry;
+import buildcraft.api.transport.IPipeTile;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -237,7 +237,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	}
 
 	@Override
-	public abstract boolean isStackValidForSlot(int slot, ItemStack itemstack);
+	public abstract boolean isItemValidForSlot(int slot, ItemStack itemstack);
 
 	// ISidedInventory
 	@Override
@@ -253,12 +253,12 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 
 	@Override
 	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
-		return isStackValidForSlot(slot, itemstack);
+		return isItemValidForSlot(slot, itemstack);
 	}
 
 	@Override
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
-		return isStackValidForSlot(slot, itemstack);
+		return isItemValidForSlot(slot, itemstack);
 	}	
 	
 	// Networked GUI
@@ -299,12 +299,15 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			if(invExposures[rotatedSide] != fromSlot) { continue; }
 			
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te != null && te instanceof IPipeEntry) {
-				IPipeEntry pipe = (IPipeEntry)te;
-				if(pipe.acceptItems()) {
-					pipe.entityEntering(itemToDistribute.copy(), dir);
-					return null;
-				}
+			if(te != null && te instanceof IPipeTile) {
+				IPipeTile pipe = (IPipeTile)te;
+				if(pipe.isPipeConnected(dir.getOpposite())) {
+					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
+					
+					if(itemToDistribute.stackSize <= 0) {
+						return null;
+					}
+				}				
 			}
 		}
 		

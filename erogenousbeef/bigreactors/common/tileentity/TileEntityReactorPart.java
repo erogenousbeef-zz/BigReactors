@@ -192,12 +192,12 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {
-			Class decodeAs[] = { Boolean.class, Double.class, Double.class, Double.class};
+			Class decodeAs[] = { Boolean.class, Float.class, Float.class, Float.class};
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			boolean active = (Boolean) decodedData[0];
-			double heat = (Double) decodedData[1];
-			double storedEnergy = (Double) decodedData[2];
-			double energyGeneratedLastTick = (Double) decodedData[3];
+			float heat = (Float) decodedData[1];
+			float storedEnergy = (Float) decodedData[2];
+			float energyGeneratedLastTick = (Float) decodedData[3];
 
 			getReactorController().setActive(active);
 			getReactorController().setHeat(heat);
@@ -315,11 +315,11 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// IRadiationModerator
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		double newHeat = radiation.getSlowRadiation() * 0.5;
+		float newHeat = radiation.getSlowRadiation() * 0.5f;
 		
 		// Convert 15% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower(newHeat*0.15);
-		newHeat *= 0.85 * 0.5;
+		radiation.addPower(newHeat*0.15f);
+		newHeat *= 0.85f * 0.5f;
 		radiation.changeHeat(newHeat);
 		
 		// Slow radiation is all lost now
@@ -331,35 +331,35 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	
 	// IHeatEntity
 	@Override
-	public double getHeat() {
-		if(!this.isConnected()) { return 0; }
+	public float getHeat() {
+		if(!this.isConnected()) { return 0f; }
 		return getReactorController().getHeat();
 	}
 
 	@Override
-	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
-		double deltaTemp = source.getHeat() - getHeat();
+	public float onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
+		float deltaTemp = source.getHeat() - getHeat();
 		// If the source is cooler than the reactor, then do nothing
-		if(deltaTemp <= 0.0) {
-			return 0.0;
+		if(deltaTemp <= 0.0f) {
+			return 0.0f;
 		}
 
-		double heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0/(double)faces) * contactArea;
+		float heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0f/(float)faces) * contactArea;
 
-		pulse.powerProduced += heatToAbsorb * 0.15;
-		pulse.heatChange += heatToAbsorb * 0.85 * 0.5;
+		pulse.powerProduced += heatToAbsorb * 0.15f;
+		pulse.heatChange += heatToAbsorb * 0.85f * 0.5f;
 
 		return heatToAbsorb;
 	}
 
 	@Override
-	public HeatPulse onRadiateHeat(double ambientHeat) {
+	public HeatPulse onRadiateHeat(float ambientHeat) {
 		// Ignore. Casing does not re-radiate heat on its own.
 		return null;
 	}
 
 	@Override
-	public double getThermalConductivity() {
+	public float getThermalConductivity() {
 		return IHeatEntity.conductivityIron;
 	}
 }

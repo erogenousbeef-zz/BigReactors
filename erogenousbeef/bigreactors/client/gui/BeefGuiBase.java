@@ -15,6 +15,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
 public abstract class BeefGuiBase extends GuiContainer {
@@ -74,7 +75,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 		}
 	}
 	
-	public abstract String getGuiBackground();
+	public abstract ResourceLocation getGuiBackground();
 	
 	public int getGuiLeft() { return guiLeft; }
 	public int getGuiTop() { return guiTop; }

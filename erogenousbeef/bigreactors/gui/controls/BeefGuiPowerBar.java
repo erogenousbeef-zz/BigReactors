@@ -2,8 +2,8 @@ package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.util.Icon;
+import net.minecraft.util.ResourceLocation;
 import erogenousbeef.bigreactors.api.IBeefPowerStorage;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
@@ -33,5 +33,10 @@ public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
 	@Override
 	public String getTooltip() {
 		return String.format("%1.0f / %1.0f MJ", Math.floor(_entity.getEnergyStored()), _entity.getMaxEnergyStored());
+	}
+	
+	@Override
+	protected ResourceLocation getResourceLocation() {
+		return net.minecraft.client.renderer.texture.TextureMap.locationBlocksTexture;
 	}
 }
