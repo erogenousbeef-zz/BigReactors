@@ -140,11 +140,11 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	}
 	
 	public boolean isFull() {
-		return waste.amount + fuel.amount >= getSizeOfFuelTank();
+		return getWasteAmount() + getFuelAmount() >= getSizeOfFuelTank();
 	}
 	
 	public boolean isEmpty() {
-		return waste.amount + fuel.amount <= 0;
+		return getWasteAmount() + getFuelAmount() <= 0;
 	}
 	
 	public int getSizeOfFuelTank() {
@@ -931,21 +931,11 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		if(data.hasKey("localHeat")) {
 			this.localHeat = data.getFloat("localHeat");
 			
-			// Handle legacy (0.1.x) saves
-			if(localHeat == 0.0f) {
-				this.localHeat = (float)data.getDouble("localHeat");
-			}
-
 			if(Float.isNaN(localHeat)) { localHeat = 0.0f; }
 		}
 		
 		if(data.hasKey("incidentRadiation")) {
 			incidentRadiation = data.getFloat("incidentRadiation");
-
-			// Handle legacy saves
-			if(incidentRadiation == 0.0f) {
-				this.incidentRadiation = (float)data.getDouble("incidentRadiation");
-			}
 
 			if(Float.isNaN(incidentRadiation)) { incidentRadiation = 0.0f; }
 		}

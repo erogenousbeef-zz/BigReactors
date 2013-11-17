@@ -12,6 +12,8 @@ Technical Debt / Fixes
 ----------------------
 - Radiothermal generator needs to get fixed
 - Image Buttons are broken entirely
+- Change yellorite worldgen to favor y12
+- Add support for IItemConduits 
 - (0.2 Merge) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
 
 Known Bugs

@@ -1,49 +1,44 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import cofh.api.energy.EnergyStorage;
+import cofh.api.energy.IEnergyHandler;
 import universalelectricity.core.block.IConnector;
 import universalelectricity.core.block.IElectrical;
 import universalelectricity.core.electricity.ElectricityPack;
-import erogenousbeef.bigreactors.api.IBeefPowerStorage;
-import buildcraft.api.power.IPowerReceptor;
-import buildcraft.api.power.PowerHandler;
-import buildcraft.api.power.PowerHandler.PowerReceiver;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IPowerReceptor, IElectrical, IBeefPowerStorage  {
+public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IElectrical  {
 
-	public static float energyPerMJ = 1f;
-	public static float energyPerUEWatt = 0.01f; 
+	public static float energyPerRF = 1f;
+	public static float energyPerUEWatt = 0.1f; 
 	
 	// Internal power
 	private int cycledTicks;
-	
-	// Buildcraft
-	PowerHandler _powerHandler;
+	private EnergyStorage energyStorage;
 	
 	public TileEntityPoweredInventory() {
 		super();
 		
-		_powerHandler = new PowerHandler(this, PowerHandler.Type.MACHINE);
+		energyStorage = new EnergyStorage(getMaxEnergyStored());
 		
-		// We use MAX_VALUE for the activation energy because I don't want to use BuildCraft's stupid doWork callback.
-		_powerHandler.configure(1, getCycleEnergyCost(), Float.MAX_VALUE, getMaxEnergyStored());
-		_powerHandler.configurePowerPerdition(0,  0); // Fuck power loss.
-
 		cycledTicks = -1;
 	}
 	
 	// Internal energy methods
-	@Override
-	public abstract float getMaxEnergyStored();
+	/**
+	 * The amount of energy stored in this type of TileEntity
+	 * @return The amount of energy stored. 0 or more. Only called at construction time.
+	 */
+	protected abstract int getMaxEnergyStored();
 	
 	/**
 	 * Returns the energy cost to run a cycle. Consumed instantly when a cycle begins.
-	 * @return Number of MJ needed to start a cycle.
+	 * @return Amount of RF needed to start a cycle.
 	 */
-	public abstract float getCycleEnergyCost();
+	public abstract int getCycleEnergyCost();
 	
 	/**
 	 * @return The length of a powered processing cycle, in ticks.
@@ -72,11 +67,6 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	 */
 	public abstract void onPoweredCycleEnd();
 	
-	@Override
-	public float getEnergyStored() {
-		return this._powerHandler.getEnergyStored();
-	}
-	
 	public int getCurrentCycleTicks() {
 		return cycledTicks;
 	}
@@ -94,7 +84,10 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	@Override
 	public void readFromNBT(NBTTagCompound tag) {
 		super.readFromNBT(tag);
-		this._powerHandler.readFromNBT(tag);
+		
+		if(tag.hasKey("energyStorage")) {
+			this.energyStorage.readFromNBT(tag.getCompoundTag("energyStorage"));
+		}
 		
 		if(tag.hasKey("cycledTicks")) {
 			cycledTicks = tag.getInteger("cycledTicks");
@@ -104,7 +97,9 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	@Override
 	public void writeToNBT(NBTTagCompound tag) {
 		super.writeToNBT(tag);
-		this._powerHandler.writeToNBT(tag);
+		NBTTagCompound energyTag = new NBTTagCompound();
+		this.energyStorage.writeToNBT(energyTag);
+		tag.setCompoundTag("energyStorage", energyTag);
 		tag.setInteger("cycledTicks", cycledTicks);
 	}
 	
@@ -131,10 +126,10 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 					this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 				}
 			}
-			
+
 			// If we've stopped running, but we can start, then start running.
-			if(cycledTicks < 0 && getCycleEnergyCost() <= getEnergyStored() && canBeginCycle()) {
-				this._powerHandler.useEnergy(getCycleEnergyCost(), getCycleEnergyCost(), true);
+			if(cycledTicks < 0 && getCycleEnergyCost() <= energyStorage.getEnergyStored() && canBeginCycle()) {
+				this.energyStorage.extractEnergy(getCycleEnergyCost(), false);
 				cycledTicks = 0;
 				onPoweredCycleBegin();
 				this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -146,36 +141,49 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	@Override
 	protected void onSendUpdate(NBTTagCompound updateTag) {
 		super.onSendUpdate(updateTag);
-		this._powerHandler.writeToNBT(updateTag);
+		NBTTagCompound energyTag = new NBTTagCompound();
+		this.energyStorage.writeToNBT(energyTag);
+		updateTag.setCompoundTag("energyStorage", energyTag);
 		updateTag.setInteger("cycledTicks", this.cycledTicks);
 	}
 	
 	@Override
 	public void onReceiveUpdate(NBTTagCompound updateTag) {
 		super.onReceiveUpdate(updateTag);
-		this._powerHandler.readFromNBT(updateTag);
+		this.energyStorage.readFromNBT(updateTag.getCompoundTag("energyStorage"));
 		this.cycledTicks = updateTag.getInteger("cycledTicks");
 	}
 	
-	// Buildcraft methods
+	/* IEnergyHandler */
 	@Override
-	public PowerReceiver getPowerReceiver(ForgeDirection side) {
-		return this._powerHandler.getPowerReceiver();
-	}
-	
-	@Override
-	public void doWork(PowerHandler handler) {
-		
-		
-	}
-	
-	@Override
-	public World getWorld() { return this.worldObj; }
+	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
 
-//	@Override
-//	public int powerRequest(ForgeDirection from) { 
-//		return (int)Math.max(_powerHandler.getMaxEnergyStored() - _powerHandler.getEnergyStored(), 0);
-//	}	
+		return energyStorage.receiveEnergy(maxReceive, simulate);
+	}
+
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
+
+		return energyStorage.extractEnergy(maxExtract, simulate);
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from) {
+
+		return true;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from) {
+
+		return energyStorage.getEnergyStored();
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from) {
+
+		return energyStorage.getMaxEnergyStored();
+	}
 	
 	// UE Methods
 
@@ -201,11 +209,11 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	
 	@Override
 	public float getRequest(ForgeDirection to) {
-		if(this._powerHandler.getEnergyStored() >= this._powerHandler.getMaxEnergyStored()) {
+		if(this.energyStorage.getEnergyStored() >= this.energyStorage.getMaxEnergyStored()) {
 			return 0.0f;
 		}
 		else {
-			return (this._powerHandler.getMaxEnergyStored() - this._powerHandler.getEnergyStored()) / energyPerUEWatt;
+			return (this.energyStorage.getMaxEnergyStored() - this.energyStorage.getEnergyStored()) / energyPerUEWatt;
 		}
 	}
 	
@@ -216,8 +224,8 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	
 	@Override
 	public float receiveElectricity(ForgeDirection from, ElectricityPack pack, boolean doAdd) {
-		float mjAccepted = this._powerHandler.addEnergy(pack.getWatts() * energyPerUEWatt);
+		float rfAccepted = this.energyStorage.receiveEnergy((int)(pack.getWatts() * energyPerUEWatt), false);
 		
-		return mjAccepted / energyPerUEWatt;
+		return rfAccepted / energyPerUEWatt;
 	}
 }

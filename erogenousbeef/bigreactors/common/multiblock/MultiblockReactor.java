@@ -5,9 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import buildcraft.api.power.IPowerReceptor;
-import buildcraft.api.power.PowerHandler;
-import buildcraft.api.power.PowerHandler.PowerReceiver;
+import cofh.api.energy.EnergyStorage;
+import cofh.api.energy.IEnergyHandler;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -24,7 +23,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import erogenousbeef.bigreactors.api.HeatPulse;
-import erogenousbeef.bigreactors.api.IBeefPowerStorage;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -41,16 +39,15 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockRegistry;
 
-public class MultiblockReactor extends MultiblockControllerBase implements IBeefPowerStorage, IPowerReceptor {
+public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler {
 	// Game stuff
 	protected boolean active;
 	private float latentHeat;
 	private WasteEjectionSetting wasteEjection;
+	private float energyStored;
 
-	private PowerHandler powerHandler;
-	
 	// UI stuff
-	private double energyGeneratedLastTick;
+	private float energyGeneratedLastTick;
 	
 	public enum WasteEjectionSetting {
 		kAutomatic,					// Full auto, always remove waste
@@ -74,8 +71,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 
 		// Game stuff
 		active = false;
-		latentHeat = 0.0f;
-		energyGeneratedLastTick = 0.0;
+		latentHeat = 0f;
+		energyGeneratedLastTick = 0f;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
@@ -85,10 +82,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		updatePlayers = new HashSet<EntityPlayer>();
 		
 		ticksSinceLastUpdate = 0;
-		
-		powerHandler = new PowerHandler(this, PowerHandler.Type.STORAGE);
-		powerHandler.configure(0f, Float.MAX_VALUE, Float.MAX_VALUE, maxEnergyStored);
-		powerHandler.configurePowerPerdition(0, 0);
 	}
 	
 	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
@@ -170,15 +163,15 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 			this.setHeat(0.0f);
 		}
 		
-		double oldHeat = this.getHeat();
+		float oldHeat = this.getHeat();
 		float oldEnergy = this.getEnergyStored();
-		energyGeneratedLastTick = 0.0;
+		energyGeneratedLastTick = 0f;
 
 		// How much waste do we have?
 		int wasteAmt = 0;
 		int freeFuelSpace = 0;
 		
-		double newHeat = 0.0;
+		float newHeat = 0f;
 		IRadiationPulse radiationResult;
 
 		// Look for waste and run radiation & heat simulations
@@ -290,32 +283,36 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
-	public void setStoredEnergy(float newEnergy) {
-		float storedEnergy = newEnergy;
-		if(storedEnergy < 0.0 || Float.isNaN(storedEnergy)) {
-			storedEnergy = 0.0f;
+	public void setStoredEnergy(float oldEnergy) {
+		energyStored = oldEnergy;
+		if(energyStored < 0.0 || Float.isNaN(energyStored)) {
+			energyStored = 0.0f;
 		}
-		else if(storedEnergy > maxEnergyStored) {
-			storedEnergy = maxEnergyStored;
+		else if(energyStored > maxEnergyStored) {
+			energyStored = maxEnergyStored;
 		}
-		
-		this.powerHandler.setEnergy(storedEnergy);
 	}
 	
 	public void addStoredEnergy(float newEnergy) {
 		if(Float.isNaN(newEnergy)) { return; }
 
-		this.powerHandler.addEnergy(newEnergy * BigReactors.powerProductionMultiplier);
+		energyStored += (newEnergy * BigReactors.powerProductionMultiplier);
+		if(energyStored > maxEnergyStored) {
+			energyStored = maxEnergyStored;
+		}
+		if(energyStored < 0f) {
+			energyStored = 0f;
+		}
 	}
 
 	protected void reduceStoredEnergy(float energy) {
 		if(Float.isNaN(energy)) { return; }
 
-		this.powerHandler.addEnergy(-1.0f * energy);
+		this.addStoredEnergy(-1f * energy);
 	}
 	
-	public void addLatentHeat(double newCasingHeat) {
-		if(Double.isNaN(newCasingHeat)) {
+	public void addLatentHeat(float newCasingHeat) {
+		if(Float.isNaN(newCasingHeat)) {
 			return;
 		}
 
@@ -375,8 +372,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		data.setBoolean("reactorActive", this.active);
-		data.setDouble("heat", this.latentHeat);
-		data.setFloat("storedEnergy", this.powerHandler.getEnergyStored());
+		data.setFloat("heat", this.latentHeat);
+		data.setFloat("storedEnergy", this.energyStored);
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 	}
 
@@ -387,26 +384,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		}
 		
 		if(data.hasKey("heat")) {
-			double oldHeat = data.getDouble("heat");
-			if(oldHeat > 0.0) {
-				setHeat((float)oldHeat);
-			}
-			else {
-				setHeat(data.getFloat("heat"));
-			}
+			setHeat(data.getFloat("heat"));
 		}
 		else {
 			setHeat(0.0f);
 		}
 		
 		if(data.hasKey("storedEnergy")) {
-			double oldEnergy = data.getDouble("storedEnergy");
-			if(oldEnergy > 0.0) {
-				setStoredEnergy((float)oldEnergy);
-			}
-			else {
-				setStoredEnergy(data.getFloat("storedEnergy"));
-			}
+			setStoredEnergy(data.getFloat("storedEnergy"));
 		}
 		else {
 			setStoredEnergy(0.0f);
@@ -443,7 +428,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 								referenceCoord.z,
 								this.active,
 								this.latentHeat,
-								this.powerHandler.getEnergyStored(),
+								energyStored,
 								this.energyGeneratedLastTick});
 	}
 	
@@ -514,15 +499,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 		this.attachedControlRods.clear();
 	}
 
-	// IBeefPowerStorage
-	@Override
 	public float getEnergyStored() {
-		return this.powerHandler.getEnergyStored();
-	}	
-	
-	@Override
-	public float getMaxEnergyStored() {
-		return maxEnergyStored;
+		return energyStored;
 	}
 
 	/**
@@ -719,37 +697,50 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 	/**
 	 * Used to update the UI
 	 */
-	public void setEnergyGeneratedLastTick(double energyGeneratedLastTick) {
+	public void setEnergyGeneratedLastTick(float energyGeneratedLastTick) {
 		this.energyGeneratedLastTick = energyGeneratedLastTick;
 	}
 
 	/**
 	 * UI Helper
 	 */
-	public double getEnergyGeneratedLastTick() {
+	public float getEnergyGeneratedLastTick() {
 		return this.energyGeneratedLastTick;
 	}
 
-	/**
-	 * Used so that Power Taps all draw off the same reservoir.
-	 * @return The internal PowerHandler used to store energy for this reactor.
-	 */
-	
-	public PowerHandler getPowerHandler() {
-		return powerHandler;
+	/** DO NOT USE **/
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive,
+			boolean simulate) {
+		int amtReceived = (int)Math.min(maxReceive, Math.floor(this.maxEnergyStored - this.energyStored));
+		if(!simulate) {
+			this.addStoredEnergy(amtReceived);
+		}
+		return amtReceived;
 	}
 
 	@Override
-	public PowerReceiver getPowerReceiver(ForgeDirection side) {
-		return powerHandler.getPowerReceiver();
+	public int extractEnergy(ForgeDirection from, int maxExtract,
+			boolean simulate) {
+		int amtRemoved = (int)Math.min(maxExtract, this.energyStored);
+		if(!simulate) {
+			this.addStoredEnergy(-1f * amtRemoved);
+		}
+		return amtRemoved;
 	}
 
 	@Override
-	public void doWork(PowerHandler workProvider) {
+	public boolean canInterface(ForgeDirection from) {
+		return false;
 	}
 
 	@Override
-	public World getWorld() {
-		return this.worldObj;
+	public int getEnergyStored(ForgeDirection from) {
+		return (int)energyStored;
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from) {
+		return maxEnergyStored;
 	}
 }
