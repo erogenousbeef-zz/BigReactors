@@ -10,10 +10,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
-- Fluids must be properly registered as fuel somehow, possibly with a fluid<->solid mapping
 - Radiothermal generator needs to get fixed
 - Image Buttons are broken entirely
-- Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
+- (0.2 Merge) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
 
 Known Bugs
 ----------
