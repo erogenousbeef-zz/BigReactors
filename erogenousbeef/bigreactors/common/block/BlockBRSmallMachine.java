@@ -48,6 +48,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		setStepSound(soundMetalFootstep);
 		setHardness(1.0f);
 		setUnlocalizedName("blockBRSmallMachine");
+		setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockBRSmallMachine");
 		setCreativeTab(BigReactors.TAB);
 	}
 	

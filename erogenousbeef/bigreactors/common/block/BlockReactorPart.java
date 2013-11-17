@@ -72,6 +72,7 @@ public class BlockReactorPart extends BlockContainer {
 		setStepSound(soundMetalFootstep);
 		setHardness(1.0f);
 		setUnlocalizedName("blockReactorPart");
+		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorPart");
 		setCreativeTab(BigReactors.TAB);
 	}
 

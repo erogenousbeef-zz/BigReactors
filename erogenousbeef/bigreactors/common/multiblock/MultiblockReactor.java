@@ -20,6 +20,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -665,18 +666,18 @@ public class MultiblockReactor extends MultiblockControllerBase implements IBeef
 				if(controlRod == null) { continue; }
 
 				if(wasteToConsume > 0) {
-					int amtDrained = controlRod.removeWaste(controlRod.getWasteType(), wasteToConsume, true);
+					int amtDrained = controlRod.removeWaste(new FluidStack(controlRod.getWasteType(), wasteToConsume), wasteToConsume, true);
 					wasteToConsume -= amtDrained;
 				}
 				
 				if(fuelToDistribute > 0) {
 					if(controlRod.getFuelType() == null) {
 						// TODO: Discover fuel type
-						ItemStack fuel = OreDictionary.getOres("ingotUranium").get(0).copy();
+						FluidStack fuel = new FluidStack(BigReactors.fluidYellorium, fuelToDistribute);
 						fuelToDistribute -= controlRod.addFuel(fuel, fuelToDistribute, true);
 					}
 					else {
-						fuelToDistribute -= controlRod.addFuel(controlRod.getFuelType(), fuelToDistribute, true);
+						fuelToDistribute -= controlRod.addFuel(new FluidStack(controlRod.getFuelType(), fuelToDistribute), fuelToDistribute, true);
 					}
 				}
 			}

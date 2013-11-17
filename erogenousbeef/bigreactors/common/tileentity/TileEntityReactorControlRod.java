@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
@@ -19,6 +20,7 @@ import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.api.IRadiationSource;
+import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiReactorControlRod;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -45,7 +47,9 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class TileEntityReactorControlRod extends MultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IHeatEntity, IBeefGuiEntity {
@@ -75,11 +79,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	protected int minFuelRodY;
 
 	// Fuel/Waste tracking
-	protected ItemStack fuelItem;
-	protected int fuelAmount;
-	
-	protected ItemStack wasteItem;
-	protected int wasteAmount;
+	protected FluidStack fuel;
+	protected FluidStack waste;
 
 	// Radiation
 	protected float incidentRadiation; // Radiation received since last radiate() call
@@ -107,11 +108,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	
 		isAssembled = false;
 
-		fuelItem = null;
-		fuelAmount = 0;
-
-		wasteItem = null;
-		wasteAmount = 0;
+		fuel = null;
+		waste = null;
 
 		incidentRadiation = 0.0f;
 		localHeat = 0.0f;
@@ -126,27 +124,27 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	
 	// Data accessors
 
-	public ItemStack getFuelType() {
-		if(fuelItem == null) { return null; }
+	public Fluid getFuelType() {
+		if(fuel == null) { return null; }
 		else {
-			return fuelItem.copy();
+			return fuel.getFluid();
 		}
 	}
 	
-	public ItemStack getWasteType() {
-		if(wasteItem == null) {
+	public Fluid getWasteType() {
+		if(waste == null) {
 			return null;
 		} else {
-			return wasteItem.copy();
+			return waste.getFluid();
 		}
 	}
 	
 	public boolean isFull() {
-		return wasteAmount + fuelAmount >= getSizeOfFuelTank();
+		return waste.amount + fuel.amount >= getSizeOfFuelTank();
 	}
 	
 	public boolean isEmpty() {
-		return wasteAmount + fuelAmount <= 0;
+		return waste.amount + fuel.amount <= 0;
 	}
 	
 	public int getSizeOfFuelTank() {
@@ -157,13 +155,13 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	}
 
 	public int getFuelAmount() {
-		if(this.fuelItem == null) { return 0; }
-		return this.fuelAmount;
+		if(this.fuel == null) { return 0; }
+		return this.fuel.amount;
 	}
 
 	public int getWasteAmount() {
-		if(this.wasteItem == null) { return 0; }
-		return this.wasteAmount;
+		if(this.waste == null) { return 0; }
+		return this.waste.amount;
 	}
 
 	public int getTotalContainedAmount() {
@@ -196,42 +194,42 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	/**
 	 * Attempt to add some fuel to the fuel rod.
 	 * 
-	 * @param fuelType An itemstack containing the type of fuel to add.
+	 * @param incomingFuel A FluidStack containing the fuel to add.
 	 * @param amount The amount of fuel to add, in internal units (1 ingot = 1000)
 	 * @param doAdd If true, actually adds the amount to the internal store. If false, just calculates the amount to add and returns that.
 	 * @return Returns the amount of fuel added to this rod (or that would have been added, if doAdd is false)
 	 */
-	public int addFuel(ItemStack fuelType, int amount, boolean doAdd) {
-		if(fuelType == null) {
+	public int addFuel(FluidStack incomingFuel, int amount, boolean doAdd) {
+		if(incomingFuel == null) {
 			return 0;
 		}
 		
 		int amountToAdd = 0;
 		boolean forceUpdate = false;
-		if(this.fuelItem != null) {
-			if(!this.fuelItem.isItemEqual(fuelType)) {
+		if(this.fuel != null) {
+			if(!this.fuel.isFluidEqual(incomingFuel)) {
 				return 0;
 			}
 			
-			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (wasteAmount+fuelAmount));
+			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (getWasteAmount() + getFuelAmount()));
 			if(doAdd) {
-				this.fuelAmount += amountToAdd;
+				this.fuel.amount += amountToAdd;
 			}
 		}
 		else {
-			if(!this.isAcceptedFuel(fuelType)) {
+			if(!this.isAcceptedFuel(incomingFuel.getFluid())) {
 				return 0;
 			}
 			
-			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (wasteAmount+fuelAmount));
+			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (getWasteAmount() + getFuelAmount()));
 			
 			if(amountToAdd <= 0) {
 				return 0;
 			}
 
 			if(doAdd) {
-				this.fuelItem = fuelType.copy();
-				this.fuelAmount = amountToAdd;
+				this.fuel = incomingFuel.copy();
+				this.fuel.amount = amountToAdd;
 				forceUpdate = true;
 			}
 		}
@@ -243,8 +241,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		return amountToAdd;
 	}
 
-	public boolean isAcceptedFuel(ItemStack candidateFuel) {
-		return BRRegistry.getDataForFuel(candidateFuel) != null;
+	public boolean isAcceptedFuel(Fluid fuelType) {
+		return BRRegistry.getDataForFuel(fuelType) != null;
 	}
 	
 	/**
@@ -254,23 +252,22 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	 * @param doRemove If true, actually removes the fuel. Otherwise, just calculates how much can be removed.
 	 * @return The amount of fuel removed; only actually removed if doRemove is set to true.
 	 */
-	public int removeFuel(ItemStack fuelType, int amount, boolean doRemove) {
-		if(fuelAmount <= 0 || amount <= 0) {
+	public int removeFuel(FluidStack outgoingFuel, int amount, boolean doRemove) {
+		if(getFuelAmount() <= 0 || amount <= 0) {
 			return 0;
 		}
 		
-		if(fuelType == null || this.fuelItem.isItemEqual(fuelType)) {
-			int amtToRemove = Math.min(amount, fuelAmount);
+		if(outgoingFuel == null || this.fuel.isFluidEqual(outgoingFuel)) {
+			int amtToRemove = Math.min(amount, getFuelAmount());
 			if(doRemove) {
-				fuelAmount -= amount;
-				if(fuelAmount <= 0) {
-					fuelAmount = 0;
-					this.fuelItem = null;
+				fuel.amount -= amount;
+				if(fuel.amount <= 0) {
+					this.fuel = null;
 				}
 			}
 			
 			if(amtToRemove > 0 && doRemove) {
-				this.updateWorldIfNeeded(this.fuelItem == null);
+				this.updateWorldIfNeeded(this.fuel == null);
 			}
 			return amtToRemove;
 		}
@@ -286,37 +283,37 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	 * @param doAdd If true, actually adds the amount to the internal store. If false, just calculates the amount to add and returns that.
 	 * @return Returns the amount of fuel added to this rod (or that would have been added, if doAdd is false)
 	 */
-	public int addWaste(ItemStack wasteType, int amount, boolean doAdd) {
-		if(wasteType == null) {
+	public int addWaste(FluidStack incomingWaste, int amount, boolean doAdd) {
+		if(incomingWaste == null || amount <= 0) {
 			return 0;
 		}
 		
 		int amountToAdd = 0;
 		boolean forceUpdate = false;
-		if(this.wasteItem != null) {
-			if(!this.wasteItem.isItemEqual(wasteType)) {
+		if(this.waste != null) {
+			if(!this.waste.isFluidEqual(incomingWaste)) {
 				return 0;
 			}
 			
-			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (wasteAmount+fuelAmount));
+			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (getWasteAmount()+getFuelAmount()));
 			if(doAdd) {
-				this.wasteAmount += amountToAdd;
+				this.waste.amount += amountToAdd;
 			}
 		}
 		else {
-			if(!this.isAcceptedWaste(wasteType)) {
+			if(!this.isAcceptedWaste(incomingWaste.getFluid())) {
 				return 0;
 			}
 			
-			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (wasteAmount+fuelAmount));
+			amountToAdd = Math.min(amount, getSizeOfFuelTank() - (getWasteAmount()+getFuelAmount()));
 			
 			if(amountToAdd <= 0) {
 				return 0;
 			}
 
 			if(doAdd) {
-				this.wasteItem = wasteType.copy();
-				this.wasteAmount = amountToAdd;
+				this.waste = incomingWaste.copy();
+				this.waste.amount = amountToAdd;
 				forceUpdate = true;
 			}
 		}
@@ -329,7 +326,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		return amountToAdd;
 	}
 
-	public boolean isAcceptedWaste(ItemStack candidateWaste) {
+	public boolean isAcceptedWaste(Fluid candidateWaste) {
 		return BRRegistry.getDataForWaste(candidateWaste) != null;
 	}
 	
@@ -340,23 +337,22 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	 * @param doRemove If true, actually removes the fuel. Otherwise, just calculates how much can be removed.
 	 * @return The amount of fuel removed; only actually removed if doRemove is set to true.
 	 */
-	public int removeWaste(ItemStack wasteType, int amount, boolean doRemove) {
-		if(wasteAmount <= 0 || amount <= 0) {
+	public int removeWaste(FluidStack outgoingWaste, int amount, boolean doRemove) {
+		if(getWasteAmount() <= 0 || amount <= 0) {
 			return 0;
 		}
 		
-		if(wasteType == null || this.wasteItem.isItemEqual(wasteType)) {
-			int amtToRemove = Math.min(amount, wasteAmount);
+		if(outgoingWaste == null || this.waste.isFluidEqual(outgoingWaste)) {
+			int amtToRemove = Math.min(amount, waste.amount);
 			if(doRemove) {
-				wasteAmount -= amount;
-				if(wasteAmount <= 0) {
-					wasteAmount = 0;
-					this.wasteItem = null;
+				waste.amount -= amount;
+				if(waste.amount <= 0) {
+					this.waste = null;
 				}
 			}
 			
 			if(amtToRemove > 0 && doRemove) {
-				this.updateWorldIfNeeded(this.wasteItem == null);
+				this.updateWorldIfNeeded(this.waste == null);
 			}
 			return amtToRemove;
 		}
@@ -365,16 +361,18 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	}
 	
 	protected void updateWorldIfNeeded(boolean force) {
+		int fuelAmt = this.getFuelAmount();
+		int wasteAmt = this.getWasteAmount();
 		if(force) {
-			this.fuelAtLastUpdate = this.fuelAmount;
-			this.wasteAtLastUpdate = this.wasteAmount;
+			this.fuelAtLastUpdate = fuelAmt;
+			this.wasteAtLastUpdate = wasteAmt;
 			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 		else {
-			if(Math.abs(this.fuelAtLastUpdate - this.fuelAmount) > maximumDevianceInContentsBetweenUpdates ||
-				Math.abs(this.wasteAtLastUpdate - this.wasteAmount) > maximumDevianceInContentsBetweenUpdates) {
-					this.fuelAtLastUpdate = this.fuelAmount;
-					this.wasteAtLastUpdate = this.wasteAmount;
+			if(Math.abs(this.fuelAtLastUpdate - fuelAmt) > maximumDevianceInContentsBetweenUpdates ||
+				Math.abs(this.wasteAtLastUpdate -wasteAmt) > maximumDevianceInContentsBetweenUpdates) {
+					this.fuelAtLastUpdate = fuelAmt;
+					this.wasteAtLastUpdate = wasteAmt;
 					this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
 		}
@@ -424,7 +422,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		float fuelDesired = 0.0f;
 		
 		// Nothing to do.
-		if(this.fuelAmount <= 0 && this.wasteAmount <= 0) { return new RadiationPulse(); }
+		if(this.getFuelAmount() <= 0 && this.getWasteAmount() <= 0) { return new RadiationPulse(); }
 		
 		if(this.localHeat < 0.0 || Float.isNaN(this.localHeat) || Float.isInfinite(this.localHeat)) {
 			// We do not deal with cryogenic reactors. Repair thine self.
@@ -432,14 +430,14 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 		
 		if(this.incidentRadiation < 0.0 || Float.isNaN(this.incidentRadiation) || Float.isInfinite(this.incidentRadiation)) {
-			// Wacky shit has happened. Try to auto-repair thine self.
+			// Wacky shit has happened. Try to auto-repair thyself
 			this.incidentRadiation = 0.0f;
 		}
 
 		// Step 1: Generate raw neutron mass
 		// Step 1a: Generate spontaneous neutrons from fuel (consumes fuel)
-		if(this.fuelAmount > 0) {
-			rawNeutronsGenerated += this.fuelAmount * neutronsPerFuel;
+		if(this.fuel != null && this.fuel.amount > 0) {
+			rawNeutronsGenerated += this.fuel.amount * neutronsPerFuel;
 			rawNeutronsGenerated *= 1.0f - (this.controlRodInsertion / 100.0f);
 
 			fuelDesired += rawNeutronsGenerated * Math.max(1.0, Math.log10(this.localHeat));
@@ -485,29 +483,29 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 					fuelUsed = rand.nextInt(fuelUsed) + 1;
 				}
 
-				this.removeFuel(this.fuelItem, fuelUsed, true);
+				// Just slurp out whatever fuel we've got inside. This may need a refactor if we allow fuel blends.
+				this.removeFuel(null, fuelUsed, true);
 				
-				if(wasteItem == null) {
-					// TODO: Add a parameter to fuels so we know what they get processed into
-					ArrayList<ItemStack> wastes = OreDictionary.getOres("ingotCyanite");
-					if(wastes != null && wastes.size() > 0) {
-						wasteItem = wastes.get(0).copy();
-						wasteItem.stackSize = 1;
+				if(this.waste == null) {
+					IReactorFuel fuelData = BRRegistry.getDataForFuel(this.fuel.getFluid());
+					if(fuelData != null && fuelData.getProductFluid() != null) {
+						this.waste = new FluidStack(fuelData.getProductFluid(), 0);
 					}
 					else {
-						// Fallback plan, in case the Ore Dictionary fucks up
-						wasteItem = new ItemStack(BigReactors.ingotGeneric, 1, 1);
+						// Fallback plan, in case something weird is happening
+						FMLLog.warning("Big Reactors: Reactor column is defaulting to cyanite waste, as there is no fuel-product data for %s", fuel.getFluid().getName());
+						this.waste = new FluidStack(BigReactors.fluidCyanite, 0);
 					}
 				}
 				
-				this.addWaste(this.wasteItem, fuelUsed, true);
+				this.addWaste(this.waste, fuelUsed, true);
 
 				neutronsSinceLastFuelConsumption = 0;
 			}
 		}
 		
 		// Generate a tiny amount of radiation from waste. A really tiny amount.
-		float wasteNeutronsGenerated = (float)this.wasteAmount * neutronsPerFuel * wasteNeutronPenalty;
+		float wasteNeutronsGenerated = (float)this.getWasteAmount() * neutronsPerFuel * wasteNeutronPenalty;
 		internalHeatGenerated += wasteNeutronsGenerated * heatPerNeutron;
 		internalPowerGenerated += wasteNeutronsGenerated * powerPerNeutron;
 		rawNeutronsGenerated += wasteNeutronsGenerated;
@@ -719,7 +717,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 		
 		// Now generate some additional radiation, based on local heat & fuel, at a disadvantaged rate
-		float newFastRadiation = this.fuelAmount * this.neutronsPerFuel * 0.25f * Math.min(0.01f, Math.max(1.0f, 1.0f - (this.localHeat / 2000.0f)));
+		float newFastRadiation = this.getFuelAmount() * this.neutronsPerFuel * 0.25f * Math.min(0.01f, Math.max(1.0f, 1.0f - (this.localHeat / 2000.0f)));
 		radiation.setFastRadiation(radiation.getFastRadiation() + newFastRadiation);
 
 		// Strengthen the pulse so it travels further in truly huge reactors
@@ -956,21 +954,17 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			this.neutronsSinceLastFuelConsumption = data.getInteger("ticksSinceLastFuelConsumption");
 		}
 		
-		this.fuelAmount = 0;
-		this.fuelItem = null;
-		if(data.hasKey("fuelAmount") && data.hasKey("fuelData")) {
-			this.fuelAmount = data.getInteger("fuelAmount");
-			this.fuelItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("fuelData"));
+		this.fuel = null;
+		if(data.hasKey("fuelFluidStack")) {
+			this.fuel = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("fuelFluidStack"));
 		}
-		this.fuelAtLastUpdate = this.fuelAmount;
+		this.fuelAtLastUpdate = getFuelAmount();
 
-		this.wasteAmount = 0;
-		this.wasteItem = null;
-		if(data.hasKey("wasteAmount") && data.hasKey("wasteData")) {
-			this.wasteAmount = data.getInteger("wasteAmount");
-			this.wasteItem = ItemStack.loadItemStackFromNBT(data.getCompoundTag("wasteData"));
+		this.waste = null;
+		if(data.hasKey("wasteFluidStack")) {
+			this.waste = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("wasteFluidStack"));
 		}
-		this.wasteAtLastUpdate = this.wasteAmount;
+		this.wasteAtLastUpdate = this.getWasteAmount();
 		
 		if(data.hasKey("controlRodInsertion")) {
 			this.controlRodInsertion = data.getShort("controlRodInsertion");
@@ -983,18 +977,15 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		data.setInteger("ticksSinceLastFuelConsumption", this.neutronsSinceLastFuelConsumption);
 		data.setShort("controlRodInsertion", this.controlRodInsertion);
 		
-		if(this.fuelItem != null && this.fuelAmount > 0) {
+		if(this.fuel != null) {
 			NBTTagCompound fuelData = new NBTTagCompound();
-			this.fuelItem.writeToNBT(fuelData);
-			data.setInteger("fuelAmount", fuelAmount);
-			data.setCompoundTag("fuelData", fuelData);
+			this.fuel.writeToNBT(fuelData);
+			data.setCompoundTag("fuelFluidStack", fuelData);
 		}
 		
-		if(this.wasteItem != null && this.wasteAmount > 0) {
+		if(this.waste != null) {
 			NBTTagCompound wasteData = new NBTTagCompound();
-			this.wasteItem.writeToNBT(wasteData);
-			data.setInteger("wasteAmount", wasteAmount);
-			data.setCompoundTag("wasteData", wasteData);
+			data.setCompoundTag("wasteFluidStack", wasteData);
 		}
 	}
 	

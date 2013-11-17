@@ -18,6 +18,7 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
+import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BRUtilities;
@@ -54,12 +55,15 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 		
-		// TODO: Fix this to use the registry
+		IReactorFuel data = BRRegistry.getDataForSolid(itemstack);
+		
+		if(data == null) { return false; }
+		
 		if(slot == SLOT_OUTLET) {
-			return BRRegistry.getDataForFuel(itemstack) != null;
+			return data.isFuel();
 		}
 		else if(slot == SLOT_INLET) {
-			return BRRegistry.getDataForWaste(itemstack) != null;
+			return data.isWaste();
 		}
 		
 		return false;

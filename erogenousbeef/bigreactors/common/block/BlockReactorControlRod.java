@@ -26,6 +26,7 @@ public class BlockReactorControlRod extends BlockContainer {
 		
 		this.setHardness(1.0f);
 		this.setUnlocalizedName("blockReactorControlRod");
+		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorControlRod");
 		this.setCreativeTab(BigReactors.TAB);
 	}
 

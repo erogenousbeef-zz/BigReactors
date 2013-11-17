@@ -166,11 +166,15 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 
+		IReactorFuel data = BRRegistry.getDataForSolid(itemstack);
+		
+		if(data == null) { return false; }
+		
 		if(slot == SLOT_INLET) {
-			return BRRegistry.getDataForFuel(itemstack) != null;
+			return data.isFuel();
 		}
 		else if(slot == SLOT_OUTLET) {
-			return BRRegistry.getDataForWaste(itemstack) != null;
+			return data.isWaste();
 		}
 		
 		return false;

@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.api;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.Fluid;
 
 /**
  * Implement this interface to provide information on fuel for Big Reactors.
@@ -15,20 +16,20 @@ public interface IReactorFuel {
 	public boolean isFuelEqual(IReactorFuel otherFuel);
 	
 	/**
-	 * Does this ReactorFuel object govern data related to this item stack?
-	 * Essentially an isItemEqual check between this object's reference item and
-	 * the parameter.
-	 * @param item The ItemStack to compare.
-	 * @return True if the reference item is equal to the parameter, false otherwise.
+	 * Does this ReactorFuel object govern data related to this fluid?
+	 * Essentially an isFluidEqual check.
+	 * 
+	 * @param fluid The Fluid to compare.
+	 * @return True if the reference fluid is equal to the parameter.
 	 */
-	public boolean isFuelEqual(ItemStack item);
+	public boolean isFuelEqual(Fluid fluid);
 	
 	/**
-	 * Return the "reference item" for this fuel object. This is the Minecraft item
-	 * for which this ReactorFuel object defines properties.
-	 * @return The ItemStack representing the item which this Reactor Fuel object governs.
+	 * Return the reference fluid for this fuel. This is the Forge Fluid for which
+	 * this ReactorFuel object defines properties.
+	 * @return The Fluid which this Reactor Fuel object governs.
 	 */
-	public ItemStack getReferenceItem();
+	public Fluid getReferenceFluid();
 	
 	/**
 	 * Returns the basic color of your fuel in RRGGBB format. This will be used for
@@ -46,4 +47,14 @@ public interface IReactorFuel {
 	public boolean equals(Object otherObject);
 
 	// TODO: Add fuel characteristics here
+	/**
+	 * Fuels are converted into other types of Fluids as they get processed.
+	 * For now, any given Fuel/Waste Fluid is only converted into one other.
+	 * @return The Fluid representing the converted product of this Fuel. Null is acceptable and means the Fuel is simply consumed.
+	 */
+	public Fluid getProductFluid();
+	
+	public boolean isFuel();
+	
+	public boolean isWaste();
 }

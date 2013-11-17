@@ -9,6 +9,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.Icon;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.world.World;
+import net.minecraftforge.event.Event.Result;
+import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -24,6 +29,7 @@ import erogenousbeef.bigreactors.common.block.BlockRTG;
 import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemBlockRTG;
@@ -45,7 +51,7 @@ public class BigReactors {
 
 	public static final String NAME 	= "Big Reactors";
 	public static final String CHANNEL 	= "BigReactors";
-	public static final String RESOURCE_PATH = "/mods/bigreactors/";
+	public static final String RESOURCE_PATH = "/assets/bigreactors/";
 	
 	public static final CreativeTabs TAB = new CreativeTabBR(CreativeTabs.getNextID(), CHANNEL);
 	
@@ -74,6 +80,10 @@ public class BigReactors {
 	public static Block fluidYelloriumStill;
 	public static Block fluidCyaniteStill;
 	public static Block fluidFuelColumnStill;
+	
+	// Buckets for bucketing reactor fluids
+	public static Item fluidYelloriumBucketItem;
+	public static Item fluidCyaniteBucketItem;
 	
 	public static Fluid fluidYellorium;
 	public static Fluid fluidCyanite;
@@ -236,6 +246,8 @@ public class BigReactors {
 				});
 			}
 			*/
+			
+			registerReactorFuelData();
 		}
 
 		INITIALIZED = true;
@@ -319,14 +331,12 @@ public class BigReactors {
 			{
 				ItemStack yelloriumStack = new ItemStack(ingotGeneric, 1, 0);
 				OreDictionary.registerOre("ingotUranium", yelloriumStack);
-				BRRegistry.registerFuel(new ReactorFuel(yelloriumStack, BigReactors.defaultFluidColorFuel));
 			}
 			
 			if (OreDictionary.getOres("ingotCyanite").size() <= 0 || require)
 			{
 				ItemStack cyaniteStack = new ItemStack(ingotGeneric, 1, 1);
 				OreDictionary.registerOre("ingotCyanite", cyaniteStack);
-				BRRegistry.registerWaste(new ReactorFuel(cyaniteStack, BigReactors.defaultFluidColorWaste));
 			}
 			
 			if (OreDictionary.getOres("ingotGraphite").size() <= 0 || require)
@@ -338,8 +348,6 @@ public class BigReactors {
 			{
 				ItemStack blutoniumStack = new ItemStack(ingotGeneric, 1, 3);
 				OreDictionary.registerOre("ingotPlutonium", blutoniumStack);
-				// TODO: Fix the color of this
-				BRRegistry.registerFuel(new ReactorFuel(blutoniumStack, 0x2222ee));
 			}
 
 			// Dusts
@@ -453,9 +461,9 @@ public class BigReactors {
 			BigReactors.fluidYelloriumStill = liqY;
 			
 			GameRegistry.registerBlock(BigReactors.fluidYelloriumStill, ItemBlockBigReactors.class, BigReactors.fluidYelloriumStill.getUnlocalizedName());
+
+			fluidYelloriumBucketItem = (new ItemBRBucket(BRConfig.CONFIGURATION.getItem("BucketYellorium", BigReactors.ITEM_ID_PREFIX + 1).getInt(), liqY.blockID)).setUnlocalizedName("bucket.yellorium").setMaxStackSize(1).setContainerItem(Item.bucketEmpty);
 			
-			// TODO: See if we can work around this somehow. registerFluidFuel?
-			//BRRegistry.registerFuel(new ReactorFuel(fluidYellorium, BigReactors.defaultLiquidColorFuel));
 			BRConfig.CONFIGURATION.save();
 		}
 		
@@ -482,8 +490,9 @@ public class BigReactors {
 			BigReactors.fluidCyaniteStill = liqDY;
 			GameRegistry.registerBlock(BigReactors.fluidCyaniteStill, ItemBlockBigReactors.class, BigReactors.fluidCyaniteStill.getUnlocalizedName());
 			
+			fluidCyaniteBucketItem = (new ItemBRBucket(BRConfig.CONFIGURATION.getItem("BucketCyanite", BigReactors.ITEM_ID_PREFIX + 2).getInt(), liqDY.blockID)).setUnlocalizedName("bucket.cyanite").setMaxStackSize(1).setContainerItem(Item.bucketEmpty);
+			
 			// TODO: Work around this somehow
-			//BRRegistry.registerWaste(new ReactorFuel(liquidCyaniteStack.asItemStack(), BigReactors.defaultLiquidColorWaste));
 			BRConfig.CONFIGURATION.save();
 		}
 
@@ -506,5 +515,24 @@ public class BigReactors {
 
 			BRConfig.CONFIGURATION.save();
 		}
-	}	
+		
+	}
+	
+	// This must be done in init or later
+	protected static void registerReactorFuelData() {
+		// Register fluids as fuels
+		BRRegistry.registerReactorFluid(new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
+		BRRegistry.registerReactorFluid(new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
+		
+		ItemStack yelloriumStack 	= new ItemStack(ingotGeneric, 1, 0);
+		ItemStack cyaniteStack 		= new ItemStack(ingotGeneric, 1, 1);
+		ItemStack blutoniumStack 	= new ItemStack(ingotGeneric, 1, 2);
+		
+		BRRegistry.registerSolidMapping(new ReactorSolidMapping(yelloriumStack, fluidYellorium));
+		BRRegistry.registerSolidMapping(new ReactorSolidMapping(cyaniteStack, fluidCyanite));
+
+		// TODO: Fix the color of this
+		// TODO: Make a proper blutonium fluid
+		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
+	}
 }

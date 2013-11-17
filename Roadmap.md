@@ -13,7 +13,7 @@ Technical Debt / Fixes
 - Fluids must be properly registered as fuel somehow, possibly with a fluid<->solid mapping
 - Radiothermal generator needs to get fixed
 - Image Buttons are broken entirely
-- Blocks and items don't have textures and just show up as purple/black boxes
+- Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
 
 Known Bugs
 ----------
@@ -45,16 +45,16 @@ TODO - Beta
 ### Add redstone interfaces
 - (DONE/0.2) RedNet Interface block
 - Redstone Interface block
-- (IN PROGRESS/0.2) These are configurable. RedNet allows for up to 16 I/O channels with continuous I/O.
+- (DONE/0.2) These are configurable. RedNet allows for up to 16 I/O channels with continuous I/O.
 - (DONE/0.2) Reactor on/off
 - (DONE/0.2) Control rod in/out, or set specific % insertion via RedNet
 - (DONE/0.2) Emit reactor & control rod temperature
-- Signal emitter if global waste % goes over X
 - (DONE/0.2) RedNet Versions: Emit waste %/amt, Emit raw temperature
 
 ### Reactor Mechanics
 - Add fuel->waste and waste->fuel item mappings to registry; remove hardcoded references to Ore Dictionary
 - Blutonium: give it different properties than yellorium.
+- Blutonium: Create a proper fluid for it so it can be handled as a first-class member of the fuel cycle
 - Control Rods: Add "dump contents" button so they can be forcibly emptied
 - Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering
 - Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
@@ -75,8 +75,6 @@ Wishlist / Post-Release
 - Add IAntiPoisonBlock interface to reactor blocks from Atomic Science
 
 ### Liquids Refactor (minecraft 1.6)
-- Refactor liquids using new Forge liquid interfaces
-- Making flowing-liquid blocks
 - Add nasty side effects for going near pools of yellorium
 - Add MFR compatibility for drinking with a straw
 - Add liquid interfaces/liquid fuel cycle
@@ -85,10 +83,19 @@ Wishlist / Post-Release
 - Coolant buffer in main reactor controller
 - Coolant I/O interface blocks
 - Reactor no longer generates power from heat directly, but instead converts coolant to superheated coolant
-- Too much superheated coolant = EXPLOSION!
 - Superheated Coolant can be processed directly into power, converts back into regular coolant
 
 ### Advanced coolant add-ons
 - Coolant manifolds inside reactor allow fuel rod heat to convert coolant
 - Heat exchanger allows conversion of superheated coolant + water -> steam + coolant
 - Different types of coolant with different transference properties
+
+### Multiblock Power Storage
+- Molten salt/liquid metal batteries
+- Build big banks of highly-vertical battery cells
+- Must warm up (reduced storage efficiency on startup)
+- Once warmed up, remains warm so long as there's more power than a certain threshold inside
+- Cools slowly if power within drops below threshold
+
+### Fuel Pre-Processing
+- Provide better ways of pre-processing reactor fuel dusts directly into fuel fluids at an enhanced rate
