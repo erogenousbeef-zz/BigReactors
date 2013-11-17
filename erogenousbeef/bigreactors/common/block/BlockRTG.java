@@ -31,6 +31,7 @@ public class BlockRTG extends BlockContainer {
 		setStepSound(soundMetalFootstep);
 		setHardness(1.0f);
 		setUnlocalizedName("blockRadiothermalGen");
+		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockRadiothermalGen");
 		setCreativeTab(BigReactors.TAB);
 	}
 	

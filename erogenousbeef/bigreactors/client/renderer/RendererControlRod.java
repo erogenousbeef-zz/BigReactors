@@ -197,8 +197,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 	// Fluid/Color Helpers
 	
 	// Returns the registered fluid color if there is one; 0 otherwise.
-	protected int getRegisteredFuelColor(ItemStack itemStack) {
-		IReactorFuel fuelData = BRRegistry.getDataForFuel(itemStack);
+	protected int getRegisteredFuelColor(Fluid fluid) {
+		IReactorFuel fuelData = BRRegistry.getDataForFuel(fluid);
 		if(fuelData != null) {
 			return fuelData.getFuelColor();
 		}
@@ -206,8 +206,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		return BigReactors.defaultFluidColorFuel;
 	}
 	
-	protected int getRegisteredWasteColor(ItemStack itemStack) {
-		IReactorFuel fuelData = BRRegistry.getDataForWaste(itemStack);
+	protected int getRegisteredWasteColor(Fluid fluid) {
+		IReactorFuel fuelData = BRRegistry.getDataForWaste(fluid);
 		if(fuelData != null) {
 			return fuelData.getFuelColor();
 		}
