@@ -68,6 +68,7 @@ public abstract class BRRegistry {
 	}
 	
 	public static IReactorFuel getDataForSolid(ItemStack fuelItem) {
+		if(fuelItem == null) { return null; }
 		for(IReactorSolid candidate : _reactorSolids) {
 			if(candidate.isItemEqual(fuelItem)) {
 				IReactorFuel data = getDataForFuel(candidate.getReferenceFluid());
@@ -83,6 +84,7 @@ public abstract class BRRegistry {
 	}
 	
 	public static IReactorFuel getDataForFuel(Fluid fluid) {
+		if(fluid == null) { return null; }
 		for(IReactorFuel candidate : _reactorFuels) {
 			if(candidate.isFuelEqual(fluid)) {
 				return candidate;
@@ -93,6 +95,7 @@ public abstract class BRRegistry {
 	}
 
 	public static IReactorFuel getDataForWaste(Fluid fluid) {
+		if(fluid == null) { return null; }
 		for(IReactorFuel candidate : _reactorWastes) {
 			if(candidate.isFuelEqual(fluid)) {
 				return candidate;
