@@ -10,7 +10,6 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
-- UI Power bar on small machines is not working
 - Radiothermal generator needs to get fixed
 - Image Buttons are broken entirely
 - Change yellorite worldgen to favor y12
