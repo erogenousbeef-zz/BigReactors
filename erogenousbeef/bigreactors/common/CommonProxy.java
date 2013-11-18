@@ -6,13 +6,13 @@ import java.util.List;
 
 import appeng.api.Util;
 
-import thermalexpansion.api.crafting.CraftingHelpers;
-
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.ReflectionHelper;
@@ -71,31 +71,31 @@ public class CommonProxy {
 		
 		if(Loader.isModLoaded("ThermalExpansion")) {
 			if(yelloriteOre != null && ingotYellorium != null) {
-				CraftingHelpers.addSmelterOreToIngotsRecipe(yelloriteOre.copy(), ingotYellorium.copy());
+				addSmelterRecipe(yelloriteOre.copy(), ingotYellorium.copy(), 4000);
 			}
 			
 			if(yelloriteOre != null && dustYellorium != null) {
-				CraftingHelpers.addPulverizerOreToDustRecipe(yelloriteOre.copy(), dustYellorium.copy());
+				addPulverizerRecipe(yelloriteOre.copy(), dustYellorium.copy(), 4000);
 			}
 			
 			if(ingotYellorium != null && dustYellorium != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotYellorium.copy(), dustYellorium.copy());
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustYellorium.copy(), ingotYellorium.copy());
+				addPulverizerRecipe(ingotYellorium.copy(), dustYellorium.copy(), 2400);
+				addSmelterRecipe(dustYellorium.copy(), ingotYellorium.copy(), 800);
 			}
 
 			if(ingotCyanite != null && dustCyanite != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotCyanite.copy(), dustCyanite.copy());
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustCyanite.copy(), ingotCyanite.copy());
+				addPulverizerRecipe(ingotCyanite.copy(), dustCyanite.copy(), 2400);
+				addSmelterRecipe(dustCyanite.copy(), ingotCyanite.copy(), 800);
 			}
 
 			if(ingotGraphite != null && dustGraphite != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotGraphite.copy(), dustGraphite.copy());
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustGraphite.copy(), ingotGraphite.copy());
+				addPulverizerRecipe(ingotGraphite.copy(), dustGraphite.copy(), 2400);
+				addSmelterRecipe(dustGraphite.copy(), ingotGraphite.copy(), 800);
 			}
 
 			if(ingotBlutonium != null && dustBlutonium != null) {
-				CraftingHelpers.addPulverizerIngotToDustRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
-				CraftingHelpers.addSmelterDustToIngotsRecipe(dustBlutonium.copy(), ingotBlutonium.copy());
+				addPulverizerRecipe(ingotBlutonium.copy(), dustBlutonium.copy(), 2400);
+				addSmelterRecipe(dustBlutonium.copy(), ingotBlutonium.copy(), 800);
 			}
 		}
 		
@@ -197,5 +197,26 @@ public class CommonProxy {
 		} catch(Exception e) {
 			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
 		}
-	}	
+	}
+	
+	// Thermal Expansion IMC APIs, thanks Skyboy!
+	protected void addPulverizerRecipe(ItemStack from, ItemStack to, int energy) {
+		NBTTagCompound message = new NBTTagCompound();
+		message.setInteger("energy", energy);
+		message.setCompoundTag("input", from.writeToNBT(new NBTTagCompound()));
+		message.setCompoundTag("primaryOutput",to.writeToNBT(new NBTTagCompound()));
+		sendInterModMessage("ThermalExpansion", "PulverizerRecipe", message);
+	}
+	
+	protected void addSmelterRecipe(ItemStack from, ItemStack to, int energy) {
+		NBTTagCompound message = new NBTTagCompound();
+		message.setInteger("energy", energy);
+		message.setCompoundTag("input", from.writeToNBT(new NBTTagCompound()));
+		message.setCompoundTag("primaryOutput",to.writeToNBT(new NBTTagCompound()));
+		sendInterModMessage("ThermalExpansion", "SmelterRecipe", message);
+	}
+	
+	protected void sendInterModMessage(String to, String type, NBTTagCompound message) {
+		FMLInterModComms.sendMessage(to, type, message);
+	}
 }
