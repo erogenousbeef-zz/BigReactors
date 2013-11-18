@@ -120,7 +120,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
 		
-		energyGeneratedString.setLabelText(String.format("Power Output: %1.1f MJ", reactor.getEnergyGeneratedLastTick()));
+		energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF", reactor.getEnergyGeneratedLastTick()));
 	}
 	
 	@Override
