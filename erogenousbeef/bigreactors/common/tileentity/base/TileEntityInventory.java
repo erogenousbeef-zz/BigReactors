@@ -3,6 +3,9 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+
 import buildcraft.api.transport.IPipeTile;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -22,7 +25,7 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
+public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory, IItemConduitConnection {
 	
 	// Configurable Sides
 	protected int[] invExposures;
@@ -260,6 +263,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
 		return isItemValidForSlot(slot, itemstack);
 	}	
+
+	// IItemConduitConnection
+	public boolean canConduitConnect(ForgeDirection from) {
+		return from != ForgeDirection.UNKNOWN;
+	}
 	
 	// Networked GUI
 	@Override
@@ -299,7 +307,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			if(invExposures[rotatedSide] != fromSlot) { continue; }
 			
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te != null && te instanceof IPipeTile) {
+			if(te instanceof IItemConduit) {
+				IItemConduit conduit = (IItemConduit)te;
+				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
+			}
+			else if(te instanceof IPipeTile) {
 				IPipeTile pipe = (IPipeTile)te;
 				if(pipe.isPipeConnected(dir.getOpposite())) {
 					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
