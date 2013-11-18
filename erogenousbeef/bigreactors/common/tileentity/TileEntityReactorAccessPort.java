@@ -3,6 +3,9 @@ package erogenousbeef.bigreactors.common.tileentity;
 import java.io.DataInputStream;
 import java.util.HashMap;
 
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -28,7 +31,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
-public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
+public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, IItemConduitConnection {
 
 	protected ItemStack[] _inventories;
 	
@@ -246,7 +249,11 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 		for(ForgeDirection dir : dirsToCheck) {
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te != null && te instanceof IPipeTile) {
+			if(te instanceof IItemConduit) {
+				IItemConduit conduit = (IItemConduit)te;
+				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
+			}
+			else if(te instanceof IPipeTile) {
 				IPipeTile pipe = (IPipeTile)te;
 				if(pipe.isPipeConnected(dir.getOpposite())) {
 					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
@@ -268,5 +275,11 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(BlockReactorPart.ACCESSPORT_OUTLET == this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
 			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
 		}
+	}
+
+	// IItemConduitConnection
+	@Override
+	public boolean canConduitConnect(ForgeDirection from) {
+		return from != ForgeDirection.UNKNOWN;
 	}
 }
