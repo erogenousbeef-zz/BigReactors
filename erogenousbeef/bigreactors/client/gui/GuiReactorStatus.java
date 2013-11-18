@@ -13,6 +13,7 @@ import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorStatus extends BeefGuiBase {
 
@@ -94,8 +95,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 	}
 
 	@Override
-	public String getGuiBackground() {
-		return BigReactors.GUI_DIRECTORY + "ReactorController.png";
+	public ResourceLocation getGuiBackground() {
+		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "ReactorController.png");
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
 		
-		energyGeneratedString.setLabelText(String.format("Power Output: %1.1f MJ", reactor.getEnergyGeneratedLastTick()));
+		energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF", reactor.getEnergyGeneratedLastTick()));
 	}
 	
 	@Override

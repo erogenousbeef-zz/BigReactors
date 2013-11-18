@@ -1,11 +1,11 @@
 package erogenousbeef.bigreactors.api;
 
 public class HeatPulse {
-	public double powerProduced;
-	public double heatChange;
+	public float powerProduced;
+	public float heatChange;
 	
 	public HeatPulse() {
-		powerProduced = 0.0;
-		heatChange = 0.0;
+		powerProduced = 0.0f;
+		heatChange = 0.0f;
 	}
 }

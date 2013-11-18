@@ -4,20 +4,20 @@ import erogenousbeef.bigreactors.api.IRadiationPulse;
 
 public class RadiationPulse implements IRadiationPulse {
 
-	double fast;
-	double slow;
+	float fast;
+	float slow;
 	int ttl;
-	double power;
-	double heat;
+	float power;
+	float heat;
 	
 	public RadiationPulse() { 
 		fast = slow = 0;
 		ttl = 1;
-		heat = 0.0;
-		power = 0.0;
+		heat = 0.0f;
+		power = 0.0f;
 	}
 	
-	public RadiationPulse(double fast, double slow, int timeToLive, double heat, double power) {
+	public RadiationPulse(float fast, float slow, int timeToLive, float heat, float power) {
 		this.fast = fast;
 		this.slow = slow;
 		this.ttl = timeToLive;
@@ -26,12 +26,12 @@ public class RadiationPulse implements IRadiationPulse {
 	}
 	
 	@Override
-	public double getFastRadiation() {
+	public float getFastRadiation() {
 		return fast;
 	}
 
 	@Override
-	public double getSlowRadiation() {
+	public float getSlowRadiation() {
 		return slow;
 	}
 
@@ -41,12 +41,12 @@ public class RadiationPulse implements IRadiationPulse {
 	}
 
 	@Override
-	public void setFastRadiation(double newValue) {
+	public void setFastRadiation(float newValue) {
 		fast = newValue;
 	}
 
 	@Override
-	public void setSlowRadiation(double newValue) {
+	public void setSlowRadiation(float newValue) {
 		slow = newValue;
 	}
 
@@ -61,22 +61,22 @@ public class RadiationPulse implements IRadiationPulse {
 	}
 
 	@Override
-	public double getPowerProduced() {
+	public float getPowerProduced() {
 		return power;
 	}
 
 	@Override
-	public void addPower(double additionalPower) {
+	public void addPower(float additionalPower) {
 		power += additionalPower;
 	}
 
 	@Override
-	public double getHeatProduced() {
+	public float getHeatProduced() {
 		return heat;
 	}
 
 	@Override
-	public void changeHeat(double difference) {
+	public void changeHeat(float difference) {
 		heat += difference;
 	}
 }

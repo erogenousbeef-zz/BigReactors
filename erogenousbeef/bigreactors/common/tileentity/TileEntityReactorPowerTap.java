@@ -5,29 +5,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import cofh.api.energy.IEnergyHandler;
+
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.power.buildcraft.PowerProviderBeef;
 import universalelectricity.core.block.IConductor;
 import universalelectricity.core.block.IConnector;
-import universalelectricity.core.block.IVoltage;
-import universalelectricity.core.electricity.ElectricityNetworkHelper;
-import universalelectricity.core.electricity.IElectricityNetwork;
-import buildcraft.api.core.SafeTimeTracker;
-import buildcraft.api.power.IPowerProvider;
-import buildcraft.api.power.IPowerReceptor;
+import universalelectricity.core.block.IElectrical;
+import universalelectricity.core.electricity.ElectricityPack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IVoltage, IConnector, IPowerReceptor {
+public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IElectrical, IEnergyHandler {
 
-	public static final float uePowerFactor = 0.01f;	 // 100 UE watts per 1 internal power
-	public static final float bcPowerFactor = 1.00f;  // 1 MJ per 1 internal power
+	public static final float uePowerFactor = 0.1f;	 // 10 UE watts per 1 internal power
+	public static final float rfPowerFactor = 1f;    // 1 RF per 1 internal power
 	
 	boolean isConnected;
-	IPowerProvider powerProvider;
 	
 	ForgeDirection out;
 	
@@ -35,8 +31,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		super();
 		
 		isConnected = false;
-		
-		powerProvider = new PowerProviderBeef();
 		
 		out = ForgeDirection.UNKNOWN;
 	}
@@ -120,7 +114,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			if(te == null || te instanceof TileEntityReactorPowerTap) {
 				isConnected = false;
 			}
-			else if(te instanceof IPowerReceptor) {
+			else if(te instanceof IEnergyHandler) {
 				isConnected = true;
 			}
 			else if(te instanceof IConnector) {
@@ -149,6 +143,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	/** This will be called by the Reactor Controller when this tap should be providing power.
 	 * @return Power units remaining after consumption.
 	 */
+	// TODO: Eliminate this entire method
 	public int onProvidePower(int units) {
 		ArrayList<CoordTriplet> deadCoords = null;
 		
@@ -156,6 +151,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			return units;
 		}
 		
+		/*
 		TileEntity te = this.worldObj.getBlockTileEntity(xCoord + out.offsetX, yCoord + out.offsetY, zCoord + out.offsetZ);
 		if(te instanceof IPowerReceptor) {
 			// Buildcraft
@@ -197,15 +193,9 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			isConnected = false;
 			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
 		}
+		*/
 		
 		return units;
-	}
-	
-	@Override
-	public void invalidate()
-	{
-		ElectricityNetworkHelper.invalidate(this); // Universal Electricity
-		super.invalidate();
 	}
 	
 	// Universal Electricity
@@ -216,26 +206,68 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	}
 
 	@Override
-	public double getVoltage() {
+	public float getVoltage() {
 		// TODO: Make this selectable?
 		return 120;
 	}
 
-	// Buildcraft methods
-	
 	@Override
-	public void setPowerProvider(IPowerProvider provider) {
-		this.powerProvider = provider;
+	public float receiveElectricity(ForgeDirection from,
+			ElectricityPack receive, boolean doReceive) {
+		return 0;
 	}
 
 	@Override
-	public IPowerProvider getPowerProvider() {
-		return this.powerProvider;
+	public ElectricityPack provideElectricity(ForgeDirection from,
+			ElectricityPack request, boolean doProvide) {
+		if(from != out) {
+			return null;
+		}
+		
+		int amtWanted = (int)(request.getWatts() * uePowerFactor);
+		int amtSupplied = this.getReactorController().extractEnergy(from, amtWanted, doProvide);
+		return ElectricityPack.getFromWatts(amtSupplied, request.voltage);
 	}
 
 	@Override
-	public void doWork() { }
+	public float getRequest(ForgeDirection direction) {
+		return 0;
+	}
 
 	@Override
-	public int powerRequest(ForgeDirection from) { return 0; }
+	public float getProvide(ForgeDirection direction) {
+		// TODO Auto-generated method stub
+		return this.getReactorController().getEnergyStored() / uePowerFactor;
+	}
+
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive,
+			boolean simulate) {
+		return 0;
+	}
+
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract,
+			boolean simulate) {
+		if(from == out) {
+			return this.getReactorController().extractEnergy(from, maxExtract, simulate);
+		}
+
+		return 0;
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from) {
+		return from == out;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from) {
+		return this.getReactorController().getEnergyStored(from);
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from) {
+		return this.getReactorController().getMaxEnergyStored(from);
+	}
 }

@@ -8,7 +8,7 @@ public final class Packets {
 	public static final int SmallMachineUIUpdate = 4;
 	public static final int SmallMachineRotationUpdate = 5;
 	public static final int SmallMachineInventoryExposureUpdate = 6;
-	public static final int SmallMachineLiquidExposureUpdate = 7;
+	public static final int SmallMachineFluidExposureUpdate = 7;
 	public static final int ControlRodUpdate = 8;
 	public static final int ControlRodGuiUpdate = 9;
 	public static final int ReactorWasteEjectionSettingUpdate = 10;

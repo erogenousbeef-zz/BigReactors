@@ -19,6 +19,7 @@ public class BlockReactorGlass extends BlockContainer {
 		setStepSound(soundGlassFootstep);
 		setHardness(1.0f);
 		setUnlocalizedName("blockReactorGlass");
+		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorGlass");
 		setCreativeTab(BigReactors.TAB);
 	}
 	

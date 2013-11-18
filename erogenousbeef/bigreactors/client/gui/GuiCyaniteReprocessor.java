@@ -3,9 +3,8 @@ package erogenousbeef.bigreactors.client.gui;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.liquids.LiquidContainerRegistry;
-import net.minecraftforge.liquids.LiquidStack;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -13,7 +12,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
-import erogenousbeef.bigreactors.gui.controls.BeefGuiLiquidBar;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressArrow;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressBarVertical;
@@ -35,7 +34,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	private GuiImageButton rearInvExposureButton;
 	
 	private BeefGuiPowerBar powerBar;
-	private BeefGuiLiquidBar liquidBar;
+	private BeefGuiFluidBar fluidBar;
 	private BeefGuiProgressArrow progressArrow;
 	
 	public GuiCyaniteReprocessor(Container container, TileEntityCyaniteReprocessor entity) {
@@ -56,13 +55,13 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		titleString = new BeefGuiLabel(this, _entity.getInvName(), leftX, topY);
 		topY += titleString.getHeight() + 8;
 		
-		liquidBar = new BeefGuiLiquidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);
+		fluidBar = new BeefGuiFluidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 148, guiTop + 16, _entity);
 		progressArrow = new BeefGuiProgressArrow(this, guiLeft + 76, guiTop + 41, 0, 178, _entity);
 		
 		registerControl(titleString);
 		registerControl(powerBar);
-		registerControl(liquidBar);
+		registerControl(fluidBar);
 		registerControl(progressArrow);
 		
 		leftInvExposureButton = new GuiImageButton(ForgeDirection.WEST.ordinal(), guiLeft + 179, guiTop + 25, 20, 20, "");
@@ -83,8 +82,8 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	}
 
 	@Override
-	public String getGuiBackground() {
-		return BigReactors.GUI_DIRECTORY + "CyaniteReprocessor.png";
+	public ResourceLocation getGuiBackground() {
+		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "CyaniteReprocessor.png");
 	}
 
 	@Override
@@ -93,48 +92,48 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 
 		// Exposure buttons
 		int exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.EAST.ordinal());
-		int liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.EAST);
+		int fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.EAST);
 		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
 			rightInvExposureButton.displayString = getTextureForExposedInventory(exposed);
 		}
 		else {
-			rightInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+			rightInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
 		}
 
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.WEST.ordinal());
-		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.WEST);
+		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.WEST);
 		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
 			leftInvExposureButton.displayString = getTextureForExposedInventory(exposed);
 		}
 		else {
-			leftInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+			leftInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
 		}
 		
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.UP.ordinal());
-		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.UP);
+		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.UP);
 		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
 			topInvExposureButton.displayString = getTextureForExposedInventory(exposed);
 		}
 		else {
-			topInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+			topInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
 		}
 
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.DOWN.ordinal());
-		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.DOWN);
+		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.DOWN);
 		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
 			bottomInvExposureButton.displayString = getTextureForExposedInventory(exposed);
 		}
 		else {
-			bottomInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+			bottomInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
 		}
 
 		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.SOUTH.ordinal());
-		liquidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.SOUTH);
+		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.SOUTH);
 		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
 			rearInvExposureButton.displayString = getTextureForExposedInventory(exposed);
 		}
 		else {
-			rearInvExposureButton.displayString = getTextureForExposedLiquidInventory(liquidExposed);
+			rearInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
 		}
 	}
 	
@@ -163,7 +162,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		return "";
 	}
 	
-	protected String getTextureForExposedLiquidInventory(int tank) {
+	protected String getTextureForExposedFluidInventory(int tank) {
 		if(tank == 0) {
 			return BigReactors.GUI_DIRECTORY + "blueSquare.png";
 		}

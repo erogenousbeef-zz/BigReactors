@@ -3,20 +3,26 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
-- Control Rods can now be named via their UI
-- RedNet connectivity via MineFactory Reloaded's RedNet!
+- Compatibility: Support for Thermal Expansion 3's Redstone Flux (RF) added.
+- Compatibility: Support for Thermal Expansion 3's Item Conduits added.
+- Compatibility: BuildCraft MJ power is no longer supported.
+- Feature: RedNet connection block added. Read data from, and send commands to, your reactors via MFR's RedNet.
+- Feature: Control Rods can now be named via their UI
+- Optimization: Small reductions in network traffic due to minor internal refactoring
 
-Current Release (0.1.13A)
+Current Release (0.1.14A)
 --------------------------------
+- Bugfix: Fixed a rare crash that occurs in long-running, very large reactors
+
+Older Releases
+--------------
+### Release 0.1.13A
 - BeefCore: Fixed a SMP server load crash that happened when chunkloaders were used in conjunction with reactors (#16)
 - BeefCore: Fixed several issues that caused reactors to corrupt and crash related to breaking/re-assembling reactors (#18)
 - BeefCore: Multiblocks on client now properly fission and reconnect when a reactor is broken/assembled (#19)
 - BeefCore: Fixed a memory clean in singleplayer; reactors were not being cleaned up from the registry
 - Bugfix: Mekanism combiners no longer provide free yellorium doubling
 - Bugfix: Power taps now work on all 4 faces, not just east/west. Derp. (#15)
-
-Older Releases
---------------
 
 ### Release 0.1.12A
 - Feature: Global reactor output can now be modified with the floating-point "powerOutputMultiplier" config setting. Defaults to 1.0.
