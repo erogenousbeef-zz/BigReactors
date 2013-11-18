@@ -14,6 +14,8 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -39,6 +41,9 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	
 	public TileEntityCyaniteReprocessor() {
 		super();
+		
+		// DEBUG: Add some energy so I can test the damn thing
+		this.receiveEnergy(ForgeDirection.UNKNOWN, this.getMaxEnergyStored()/2, false);
 	}
 
 	@Override
@@ -161,5 +166,13 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	@Override
 	public Container getContainer(EntityPlayer player) {
 		return new ContainerCyaniteReprocessor(this, player);
+	}
+	
+	@Override
+	protected int getDefaultTankForFluid(Fluid fluid) {
+		if(fluid.getName() == "water")
+			return 0;
+		else
+			return FLUIDTANK_NONE;
 	}
 }

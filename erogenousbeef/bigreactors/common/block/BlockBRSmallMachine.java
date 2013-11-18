@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
@@ -31,6 +32,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
 public class BlockBRSmallMachine extends BlockContainer {
@@ -185,15 +187,20 @@ public class BlockBRSmallMachine extends BlockContainer {
 		// Handle buckets
 		if(te instanceof IFluidHandler && FluidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			if(BRUtilities.fillBucketFromTank((IFluidHandler)te, entityPlayer))
-			{
-				return true;
+			IFluidHandler fluidHandler = (IFluidHandler)te;
+			FluidTankInfo[] infoz = fluidHandler.getTankInfo(ForgeDirection.UNKNOWN);
+			for(FluidTankInfo info : infoz) {
+				if(BRUtilities.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
+					return true;
+				}
 			}
 		}
 		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			if(BRUtilities.fillTankFromBucket((IFluidHandler)te, entityPlayer))
+			FMLLog.info("trying to fill a TE with some fluid from a bucket");
+			if(BRUtilities.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
 			{
+				FMLLog.info("success!");
 				return true;
 			}
 		}

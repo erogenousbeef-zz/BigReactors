@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -233,6 +234,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
     	if(from != ForgeDirection.UNKNOWN) {
     		tankToFill = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
+    	else {
+    		tankToFill = getDefaultTankForFluid(resource.getFluid());
+    	}
 
     	if(tankToFill == FLUIDTANK_NONE) {
     		return 0;
@@ -253,7 +257,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
     		return 0;
     	}
     	
-    	return tanks[tankIndex].fill(resource, doFill);
+    	FMLLog.info("filling tank %d with fluid %d", tankIndex, resource.fluidID);
+    	int res = tanks[tankIndex].fill(resource, doFill);
+    	FMLLog.info("added %d, tank now has %d mb in it", res, tanks[tankIndex].getFluidAmount());
+    	return res;
     }
 
     /** Drains fluid out of internal tanks, distribution is left entirely to the IFluidHandler.
@@ -440,4 +447,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
 			tankExposure[i] = FLUIDTANK_NONE;
 		}
 	}
+	
+	/**
+	 * @param fluid The fluid whose default tank is being queried.
+	 * @return The index of the tank into which a given fluid should be deposited by default.
+	 */
+	protected abstract int getDefaultTankForFluid(Fluid fluid);
 }

@@ -4,6 +4,7 @@ import buildcraft.api.tools.IToolWrench;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -12,69 +13,6 @@ import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 
 public class BRUtilities {
-	/**
-	 * Attempts to fill tank with the player's current item.
-	 * @param	destinationTank			the tank the fluid is going into
-	 * @param	entityPlayer	the player trying to fill the tank
-	 * @return	True if fluid was transferred to the tank.
-	 */
-	public static boolean fillTankFromBucket(IFluidHandler destinationTank, EntityPlayer entityPlayer)
-	{
-		ItemStack currentItem = entityPlayer.inventory.getCurrentItem();
-		FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(currentItem);
-		if(fluid != null)
-		{
-			if(destinationTank.fill(ForgeDirection.UNKNOWN, fluid, false) == fluid.amount)
-			{
-				destinationTank.fill(ForgeDirection.UNKNOWN, fluid, true);
-				if(!entityPlayer.capabilities.isCreativeMode)
-				{
-					entityPlayer.inventory.setInventorySlotContents(entityPlayer.inventory.currentItem, consumeItem(currentItem));					
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Attempts to drain tank into the player's current item.
-	 * @param	te			the tank the fluid is coming from
-	 * @param	entityPlayer	the player trying to take fluid from the tank
-	 * @return	True if fluid was transferred from the tank.
-	 */
-	public static boolean fillBucketFromTank(IFluidHandler te, EntityPlayer entityPlayer)
-	{
-		ItemStack currentItem = entityPlayer.inventory.getCurrentItem();
-		if(FluidContainerRegistry.isEmptyContainer(currentItem))
-		{
-			FluidTankInfo[] tankInfos = te.getTankInfo(ForgeDirection.UNKNOWN);
-			for(FluidTankInfo tankInfo : tankInfos) {
-				if(tankInfo.fluid.amount > 0) {
-					ItemStack filledBucket = FluidContainerRegistry.fillFluidContainer(tankInfo.fluid, currentItem);
-					if(FluidContainerRegistry.isFilledContainer((filledBucket))) {
-						te.drain(ForgeDirection.UNKNOWN, tankInfo.fluid, true);
-						if(entityPlayer.capabilities.isCreativeMode)
-						{
-							return true;
-						}
-						else if(currentItem.stackSize == 1)
-						{
-							entityPlayer.inventory.setInventorySlotContents(entityPlayer.inventory.currentItem, filledBucket);
-							return true;
-						}
-						else if(entityPlayer.inventory.addItemStackToInventory(filledBucket))
-						{
-							currentItem.stackSize -= 1;
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
-	}
-	
 	/**
 	 * Consume a single item from a stack of items
 	 * @param stack The stack from which to consume
@@ -107,7 +45,7 @@ public class BRUtilities {
 		}
 		else
 		{
-			stack.stackSize -= amount;
+			stack.splitStack(amount);
 			return stack;
 		}	
 	}
@@ -123,4 +61,57 @@ public class BRUtilities {
 		Item currentItem = Item.itemsList[player.inventory.getCurrentItem().itemID];
 		return currentItem instanceof IToolWrench;
 	}
+	
+	/* Below stolen from COFHLib because COFHLib itself still relies on cofh.core */
+	public static boolean fillTankWithContainer(World world, IFluidHandler handler, EntityPlayer player) {
+
+        ItemStack container = player.getCurrentEquippedItem();
+        FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(container);
+
+        if (fluid != null) {
+                if (handler.fill(ForgeDirection.UNKNOWN, fluid, false) == fluid.amount || player.capabilities.isCreativeMode) {
+                        if (world.isRemote) {
+                                return true;
+                        }
+                        handler.fill(ForgeDirection.UNKNOWN, fluid, true);
+
+                        if (!player.capabilities.isCreativeMode) {
+                                player.inventory.setInventorySlotContents(player.inventory.currentItem, consumeItem(container));
+                        }
+                        return true;
+                }
+        }
+        return false;
+	}
+
+	public static boolean fillContainerFromTank(World world, IFluidHandler handler, EntityPlayer player, FluidStack tankFluid) {
+		ItemStack container = player.getCurrentEquippedItem();
+		
+		if (FluidContainerRegistry.isEmptyContainer(container)) {
+		        ItemStack returnStack = FluidContainerRegistry.fillFluidContainer(tankFluid, container);
+		        FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(returnStack);
+		
+		        if (fluid == null || returnStack == null) {
+		                return false;
+		        }
+		        if (!player.capabilities.isCreativeMode) {
+		                if (container.stackSize == 1) {
+		                        container = container.copy();
+		                        player.inventory.setInventorySlotContents(player.inventory.currentItem, returnStack);
+		                } else if (!player.inventory.addItemStackToInventory(returnStack)) {
+		                        return false;
+		                }
+		                handler.drain(ForgeDirection.UNKNOWN, fluid.amount, true);
+		                container.stackSize--;
+		
+		                if (container.stackSize <= 0) {
+		                        container = null;
+		                }
+		        } else {
+		                handler.drain(ForgeDirection.UNKNOWN, fluid.amount, true);
+		        }
+		        return true;
+		}
+		return false;
+	}	
 }
