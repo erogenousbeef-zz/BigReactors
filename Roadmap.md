@@ -11,8 +11,6 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Technical Debt / Fixes
 ----------------------
 - Radiothermal generator needs to get fixed
-- Image Buttons are broken entirely
-- Change yellorite worldgen to favor y12
 - Add support for IItemConduits 
 - (0.2 Merge) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
 
@@ -34,6 +32,7 @@ TODO - Beta
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
 - Worldgen: Add a user-facing "user version" variable to allow users to forcibly re-run worldgen
+- Worldgen: Change yellorite ore to favor generation on y12
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
