@@ -19,11 +19,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.liquids.ILiquidTank;
-import net.minecraftforge.liquids.ITankContainer;
-import net.minecraftforge.liquids.LiquidContainerRegistry;
-import net.minecraftforge.liquids.LiquidStack;
-import net.minecraftforge.liquids.LiquidTank;
 
 public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
@@ -66,7 +61,7 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 
 	// IHeatEntity
 	@Override
-	public double getHeat() {
+	public float getHeat() {
 		if(this.isAssembled) {
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, controlRodY, zCoord);
 			if(te != null && te instanceof IHeatEntity) {
@@ -78,7 +73,7 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 	}
 
 	@Override
-	public double getThermalConductivity() {
+	public float getThermalConductivity() {
 		if(this.isAssembled) {
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, controlRodY, zCoord);
 			if(te != null && te instanceof IHeatEntity) {
@@ -90,7 +85,7 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 	}
 
 	@Override
-	public double onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
+	public float onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
 		if(this.isAssembled) {
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, controlRodY, zCoord);
 			if(te != null && te instanceof IHeatEntity) {
@@ -99,12 +94,12 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 		}
 
 		// perform standard calculation, this is a flaw in the algorithm
-		double deltaTemp = source.getHeat() - getHeat();
-		if(deltaTemp <= 0.0) {
-			return 0.0;
+		float deltaTemp = source.getHeat() - getHeat();
+		if(deltaTemp <= 0.0f) {
+			return 0.0f;
 		}
 
-		return deltaTemp * 0.05 * getThermalConductivity() * (1.0/(double)faces) * contactArea;
+		return deltaTemp * 0.05f * getThermalConductivity() * (1.0f/(float)faces) * contactArea;
 	}
 
 	/**
@@ -114,7 +109,7 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 	 * @return A HeatPulse containing the environmental results of radiating heat.
 	 */
 	@Override
-	public HeatPulse onRadiateHeat(double ambientHeat) {
+	public HeatPulse onRadiateHeat(float ambientHeat) {
 		// We don't do this.
 		return null;
 	}

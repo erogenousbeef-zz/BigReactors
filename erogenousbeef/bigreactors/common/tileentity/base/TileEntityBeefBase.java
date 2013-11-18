@@ -107,7 +107,7 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 
 	@Override
 	public void onDataPacket(INetworkManager network, Packet132TileEntityData packet) {
-		this.readFromNBT(packet.customParam1);
+		this.readFromNBT(packet.data);
 	}
 	
 	@Override

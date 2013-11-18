@@ -8,6 +8,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
@@ -39,9 +40,9 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	}
 	
 	@Override
-	public String getGuiBackground() {
+	public ResourceLocation getGuiBackground() {
 		// TODO: Real gui?
-		return BigReactors.GUI_DIRECTORY + "ReactorController.png";
+		return new ResourceLocation (BigReactors.GUI_DIRECTORY + "ReactorController.png");
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.Icon;
+import net.minecraft.util.ResourceLocation;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
@@ -18,23 +19,25 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 	private final static int controlHeight = 64;
 	private final static String controlTexture = "VerticalProgressBar.png";
 	
+	ResourceLocation controlResource;
+	
 	public BeefGuiProgressBarVertical(BeefGuiBase container, int x, int y) {
 		super(container, x, y, controlWidth, controlHeight);
+		
+		controlResource = new ResourceLocation(BigReactors.GUI_DIRECTORY + controlTexture);
 	}
 	
 	protected abstract Icon getProgressBarIcon();
 	
 	protected abstract float getProgress();
-	
-	protected String getTextureSheet() {
-		return "/terrain.png";
-	}
+
+	protected abstract ResourceLocation getResourceLocation();
 	
 	@Override
 	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
 		// Draw the background
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		renderEngine.bindTexture(BigReactors.GUI_DIRECTORY + controlTexture);
+		Minecraft.getMinecraft().renderEngine.bindTexture(controlResource);
 		Tessellator tessellator = Tessellator.instance;
 		tessellator.startDrawingQuads();
 		tessellator.addVertexWithUV(this.x, this.y + this.height, 0, 0, 1.0);
@@ -58,8 +61,8 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 			double maxU = progressBarIcon.getMaxU();
 			double maxV = progressBarIcon.getMaxV();
 			
-			// derp?
-			renderEngine.bindTexture(getTextureSheet());
+			// TODO: FIXME
+			Minecraft.getMinecraft().renderEngine.bindTexture(getResourceLocation());
 			
 			int barMinX = this.x + 2;
 			int barMaxX = this.x + this.width - 2;
@@ -79,7 +82,8 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 		}
 	}
 	
-	@Override public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	@Override
+	public void drawForeground(int mouseX, int mouseY) {
 		
-	}
+	}	
 }

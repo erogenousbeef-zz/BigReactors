@@ -3,10 +3,13 @@ package erogenousbeef.bigreactors.common.tileentity;
 import java.io.DataInputStream;
 import java.util.HashMap;
 
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-import buildcraft.api.transport.IPipeEntry;
+import buildcraft.api.transport.IPipeTile;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BRRegistry;
@@ -28,7 +31,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
-public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
+public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, IItemConduitConnection {
 
 	protected ItemStack[] _inventories;
 	
@@ -163,14 +166,18 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	}
 
 	@Override
-	public boolean isStackValidForSlot(int slot, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 
+		IReactorFuel data = BRRegistry.getDataForSolid(itemstack);
+		
+		if(data == null) { return false; }
+		
 		if(slot == SLOT_INLET) {
-			return BRRegistry.getDataForFuel(itemstack) != null;
+			return data.isFuel();
 		}
 		else if(slot == SLOT_OUTLET) {
-			return BRRegistry.getDataForWaste(itemstack) != null;
+			return data.isWaste();
 		}
 		
 		return false;
@@ -196,14 +203,14 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
 		if(side == 0 || side == 1) { return false; }
 		
-		return isStackValidForSlot(slot, itemstack);
+		return isItemValidForSlot(slot, itemstack);
 	}
 
 	@Override
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
 		if(side == 0 || side == 1) { return false; }
 		
-		return isStackValidForSlot(slot, itemstack);
+		return isItemValidForSlot(slot, itemstack);
 	}
 	
 	@Override
@@ -242,12 +249,19 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 		for(ForgeDirection dir : dirsToCheck) {
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te != null && te instanceof IPipeEntry) {
-				IPipeEntry pipe = (IPipeEntry)te;
-				if(pipe.acceptItems()) {
-					pipe.entityEntering(itemToDistribute.copy(), dir);
-					return null;
-				}
+			if(te instanceof IItemConduit) {
+				IItemConduit conduit = (IItemConduit)te;
+				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
+			}
+			else if(te instanceof IPipeTile) {
+				IPipeTile pipe = (IPipeTile)te;
+				if(pipe.isPipeConnected(dir.getOpposite())) {
+					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
+					
+					if(itemToDistribute.stackSize <= 0) {
+						return null;
+					}
+				}				
 			}
 		}
 		
@@ -261,5 +275,11 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(BlockReactorPart.ACCESSPORT_OUTLET == this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
 			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
 		}
+	}
+
+	// IItemConduitConnection
+	@Override
+	public boolean canConduitConnect(ForgeDirection from) {
+		return from != ForgeDirection.UNKNOWN;
 	}
 }

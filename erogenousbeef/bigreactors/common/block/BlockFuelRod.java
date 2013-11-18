@@ -30,6 +30,7 @@ public class BlockFuelRod extends BlockContainer {
 		this.setLightOpacity(1);
 		this.setCreativeTab(BigReactors.TAB);
 		this.setUnlocalizedName("yelloriumFuelRod");
+		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "yelloriumFuelRod");
 	}
 
 	@SideOnly(Side.CLIENT)

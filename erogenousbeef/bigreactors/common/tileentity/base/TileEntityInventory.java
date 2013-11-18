@@ -3,7 +3,10 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import buildcraft.api.transport.IPipeEntry;
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+
+import buildcraft.api.transport.IPipeTile;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -22,7 +25,7 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
+public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory, IItemConduitConnection {
 	
 	// Configurable Sides
 	protected int[] invExposures;
@@ -237,7 +240,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	}
 
 	@Override
-	public abstract boolean isStackValidForSlot(int slot, ItemStack itemstack);
+	public abstract boolean isItemValidForSlot(int slot, ItemStack itemstack);
 
 	// ISidedInventory
 	@Override
@@ -253,13 +256,18 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 
 	@Override
 	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
-		return isStackValidForSlot(slot, itemstack);
+		return isItemValidForSlot(slot, itemstack);
 	}
 
 	@Override
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
-		return isStackValidForSlot(slot, itemstack);
+		return isItemValidForSlot(slot, itemstack);
 	}	
+
+	// IItemConduitConnection
+	public boolean canConduitConnect(ForgeDirection from) {
+		return from != ForgeDirection.UNKNOWN;
+	}
 	
 	// Networked GUI
 	@Override
@@ -299,12 +307,19 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			if(invExposures[rotatedSide] != fromSlot) { continue; }
 			
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te != null && te instanceof IPipeEntry) {
-				IPipeEntry pipe = (IPipeEntry)te;
-				if(pipe.acceptItems()) {
-					pipe.entityEntering(itemToDistribute.copy(), dir);
-					return null;
-				}
+			if(te instanceof IItemConduit) {
+				IItemConduit conduit = (IItemConduit)te;
+				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
+			}
+			else if(te instanceof IPipeTile) {
+				IPipeTile pipe = (IPipeTile)te;
+				if(pipe.isPipeConnected(dir.getOpposite())) {
+					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
+					
+					if(itemToDistribute.stackSize <= 0) {
+						return null;
+					}
+				}				
 			}
 		}
 		

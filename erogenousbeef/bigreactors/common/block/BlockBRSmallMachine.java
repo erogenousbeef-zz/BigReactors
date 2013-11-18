@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
@@ -11,7 +12,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryLiquid;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -19,6 +20,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -29,8 +31,9 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.liquids.ITankContainer;
-import net.minecraftforge.liquids.LiquidContainerRegistry;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 
 public class BlockBRSmallMachine extends BlockContainer {
 
@@ -38,7 +41,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _activeIcons = new Icon[_subBlocks.length];
 	private Icon[] _inventorySideIcons = new Icon[3];
-	private Icon[] _liquidSideIcons = new Icon[1];
+	private Icon[] _fluidSideIcons = new Icon[1];
 	
 	protected static Icon powerIcon = null; // find a better home for this.
 	
@@ -47,6 +50,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		setStepSound(soundMetalFootstep);
 		setHardness(1.0f);
 		setUnlocalizedName("blockBRSmallMachine");
+		setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockBRSmallMachine");
 		setCreativeTab(BigReactors.TAB);
 	}
 	
@@ -78,9 +82,9 @@ public class BlockBRSmallMachine extends BlockContainer {
 			}
 		}
 		
-		if(te instanceof TileEntityPoweredInventoryLiquid) {
-			if(((TileEntityPoweredInventoryLiquid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
-				return _liquidSideIcons[0];
+		if(te instanceof TileEntityPoweredInventoryFluid) {
+			if(((TileEntityPoweredInventoryFluid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
+				return _fluidSideIcons[0];
 			}
 		}
 
@@ -113,7 +117,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
 
 		// TODO: Better icons for these
-		_liquidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
+		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 		
 		// Ugly hack, fix later.
 		powerIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "gui.power");
@@ -181,17 +185,22 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 
 		// Handle buckets
-		if(te instanceof ITankContainer && LiquidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem()))
+		if(te instanceof IFluidHandler && FluidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			if(BRUtilities.fillBucketFromTank((ITankContainer)te, entityPlayer))
-			{
-				return true;
+			IFluidHandler fluidHandler = (IFluidHandler)te;
+			FluidTankInfo[] infoz = fluidHandler.getTankInfo(ForgeDirection.UNKNOWN);
+			for(FluidTankInfo info : infoz) {
+				if(BRUtilities.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
+					return true;
+				}
 			}
 		}
-		else if(te instanceof ITankContainer && LiquidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
+		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			if(BRUtilities.fillTankFromBucket((ITankContainer)te, entityPlayer))
+			FMLLog.info("trying to fill a TE with some fluid from a bucket");
+			if(BRUtilities.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
 			{
+				FMLLog.info("success!");
 				return true;
 			}
 		}
@@ -208,7 +217,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 	
 	@Override
-	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving entity, ItemStack stack) {
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
 		if(entity == null) { return; }
 		
 		TileEntity te = world.getBlockTileEntity(x, y, z);

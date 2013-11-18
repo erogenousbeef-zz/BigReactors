@@ -10,6 +10,7 @@ import thermalexpansion.api.crafting.CraftingHelpers;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -43,7 +44,7 @@ public class CommonProxy {
 			List<ItemStack> candidates = OreDictionary.getOres("ingotUranium");
 			for(ItemStack candidate : candidates) {
 				// If they're already registered, this will NOT overwrite the existing registration
-				BRRegistry.registerFuel(new ReactorFuel(candidate, BigReactors.defaultLiquidColorFuel));
+				BRRegistry.registerSolidMapping(new ReactorSolidMapping(candidate, BigReactors.fluidYellorium));
 			}
 		}
 

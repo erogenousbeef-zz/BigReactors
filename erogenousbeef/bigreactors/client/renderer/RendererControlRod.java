@@ -16,12 +16,12 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.liquids.LiquidStack;
+import net.minecraftforge.fluids.Fluid;
 
 public class RendererControlRod extends TileEntitySpecialRenderer {
 
 	private final static int displayStages = 20;
-	private final HashMap<LiquidStack, HashMap<Integer, int[]>> stage = new HashMap<LiquidStack, HashMap<Integer, int[]>>();
+	private final HashMap<Fluid, HashMap<Integer, int[]>> stage = new HashMap<Fluid, HashMap<Integer, int[]>>();
 	
 	private final HashMap<Integer, Integer> rodStages = new HashMap<Integer, Integer>();
 	
@@ -60,12 +60,12 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		return newDisplayList;
 	}
 	
-	private int[] getDisplayListsForLiquid(LiquidStack liquid, int numBlocks, World world) {
-		if(!stage.containsKey(liquid)) {
-			stage.put(liquid, new HashMap<Integer, int[]>());
+	private int[] getDisplayListsForFluid(Fluid fluid, int numBlocks, World world) {
+		if(!stage.containsKey(fluid)) {
+			stage.put(fluid, new HashMap<Integer, int[]>());
 		}
 		
-		HashMap<Integer, int[]> innerMap = stage.get(liquid);
+		HashMap<Integer, int[]> innerMap = stage.get(fluid);
 		if(innerMap.containsKey(numBlocks)) {
 			return innerMap.get(numBlocks);
 		}
@@ -75,10 +75,10 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		
 		BlockInterface block = new BlockInterface();
 		block.baseBlock = Block.waterStill;
-		block.texture = liquid.getRenderingIcon();
+		block.texture = fluid.getIcon();
 		
-		if(liquid.itemID < Block.blocksList.length && Block.blocksList[liquid.itemID] != null) {
-			block.baseBlock = Block.blocksList[liquid.itemID];
+		if(fluid.getBlockID() < Block.blocksList.length && Block.blocksList[fluid.getBlockID()] != null) {
+			block.baseBlock = Block.blocksList[fluid.getBlockID()];
 		}
 		
 		for(int i = 0; i < displayStages; ++i) {
@@ -130,7 +130,8 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		int fuelAmt = controlRod.getFuelAmount();
 		int wasteAmt = controlRod.getWasteAmount();
 		int totalAmt = fuelAmt + wasteAmt;
-		float liquidProportion = (float)totalAmt / (float)controlRod.getSizeOfFuelTank();
+		// Clamp proportion to [0.0,1.0] to eliminate overflow possibility
+		float fluidProportion = Math.max(0.0f, Math.min(1.0f, (float)totalAmt / (float)controlRod.getSizeOfFuelTank()));
 		
 		int fuelColor = getRegisteredFuelColor(controlRod.getFuelType());
 		int wasteColor = getRegisteredWasteColor(controlRod.getWasteType());
@@ -144,9 +145,10 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		
         float wasteProportion = (float)wasteAmt / (float)totalAmt;
 
-		int[] displayList = getDisplayListsForLiquid(BigReactors.liquidFuelColumn, columnHeight, controlRod.worldObj);
-		int displayListIndex = (int) (liquidProportion * (displayStages-1));
-		renderLiquidColumn(displayList[displayListIndex], BigReactors.liquidFuelColumn.getTextureSheet(),
+		int[] displayList = getDisplayListsForFluid(BigReactors.fluidFuelColumn, columnHeight, controlRod.worldObj);
+		// Clamp index to [0,displaystages) to prevent index out of bounds exceptions due to floating point error
+		int displayListIndex = Math.max(0, Math.min( displayStages-1, (int)(fluidProportion * (displayStages-1)) ));
+		renderFluidColumn(displayList[displayListIndex],
 				lerp(fuelR, wasteR, wasteProportion), lerp(fuelR, wasteG, wasteProportion), lerp(fuelB, wasteB, wasteProportion),
 				 x, columnBottom, z);
 	}
@@ -165,15 +167,15 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		GL11.glTranslatef((float)x, (float)rodBottom, (float)z);
 		
-		// Why is there no constant for this? :(
-		bindTextureByName("/terrain.png");
+		bindTexture( net.minecraft.client.renderer.texture.TextureMap.locationBlocksTexture );
+
 		GL11.glCallList(displayList);
 		
 		GL11.glPopAttrib();
 		GL11.glPopMatrix();		
 	}
 
-	protected void renderLiquidColumn(int displayListItem, String textureSheet, float r, float g, float b,double x, double y, double z) {
+	protected void renderFluidColumn(int displayListItem, float r, float g, float b,double x, double y, double z) {
 		GL11.glPushMatrix();
 		GL11.glPushAttrib(GL11.GL_ENABLE_BIT);
 		GL11.glEnable(GL11.GL_CULL_FACE);
@@ -182,7 +184,7 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glTranslatef((float)x, (float)y, (float)z);
 
-		bindTextureByName(textureSheet);
+		bindTexture( net.minecraft.client.renderer.texture.TextureMap.locationBlocksTexture );
 		
 		GL11.glColor4f(r, g, b, 1f);
 		
@@ -192,25 +194,25 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		GL11.glPopMatrix();		
 	}
 
-	// Liquid/Color Helpers
+	// Fluid/Color Helpers
 	
-	// Returns the registered liquid color if there is one; 0 otherwise.
-	protected int getRegisteredFuelColor(ItemStack itemStack) {
-		IReactorFuel fuelData = BRRegistry.getDataForFuel(itemStack);
+	// Returns the registered fluid color if there is one; 0 otherwise.
+	protected int getRegisteredFuelColor(Fluid fluid) {
+		IReactorFuel fuelData = BRRegistry.getDataForFuel(fluid);
 		if(fuelData != null) {
 			return fuelData.getFuelColor();
 		}
 		
-		return BigReactors.defaultLiquidColorFuel;
+		return BigReactors.defaultFluidColorFuel;
 	}
 	
-	protected int getRegisteredWasteColor(ItemStack itemStack) {
-		IReactorFuel fuelData = BRRegistry.getDataForWaste(itemStack);
+	protected int getRegisteredWasteColor(Fluid fluid) {
+		IReactorFuel fuelData = BRRegistry.getDataForWaste(fluid);
 		if(fuelData != null) {
 			return fuelData.getFuelColor();
 		}
 
-		return BigReactors.defaultLiquidColorWaste;
+		return BigReactors.defaultFluidColorWaste;
 	}
 	
 	protected static float unpackR(int rgb) {
