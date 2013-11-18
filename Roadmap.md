@@ -10,6 +10,7 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
+- Reactors are not producing any waste at all
 - Radiothermal generator needs to get fixed
 - Image Buttons are broken entirely
 - Change yellorite worldgen to favor y12
@@ -33,7 +34,7 @@ TODO - Beta
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
-- Create a "fear engine"
+- Worldgen: Add a user-facing "user version" variable to allow users to forcibly re-run worldgen
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
@@ -100,3 +101,4 @@ Wishlist / Post-Release
 
 ### Fuel Pre-Processing
 - Provide better ways of pre-processing reactor fuel dusts directly into fuel fluids at an enhanced rate
+- Create a "fear engine" that gives bonuses to power output/fuel generation when exposed to hostile mobs
