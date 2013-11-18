@@ -28,7 +28,7 @@ public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
 	
 	@Override
 	protected float getProgress() {
-		return _entity.getEnergyStored(ForgeDirection.UNKNOWN) / _entity.getMaxEnergyStored(ForgeDirection.UNKNOWN);
+		return (float)_entity.getEnergyStored(ForgeDirection.UNKNOWN) / (float)_entity.getMaxEnergyStored(ForgeDirection.UNKNOWN);
 	}
 	
 	@Override
