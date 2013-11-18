@@ -488,17 +488,22 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 				
 				if(this.waste == null) {
 					IReactorFuel fuelData = BRRegistry.getDataForFuel(this.fuel.getFluid());
+					FluidStack wasteToAdd = null;
 					if(fuelData != null && fuelData.getProductFluid() != null) {
-						this.waste = new FluidStack(fuelData.getProductFluid(), 0);
+						wasteToAdd = new FluidStack(fuelData.getProductFluid(), fuelUsed);
 					}
 					else {
 						// Fallback plan, in case something weird is happening
 						FMLLog.warning("Big Reactors: Reactor column is defaulting to cyanite waste, as there is no fuel-product data for %s", fuel.getFluid().getName());
-						this.waste = new FluidStack(BigReactors.fluidCyanite, 0);
+						wasteToAdd = new FluidStack(BigReactors.fluidCyanite, fuelUsed);
 					}
+
+					this.addWaste(wasteToAdd, fuelUsed, true);
+				}
+				else {
+					this.addWaste(this.waste, fuelUsed, true);
 				}
 				
-				this.addWaste(this.waste, fuelUsed, true);
 
 				neutronsSinceLastFuelConsumption = 0;
 			}
@@ -975,6 +980,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		
 		if(this.waste != null) {
 			NBTTagCompound wasteData = new NBTTagCompound();
+			this.waste.writeToNBT(wasteData);
 			data.setCompoundTag("wasteFluidStack", wasteData);
 		}
 	}

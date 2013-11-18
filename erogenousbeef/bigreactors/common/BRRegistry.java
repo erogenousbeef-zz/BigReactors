@@ -51,7 +51,7 @@ public abstract class BRRegistry {
 				}
 			}
 			
-			if(matchingFuel != null) {
+			if(matchingFuel == null) {
 				for(IReactorFuel w : _reactorWastes) {
 					if(fuelMapping.isFluidEqual(w.getReferenceFluid())) {
 						matchingFuel = w;
