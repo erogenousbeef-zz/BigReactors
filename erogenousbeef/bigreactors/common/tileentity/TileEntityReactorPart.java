@@ -2,6 +2,8 @@ package erogenousbeef.bigreactors.common.tileentity;
 
 import java.io.DataInputStream;
 
+import cofh.api.tileentity.IEnergyInfo;
+
 import com.google.common.io.ByteArrayDataInput;
 
 import cpw.mods.fml.relauncher.Side;
@@ -34,7 +36,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity {
+public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity, IEnergyInfo {
 
 	public TileEntityReactorPart() {
 		super();
@@ -366,5 +368,46 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	@Override
 	public float getThermalConductivity() {
 		return IHeatEntity.conductivityIron;
+	}
+
+	// IEnergyInfo
+	@Override
+	public int getEnergyPerTick() {
+		if(!this.isConnected() || !this.getReactorController().isActive()) {
+			return 0;
+		}
+		else {
+			return (int)this.getReactorController().getEnergyGeneratedLastTick();
+		}
+	}
+
+	@Override
+	public int getMaxEnergyPerTick() {
+		if(!this.isConnected()) {
+			return 0;
+		}
+		else {
+			return (int)this.getReactorController().getMaxEnergyPerTick();
+		}
+	}
+
+	@Override
+	public int getEnergy() {
+		if(!this.isConnected()) {
+			return 0;
+		}
+		else {
+			return (int)this.getReactorController().getEnergyStored(ForgeDirection.UNKNOWN);
+		}
+	}
+
+	@Override
+	public int getMaxEnergy() {
+		if(!this.isConnected()) {
+			return 0;
+		}
+		else {
+			return (int)this.getReactorController().getMaxEnergyStored(ForgeDirection.UNKNOWN);
+		}
 	}
 }
