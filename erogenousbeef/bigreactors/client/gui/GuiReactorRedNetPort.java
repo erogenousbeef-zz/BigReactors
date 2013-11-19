@@ -24,6 +24,7 @@ import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorRedNetPort extends BeefGuiBase {
 
@@ -40,6 +41,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	
 	private GuiButton subSettingForwardBtn;
 	private GuiButton subSettingBackBtn;
+	
+	private ResourceLocation _guiBackground;
 	
 	protected static final String[] channelLabelStrings = new String[] {
 			"White", "Orange", "Magenta", "LightBlue", "Yellow", "Lime", "Pink", "Gray",
@@ -69,12 +72,14 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		xSize = 255;
 		ySize = 214;
+		
+		_guiBackground = new ResourceLocation(BigReactors.GUI_DIRECTORY + "RedNetPort.png");
 	}
 
 	@Override
-	public String getGuiBackground() {
+	public ResourceLocation getGuiBackground() {
 		// TODO: Add slots to background
-		return BigReactors.GUI_DIRECTORY + "RedNetPort.png";
+		return _guiBackground;
 	}
 	
 	@Override

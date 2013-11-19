@@ -8,6 +8,7 @@ import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.inventory.Container;
 
 @SideOnly(Side.CLIENT)
@@ -55,11 +56,11 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 	}
 	
 	@Override
-	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
 	}
 	
 	@Override
-	public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY) {
 		FontRenderer fontRenderer = guiContainer.getFontRenderer();
 		if(xMax > 0) {
 			fontRenderer.drawSplitString(labelText, x, y, color, xMax);
