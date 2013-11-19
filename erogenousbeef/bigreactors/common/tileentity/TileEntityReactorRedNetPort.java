@@ -4,16 +4,28 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
+import cofh.api.energy.IEnergyHandler;
+
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
+import universalelectricity.core.block.IConnector;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorRedNetPort;
 import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 
@@ -26,7 +38,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		outputFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
 		outputFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
 		outputWasteAmount 	// Output: Waste amount in a control rod, raw value, (0-4*height)
-		
 	}
 
 	protected final static int minInputEnumValue = CircuitType.inputActive.ordinal();
@@ -41,6 +52,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	protected CoordTriplet[] coordMappings;
 	public final static int numChannels = 16;
 	
+	IRedNetNetworkContainer redNetwork;
+	IConnectableRedNet redNetConnectable;
+
+	ForgeDirection out;
+	int ticksSinceLastUpdate;
+	
 	public TileEntityReactorRedNetPort() {
 		super();
 		
@@ -51,9 +68,73 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 			channelCircuitTypes[i] = CircuitType.DISABLED;
 			coordMappings[i] = null;
 		}
-	
+		
+		redNetwork = null;
+		redNetConnectable = null;
+
+		out = ForgeDirection.UNKNOWN;
+		ticksSinceLastUpdate = 0;
 	}
 	
+	// IMultiblockPart
+	@Override
+	public void onAttached(MultiblockControllerBase newController) {
+		super.onAttached(newController);
+
+		if(this.worldObj.isRemote) { return; } 
+		
+		checkOutwardDirection();
+		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+	}
+	
+	@Override
+	public void onMachineAssembled() {
+		super.onMachineAssembled();
+
+		if(this.worldObj.isRemote) { return; } 
+		
+		checkOutwardDirection();
+		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
+		return new GuiReactorRedNetPort(new ContainerReactorRedNetPort(), this);
+	}
+	
+	@Override
+	public Object getContainer(InventoryPlayer inventoryPlayer) {
+		return new ContainerReactorRedNetPort();
+	}
+
+	@Override
+	public void writeToNBT(NBTTagCompound par1NBTTagCompound)
+	{
+		super.writeToNBT(par1NBTTagCompound);
+		encodeSettings(par1NBTTagCompound);
+	}
+	
+	@Override
+	protected void formatDescriptionPacket(NBTTagCompound packetData) {
+		super.formatDescriptionPacket(packetData);
+		encodeSettings(packetData);
+	}
+	
+	@Override
+	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
+	{
+		super.readFromNBT(par1NBTTagCompound);
+		decodeSettings(par1NBTTagCompound);
+	}
+	
+	@Override
+	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
+		super.decodeDescriptionPacket(packetData);
+		decodeSettings(packetData);
+	}
+
+	// RedNet API
 	public int[] getOutputValues() {
 		int[] outputs = new int[numChannels];
 		for(int i = 0; i < numChannels; i++) {
@@ -115,57 +196,13 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		}
 	}
 	
-	private void clearChannel(int channel) {
-		channelCircuitTypes[channel] = CircuitType.DISABLED;
-		coordMappings[channel] = null;
-	}
-
-	public TileEntity getMappedTileEntity(int channel) {
-		if(channel < 0 || channel >= numChannels) { return null; }
-		if(coordMappings[channel] == null) { return null; }
-		
-		CoordTriplet coord = coordMappings[channel];
-		
-		if(coord == null) { return null; }
-		if(!this.worldObj.checkChunksExist(coord.x, coord.y, coord.z, coord.x, coord.y, coord.z)) {
-			return null;
-		}
-		
-		return this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-	}
-	
-	public void setMappedTileEntity(int channel, TileEntity te) {
-		if(channel < 0 || channel >= numChannels) { return; }
-		
-		CircuitType circuitType = channelCircuitTypes[channel]; 
-		if(circuitType == CircuitType.outputTemperature ||
-				circuitType == CircuitType.outputFuelMix ||
-				circuitType == CircuitType.outputFuelAmount ||
-				circuitType == CircuitType.outputWasteAmount ||
-				circuitType == CircuitType.inputSetControlRod) {
-			if(te instanceof TileEntityReactorControlRod) {
-				coordMappings[channel] = ((TileEntityReactorControlRod) te).getWorldLocation();
-			}
-		}
-	}
-	
-	public void setChannelCircuitType(int channel, CircuitType type) {
-		if(channel < 0 || channel >= numChannels) { return; }
-		channelCircuitTypes[channel] = type;
-	}
-	
-	public CircuitType getChannelCircuitType(int channel) {
-		if(channel < 0 || channel >= numChannels) { return CircuitType.DISABLED; }
-		return channelCircuitTypes[channel];
-	}
-	
 	public void onInputValuesChanged(int[] newValues) {
 		for(int i = 0; i < newValues.length; i++) {
 			onInputValueChanged(i, newValues[i]);
 		}
 	}
 	
-	protected void onInputValueChanged(int channel, int newValue) {
+	public void onInputValueChanged(int channel, int newValue) {
 		if(channel < 0 || channel >= numChannels) { return; }
 		CircuitType type = channelCircuitTypes[channel];
 		if(!isInput(type)) { return; }
@@ -193,8 +230,74 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 			break;
 		}
 	}
+	
+	// Public RedNet helpers for GUI & updates
+	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+		checkForConnections(world, x, y, z);
+	}
+	
+	/**
+	 * Updates the connected RedNet network, if there is one.
+	 * Will only send one update per N ticks, where N is a configurable setting.
+	 */
+	public void updateRedNetNetwork() {
+		ticksSinceLastUpdate++;
+		if(ticksSinceLastUpdate < BigReactors.ticksPerRedNetUpdate) { return; }
 
-	private void setControlRodInsertion(int channel, CoordTriplet coordTriplet, int newValue) {
+		if(redNetwork != null) {
+				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ);
+		}
+		
+		if(redNetConnectable != null) {
+			redNetConnectable.onInputsChanged(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), getOutputValues());
+		}
+	}
+
+	public CircuitType getChannelCircuitType(int channel) {
+		if(channel < 0 || channel >= numChannels) { return CircuitType.DISABLED; }
+		return channelCircuitTypes[channel];
+	}
+
+	public CoordTriplet getMappedCoord(int channel) {
+		return this.coordMappings[channel];
+	}
+
+	// RedNet helper methods
+	protected void clearChannel(int channel) {
+		channelCircuitTypes[channel] = CircuitType.DISABLED;
+		coordMappings[channel] = null;
+	}
+
+	protected TileEntity getMappedTileEntity(int channel) {
+		if(channel < 0 || channel >= numChannels) { return null; }
+		if(coordMappings[channel] == null) { return null; }
+		
+		CoordTriplet coord = coordMappings[channel];
+		
+		if(coord == null) { return null; }
+		if(!this.worldObj.checkChunksExist(coord.x, coord.y, coord.z, coord.x, coord.y, coord.z)) {
+			return null;
+		}
+		
+		return this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+	}
+	
+	protected void setMappedTileEntity(int channel, TileEntity te) {
+		if(channel < 0 || channel >= numChannels) { return; }
+		
+		CircuitType circuitType = channelCircuitTypes[channel]; 
+		if(circuitType == CircuitType.outputTemperature ||
+				circuitType == CircuitType.outputFuelMix ||
+				circuitType == CircuitType.outputFuelAmount ||
+				circuitType == CircuitType.outputWasteAmount ||
+				circuitType == CircuitType.inputSetControlRod) {
+			if(te instanceof TileEntityReactorControlRod) {
+				coordMappings[channel] = ((TileEntityReactorControlRod) te).getWorldLocation();
+			}
+		}
+	}
+	
+	protected void setControlRodInsertion(int channel, CoordTriplet coordTriplet, int newValue) {
 		if(!this.isConnected()) { return; }
 		if(!this.worldObj.checkChunksExist(coordTriplet.x, coordTriplet.y, coordTriplet.z,
 											coordTriplet.x, coordTriplet.y, coordTriplet.z)) {
@@ -208,69 +311,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		else {
 			clearChannel(channel);
 		}
-	}
-	
-	public void setMappedCoord(int channel, CoordTriplet mappedCoord) {
-		this.coordMappings[channel] = mappedCoord;
-	}
-	
-	public CoordTriplet getMappedCoord(int channel) {
-		return this.coordMappings[channel];
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
-		return new GuiReactorRedNetPort(new ContainerReactorRedNetPort(), this);
-	}
-	
-	@Override
-	public Object getContainer(InventoryPlayer inventoryPlayer) {
-		return new ContainerReactorRedNetPort();
-	}
-
-	protected void encodeSettings(NBTTagCompound destination) {
-		NBTTagList tagArray = new NBTTagList();
-		
-		for(int i = 0; i < numChannels; i++) {
-			tagArray.appendTag(encodeSetting(i));
-		}
-		
-		destination.setTag("redNetConfig", tagArray);
-	}
-	
-	protected void decodeSettings(NBTTagCompound source) {
-		NBTTagList tagArray = source.getTagList("redNetConfig");
-		for(int i = 0; i < tagArray.tagCount(); i++) {
-			decodeSetting( (NBTTagCompound)tagArray.tagAt(i) );
-		}
-	}
-	
-	@Override
-	public void writeToNBT(NBTTagCompound par1NBTTagCompound)
-	{
-		super.writeToNBT(par1NBTTagCompound);
-		encodeSettings(par1NBTTagCompound);
-	}
-	
-	@Override
-	protected void formatDescriptionPacket(NBTTagCompound packetData) {
-		super.formatDescriptionPacket(packetData);
-		encodeSettings(packetData);
-	}
-	
-	@Override
-	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
-	{
-		super.readFromNBT(par1NBTTagCompound);
-		decodeSettings(par1NBTTagCompound);
-	}
-	
-	@Override
-	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
-		super.decodeDescriptionPacket(packetData);
-		decodeSettings(packetData);
-		
 	}
 	
 	protected NBTTagCompound encodeSetting(int channel) {
@@ -308,30 +348,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 			}
 		} else {
 			coordMappings[channel] = null;
-		}
-	}
-	
-	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
-		switch(circuitType) {
-			case inputSetControlRod:
-			case outputTemperature:
-			case outputFuelMix:
-			case outputFuelAmount:
-			case outputWasteAmount:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
-	public static boolean circuitTypeRequiresSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
-		switch(circuitType) {
-			case outputFuelMix:
-			case outputFuelAmount:
-			case outputWasteAmount:
-				return true;
-			default:
-				return false;
 		}
 	}
 
@@ -374,6 +390,112 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 				return;
 			}
+		}
+	}
+	
+	// Helpers
+	/**
+	 * Discover which direction is normal to the multiblock face.
+	 */
+	protected void checkOutwardDirection() {
+		MultiblockControllerBase controller = this.getMultiblockController();
+		CoordTriplet minCoord = controller.getMinimumCoord();
+		CoordTriplet maxCoord = controller.getMaximumCoord();
+		
+		if(this.xCoord == minCoord.x) {
+			out = ForgeDirection.WEST;
+		}
+		else if(this.xCoord == maxCoord.x){
+			out = ForgeDirection.EAST;
+		}
+		else if(this.zCoord == minCoord.z) {
+			out = ForgeDirection.NORTH;
+		}
+		else if(this.zCoord == maxCoord.z) {
+			out = ForgeDirection.SOUTH;
+		}
+		else if(this.yCoord == minCoord.y) {
+			// Just in case I end up making omnidirectional taps.
+			out = ForgeDirection.DOWN;
+		}
+		else if(this.yCoord == maxCoord.y){
+			// Just in case I end up making omnidirectional taps.
+			out = ForgeDirection.UP;
+		}
+		else {
+			// WTF BRO
+			out = ForgeDirection.UNKNOWN;
+		}
+	}
+
+	protected void encodeSettings(NBTTagCompound destination) {
+		NBTTagList tagArray = new NBTTagList();
+		
+		for(int i = 0; i < numChannels; i++) {
+			tagArray.appendTag(encodeSetting(i));
+		}
+		
+		destination.setTag("redNetConfig", tagArray);
+	}
+	
+	protected void decodeSettings(NBTTagCompound source) {
+		NBTTagList tagArray = source.getTagList("redNetConfig");
+		for(int i = 0; i < tagArray.tagCount(); i++) {
+			decodeSetting( (NBTTagCompound)tagArray.tagAt(i) );
+		}
+	}
+	
+	/**
+	 * Check for a world connection, if we're assembled.
+	 * @param world
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	protected void checkForConnections(World world, int x, int y, int z) {
+		if(out == ForgeDirection.UNKNOWN) {
+			redNetwork = null;
+			redNetConnectable = null;
+		}
+		else {
+			// Check for rednet connections nearby
+			redNetwork = null;
+			redNetConnectable = null;
+
+			Block b = Block.blocksList[worldObj.getBlockId(x + out.offsetX, y + out.offsetY, z + out.offsetZ)];
+			if(!(b instanceof BlockReactorPart)) {
+				if(b instanceof IRedNetNetworkContainer) {
+					redNetwork = (IRedNetNetworkContainer)b;
+				}
+				else if(b instanceof IConnectableRedNet) {
+					redNetConnectable = (IConnectableRedNet)b; 
+				}
+			}
+		}
+	}
+
+	// Static Helpers
+	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
+		switch(circuitType) {
+			case inputSetControlRod:
+			case outputTemperature:
+			case outputFuelMix:
+			case outputFuelAmount:
+			case outputWasteAmount:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	public static boolean circuitTypeRequiresSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
+		switch(circuitType) {
+			case outputFuelMix:
+			case outputFuelAmount:
+			case outputWasteAmount:
+				return true;
+			default:
+				return false;
 		}
 	}
 }

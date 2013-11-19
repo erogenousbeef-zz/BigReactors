@@ -10,9 +10,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
-- RedNet controllers are not persisting settings properly
-- (0.2 MFR Compat) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
+- (0.2 MFR Compat) Test inputs. Maybe add a setting for pulse/constant values?
 - (0.2 MFR Compat) Add laser focus
+- (UE Compat) UE power output is broken. Fix.
 
 Known Bugs
 ----------
