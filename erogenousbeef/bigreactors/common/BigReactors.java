@@ -115,7 +115,7 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
-	public static final float powerPerHeat = 0.1f; // Power units per C dissipated
+	public static final float powerPerHeat = 1f; // RF units per C dissipated
 	
 	/**
 	 * Call this function in your mod init stage.
