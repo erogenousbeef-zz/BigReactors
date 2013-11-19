@@ -1,6 +1,6 @@
 package erogenousbeef.bigreactors.gui.controls;
 
-import net.minecraft.client.renderer.RenderEngine;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.passive.EntitySheep;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
@@ -52,7 +52,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	}
 
 	@Override
-	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
 		int guiLeft = guiContainer.getGuiLeft();
 		int guiTop = guiContainer.getGuiTop();
 		int relativeX = x + guiLeft;
@@ -74,7 +74,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	}
 
 	@Override
-	public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY) {
 	}
 
 	@Override

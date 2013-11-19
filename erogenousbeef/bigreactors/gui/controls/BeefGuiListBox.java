@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.renderer.RenderEngine;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureManager;
 
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
@@ -48,13 +48,13 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 	
 	
 	@Override
-	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
 		drawRect(x, y, x+width, y+height, borderColor);
 		drawRect(x+margin, y+margin, x+width-margin*2, y+height-margin*2, backgroundColor);
 	}
 
 	@Override
-	public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY) {
+	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY) {
 		int drawnY = 0;
 		IBeefListBoxEntry entry;
 		for(int i = displayTop; i < entries.size(); i++) {

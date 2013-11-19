@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.gui;
 
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 
 public interface IBeefGuiControl {
 	/**
@@ -8,14 +9,14 @@ public interface IBeefGuiControl {
 	 * @param mouseX Window-relative X position of the mouse cursor.
 	 * @param mouseY Window-relative Y position of the mouse cursor.
 	 */
-	public void drawBackground(RenderEngine renderEngine, int mouseX, int mouseY);
+	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY);
 	
 	/**
 	 * Draw control foreground. Has window-relative coordinates.
 	 * @param mouseX Window-relative X position of the mouse cursor.
 	 * @param mouseY Window-relative Y position of the mouse cursor.
 	 */
-	public void drawForeground(RenderEngine renderEngine, int mouseX, int mouseY);
+	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY);
 
 	/**
 	 * Handle mouse clicks. Called for all clicks, not just ones inside the control.

@@ -20,6 +20,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Icon;
@@ -97,7 +98,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 		
 		if(this.grabbedItem != null) {
 			// Render grabbed item next to mouse
-            this.mc.renderEngine.bindTexture("/terrain.png");
+            this.mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
             GL11.glColor4f(1f, 1f, 1f, 1f);
             this.drawTexturedModelRectFromIcon(absoluteX+1, absoluteY+1, this.grabbedItem.getIcon(), 16, 16);
 		}
