@@ -228,28 +228,49 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		return new ContainerReactorRedNetPort();
 	}
-	
-	@Override
-	protected void formatDescriptionPacket(NBTTagCompound packetData) {
-		super.formatDescriptionPacket(packetData);
-		
+
+	protected void encodeSettings(NBTTagCompound destination) {
 		NBTTagList tagArray = new NBTTagList();
 		
 		for(int i = 0; i < numChannels; i++) {
 			tagArray.appendTag(encodeSetting(i));
 		}
 		
-		packetData.setTag("redNetConfig", tagArray);
+		destination.setTag("redNetConfig", tagArray);
+	}
+	
+	protected void decodeSettings(NBTTagCompound source) {
+		NBTTagList tagArray = source.getTagList("redNetConfig");
+		for(int i = 0; i < tagArray.tagCount(); i++) {
+			decodeSetting( (NBTTagCompound)tagArray.tagAt(i) );
+		}
+	}
+	
+	@Override
+	public void writeToNBT(NBTTagCompound par1NBTTagCompound)
+	{
+		super.writeToNBT(par1NBTTagCompound);
+		encodeSettings(par1NBTTagCompound);
+	}
+	
+	@Override
+	protected void formatDescriptionPacket(NBTTagCompound packetData) {
+		super.formatDescriptionPacket(packetData);
+		encodeSettings(packetData);
+	}
+	
+	@Override
+	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
+	{
+		super.readFromNBT(par1NBTTagCompound);
+		decodeSettings(par1NBTTagCompound);
 	}
 	
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		super.decodeDescriptionPacket(packetData);
+		decodeSettings(packetData);
 		
-		NBTTagList tagArray = packetData.getTagList("redNetConfig");
-		for(int i = 0; i < tagArray.tagCount(); i++) {
-			decodeSetting( (NBTTagCompound)tagArray.tagAt(i) );
-		}
 	}
 	
 	protected NBTTagCompound encodeSetting(int channel) {
@@ -259,9 +280,11 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		entry.setInteger("setting", this.channelCircuitTypes[channel].ordinal());
 		if( circuitTypeHasSubSetting(this.channelCircuitTypes[channel]) ) {
 			CoordTriplet coord = this.coordMappings[channel];
-			entry.setInteger("x", coord.x);
-			entry.setInteger("y", coord.y);
-			entry.setInteger("z", coord.z);
+			if(coord != null) {
+				entry.setInteger("x", coord.x);
+				entry.setInteger("y", coord.y);
+				entry.setInteger("z", coord.z);
+			}
 		}
 		
 		return entry;
@@ -273,11 +296,16 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		
 		channelCircuitTypes[channel] = CircuitType.values()[settingIdx];
 		if( circuitTypeHasSubSetting(channelCircuitTypes[channel]) ) {
-			int x, y, z;
-			x = settingTag.getInteger("x");
-			y = settingTag.getInteger("y");
-			z = settingTag.getInteger("z");
-			coordMappings[channel] = new CoordTriplet(x, y, z);
+			if(settingTag.hasKey("x")) {
+				int x, y, z;
+				x = settingTag.getInteger("x");
+				y = settingTag.getInteger("y");
+				z = settingTag.getInteger("z");
+				coordMappings[channel] = new CoordTriplet(x, y, z);
+			}
+			else {
+				coordMappings[channel] = null;
+			}
 		} else {
 			coordMappings[channel] = null;
 		}

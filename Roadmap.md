@@ -10,7 +10,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
-- (0.2 Merge) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
+- RedNet controllers are not persisting settings properly
+- (0.2 MFR Compat) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
+- (0.2 MFR Compat) Add laser focus
 
 Known Bugs
 ----------
