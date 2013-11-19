@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
+import cofh.api.tileentity.IEnergyInfo;
 import universalelectricity.core.block.IConnector;
 import universalelectricity.core.block.IElectrical;
 import universalelectricity.core.electricity.ElectricityPack;
@@ -10,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IElectrical  {
+public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IElectrical, IEnergyInfo  {
 
 	public static float energyPerRF = 1f;
 	public static float energyPerUEWatt = 0.1f; 
@@ -227,5 +228,31 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 		float rfAccepted = this.energyStorage.receiveEnergy((int)(pack.getWatts() * energyPerUEWatt), false);
 		
 		return rfAccepted / energyPerUEWatt;
+	}
+	
+	// IEnergyInfo
+	@Override
+	public int getEnergyPerTick() {
+		if(this.isActive()) {
+			return this.getCycleEnergyCost() / this.getCycleLength();			
+		}
+		else {
+			return 0;
+		}
+	}
+
+	@Override
+	public int getMaxEnergyPerTick() {
+		return this.getCycleEnergyCost() / this.getCycleLength();
+	}
+
+	@Override
+	public int getEnergy() {
+		return this.getEnergyStored(ForgeDirection.UNKNOWN);
+	}
+
+	@Override
+	public int getMaxEnergy() {
+		return this.getMaxEnergyStored();
 	}
 }

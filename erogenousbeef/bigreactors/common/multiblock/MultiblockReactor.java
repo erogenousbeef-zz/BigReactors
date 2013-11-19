@@ -64,7 +64,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
-	private static final int maxEnergyStored = 1000000;
+	private static final int maxEnergyStored = 10000000;
 	
 	public MultiblockReactor(World world) {
 		super(world);
@@ -742,5 +742,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	public int getMaxEnergyStored(ForgeDirection from) {
 		return maxEnergyStored;
+	}
+
+	public int getMaxEnergyPerTick() {
+		return this.maxEnergyStored;
 	}
 }
