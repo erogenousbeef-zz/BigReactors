@@ -166,6 +166,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			subSettingCoords[i] = port.getMappedCoord(i);
 		}
 
+		updateSubSettingValueText();
 	}
 	
 	@Override
@@ -187,21 +188,33 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		// See if any subsettings changed
 		for(int i = 0; i < subSettingCoords.length; i++) {
-			if(subSettingCoords[i] == null) {
-				if(port.getMappedCoord(i) != null)
-				{
-					hasChanges = true;
-					break;
-				}
-			}
-			else if(!subSettingCoords[i].equals(port.getMappedCoord(i)))
-			{
+			if(hasSubSettingChanged(i)) {
 				hasChanges = true;
 				break;
 			}
 		}
 		
 		commitBtn.enabled = hasChanges && !invalidSetting;
+	}
+	
+	protected boolean hasSubSettingChanged(int idx) {
+		if(subSettingCoords[idx] == null) {
+			if(port.getMappedCoord(idx) != null)
+			{
+				return true;
+			}
+		}
+		else if(port.getMappedCoord(idx) == null) {
+			return true;
+		}
+		else if(!subSettingCoords[idx].equals(port.getMappedCoord(idx))) {
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean hasSettingChanged(int idx) {
+		return grabTargets[idx].hasChanged() || hasSubSettingChanged(idx);
 	}
 	
 	@Override
@@ -229,7 +242,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		packetData.add(port.zCoord);
 
 		for(int i = 0; i < TileEntityReactorRedNetPort.numChannels; i++) {
-			if(grabTargets[i].hasChanged()) {
+			if(hasSettingChanged(i)) {
 				packetData.add(i);
 				packetData.add(grabTargets[i].getCircuitType().ordinal());
 				if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(grabTargets[i].getCircuitType())) {

@@ -173,6 +173,7 @@ public class ClientPacketHandler implements IPacketHandler {
 				e.printStackTrace();
 			}
 		}
+		break;
 		case Packets.RedNetSetData: {
 			try {
 				x = data.readInt();
