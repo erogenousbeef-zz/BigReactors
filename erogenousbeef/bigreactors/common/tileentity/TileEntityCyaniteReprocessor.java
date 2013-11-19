@@ -76,12 +76,12 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 
 	@Override
 	public int getMaxEnergyStored() {
-		return 1000;
+		return 10000;
 	}
 
 	@Override
 	public int getCycleEnergyCost() {
-		return 100;
+		return 2000;
 	}
 
 	@Override
