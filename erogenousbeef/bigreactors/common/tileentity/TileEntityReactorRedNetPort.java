@@ -21,20 +21,18 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		DISABLED,
 		inputActive, 				// Input: reactor on/off
 		inputSetControlRod, 		// Input: control rod insertion (0-100)
-		inputSetAllControlRods,		// Input: control rod insertion for all rods (0-100)
 
 		outputTemperature,				// Output: Temperature of the reactor
-		outputControlRodTemperature, 	// Output: Temperature of a single control rod
-		outputControlRodFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
-		outputControlRodFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
-		outputControlRodWasteAmount 	// Output: Waste amount in a control rod, raw value, (0-4*height)
+		outputFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
+		outputFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
+		outputWasteAmount 	// Output: Waste amount in a control rod, raw value, (0-4*height)
 		
 	}
 
 	protected final static int minInputEnumValue = CircuitType.inputActive.ordinal();
-	protected final static int maxInputEnumValue = CircuitType.inputSetAllControlRods.ordinal();
+	protected final static int maxInputEnumValue = CircuitType.inputSetControlRod.ordinal();
 	protected final static int minOutputEnumValue = CircuitType.outputTemperature.ordinal();
-	protected final static int maxOutputEnumValue = CircuitType.outputControlRodWasteAmount.ordinal();
+	protected final static int maxOutputEnumValue = CircuitType.outputWasteAmount.ordinal();
 
 	protected static boolean isInput(CircuitType type) { return type.ordinal() >= minInputEnumValue && type.ordinal() <= maxInputEnumValue; }
 	protected static boolean isOutput(CircuitType type) { return type.ordinal() >= minOutputEnumValue && type.ordinal() <= maxOutputEnumValue; }
@@ -74,17 +72,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		
 		switch(channelCircuitTypes[channel]) {
 		case outputTemperature:
-			return (int)Math.floor(getReactorController().getHeat());
-		case outputControlRodTemperature:
 			te = getMappedTileEntity(channel);
 			if(te instanceof TileEntityReactorControlRod) {
 				return (int)Math.floor(((TileEntityReactorControlRod)te).getHeat());
 			}
 			else {
-				clearChannel(channel);
-				return 0;
+				return (int)Math.floor(getReactorController().getHeat());
 			}
-		case outputControlRodFuelMix:
+		case outputFuelMix:
 			te = getMappedTileEntity(channel);
 			if(te instanceof TileEntityReactorControlRod) {
 				TileEntityReactorControlRod cr = (TileEntityReactorControlRod)te;
@@ -97,7 +92,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				clearChannel(channel);
 				return 0;
 			}
-		case outputControlRodFuelAmount:
+		case outputFuelAmount:
 			te = getMappedTileEntity(channel);
 			if(te instanceof TileEntityReactorControlRod) {
 				return ((TileEntityReactorControlRod)te).getFuelAmount();
@@ -106,7 +101,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				clearChannel(channel);
 				return 0;
 			}
-		case outputControlRodWasteAmount:
+		case outputWasteAmount:
 			te = getMappedTileEntity(channel);
 			if(te instanceof TileEntityReactorControlRod) {
 				return ((TileEntityReactorControlRod)te).getWasteAmount();
@@ -143,10 +138,10 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		if(channel < 0 || channel >= numChannels) { return; }
 		
 		CircuitType circuitType = channelCircuitTypes[channel]; 
-		if(circuitType == CircuitType.outputControlRodTemperature ||
-				circuitType == CircuitType.outputControlRodFuelMix ||
-				circuitType == CircuitType.outputControlRodFuelAmount ||
-				circuitType == CircuitType.outputControlRodWasteAmount ||
+		if(circuitType == CircuitType.outputTemperature ||
+				circuitType == CircuitType.outputFuelMix ||
+				circuitType == CircuitType.outputFuelAmount ||
+				circuitType == CircuitType.outputWasteAmount ||
 				circuitType == CircuitType.inputSetControlRod) {
 			if(te instanceof TileEntityReactorControlRod) {
 				coordMappings[channel] = ((TileEntityReactorControlRod) te).getWorldLocation();
@@ -186,11 +181,13 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 			}
 			break;
 		case inputSetControlRod:
-			setControlRodInsertion(channel, coordMappings[channel], newValue);
-			break;
-		case inputSetAllControlRods:
-			reactor = getReactorController();
-			reactor.setAllControlRodInsertionValues(newValue);
+			if(coordMappings[channel] != null) {
+				setControlRodInsertion(channel, coordMappings[channel], newValue);
+			}
+			else {
+				reactor = getReactorController();
+				reactor.setAllControlRodInsertionValues(newValue);
+			}
 			break;
 		default:
 			break;
@@ -289,10 +286,21 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
 		switch(circuitType) {
 			case inputSetControlRod:
-			case outputControlRodTemperature:
-			case outputControlRodFuelMix:
-			case outputControlRodFuelAmount:
-			case outputControlRodWasteAmount:
+			case outputTemperature:
+			case outputFuelMix:
+			case outputFuelAmount:
+			case outputWasteAmount:
+				return true;
+			default:
+				return false;
+		}
+	}
+	
+	public static boolean circuitTypeRequiresSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
+		switch(circuitType) {
+			case outputFuelMix:
+			case outputFuelAmount:
+			case outputWasteAmount:
 				return true;
 			default:
 				return false;
@@ -310,12 +318,22 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				channelCircuitTypes[channel] = newSetting;
 
 				if(circuitTypeHasSubSetting(newSetting)) {
-					CoordTriplet coord = new CoordTriplet( data.readInt(), data.readInt(), data.readInt() );
+					boolean hasSubSettingData = data.readBoolean();
+					CoordTriplet coord = null;
+					if(hasSubSettingData) {
+						coord = new CoordTriplet( data.readInt(), data.readInt(), data.readInt() );					
+					}
 					
 					if(doValidation) {
-						TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-						if(!(te instanceof TileEntityReactorControlRod)) {
-							throw new IOException("Invalid TileEntity for RedNet Port settings at " + coord.toString());
+						if(circuitTypeRequiresSubSetting(newSetting) && coord == null) {
+							throw new IOException("Invalid setting for RedNet Port settings - no tile entity coords included when setting " + newSetting.toString());
+						}
+						
+						if(coord != null) {
+							TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+							if(!(te instanceof TileEntityReactorControlRod)) {
+								throw new IOException("Invalid TileEntity for RedNet Port settings at " + coord.toString());
+							}
 						}
 					}
 					
