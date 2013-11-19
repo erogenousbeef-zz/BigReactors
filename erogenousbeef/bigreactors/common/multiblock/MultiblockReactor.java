@@ -32,6 +32,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
@@ -56,6 +57,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	private Set<CoordTriplet> attachedPowerTaps;
+	private Set<CoordTriplet> attachedRedNetPorts;
+
 	// TODO: Convert these to sets.
 	private LinkedList<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
 	private LinkedList<CoordTriplet> attachedAccessPorts;
@@ -75,6 +78,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		energyGeneratedLastTick = 0f;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
+		attachedRedNetPorts = new HashSet<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
 		attachedControllers = new LinkedList<CoordTriplet>();
@@ -109,6 +113,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		else if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.add(coord);
 		}
+		else if(part instanceof TileEntityReactorRedNetPort) {
+			attachedRedNetPorts.add(coord);
+		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
 			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
@@ -133,6 +140,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		else if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.remove(coord);
+		}
+		else if(part instanceof TileEntityReactorRedNetPort) {
+			attachedRedNetPorts.remove(coord);
 		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
@@ -279,7 +289,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		
 		// TODO: Overload/overheat
 
-		// Return true if we've changed either variable
+		// Update any connected rednet networks
+		for(CoordTriplet coord : attachedRedNetPorts) {
+			TileEntityReactorRedNetPort port = (TileEntityReactorRedNetPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(port == null) { continue; }
+			port.updateRedNetNetwork();
+		}
+
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
@@ -494,6 +510,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	protected void onMachineMerge(MultiblockControllerBase otherMachine) {
 		this.attachedPowerTaps.clear();
+		this.attachedRedNetPorts.clear();
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();

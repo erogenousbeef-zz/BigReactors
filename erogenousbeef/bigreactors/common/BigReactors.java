@@ -116,6 +116,7 @@ public class BigReactors {
 	
 	// Game Balance values
 	public static final float powerPerHeat = 1f; // RF units per C dissipated
+	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
 	
 	/**
 	 * Call this function in your mod init stage.
