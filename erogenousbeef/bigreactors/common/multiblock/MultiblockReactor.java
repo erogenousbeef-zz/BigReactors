@@ -691,7 +691,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 				if(controlRod == null) { continue; }
 
-				if(wasteToConsume > 0) {
+				if(wasteToConsume > 0 && controlRod.getWasteAmount() > 0) {
 					int amtDrained = controlRod.removeWaste(new FluidStack(controlRod.getWasteType(), wasteToConsume), wasteToConsume, true);
 					wasteToConsume -= amtDrained;
 				}
