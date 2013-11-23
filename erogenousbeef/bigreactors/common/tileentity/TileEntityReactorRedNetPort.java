@@ -33,6 +33,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		DISABLED,
 		inputActive, 				// Input: reactor on/off
 		inputSetControlRod, 		// Input: control rod insertion (0-100)
+		inputEjectWaste,			// Input: eject waste from the reactor
 
 		outputTemperature,				// Output: Temperature of the reactor
 		outputFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
@@ -41,15 +42,15 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	}
 
 	protected final static int minInputEnumValue = CircuitType.inputActive.ordinal();
-	protected final static int maxInputEnumValue = CircuitType.inputSetControlRod.ordinal();
+	protected final static int maxInputEnumValue = CircuitType.inputEjectWaste.ordinal();
 	protected final static int minOutputEnumValue = CircuitType.outputTemperature.ordinal();
 	protected final static int maxOutputEnumValue = CircuitType.outputWasteAmount.ordinal();
 
-	protected static boolean isInput(CircuitType type) { return type.ordinal() >= minInputEnumValue && type.ordinal() <= maxInputEnumValue; }
-	protected static boolean isOutput(CircuitType type) { return type.ordinal() >= minOutputEnumValue && type.ordinal() <= maxOutputEnumValue; }
-	
 	protected CircuitType[] channelCircuitTypes;
 	protected CoordTriplet[] coordMappings;
+	protected boolean[] inputActivatesOnPulse;
+	protected int[] oldValue;
+
 	public final static int numChannels = 16;
 	
 	IRedNetNetworkContainer redNetwork;
@@ -63,10 +64,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		
 		channelCircuitTypes = new CircuitType[numChannels];
 		coordMappings = new CoordTriplet[numChannels];
+		inputActivatesOnPulse = new boolean[numChannels];
+		oldValue = new int[numChannels];
 
 		for(int i = 0; i < numChannels; i++) {
 			channelCircuitTypes[i] = CircuitType.DISABLED;
 			coordMappings[i] = null;
+			inputActivatesOnPulse[i] = false;
+			oldValue[i] = 0;
 		}
 		
 		redNetwork = null;
@@ -208,16 +213,27 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		if(!isInput(type)) { return; }
 		if(!this.isConnected()) { return; }
 		
+		if(newValue == oldValue[channel]) { return; }
+		boolean isPulse = (oldValue[channel] == 0 && newValue != 0);
+		
 		MultiblockReactor reactor = null;
 		switch(type) {
 		case inputActive:
 			reactor = getReactorController();
-			boolean newActive = newValue != 0;
-			if(newActive != reactor.isActive()) {
-				reactor.setActive(newActive);
+			if(inputActivatesOnPulse[channel]) {
+				if(isPulse) {
+					reactor.setActive(!reactor.isActive());
+				}
+			}
+			else {
+				boolean newActive = newValue != 0;
+				if(newActive != reactor.isActive()) {
+					reactor.setActive(newActive);
+				}
 			}
 			break;
 		case inputSetControlRod:
+			// This doesn't make sense for pulsing
 			if(coordMappings[channel] != null) {
 				setControlRodInsertion(channel, coordMappings[channel], newValue);
 			}
@@ -226,9 +242,17 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				reactor.setAllControlRodInsertionValues(newValue);
 			}
 			break;
+		case inputEjectWaste:
+			// This only makes sense for pulsing
+			if(isPulse) {
+				reactor = getReactorController();
+				reactor.ejectWaste();
+			}
 		default:
 			break;
 		}
+		
+		oldValue[channel] = newValue;
 	}
 	
 	// Public RedNet helpers for GUI & updates
@@ -261,11 +285,17 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	public CoordTriplet getMappedCoord(int channel) {
 		return this.coordMappings[channel];
 	}
+	
+	public boolean isInputActivatedOnPulse(int channel) {
+		return this.inputActivatesOnPulse[channel];
+	}
 
 	// RedNet helper methods
 	protected void clearChannel(int channel) {
 		channelCircuitTypes[channel] = CircuitType.DISABLED;
 		coordMappings[channel] = null;
+		inputActivatesOnPulse[channel] = false;
+		oldValue[channel] = 0;
 	}
 
 	protected TileEntity getMappedTileEntity(int channel) {
@@ -318,6 +348,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		
 		entry.setInteger("channel", channel);
 		entry.setInteger("setting", this.channelCircuitTypes[channel].ordinal());
+		if(isInput(this.channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
+			entry.setBoolean("pulse", this.inputActivatesOnPulse[channel]);
+		}
 		if( circuitTypeHasSubSetting(this.channelCircuitTypes[channel]) ) {
 			CoordTriplet coord = this.coordMappings[channel];
 			if(coord != null) {
@@ -334,7 +367,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		int channel = settingTag.getInteger("channel");
 		int settingIdx = settingTag.getInteger("setting");
 		
+		clearChannel(channel);
+		
 		channelCircuitTypes[channel] = CircuitType.values()[settingIdx];
+		
+		if(isInput(this.channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
+			inputActivatesOnPulse[channel] = settingTag.getBoolean("pulse");
+		}
+
 		if( circuitTypeHasSubSetting(channelCircuitTypes[channel]) ) {
 			if(settingTag.hasKey("x")) {
 				int x, y, z;
@@ -343,11 +383,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				z = settingTag.getInteger("z");
 				coordMappings[channel] = new CoordTriplet(x, y, z);
 			}
-			else {
-				coordMappings[channel] = null;
-			}
-		} else {
-			coordMappings[channel] = null;
 		}
 	}
 
@@ -358,9 +393,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 			try {
 				channel = data.readInt();
 				CircuitType newSetting = CircuitType.values()[ data.readInt() ];
+				clearChannel(channel);
 
 				channelCircuitTypes[channel] = newSetting;
 
+				if(isInput(channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(channelCircuitTypes[channel])) {
+					inputActivatesOnPulse[channel] = data.readBoolean();
+				}
+				
 				if(circuitTypeHasSubSetting(newSetting)) {
 					boolean hasSubSettingData = data.readBoolean();
 					CoordTriplet coord = null;
@@ -498,4 +538,11 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				return false;
 		}
 	}
+	
+	public static boolean canBeToggledBetweenPulseAndNormal(CircuitType circuitType) {
+		return circuitType == CircuitType.inputActive;
+	}
+
+	public static boolean isInput(CircuitType type) { return type.ordinal() >= minInputEnumValue && type.ordinal() <= maxInputEnumValue; }
+	public static boolean isOutput(CircuitType type) { return type.ordinal() >= minOutputEnumValue && type.ordinal() <= maxOutputEnumValue; }
 }
