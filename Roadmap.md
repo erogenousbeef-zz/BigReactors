@@ -10,8 +10,6 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
-- (0.2 MFR Compat) Test inputs
-- (0.2 MFR Compat) Add laser focus
 - (0.2 balance) Heat & power output seem to be way too high at the high-end. Fix?
 - (UE Compat) UE power output is broken. Fix.
 
