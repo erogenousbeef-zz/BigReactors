@@ -8,7 +8,6 @@ import cofh.api.energy.IEnergyHandler;
 
 import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
 import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
-import universalelectricity.core.block.IConnector;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

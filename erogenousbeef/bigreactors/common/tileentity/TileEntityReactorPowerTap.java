@@ -11,30 +11,22 @@ import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import universalelectricity.core.block.IConductor;
-import universalelectricity.core.block.IConnector;
-import universalelectricity.core.block.IElectrical;
-import universalelectricity.core.electricity.ElectricityPack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IElectrical, IEnergyHandler {
-
-	public static final float uePowerFactor = 0.1f;	 // 10 UE watts per 1 internal power
+public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler {
 	public static final float rfPowerFactor = 1f;    // 1 RF per 1 internal power
 	
 	ForgeDirection out;
 	
 	IEnergyHandler 	rfNetwork;
-	IConnector		ueNetwork;
 	
 	public TileEntityReactorPowerTap() {
 		super();
 		
 		out = ForgeDirection.UNKNOWN;
 		rfNetwork = null;
-		ueNetwork = null;
 	}
 	
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
@@ -105,16 +97,14 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	 * @param z
 	 */
 	protected void checkForConnections(World world, int x, int y, int z) {
-		boolean wasConnected = (rfNetwork != null || ueNetwork != null);
+		boolean wasConnected = (rfNetwork != null);
 		if(out == ForgeDirection.UNKNOWN) {
 			wasConnected = false;
 			rfNetwork = null;
-			ueNetwork = null;
 		}
 		else {
 			// See if our adjacent non-reactor coordinate has a TE
 			rfNetwork = null;
-			ueNetwork = null;
 
 			TileEntity te = world.getBlockTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(!(te instanceof TileEntityReactorPowerTap)) {
@@ -122,17 +112,11 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 				if(te instanceof IEnergyHandler) {
 					rfNetwork = (IEnergyHandler)te;
 				}
-				else if(te instanceof IConnector) {
-					IConnector connector = (IConnector)te;
-					if(connector.canConnect(out.getOpposite())) {
-						ueNetwork = (IConnector)te;
-					}
-				}
 			}
 			
 		}
 		
-		boolean isConnected = (rfNetwork != null || ueNetwork != null);
+		boolean isConnected = (rfNetwork != null);
 		if(wasConnected != isConnected) {
 			if(isConnected) {
 				// Newly connected
@@ -148,11 +132,10 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	/** This will be called by the Reactor Controller when this tap should be providing power.
 	 * @return Power units remaining after consumption.
 	 */
-	// TODO: Eliminate this entire method
 	public int onProvidePower(int units) {
 		ArrayList<CoordTriplet> deadCoords = null;
 		
-		if(rfNetwork == null && ueNetwork == null) {
+		if(rfNetwork == null) {
 			return units;
 		}
 		
@@ -165,28 +148,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			int energyConsumed = rfNetwork.receiveEnergy(approachDirection, rfAvailable, false);
 			units -= (int)((float)energyConsumed * rfPowerFactor);
 		}
-		else if(ueNetwork != null) {
-			/* TODO: Debug me
-			// Universal Electricity
-			ForgeDirection approachDirection = out.getOpposite();
-			IElectricityNetwork network = ElectricityNetworkHelper.getNetworkFromTileEntity(te, approachDirection);
-			if(network != null) {
-				double wattsAvailable = (double)units / (double)uePowerFactor;
-				double wattsWanted = network.getRequest().getWatts();
-				if(wattsWanted > 0) {
-					if(wattsWanted > wattsAvailable) {
-						wattsWanted = wattsAvailable;
-					}
-					
-					network.startProducing(this, wattsWanted/getVoltage(), getVoltage());
-					 // Rounding up to prevent free energy. Sorry bro, thermodynamics says so.
-					units -= (int)Math.ceil(wattsWanted * uePowerFactor);
-				} else {
-					network.stopProducing(this);
-				}
-			}
-			*/
-		}
 		else {
 			// This can happen when UE burns out and doesn't provide a block update.
 			worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
@@ -195,48 +156,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		return units;
 	}
 	
-	// Universal Electricity
-	
-	@Override
-	public boolean canConnect(ForgeDirection direction) {
-		return direction == out;
-	}
-
-	@Override
-	public float getVoltage() {
-		// TODO: Make this selectable?
-		return 120;
-	}
-
-	@Override
-	public float receiveElectricity(ForgeDirection from,
-			ElectricityPack receive, boolean doReceive) {
-		return 0;
-	}
-
-	@Override
-	public ElectricityPack provideElectricity(ForgeDirection from,
-			ElectricityPack request, boolean doProvide) {
-		if(from != out) {
-			return null;
-		}
-		
-		int amtWanted = (int)(request.getWatts() * uePowerFactor);
-		int amtSupplied = this.getReactorController().extractEnergy(from, amtWanted, doProvide);
-		return ElectricityPack.getFromWatts(amtSupplied, request.voltage);
-	}
-
-	@Override
-	public float getRequest(ForgeDirection direction) {
-		return 0;
-	}
-
-	@Override
-	public float getProvide(ForgeDirection direction) {
-		// TODO Auto-generated method stub
-		return this.getReactorController().getEnergyStored() / uePowerFactor;
-	}
-
+	// Thermal Expansion
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive,
 			boolean simulate) {

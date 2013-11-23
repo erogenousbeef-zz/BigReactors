@@ -3,18 +3,13 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
 import cofh.api.tileentity.IEnergyInfo;
-import universalelectricity.core.block.IConnector;
-import universalelectricity.core.block.IElectrical;
-import universalelectricity.core.electricity.ElectricityPack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 
-public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IElectrical, IEnergyInfo  {
-
+public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IEnergyInfo  {
 	public static float energyPerRF = 1f;
-	public static float energyPerUEWatt = 0.1f; 
 	
 	// Internal power
 	private int cycledTicks;
@@ -184,50 +179,6 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	public int getMaxEnergyStored(ForgeDirection from) {
 
 		return energyStorage.getMaxEnergyStored();
-	}
-	
-	// UE Methods
-
-	@Override
-	public float getVoltage() {
-		return 120f;
-	}
-
-	@Override
-	public boolean canConnect(ForgeDirection direction) {
-		if (direction == null || direction.equals(ForgeDirection.UNKNOWN))
-		{
-			return false;
-		}
-
-		return true;
-	}
-	
-	@Override
-	public float getProvide(ForgeDirection to) {
-		return 0.0f;
-	}
-	
-	@Override
-	public float getRequest(ForgeDirection to) {
-		if(this.energyStorage.getEnergyStored() >= this.energyStorage.getMaxEnergyStored()) {
-			return 0.0f;
-		}
-		else {
-			return (this.energyStorage.getMaxEnergyStored() - this.energyStorage.getEnergyStored()) / energyPerUEWatt;
-		}
-	}
-	
-	@Override
-	public ElectricityPack provideElectricity(ForgeDirection to, ElectricityPack pack, boolean doAdd) {
-		return null;
-	}
-	
-	@Override
-	public float receiveElectricity(ForgeDirection from, ElectricityPack pack, boolean doAdd) {
-		float rfAccepted = this.energyStorage.receiveEnergy((int)(pack.getWatts() * energyPerUEWatt), false);
-		
-		return rfAccepted / energyPerUEWatt;
 	}
 	
 	// IEnergyInfo
