@@ -11,7 +11,6 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 Technical Debt / Fixes
 ----------------------
 - (0.2 balance) Heat & power output seem to be way too high at the high-end. Fix?
-- (UE Compat) UE power output is broken. Fix.
 
 Known Bugs
 ----------
@@ -30,8 +29,6 @@ TODO - Beta
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
-- Worldgen: Add a user-facing "user version" variable to allow users to forcibly re-run worldgen
-- Worldgen: Change yellorite ore to favor generation on y12
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons

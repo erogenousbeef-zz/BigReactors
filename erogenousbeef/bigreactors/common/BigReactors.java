@@ -48,6 +48,8 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
+import erogenousbeef.bigreactors.world.BRWorldGenerator;
 
 public class BigReactors {
 
@@ -104,6 +106,7 @@ public class BigReactors {
 	public static boolean enableWorldGen = true;
 	public static boolean enableWorldGenInNegativeDimensions = false;
 	public static boolean enableWorldRegeneration = true;
+	public static int userWorldGenVersion = 0;
 
 	public static BREventHandler eventHandler = null;
 	public static BigReactorsTickHandler tickHandler = null;
@@ -134,7 +137,8 @@ public class BigReactors {
 			enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
 			enableWorldGenInNegativeDimensions = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGenInNegativeDims", false, "Run BR world generation in negative dimension IDs? (default: false) If you don't know what this is, leave it alone.").getBoolean(false);
 			enableWorldRegeneration = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldRegeneration", false, "Run BR World Generation in chunks that have already been generated, but have not been modified by Big Reactors before. This is largely useful for worlds that existed before BigReactors was released.").getBoolean(false);
-			
+			userWorldGenVersion = BRConfig.CONFIGURATION.get("WorldGen", "userWorldGenVersion", 0, "User-set world generation version. Increase this by 1 if you want Big Reactors to re-run world generation in your world.").getInt();
+
 			boolean registerCoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCoalForSmelting", true, "If set, coal will be smeltable into graphite bars. Disable this if other mods need to smelt coal into their own products. (Default: true)").getBoolean(true);
 			boolean registerCharcoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCharcoalForSmelting", true, "If set, charcoal will be smeltable into graphite bars. Disable this if other mods need to smelt charcoal into their own products. (Default: true)").getBoolean(true);
 			boolean registerCoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 coal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
@@ -322,6 +326,17 @@ public class BigReactors {
 			}
 			
 			BRWorldGenerator.addGenerator(BigReactors.yelloriteOreGeneration);
+			
+			// Per KingLemming's request, bonus yellorite at y12. :)
+			BRSimpleOreGenerator yelloriteOreGeneration2 = new BRSimpleOreGenerator(blockYelloriteOre.blockID, 0, Block.stone.blockID,
+					0, 2, 12, 12, orePerCluster, oreGenChance * 0.25f, oreGenMultiplier * 0.25f);
+			if(dimensionBlacklist != null) {
+				for(int dimension : dimensionBlacklist) {
+					yelloriteOreGeneration2.blacklistDimension(dimension);
+				}
+			}
+			
+			BRWorldGenerator.addGenerator(yelloriteOreGeneration2);
 		}
 		
 		BRConfig.CONFIGURATION.save();
