@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.world.ChunkDataEvent;
@@ -9,7 +10,10 @@ public class BREventHandler {
 	@ForgeSubscribe
 	public void chunkSave(ChunkDataEvent.Save saveEvent) {
 		if(BigReactors.enableWorldGen) {
-			saveEvent.getData().setInteger("BigReactorsWorldGen", BRConfig.WORLDGEN_VERSION);
+			NBTTagCompound saveData = saveEvent.getData();
+			
+			saveData.setInteger("BigReactorsWorldGen", BRConfig.WORLDGEN_VERSION);
+			saveData.setInteger("BigReactorsUserWorldGen", BigReactors.userWorldGenVersion);
 		}
 	}
 	
@@ -19,7 +23,9 @@ public class BREventHandler {
 			return;
 		}
 
-		if(loadEvent.getData().getInteger("BigReactorsWorldGen") == BRConfig.WORLDGEN_VERSION) {
+		NBTTagCompound loadData = loadEvent.getData();
+		if(loadData.getInteger("BigReactorsWorldGen") == BRConfig.WORLDGEN_VERSION &&
+				loadData.getInteger("BigReactorsUserWorldGen") == BigReactors.userWorldGenVersion) {
 			return;
 		}
 		
