@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import powercrystals.minefactoryreloaded.api.FactoryRegistry;
+
 import appeng.api.Util;
 
 import net.minecraft.item.ItemStack;
@@ -146,6 +148,11 @@ public class CommonProxy {
 			if(ingotBlutonium != null && dustBlutonium != null) {
 				addMekanismCrusherRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
 			}
+		}
+		
+		if(Loader.isModLoaded("MineFactoryReloaded")) {
+			FactoryRegistry.registerLaserOre(2, yelloriteOre.copy());
+			FactoryRegistry.addLaserPreferredOre(9, yelloriteOre.copy()); // Register yellorite with cyan, becuz.
 		}
 	}
 	
