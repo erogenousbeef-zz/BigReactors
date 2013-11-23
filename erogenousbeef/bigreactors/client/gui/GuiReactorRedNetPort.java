@@ -53,6 +53,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	protected static final String[] grabbableTooltips = {
 		"Input: Toggle reactor on/off",
 		"Input: Change control rod insertion",
+		"Input: Eject Waste",
 		"Output: Temperature (C)",
 		"Output: Fuel mix (% fuel, 0-100)",
 		"Output: Fuel amount",
@@ -62,6 +63,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	BeefGuiRedNetChannelSelector[] channelSelectors = new BeefGuiRedNetChannelSelector[numChannels];
 	RedNetConfigGrabTarget[] grabTargets = new RedNetConfigGrabTarget[numChannels];
 	private CoordTriplet[] subSettingCoords = new CoordTriplet[numChannels];
+	private boolean[] pulseActivated = new boolean[numChannels];
 	
 	private int selectedChannel = 0;
 	
@@ -154,6 +156,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		TileEntityReactorRedNetPort.CircuitType currentCircuitType;
 		for(int i = 0; i < TileEntityReactorRedNetPort.numChannels; i++) {
 			currentCircuitType = port.getChannelCircuitType(i);
+			pulseActivated[i] = port.isInputActivatedOnPulse(i);
 			if(currentCircuitType == TileEntityReactorRedNetPort.CircuitType.DISABLED) {
 				grabTargets[i].setSlotContents(null);
 			}
@@ -194,6 +197,13 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			}
 		}
 		
+		for(int i = 0; i < numChannels; i++) {
+			if(port.isInputActivatedOnPulse(i) != pulseActivated[i]) {
+				hasChanges = true;
+				break;
+			}
+		}
+		
 		commitBtn.enabled = hasChanges && !invalidSetting;
 	}
 	
@@ -214,7 +224,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	}
 
 	protected boolean hasSettingChanged(int idx) {
-		return grabTargets[idx].hasChanged() || hasSubSettingChanged(idx);
+		return grabTargets[idx].hasChanged() || hasSubSettingChanged(idx) || (port.isInputActivatedOnPulse(idx) != pulseActivated[idx]);
 	}
 	
 	@Override
@@ -230,7 +240,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		}
 		
 		if(button.id == 1 || button.id == 2) {
-			changeSelectedCoord(button.id == 1);
+			changeSubSetting(button.id == 1);
 		}
 	}
 	
@@ -243,9 +253,14 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 
 		for(int i = 0; i < TileEntityReactorRedNetPort.numChannels; i++) {
 			if(hasSettingChanged(i)) {
+				CircuitType circuitType = grabTargets[i].getCircuitType();
 				packetData.add(i);
-				packetData.add(grabTargets[i].getCircuitType().ordinal());
-				if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(grabTargets[i].getCircuitType())) {
+				packetData.add(circuitType.ordinal());
+				if(TileEntityReactorRedNetPort.canBeToggledBetweenPulseAndNormal(circuitType)) {
+					packetData.add(pulseActivated[i]);
+				}
+
+				if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(circuitType)) {
 					CoordTriplet coord = this.subSettingCoords[i];
 					if(coord == null) {
 						packetData.add(false);
@@ -289,14 +304,25 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 
 		CoordTriplet[] controlRodLocations = port.getReactorController().getControlRodLocations();
 		
-		if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(grabTargets[selectedChannel].getCircuitType())) {
+		CircuitType currentCircuitType = grabTargets[selectedChannel].getCircuitType();
+		
+		if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(currentCircuitType)) {
 			subSettingString.setLabelText("Control Rod: ");
 			subSettingForwardBtn.drawButton = true;
 			subSettingBackBtn.drawButton = true;
 		}
+		else if(TileEntityReactorRedNetPort.isInput(currentCircuitType) && TileEntityReactorRedNetPort.canBeToggledBetweenPulseAndNormal(currentCircuitType)) {
+			subSettingString.setLabelText("Activates On:");
+			subSettingForwardBtn.drawButton = true;
+			subSettingBackBtn.drawButton = true;
+		}
+		else if(currentCircuitType == CircuitType.inputEjectWaste) {
+			subSettingString.setLabelText("Activates On:");
+			subSettingForwardBtn.drawButton = false;
+			subSettingBackBtn.drawButton = false;
+		}
 		else {
 			subSettingString.setLabelText("");
-			subSettingValueString.setLabelText("");
 			subSettingForwardBtn.drawButton = false;
 			subSettingBackBtn.drawButton = false;
 		}
@@ -328,29 +354,36 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		}
 	}
 
-	private void changeSelectedCoord(boolean forward) {
-		CoordTriplet[] controlRodLocations = port.getReactorController().getControlRodLocations();
-		System.out.println("control rod locations: " + Integer.toString(controlRodLocations.length));
-		int newIdx = 0;
-		// Locate current idx; will be -1 if not found, which is expected.
-		int oldIdx = Arrays.asList(controlRodLocations).indexOf( subSettingCoords[selectedChannel] );
-		if(forward) {
-			newIdx = oldIdx + 1;
-		}
-		else {
-			if(oldIdx == -1) {
-				newIdx = controlRodLocations.length - 1;
+	private void changeSubSetting(boolean forward) {
+		CircuitType circuitType = grabTargets[selectedChannel].getCircuitType();
+
+		if( TileEntityReactorRedNetPort.circuitTypeHasSubSetting(circuitType) ) {
+			// Select a new control rod
+			CoordTriplet[] controlRodLocations = port.getReactorController().getControlRodLocations();
+			int newIdx = 0;
+			// Locate current idx; will be -1 if not found, which is expected.
+			int oldIdx = Arrays.asList(controlRodLocations).indexOf( subSettingCoords[selectedChannel] );
+			if(forward) {
+				newIdx = oldIdx + 1;
 			}
 			else {
-				newIdx = oldIdx - 1;
+				if(oldIdx == -1) {
+					newIdx = controlRodLocations.length - 1;
+				}
+				else {
+					newIdx = oldIdx - 1;
+				}
+			}
+			
+			if(newIdx < 0 || newIdx >= controlRodLocations.length) {
+				subSettingCoords[selectedChannel] = null;			
+			}
+			else {
+				subSettingCoords[selectedChannel] = controlRodLocations[newIdx];
 			}
 		}
-		
-		if(newIdx < 0 || newIdx >= controlRodLocations.length) {
-			subSettingCoords[selectedChannel] = null;			
-		}
-		else {
-			subSettingCoords[selectedChannel] = controlRodLocations[newIdx];
+		else if( TileEntityReactorRedNetPort.canBeToggledBetweenPulseAndNormal(circuitType) ) {
+			pulseActivated[selectedChannel] = !pulseActivated[selectedChannel];
 		}
 		
 		updateSubSettingValueText();
@@ -361,12 +394,18 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 
 		
 		CircuitType circuitType = grabTargets[selectedChannel].getCircuitType();
-		if( !TileEntityReactorRedNetPort.circuitTypeHasSubSetting(circuitType) ) {
-			subSettingValueString.setLabelText("");
-			return;
-		}
-	
-		subSettingValueString.setLabelText( getControlRodLabelFromLocation(circuitType, subSettingCoords[selectedChannel]) );
-	}
 
+		if( TileEntityReactorRedNetPort.circuitTypeHasSubSetting(circuitType) ) {
+			subSettingValueString.setLabelText( getControlRodLabelFromLocation(circuitType, subSettingCoords[selectedChannel]) );
+		}
+		else if(TileEntityReactorRedNetPort.isInput(circuitType) && TileEntityReactorRedNetPort.canBeToggledBetweenPulseAndNormal(circuitType)) {
+			subSettingValueString.setLabelText(pulseActivated[selectedChannel]?"Pulse":"Level");
+		}
+		else if(circuitType == CircuitType.inputEjectWaste) {
+			subSettingValueString.setLabelText("Pulse");
+		}
+		else {
+			subSettingValueString.setLabelText("");
+		}
+	}
 }
