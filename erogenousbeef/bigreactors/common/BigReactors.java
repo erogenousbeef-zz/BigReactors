@@ -19,8 +19,9 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import universalelectricity.prefab.TranslationHelper;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
@@ -126,7 +127,7 @@ public class BigReactors {
 
 		if (!INITIALIZED)
 		{
-			TranslationHelper.loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
+			loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
 
 			// General config loading
 			BRConfig.CONFIGURATION.load();
@@ -543,5 +544,55 @@ public class BigReactors {
 		// TODO: Fix the color of this
 		// TODO: Make a proper blutonium fluid
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
+	}
+	
+	// Stolen wholesale from Universal Electricity. Thanks Cal!
+	/**
+	 * Loads all the language files for a mod. This supports the loading of "child" language files
+	 * for sub-languages to be loaded all from one file instead of creating multiple of them. An
+	 * example of this usage would be different Spanish sub-translations (es_MX, es_YU).
+	 * 
+	 * @param languagePath - The path to the mod's language file folder.
+	 * @param languageSupported - The languages supported. E.g: new String[]{"en_US", "en_AU",
+	 * "en_UK"}
+	 * @return The amount of language files loaded successfully.
+	 */
+	public static int loadLanguages(String languagePath, String[] languageSupported)
+	{
+		int languages = 0;
+
+		/**
+		 * Load all languages.
+		 */
+		for (String language : languageSupported)
+		{
+			LanguageRegistry.instance().loadLocalization(languagePath + language + ".properties", language, false);
+
+			if (LanguageRegistry.instance().getStringLocalization("children", language) != "")
+			{
+				try
+				{
+					String[] children = LanguageRegistry.instance().getStringLocalization("children", language).split(",");
+
+					for (String child : children)
+					{
+						if (child != "" || child != null)
+						{
+							LanguageRegistry.instance().loadLocalization(languagePath + language + ".properties", child, false);
+							languages++;
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					FMLLog.severe("Failed to load a child language file.");
+					e.printStackTrace();
+				}
+			}
+
+			languages++;
+		}
+
+		return languages;
 	}
 }
