@@ -75,11 +75,11 @@ public class RendererControlRod extends TileEntitySpecialRenderer {
 		
 		BlockInterface block = new BlockInterface();
 		block.baseBlock = Block.waterStill;
-		block.texture = fluid.getIcon();
+		block.texture = fluid.getFlowingIcon();
 		
-		if(fluid.getBlockID() < Block.blocksList.length && Block.blocksList[fluid.getBlockID()] != null) {
+		/*if(fluid.getBlockID() < Block.blocksList.length && Block.blocksList[fluid.getBlockID()] != null) {
 			block.baseBlock = Block.blocksList[fluid.getBlockID()];
-		}
+		}*/
 		
 		for(int i = 0; i < displayStages; ++i) {
 			double sideLength = 0.05 + (0.44 * i / displayStages);

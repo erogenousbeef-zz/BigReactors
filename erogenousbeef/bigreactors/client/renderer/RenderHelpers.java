@@ -73,23 +73,23 @@ public class RenderHelpers {
 			
 			switch(side) {
 			case 0:
-				renderBlocks.renderFaceYNeg(null, 0, 0, 0, block.getBlockTextureFromSide(side));
+				renderBlocks.renderFaceYNeg(null, 0, 0, 0, block.texture);
 				break;
 			case 1:
-				renderBlocks.renderFaceYPos(null, 0, 0, 0, block.getBlockTextureFromSide(side));
+				renderBlocks.renderFaceYPos(null, 0, 0, 0, block.texture);
 				break;
 			case 2:
-				renderBlocks.renderFaceXPos(null, 0, 0, 0, block.getBlockTextureFromSide(side));
+				renderBlocks.renderFaceXPos(null, 0, 0, 0, block.texture);
 				break;
 			case 3:
-				renderBlocks.renderFaceXNeg(null, 0, 0, 0, block.getBlockTextureFromSide(side));
+				renderBlocks.renderFaceXNeg(null, 0, 0, 0, block.texture);
 				break;
 			case 4:
-				renderBlocks.renderFaceZPos(null, 0, 0, 0, block.getBlockTextureFromSide(side));
+				renderBlocks.renderFaceZPos(null, 0, 0, 0, block.texture);
 				break;
 			case 5:
 			default:
-				renderBlocks.renderFaceZNeg(null, 0, 0, 0, block.getBlockTextureFromSide(side));
+				renderBlocks.renderFaceZNeg(null, 0, 0, 0, block.texture);
 			}
 			
 		}

@@ -174,6 +174,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
 				// Clicked on something we're already exposing, iterate the exposure
 				iterateFluidTankExposure(side);
 			}
+			else if(this.getSizeInventory() <= 0) {
+				iterateFluidTankExposure(side);
+			}
 			else {
 				boolean wasExposed = this.getExposedSlotFromReferenceSide(side) != TileEntityInventory.INVENTORY_UNEXPOSED;
 				iterateInventoryExposure(side);

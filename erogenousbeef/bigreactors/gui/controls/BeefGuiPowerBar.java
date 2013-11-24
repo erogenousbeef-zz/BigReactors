@@ -7,8 +7,7 @@ import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
-import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
@@ -23,7 +22,7 @@ public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
 
 	@Override
 	protected Icon getProgressBarIcon() {
-		return BlockBRSmallMachine.getPowerIcon();
+		return BigReactors.powerIcon;
 	}
 	
 	@Override

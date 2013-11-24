@@ -10,15 +10,19 @@ import appeng.api.Util;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 
@@ -225,5 +229,15 @@ public class CommonProxy {
 	
 	protected void sendInterModMessage(String to, String type, NBTTagCompound message) {
 		FMLInterModComms.sendMessage(to, type, message);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@ForgeSubscribe
+	public void registerIcons(TextureStitchEvent.Pre event) {
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@ForgeSubscribe
+	public void setIcons(TextureStitchEvent.Post event) {
 	}
 }
