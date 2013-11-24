@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 
