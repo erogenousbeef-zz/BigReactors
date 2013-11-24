@@ -313,12 +313,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		return true;
     }
 
-	public void addHeat(int heatProduced) {
-		if(isConnected()) {
-			getReactorController().addLatentHeat(heatProduced);
-		}
-	}
-
 	// IRadiationModerator
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {

@@ -192,13 +192,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 			if(this.isActive()) {
 				radiationResult = controlRod.radiate();
-				this.addStoredEnergy(radiationResult.getPowerProduced());
+				this.generateEnergy(radiationResult.getPowerProduced());
 				this.addLatentHeat(radiationResult.getHeatProduced());
 			}
 			
 			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
 			if(heatPulse != null) {
-				this.addStoredEnergy(heatPulse.powerProduced);
+				this.generateEnergy(heatPulse.powerProduced);
 				this.addLatentHeat(heatPulse.heatChange);
 			}
 			
@@ -256,7 +256,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			this.addLatentHeat(-1 * latentHeatLoss);
 
 			// Generate power based on the amount of heat lost
-			this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+			this.generateEnergy(latentHeatLoss * BigReactors.powerPerHeat);
 			energyGeneratedLastTick += latentHeatLoss * BigReactors.powerPerHeat;
 		}
 		
@@ -323,10 +323,23 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 	}
 	
-	public void addStoredEnergy(float newEnergy) {
+	/**
+	 * Generate energy, internally. Will be multiplied by the BR Setting powerProductionMultiplier
+	 * @param newEnergy Base, unmultiplied energy to generate
+	 */
+	protected void generateEnergy(float newEnergy) {
+		this.addStoredEnergy(newEnergy * BigReactors.powerProductionMultiplier);
+	}
+
+	/**
+	 * Add some energy to the internal storage buffer.
+	 * Will not increase the buffer above the maximum or reduce it below 0.
+	 * @param newEnergy
+	 */
+	protected void addStoredEnergy(float newEnergy) {
 		if(Float.isNaN(newEnergy)) { return; }
 
-		energyStored += (newEnergy * BigReactors.powerProductionMultiplier);
+		energyStored += newEnergy;
 		if(energyStored > maxEnergyStored) {
 			energyStored = maxEnergyStored;
 		}
@@ -335,13 +348,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 	}
 
+	/**
+	 * Remove some energy from the internal storage buffer.
+	 * Will not reduce the buffer below 0.
+	 * @param energy Amount by which the buffer should be reduced.
+	 */
 	protected void reduceStoredEnergy(float energy) {
-		if(Float.isNaN(energy)) { return; }
-
 		this.addStoredEnergy(-1f * energy);
 	}
 	
-	public void addLatentHeat(float newCasingHeat) {
+	protected void addLatentHeat(float newCasingHeat) {
 		if(Float.isNaN(newCasingHeat)) {
 			return;
 		}
@@ -755,7 +771,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			boolean simulate) {
 		int amtRemoved = (int)Math.min(maxExtract, this.energyStored);
 		if(!simulate) {
-			this.addStoredEnergy(-1f * amtRemoved);
+			this.reduceStoredEnergy(amtRemoved);
 		}
 		return amtRemoved;
 	}

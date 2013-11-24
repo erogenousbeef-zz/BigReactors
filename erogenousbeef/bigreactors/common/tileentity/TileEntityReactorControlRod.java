@@ -66,10 +66,11 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	// TODO: Make these configurable
 	private static final float maximumNeutronsPerFuel = 50000f; // Should be a few minutes per ingot, on average.
 	private static final float neutronsPerFuel = 0.001f; // neutrons per fuel unit
-	private static final float heatPerNeutron = 0.5f; // C per fission event
-	private static final float powerPerNeutron = 2f; // RF units per fission event
+	private static final float heatPerNeutron = 0.0005f; // C per fission event
+	private static final float powerPerNeutron = 0.5f; // RF units per fission event
+	private static final float powerPerHeatDissipated = 0.75f; // 50% bonus for using good moderators
 	private static final float wasteNeutronPenalty = 0.01f;
-	private static final float incidentNeutronFuelRate = 0.5f;
+	private static final float incidentNeutronFuelRate = 0.25f;
 
 	// 1 ingot = 1 bucket = 1000 internal fuel
 	public static final int fuelPerIngot = 1000;
@@ -447,10 +448,14 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			this.incidentRadiation = 0.0f;
 		}
 
+		// Hotter fuel rods fuse less.
+		float heatFertilityModifier = 1f + (float)(-0.8f*Math.exp(-10f*Math.exp(-0.0012f*this.localHeat)));
+
 		// Step 1: Generate raw neutron mass
 		// Step 1a: Generate spontaneous neutrons from fuel (consumes fuel)
 		if(this.fuel != null && this.fuel.amount > 0) {
-			rawNeutronsGenerated += this.fuel.amount * neutronsPerFuel;
+
+			rawNeutronsGenerated += this.fuel.amount * neutronsPerFuel * heatFertilityModifier;
 			rawNeutronsGenerated *= 1.0f - (this.controlRodInsertion / 100.0f);
 
 			fuelDesired += rawNeutronsGenerated * Math.max(1.0, Math.log10(this.localHeat));
@@ -462,7 +467,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 
 		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
 		if(this.incidentRadiation > 0.0f && this.localHeat > 0.0f) {
-			float additionalNeutronsGenerated = Math.max(0.0f, this.incidentRadiation * 0.5f - (float)Math.log10(this.localHeat));
+			float additionalNeutronsGenerated = Math.max(0.0f, heatFertilityModifier * this.incidentRadiation * 0.5f - (float)Math.log10(this.localHeat));
 			additionalNeutronsGenerated *= 1.0f - ((float)this.controlRodInsertion / 100.0f);
 
 			if(additionalNeutronsGenerated > 0.0f) {
@@ -473,8 +478,9 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 				internalHeatGenerated += additionalNeutronsGenerated * heatPerNeutron;
 				internalPowerGenerated += additionalNeutronsGenerated * powerPerNeutron;
 
-				// Reduce incident radiation that was used to produce more neutrons, some of the rest escapes, the rest sticks around
-				this.incidentRadiation -= additionalNeutronsGenerated;
+				// Reduce incident radiation at a slower rate than they're actually used.
+				// This should help smooth out power production.
+				this.incidentRadiation -= additionalNeutronsGenerated * 0.25f;
 
 				if(this.incidentRadiation < 0.01) { this.incidentRadiation = 0; }
 				else if(this.localHeat > 1000.0){ this.incidentRadiation /= Math.log10(this.localHeat); }
@@ -927,7 +933,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 				moderationFactor = 0.60f;
 
 				// Directly generate energy based on heat
-				radiation.addPower(moderated * moderationFactor/2.0f * powerPerNeutron);
+				radiation.addPower(moderated * moderationFactor/2.0f * powerPerHeatDissipated);
 				moderated -= moderated * moderationFactor;
 				
 				// Apply the rest of the energy as reactor heat
