@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common;
+package erogenousbeef.bigreactors.world;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -60,21 +60,11 @@ public class BRSimpleOreGenerator {
 		
 		dimensionBlacklist = new CopyOnWriteArraySet<Integer>();
 	}
-
-	public BRSimpleOreGenerator(String blockToGenerate, int blockToReplace, int clustersPerChunk, int maxY, int minOrePerCluster, float oreGenChance, float oreSpreadChance) {
-		this.strBlockToGenerate = blockToGenerate;
-		this.blockToGenerate = -1;
-		this.blockMetadata = -1;
-		this.blockToReplace = blockToReplace;
-		this.minClustersPerChunk = maxClustersPerChunk = clustersPerChunk;
-		this.minOrePerCluster = minOrePerCluster;
-		this.maxOrePerCluster = minOrePerCluster * 2;
-		this.oreGenChance = oreGenChance;
-		this.oreSpreadChance = oreSpreadChance;
-		this.minY = 0;
-		this.maxY = maxY;
-
-		dimensionBlacklist = new CopyOnWriteArraySet<Integer>();
+	
+	public BRSimpleOreGenerator(int blockToGenerate, int blockMetadata, int blockToReplace, int minClustersPerChunk, int maxClustersPerChunk, int minY, int maxY, int minOrePerCluster, float oreGenChance, float oreSpreadChance) {
+		this(blockToGenerate, blockMetadata, blockToReplace, maxClustersPerChunk, maxY, minOrePerCluster, oreGenChance, oreSpreadChance);
+		this.minClustersPerChunk = minClustersPerChunk;
+		this.minY = minY;
 	}
 	
 	public void blacklistDimension(int dimensionId) {

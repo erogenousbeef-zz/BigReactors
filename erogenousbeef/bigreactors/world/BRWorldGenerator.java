@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common;
+package erogenousbeef.bigreactors.world;
 
 import java.util.Random;
 import java.util.Set;
@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.IWorldGenerator;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class BRWorldGenerator implements IWorldGenerator {
 

@@ -4,6 +4,7 @@ import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
@@ -33,10 +34,10 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 	protected abstract ResourceLocation getResourceLocation();
 	
 	@Override
-	public void drawBackground(int mouseX, int mouseY) {
+	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
 		// Draw the background
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		Minecraft.getMinecraft().renderEngine.bindTexture(controlResource);
+		renderEngine.bindTexture(controlResource);
 		Tessellator tessellator = Tessellator.instance;
 		tessellator.startDrawingQuads();
 		tessellator.addVertexWithUV(this.x, this.y + this.height, 0, 0, 1.0);
@@ -60,8 +61,7 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 			double maxU = progressBarIcon.getMaxU();
 			double maxV = progressBarIcon.getMaxV();
 			
-			// TODO: FIXME
-			Minecraft.getMinecraft().renderEngine.bindTexture(getResourceLocation());
+			renderEngine.bindTexture(getResourceLocation());
 			
 			int barMinX = this.x + 2;
 			int barMaxX = this.x + this.width - 2;
@@ -82,7 +82,7 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 	}
 	
 	@Override
-	public void drawForeground(int mouseX, int mouseY) {
+	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY) {
 		
 	}	
 }
