@@ -66,11 +66,12 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	// TODO: Make these configurable
 	private static final float maximumNeutronsPerFuel = 50000f; // Should be a few minutes per ingot, on average.
 	private static final float neutronsPerFuel = 0.001f; // neutrons per fuel unit
-	private static final float heatPerNeutron = 0.0005f; // C per fission event
-	private static final float powerPerNeutron = 0.5f; // RF units per fission event
-	private static final float powerPerHeatDissipated = 0.75f; // 50% bonus for using good moderators
+	private static final float heatPerNeutron = 0.0001f; // C per fission event
+	private static final float powerPerNeutron = 5f; // RF units per fission event
+	private static final float powerPerHeatDissipated = 1f;
 	private static final float wasteNeutronPenalty = 0.01f;
 	private static final float incidentNeutronFuelRate = 0.25f;
+	private static final float incidentRadiationDecayRate = 0.5f;
 
 	// 1 ingot = 1 bucket = 1000 internal fuel
 	public static final int fuelPerIngot = 1000;
@@ -480,7 +481,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 
 				// Reduce incident radiation at a slower rate than they're actually used.
 				// This should help smooth out power production.
-				this.incidentRadiation -= additionalNeutronsGenerated * 0.25f;
+				this.incidentRadiation -= additionalNeutronsGenerated * incidentRadiationDecayRate;
 
 				if(this.incidentRadiation < 0.01) { this.incidentRadiation = 0; }
 				else if(this.localHeat > 1000.0){ this.incidentRadiation /= Math.log10(this.localHeat); }
