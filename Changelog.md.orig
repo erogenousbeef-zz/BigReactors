@@ -1,6 +1,13 @@
 Big Reactors Changelog
 ======================
 
+<<<<<<< HEAD
+Next Release (Anticipated Version: 0.2.1)
+-----------------------------------------
+
+Current Release (0.2.0A)
+--------------------------------
+=======
 Next Release (Anticipated Version: 0.2.2)
 -----------------------------------------
 
@@ -11,6 +18,7 @@ Current Release (0.2.1A)
 Older Releases
 --------------
 ### Release 0.2.0A
+>>>>>>> origin/master
 - FORGE: Big Reactors now requires Forge 916 for Minecraft 1.6.4
 - Feature: RedNet connection block added. Read data from, and send commands to, your reactors via MFR's RedNet.
 - Feature: Control Rods can now be named via their UI
@@ -21,6 +29,11 @@ Older Releases
 - Optimization: Small reductions in network traffic due to minor internal refactoring
 - Settings: userWorldGenVersion. If you want to re-run world regeneration, increment this number in your settings file.
 
+<<<<<<< HEAD
+Older Releases
+--------------
+=======
+>>>>>>> origin/master
 ### Release 0.1.14A
 - Bugfix: Fixed a rare crash that occurs in long-running, very large reactors
 
