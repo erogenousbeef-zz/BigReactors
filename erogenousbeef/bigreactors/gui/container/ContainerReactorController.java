@@ -29,6 +29,7 @@ public class ContainerReactorController extends Container {
     public void onContainerClosed(EntityPlayer player) {
 		super.onContainerClosed(player);
 		
-		part.getReactorController().stopUpdatingPlayer(player);
+		if(part != null && part.getReactorController() != null)
+			part.getReactorController().stopUpdatingPlayer(player);
 	}
 }
