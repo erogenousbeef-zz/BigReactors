@@ -57,7 +57,7 @@ public class BRLoader {
 		BigReactors.registerFuelRods(0, true);
 		BigReactors.registerReactorPartBlocks(0, true);
 		BigReactors.registerSmallMachines(0,  true);
-		BigReactors.registerYelloriumFluids(0,  true);
+		BigReactors.registerFluids(0,  true);
 
 		BigReactors.eventHandler = new BREventHandler();
 		MinecraftForge.EVENT_BUS.register(BigReactors.eventHandler);

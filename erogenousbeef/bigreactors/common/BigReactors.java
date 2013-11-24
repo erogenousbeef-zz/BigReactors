@@ -2,7 +2,10 @@ package erogenousbeef.bigreactors.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.TextureObject;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
@@ -67,7 +70,6 @@ public class BigReactors {
 	public static final String ITEM_TEXTURE_DIRECTORY = TEXTURE_DIRECTORY + "items/";
 	public static final String MODEL_TEXTURE_DIRECTORY = TEXTURE_DIRECTORY + "models/";
 
-
 	public static final String LANGUAGE_PATH = RESOURCE_PATH + "languages/";
 	private static final String[] LANGUAGES_SUPPORTED = new String[] { "en_US" };
 	
@@ -93,6 +95,8 @@ public class BigReactors {
 	public static Fluid fluidYellorium;
 	public static Fluid fluidCyanite;
 	public static Fluid fluidFuelColumn;
+	
+	public static Fluid fluidSteam;
 	
 	public static final int defaultFluidColorFuel = 0xbcba50;
 	public static final int defaultFluidColorWaste = 0x4d92b5;
@@ -461,7 +465,7 @@ public class BigReactors {
 		}
 	}
 	
-	public static void registerYelloriumFluids(int id, boolean require) {
+	public static void registerFluids(int id, boolean require) {
 		if(BigReactors.fluidYelloriumStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
@@ -475,7 +479,7 @@ public class BigReactors {
 				fluidYellorium.setGaseous(false);
 				fluidYellorium.setLuminosity(10);
 				fluidYellorium.setRarity(EnumRarity.uncommon);
-				fluidYellorium.setTemperature(20);
+				fluidYellorium.setTemperature(295);
 				fluidYellorium.setViscosity(100);
 				fluidYellorium.setUnlocalizedName("bigreactors.yellorium.still");
 				FluidRegistry.registerFluid(fluidYellorium);
@@ -504,7 +508,7 @@ public class BigReactors {
 				fluidCyanite.setGaseous(false);
 				fluidCyanite.setLuminosity(6);
 				fluidCyanite.setRarity(EnumRarity.uncommon);
-				fluidCyanite.setTemperature(20);
+				fluidCyanite.setTemperature(295);
 				fluidCyanite.setViscosity(100);
 				fluidCyanite.setUnlocalizedName("bigreactors.cyanite.still");
 				FluidRegistry.registerFluid(fluidCyanite);
@@ -539,6 +543,28 @@ public class BigReactors {
 			BRConfig.CONFIGURATION.save();
 		}
 		
+		fluidSteam = FluidRegistry.getFluid("steam");
+		if(fluidSteam == null) {
+			// FINE THEN
+			BRConfig.CONFIGURATION.load();
+			
+			fluidSteam = new Fluid("steam");
+			fluidSteam.setUnlocalizedName("steam");
+			fluidSteam.setTemperature(373);
+			fluidSteam.setGaseous(true);
+			fluidSteam.setLuminosity(0);
+			fluidSteam.setRarity(EnumRarity.common);
+			fluidSteam.setDensity(6);
+			
+			if(Minecraft.getMinecraft().theWorld.isRemote) {
+				// Register icons on clients
+			}
+			
+			FluidRegistry.registerFluid(fluidSteam);
+
+			BRConfig.CONFIGURATION.save();
+		}
+
 	}
 	
 	// This must be done in init or later
