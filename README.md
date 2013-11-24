@@ -17,7 +17,7 @@ Big Reactors is in an alpha state. The major features exist, and there are no _k
 
 You can download the latest alpha from [the big-reactors.com download page](http://www.big-reactors.com/download.html).
 
-_You will need other mods_ to play with Big Reactors. This is just a power-generation mod, so you will need a mod that supports the Universal Electricity or Buildcraft power systems. I personally recommend [Thermal Expansion](http://thermalexpansion.wikispaces.com).
+_You will need other mods_ to play with Big Reactors. This is just a power-generation mod, so you will need a mod that supports the Redstone Flux (RF) power system. I personally recommend [Thermal Expansion](http://thermalexpansion.wikispaces.com).
 
 License
 -------
