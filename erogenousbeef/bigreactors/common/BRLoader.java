@@ -30,7 +30,7 @@ import erogenousbeef.bigreactors.net.ConnectionHandler;
 import erogenousbeef.core.multiblock.MultiblockEventHandler;
 
 
-@Mod(modid = BigReactors.CHANNEL, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = "[1.5.2,)")
+@Mod(modid = BigReactors.CHANNEL, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = "[1.6.4,)")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false, connectionHandler = ConnectionHandler.class, 
 			clientPacketHandlerSpec = @SidedPacketHandler(channels = { BigReactors.CHANNEL }, packetHandler = ClientPacketHandler.class),
 			serverPacketHandlerSpec = @SidedPacketHandler(channels = { BigReactors.CHANNEL }, packetHandler = ServerPacketHandler.class))
@@ -66,7 +66,7 @@ public class BRLoader {
 		
 		metadata.modId = MOD_ID;
 		metadata.name  = BigReactors.NAME;
-		metadata.description = "Need power? Go Big.";
+		metadata.description = "Adds large, multiblock power generation machines.  Need power? Go Big.";
 		metadata.url = "http://www.big-reactors.com";
 		metadata.version = BRConfig.VERSION;
 		metadata.authorList = Arrays.asList(new String[] { "ErogenousBeef" });
