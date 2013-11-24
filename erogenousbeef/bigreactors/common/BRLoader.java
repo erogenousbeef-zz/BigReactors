@@ -6,6 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.Event.Result;
@@ -61,6 +62,7 @@ public class BRLoader {
 
 		BigReactors.eventHandler = new BREventHandler();
 		MinecraftForge.EVENT_BUS.register(BigReactors.eventHandler);
+		MinecraftForge.EVENT_BUS.register(proxy);
 		
 		proxy.preInit();
 		

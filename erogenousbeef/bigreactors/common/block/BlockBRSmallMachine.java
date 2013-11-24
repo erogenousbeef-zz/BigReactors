@@ -9,6 +9,7 @@ import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
@@ -37,13 +38,11 @@ import net.minecraftforge.fluids.IFluidHandler;
 
 public class BlockBRSmallMachine extends BlockContainer {
 
-	private static String[] _subBlocks = new String[] { "cyaniteReprocessor" };
+	private static String[] _subBlocks = new String[] { "cyaniteReprocessor", "heatGenerator" };
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _activeIcons = new Icon[_subBlocks.length];
 	private Icon[] _inventorySideIcons = new Icon[3];
-	private Icon[] _fluidSideIcons = new Icon[1];
-	
-	protected static Icon powerIcon = null; // find a better home for this.
+	private Icon[] _fluidSideIcons = new Icon[2];
 	
 	public BlockBRSmallMachine(int id, Material material) {
 		super(id, material);
@@ -54,10 +53,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 		setCreativeTab(BigReactors.TAB);
 	}
 	
-	public static Icon getPowerIcon() {
-		return powerIcon;
-	}
-
 	@Override
 	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
 	{
@@ -83,8 +78,11 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		
 		if(te instanceof TileEntityPoweredInventoryFluid) {
-			if(((TileEntityPoweredInventoryFluid)te).getTank(ForgeDirection.getOrientation(side), null) != null) {
-				return _fluidSideIcons[0];
+			// TODO: Fix.
+			TileEntityPoweredInventoryFluid fluidTe = (TileEntityPoweredInventoryFluid)te;
+			int tank = fluidTe.getExposedTankFromReferenceSide(ForgeDirection.getOrientation(fluidTe.getRotatedSide(side)));
+			if(tank != -1) {
+				return _fluidSideIcons[tank];
 			}
 		}
 
@@ -117,10 +115,8 @@ public class BlockBRSmallMachine extends BlockContainer {
 		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
 
 		// TODO: Better icons for these
-		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
-		
-		// Ugly hack, fix later.
-		powerIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "gui.power");
+		_fluidSideIcons[0] = _inventorySideIcons[2];
+		_fluidSideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 	}
 	
 	@Override
@@ -130,6 +126,9 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
+		if(metadata == 1) {
+			return new TileEntityHeatGenerator();
+		}
 		return new TileEntityCyaniteReprocessor();
 	}
 
@@ -155,10 +154,15 @@ public class BlockBRSmallMachine extends BlockContainer {
 		return new ItemStack(this.blockID, 1, 0);
 	}
 	
+	public ItemStack getHeatGeneratorItemStack() {
+		return new ItemStack(this.blockID, 1, 1);
+	}
+	
 	@Override
 	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		par3List.add(this.getCyaniteReprocessorItemStack());
+		par3List.add(this.getHeatGeneratorItemStack());
 	}
 
 	@Override
@@ -197,10 +201,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			FMLLog.info("trying to fill a TE with some fluid from a bucket");
-			if(BRUtilities.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
-			{
-				FMLLog.info("success!");
+			if(BRUtilities.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer)) {
 				return true;
 			}
 		}

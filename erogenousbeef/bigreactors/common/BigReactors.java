@@ -25,6 +25,8 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
@@ -44,6 +46,7 @@ import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
@@ -97,6 +100,7 @@ public class BigReactors {
 	public static Fluid fluidFuelColumn;
 	
 	public static Fluid fluidSteam;
+	public static boolean registeredOwnSteam;
 	
 	public static final int defaultFluidColorFuel = 0xbcba50;
 	public static final int defaultFluidColorWaste = 0x4d92b5;
@@ -126,6 +130,13 @@ public class BigReactors {
 	public static final float powerPerHeat = 25f; // RF units per C dissipated
 	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
 	
+	protected static Icon iconSteamStill;
+	protected static Icon iconSteamFlowing;
+	protected static Icon iconFuelColumnStill;
+	protected static Icon iconFuelColumnFlowing;
+	
+	public static Icon powerIcon;
+
 	/**
 	 * Call this function in your mod init stage.
 	 */
@@ -285,6 +296,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityFuelRod.class, 			"BRFuelRod");
 			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
+			GameRegistry.registerTileEntity(TileEntityHeatGenerator.class, 		"BRHeatGenerator");
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
@@ -460,6 +472,7 @@ public class BigReactors {
 			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockSmallMachine.class, "BRSmallMachine");
 			
 			OreDictionary.registerOre("brSmallMachineCyaniteProcessor", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getCyaniteReprocessorItemStack());
+			OreDictionary.registerOre("brSmallMachineHeatGenerator", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getHeatGeneratorItemStack());
 			
 			BRConfig.CONFIGURATION.save();
 		}
@@ -526,39 +539,31 @@ public class BigReactors {
 		if(BigReactors.fluidFuelColumnStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			int fuelColumnFluidID = BRConfig.CONFIGURATION.getBlock("LiquidFuelColumnStill", BigReactors.BLOCK_ID_PREFIX + 6).getInt();
-			
 			BigReactors.fluidFuelColumn = FluidRegistry.getFluid("fuelColumn");
 			if(fluidFuelColumn == null) {
 				fluidFuelColumn = new Fluid("fuelColumn");
-				fluidFuelColumn.setBlockID(fuelColumnFluidID);
 				fluidFuelColumn.setUnlocalizedName("bigreactors.fuelColumn.still");
 				FluidRegistry.registerFluid(fluidFuelColumn);				
 			}
-			
-			BlockBRGenericFluid liqFC = new BlockBRGenericFluid(fuelColumnFluidID, fluidFuelColumn, "fuelColumn");
-			BigReactors.fluidFuelColumnStill = liqFC;
-			GameRegistry.registerBlock(BigReactors.fluidFuelColumnStill, ItemBlockBigReactors.class, BigReactors.fluidFuelColumnStill.getUnlocalizedName());
 
 			BRConfig.CONFIGURATION.save();
 		}
 		
 		fluidSteam = FluidRegistry.getFluid("steam");
+		registeredOwnSteam = false;
 		if(fluidSteam == null) {
 			// FINE THEN
 			BRConfig.CONFIGURATION.load();
 			
 			fluidSteam = new Fluid("steam");
 			fluidSteam.setUnlocalizedName("steam");
-			fluidSteam.setTemperature(373);
+			fluidSteam.setTemperature(1000); // For consistency with TE
 			fluidSteam.setGaseous(true);
 			fluidSteam.setLuminosity(0);
 			fluidSteam.setRarity(EnumRarity.common);
 			fluidSteam.setDensity(6);
 			
-			if(Minecraft.getMinecraft().theWorld.isRemote) {
-				// Register icons on clients
-			}
+			registeredOwnSteam = true;
 			
 			FluidRegistry.registerFluid(fluidSteam);
 
@@ -634,4 +639,29 @@ public class BigReactors {
 
 		return languages;
 	}
+
+	// Thanks KingLemming!
+	@SideOnly(Side.CLIENT)
+	public static void registerNonBlockFluidIcons(TextureMap map) {
+		powerIcon = map.registerIcon(TEXTURE_NAME_PREFIX + "gui.power");
+
+		iconFuelColumnStill = map.registerIcon(TEXTURE_NAME_PREFIX + "fluid.fuelColumn.still");
+		iconFuelColumnFlowing = map.registerIcon(TEXTURE_NAME_PREFIX + "fluid.fuelColumn.flowing");
+		
+		if(registeredOwnSteam) {
+			iconSteamStill = map.registerIcon(TEXTURE_NAME_PREFIX + "fluid.steam.still");
+			iconSteamFlowing = map.registerIcon(TEXTURE_NAME_PREFIX + "fluid.steam.flowing");
+		}
+	}
+
+
+	@SideOnly(Side.CLIENT)
+	public static void setNonBlockFluidIcons() {
+		fluidFuelColumn.setIcons(iconFuelColumnStill, iconFuelColumnFlowing);
+		
+		if(registeredOwnSteam) {
+			fluidSteam.setIcons(iconSteamStill, iconSteamFlowing);
+		}
+	}
+
 }
