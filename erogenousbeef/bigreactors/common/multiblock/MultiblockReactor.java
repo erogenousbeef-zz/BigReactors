@@ -8,6 +8,7 @@ import java.util.Set;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
@@ -32,6 +33,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
@@ -56,6 +58,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	private Set<CoordTriplet> attachedPowerTaps;
+	private Set<CoordTriplet> attachedRedNetPorts;
+
 	// TODO: Convert these to sets.
 	private LinkedList<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
 	private LinkedList<CoordTriplet> attachedAccessPorts;
@@ -75,6 +79,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		energyGeneratedLastTick = 0f;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
+		attachedRedNetPorts = new HashSet<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
 		attachedControllers = new LinkedList<CoordTriplet>();
@@ -109,6 +114,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		else if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.add(coord);
 		}
+		else if(part instanceof TileEntityReactorRedNetPort) {
+			attachedRedNetPorts.add(coord);
+		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
 			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
@@ -133,6 +141,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		else if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.remove(coord);
+		}
+		else if(part instanceof TileEntityReactorRedNetPort) {
+			attachedRedNetPorts.remove(coord);
 		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
@@ -182,13 +193,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 			if(this.isActive()) {
 				radiationResult = controlRod.radiate();
-				this.addStoredEnergy(radiationResult.getPowerProduced());
+				this.generateEnergy(radiationResult.getPowerProduced());
 				this.addLatentHeat(radiationResult.getHeatProduced());
 			}
 			
 			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
 			if(heatPulse != null) {
-				this.addStoredEnergy(heatPulse.powerProduced);
+				this.generateEnergy(heatPulse.powerProduced);
 				this.addLatentHeat(heatPulse.heatChange);
 			}
 			
@@ -234,19 +245,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 
 		energyGeneratedLastTick = getEnergyStored() - oldEnergy;
-		// leak 1% of heat to the environment per second
-		// TODO: Replace this with a better equation, so low heats leak less
-		// and high heats leak far more.
-		
-		// 1% base loss rate, +1% per thousand degrees C
-		
-		if(latentHeat > 0.0) {
-			float lossRate = 0.01f + (this.latentHeat * 0.000001f);
-			float latentHeatLoss = Math.max(0.02f, this.latentHeat * 0.01f);
+
+		// leak 1% of heat to the environment per tick
+		// TODO: Better equation.
+		if(latentHeat > 0.0f) {
+			float latentHeatLoss = Math.max(0.05f, this.latentHeat * 0.01f);
+			if(this.latentHeat < latentHeatLoss) { latentHeatLoss = latentHeat; }
 			this.addLatentHeat(-1 * latentHeatLoss);
 
 			// Generate power based on the amount of heat lost
-			this.addStoredEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+			this.generateEnergy(latentHeatLoss * BigReactors.powerPerHeat);
 			energyGeneratedLastTick += latentHeatLoss * BigReactors.powerPerHeat;
 		}
 		
@@ -256,13 +264,27 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		int energyAvailable = (int)getEnergyStored();
 		int energyRemaining = energyAvailable;
 		if(attachedPowerTaps.size() > 0 && energyRemaining > 0) {
+			// First, try to distribute fairly
+			int splitEnergy = energyRemaining / attachedPowerTaps.size();
 			for(CoordTriplet coord : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
 				
 				TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 				if(tap == null) { continue; }
 
-				energyRemaining = tap.onProvidePower(energyRemaining);
+				energyRemaining -= splitEnergy - tap.onProvidePower(splitEnergy);
+			}
+
+			// Next, just hose out whatever we can, if we have any left
+			if(energyRemaining > 0) {
+				for(CoordTriplet coord : attachedPowerTaps) {
+					if(energyRemaining <= 0) { break; }
+					
+					TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(tap == null) { continue; }
+
+					energyRemaining = tap.onProvidePower(energyRemaining);
+				}
 			}
 		}
 		
@@ -279,7 +301,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		
 		// TODO: Overload/overheat
 
-		// Return true if we've changed either variable
+		// Update any connected rednet networks
+		for(CoordTriplet coord : attachedRedNetPorts) {
+			TileEntityReactorRedNetPort port = (TileEntityReactorRedNetPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(port == null) { continue; }
+			port.updateRedNetNetwork();
+		}
+
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
@@ -293,30 +321,49 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 	}
 	
-	public void addStoredEnergy(float newEnergy) {
+	/**
+	 * Generate energy, internally. Will be multiplied by the BR Setting powerProductionMultiplier
+	 * @param newEnergy Base, unmultiplied energy to generate
+	 */
+	protected void generateEnergy(float newEnergy) {
+		this.addStoredEnergy(newEnergy * BigReactors.powerProductionMultiplier);
+	}
+
+	/**
+	 * Add some energy to the internal storage buffer.
+	 * Will not increase the buffer above the maximum or reduce it below 0.
+	 * @param newEnergy
+	 */
+	protected void addStoredEnergy(float newEnergy) {
 		if(Float.isNaN(newEnergy)) { return; }
 
-		energyStored += (newEnergy * BigReactors.powerProductionMultiplier);
+		energyStored += newEnergy;
 		if(energyStored > maxEnergyStored) {
 			energyStored = maxEnergyStored;
 		}
-		if(energyStored < 0f) {
+		if(-0.00001f < energyStored && energyStored < 0.00001f) {
+			// Clamp to zero
 			energyStored = 0f;
 		}
 	}
 
+	/**
+	 * Remove some energy from the internal storage buffer.
+	 * Will not reduce the buffer below 0.
+	 * @param energy Amount by which the buffer should be reduced.
+	 */
 	protected void reduceStoredEnergy(float energy) {
-		if(Float.isNaN(energy)) { return; }
-
 		this.addStoredEnergy(-1f * energy);
 	}
 	
-	public void addLatentHeat(float newCasingHeat) {
+	protected void addLatentHeat(float newCasingHeat) {
 		if(Float.isNaN(newCasingHeat)) {
 			return;
 		}
 
 		latentHeat += newCasingHeat;
+		// Clamp to zero to prevent floating point issues
+		if(-0.00001f < latentHeat && latentHeat < 0.00001f) { latentHeat = 0.0f; }
 	}
 
 	public boolean isActive() {
@@ -494,6 +541,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	protected void onMachineMerge(MultiblockControllerBase otherMachine) {
 		this.attachedPowerTaps.clear();
+		this.attachedRedNetPorts.clear();
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
@@ -724,7 +772,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			boolean simulate) {
 		int amtRemoved = (int)Math.min(maxExtract, this.energyStored);
 		if(!simulate) {
-			this.addStoredEnergy(-1f * amtRemoved);
+			this.reduceStoredEnergy(amtRemoved);
 		}
 		return amtRemoved;
 	}
@@ -746,5 +794,29 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 	public int getMaxEnergyPerTick() {
 		return this.maxEnergyStored;
+	}
+	
+	// Redstone helper
+	public void setAllControlRodInsertionValues(int newValue) {
+		if(this.assemblyState != AssemblyState.Assembled) { return; }
+		
+		TileEntity te;
+		TileEntityReactorControlRod cr;
+		for(CoordTriplet coord : attachedControlRods) {
+			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(te instanceof TileEntityReactorControlRod) {
+				cr = (TileEntityReactorControlRod)te;
+				cr.setControlRodInsertion((short)newValue);
+			}
+		}
+	}
+
+	public CoordTriplet[] getControlRodLocations() {
+		CoordTriplet[] coords = new CoordTriplet[this.attachedControlRods.size()];
+		int i = 0;
+		for(CoordTriplet coord : this.attachedControlRods) {
+			coords[i++] = coord.copy();
+		}
+		return coords;
 	}
 }

@@ -4,6 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
+import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+
+//import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+//import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -14,6 +22,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -27,8 +36,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 
-public class BlockReactorPart extends BlockContainer {
+public class BlockReactorPart extends BlockContainer implements IConnectableRedNet {
 	
 	public static final int CASING_METADATA_BASE = 0;	// Requires 5 "block types" to do properly.
 	public static final int CASING_CORNER = 1;
@@ -45,6 +55,7 @@ public class BlockReactorPart extends BlockContainer {
 	
 	public static final int ACCESSPORT_INLET = 11;
 	public static final int ACCESSPORT_OUTLET = 12;
+	public static final int REDNETPORT = 13;
 	
 	private static String[] _subBlocks = new String[] { "casingDefault",
 														"casingCorner",
@@ -58,13 +69,19 @@ public class BlockReactorPart extends BlockContainer {
 														"powerTapDisconnected",
 														"powerTapConnected",
 														"accessInlet",
-														"accessOutlet"};
+														"accessOutlet",
+														"redNetPort" };
+
 	private Icon[] _icons = new Icon[_subBlocks.length];
+	
+	@SideOnly(Side.CLIENT)
+	private Icon[] _redNetPortConfigIcons = new Icon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
 	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
 	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
 	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE && metadata < ACCESSPORT_INLET; }
-	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET; }
+	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET && metadata < REDNETPORT; }
+	public static boolean isRedNetPort(int metadata) { return metadata == REDNETPORT; }
 	
 	public BlockReactorPart(int id, Material material) {
 		super(id, material);
@@ -135,6 +152,21 @@ public class BlockReactorPart extends BlockContainer {
 		for(int i = 0; i < _subBlocks.length; ++i) {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
 		}
+		
+		// We do this to skip DISABLED
+		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
+		for(int i = 1; i < circuitTypes.length; ++i) {
+			_redNetPortConfigIcons[i - 1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "config.redNetPort." + circuitTypes[i].name());
+		}
+	}
+	
+	// We do this to skip DISABLED
+	@SideOnly(Side.CLIENT)
+	public Icon getRedNetConfigIcon(TileEntityReactorRedNetPort.CircuitType circuitType) {
+		if(circuitType == TileEntityReactorRedNetPort.CircuitType.DISABLED) { return null; }
+		else {
+			return _redNetPortConfigIcons[circuitType.ordinal() - 1];
+		}
 	}
 
 	@Override
@@ -150,6 +182,9 @@ public class BlockReactorPart extends BlockContainer {
 		}
 		else if(isAccessPort(metadata)) {
 			return new TileEntityReactorAccessPort();
+		}
+		else if(isRedNetPort(metadata)) {
+			return new TileEntityReactorRedNetPort();
 		}
 		else {
 			return new TileEntityReactorPart();
@@ -168,9 +203,13 @@ public class BlockReactorPart extends BlockContainer {
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te != null && te instanceof TileEntityReactorPowerTap) {
+		if(te instanceof TileEntityReactorPowerTap) {
 			TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)te;
 			tap.onNeighborBlockChange(world, x, y, z, neighborBlockID);
+		}
+		else if(te instanceof TileEntityReactorRedNetPort) {
+			TileEntityReactorRedNetPort port = (TileEntityReactorRedNetPort)te;
+			port.onNeighborBlockChange(world, x, y, z, neighborBlockID);
 		}
 	}
 	
@@ -181,7 +220,7 @@ public class BlockReactorPart extends BlockContainer {
 		}
 		
 		int metadata = world.getBlockMetadata(x, y, z);
-		if(!isController(metadata) && !isAccessPort(metadata)) {
+		if(!isController(metadata) && !isAccessPort(metadata) && !isRedNetPort(metadata)) {
 			return false;
 		}
 		
@@ -223,6 +262,9 @@ public class BlockReactorPart extends BlockContainer {
 		else if(isAccessPort(metadata)) {
 			return ACCESSPORT_INLET;
 		}
+		else if(isRedNetPort(metadata)) {
+			return REDNETPORT;
+		}
 		else {
 			return CASING_METADATA_BASE;
 		}
@@ -244,6 +286,10 @@ public class BlockReactorPart extends BlockContainer {
 		return new ItemStack(this.blockID, 1, ACCESSPORT_INLET);
 	}
 	
+	public ItemStack getRedNetPortItemStack() {
+		return new ItemStack(this.blockID, 1, REDNETPORT);
+	}
+	
 	@Override
 	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
@@ -251,6 +297,7 @@ public class BlockReactorPart extends BlockContainer {
 		par3List.add(this.getReactorControllerItemStack());
 		par3List.add(this.getReactorPowerTapItemStack());
 		par3List.add(this.getAccessPortItemStack());
+		par3List.add(this.getRedNetPortItemStack());
 	}
 	
 	@Override
@@ -298,5 +345,61 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 		}
 
 		super.breakBlock(world, x, y, z, blockId, meta);
-	}	
+	}
+	
+	// IConnectableRedNet
+	@Override
+	public RedNetConnectionType getConnectionType(World world, int x, int y,
+			int z, ForgeDirection side) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedNetPort) {
+			return RedNetConnectionType.CableAll;
+		}
+
+		return RedNetConnectionType.None;
+	}
+
+	@Override
+	public int[] getOutputValues(World world, int x, int y, int z,
+			ForgeDirection side) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedNetPort) {
+			return ((TileEntityReactorRedNetPort)te).getOutputValues();
+		}
+		else {
+			int[] values = new int[16];
+			for(int i = 0; i < 16; i++) {
+				values[i] = 0;
+			}
+			return values;
+		}
+	}
+	
+	// Never used. we're always in "all" mode.
+	@Override
+	public int getOutputValue(World world, int x, int y, int z,
+			ForgeDirection side, int subnet) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedNetPort) {
+			return ((TileEntityReactorRedNetPort)te).getValueForChannel(subnet);
+		}
+		return 0;
+	}
+	
+	
+	@Override
+	public void onInputsChanged(World world, int x, int y, int z,
+			ForgeDirection side, int[] inputValues) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedNetPort) {
+			((TileEntityReactorRedNetPort)te).onInputValuesChanged(inputValues);
+		}
+	}
+
+	// Never used, we're always in "all" mode.
+	@Override
+	public void onInputChanged(World world, int x, int y, int z,
+			ForgeDirection side, int inputValue) {
+		return;
+	}
 }

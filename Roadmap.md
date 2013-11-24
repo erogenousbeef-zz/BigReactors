@@ -10,11 +10,9 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
-- (0.2 Merge) Figure out IRedNetNetworkContainer. May need to signal the network to update via that or implement it or have one inside. getConnectionType() may need to be implemented too.
 
 Known Bugs
 ----------
-- (CRITICAL) Investigate reports of crashes due to people placing parts while inside a machine
 - Tank/Inventory exposure buttons only show the top-left pixel of their respective image. Fix GuiImageButton.
 - Tooltips in BeefGUI seem to cause NEI GUI colors to get inverted. Fix this.
 
@@ -29,8 +27,6 @@ TODO - Beta
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
-- Worldgen: Add a user-facing "user version" variable to allow users to forcibly re-run worldgen
-- Worldgen: Change yellorite ore to favor generation on y12
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
@@ -41,16 +37,9 @@ TODO - Beta
 - Cool particle effects when the reactor is on!
 
 ### Add redstone interfaces
-- (DONE/0.2) RedNet Interface block
 - Redstone Interface block
-- (DONE/0.2) These are configurable. RedNet allows for up to 16 I/O channels with continuous I/O.
-- (DONE/0.2) Reactor on/off
-- (DONE/0.2) Control rod in/out, or set specific % insertion via RedNet
-- (DONE/0.2) Emit reactor & control rod temperature
-- (DONE/0.2) RedNet Versions: Emit waste %/amt, Emit raw temperature
 
 ### Reactor Mechanics
-- Add fuel->waste and waste->fuel item mappings to registry; remove hardcoded references to Ore Dictionary
 - Blutonium: give it different properties than yellorium.
 - Blutonium: Create a proper fluid for it so it can be handled as a first-class member of the fuel cycle
 - Control Rods: Add "dump contents" button so they can be forcibly emptied

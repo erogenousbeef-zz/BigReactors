@@ -19,8 +19,9 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import universalelectricity.prefab.TranslationHelper;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
@@ -46,6 +47,9 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
+import erogenousbeef.bigreactors.world.BRWorldGenerator;
 
 public class BigReactors {
 
@@ -102,6 +106,7 @@ public class BigReactors {
 	public static boolean enableWorldGen = true;
 	public static boolean enableWorldGenInNegativeDimensions = false;
 	public static boolean enableWorldRegeneration = true;
+	public static int userWorldGenVersion = 0;
 
 	public static BREventHandler eventHandler = null;
 	public static BigReactorsTickHandler tickHandler = null;
@@ -114,7 +119,8 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
-	public static final float powerPerHeat = 1f; // RF units per C dissipated
+	public static final float powerPerHeat = 25f; // RF units per C dissipated
+	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
 	
 	/**
 	 * Call this function in your mod init stage.
@@ -124,14 +130,15 @@ public class BigReactors {
 
 		if (!INITIALIZED)
 		{
-			TranslationHelper.loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
+			loadLanguages(BigReactors.LANGUAGE_PATH, LANGUAGES_SUPPORTED);
 
 			// General config loading
 			BRConfig.CONFIGURATION.load();
 			enableWorldGen = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGen", true, "If false, disables all world gen from Big Reactors; all other worldgen settings are automatically overridden").getBoolean(true);
 			enableWorldGenInNegativeDimensions = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGenInNegativeDims", false, "Run BR world generation in negative dimension IDs? (default: false) If you don't know what this is, leave it alone.").getBoolean(false);
 			enableWorldRegeneration = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldRegeneration", false, "Run BR World Generation in chunks that have already been generated, but have not been modified by Big Reactors before. This is largely useful for worlds that existed before BigReactors was released.").getBoolean(false);
-			
+			userWorldGenVersion = BRConfig.CONFIGURATION.get("WorldGen", "userWorldGenVersion", 0, "User-set world generation version. Increase this by 1 if you want Big Reactors to re-run world generation in your world.").getInt();
+
 			boolean registerCoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCoalForSmelting", true, "If set, coal will be smeltable into graphite bars. Disable this if other mods need to smelt coal into their own products. (Default: true)").getBoolean(true);
 			boolean registerCharcoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCharcoalForSmelting", true, "If set, charcoal will be smeltable into graphite bars. Disable this if other mods need to smelt charcoal into their own products. (Default: true)").getBoolean(true);
 			boolean registerCoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 coal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
@@ -219,6 +226,9 @@ public class BigReactors {
 
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
+
+				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RRR", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
 			}
 			
 			if(blockReactorGlass != null) {
@@ -273,6 +283,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
+			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
 			registeredTileEntities = true;
 		}
 	}
@@ -314,6 +325,17 @@ public class BigReactors {
 			}
 			
 			BRWorldGenerator.addGenerator(BigReactors.yelloriteOreGeneration);
+			
+			// Per KingLemming's request, bonus yellorite at y12. :)
+			BRSimpleOreGenerator yelloriteOreGeneration2 = new BRSimpleOreGenerator(blockYelloriteOre.blockID, 0, Block.stone.blockID,
+					0, 2, 12, 12, orePerCluster, oreGenChance * 0.25f, oreGenMultiplier * 0.25f);
+			if(dimensionBlacklist != null) {
+				for(int dimension : dimensionBlacklist) {
+					yelloriteOreGeneration2.blacklistDimension(dimension);
+				}
+			}
+			
+			BRWorldGenerator.addGenerator(yelloriteOreGeneration2);
 		}
 		
 		BRConfig.CONFIGURATION.save();
@@ -410,6 +432,7 @@ public class BigReactors {
 			OreDictionary.registerOre("reactorCasing", 		((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack());
 			OreDictionary.registerOre("reactorController", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack());
 			OreDictionary.registerOre("reactorPowerTap", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack());
+			OreDictionary.registerOre("reactorRedNetPort", 	((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack());
 
 			BRConfig.CONFIGURATION.save();
 		}
@@ -493,7 +516,6 @@ public class BigReactors {
 			
 			fluidCyaniteBucketItem = (new ItemBRBucket(BRConfig.CONFIGURATION.getItem("BucketCyanite", BigReactors.ITEM_ID_PREFIX + 2).getInt(), liqDY.blockID)).setUnlocalizedName("bucket.cyanite").setMaxStackSize(1).setContainerItem(Item.bucketEmpty);
 			
-			// TODO: Work around this somehow
 			BRConfig.CONFIGURATION.save();
 		}
 
@@ -535,5 +557,55 @@ public class BigReactors {
 		// TODO: Fix the color of this
 		// TODO: Make a proper blutonium fluid
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
+	}
+	
+	// Stolen wholesale from Universal Electricity. Thanks Cal!
+	/**
+	 * Loads all the language files for a mod. This supports the loading of "child" language files
+	 * for sub-languages to be loaded all from one file instead of creating multiple of them. An
+	 * example of this usage would be different Spanish sub-translations (es_MX, es_YU).
+	 * 
+	 * @param languagePath - The path to the mod's language file folder.
+	 * @param languageSupported - The languages supported. E.g: new String[]{"en_US", "en_AU",
+	 * "en_UK"}
+	 * @return The amount of language files loaded successfully.
+	 */
+	public static int loadLanguages(String languagePath, String[] languageSupported)
+	{
+		int languages = 0;
+
+		/**
+		 * Load all languages.
+		 */
+		for (String language : languageSupported)
+		{
+			LanguageRegistry.instance().loadLocalization(languagePath + language + ".properties", language, false);
+
+			if (LanguageRegistry.instance().getStringLocalization("children", language) != "")
+			{
+				try
+				{
+					String[] children = LanguageRegistry.instance().getStringLocalization("children", language).split(",");
+
+					for (String child : children)
+					{
+						if (child != "" || child != null)
+						{
+							LanguageRegistry.instance().loadLocalization(languagePath + language + ".properties", child, false);
+							languages++;
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					FMLLog.severe("Failed to load a child language file.");
+					e.printStackTrace();
+				}
+			}
+
+			languages++;
+		}
+
+		return languages;
 	}
 }

@@ -3,11 +3,14 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.2.0)
 -----------------------------------------
+- Feature: RedNet connection block added. Read data from, and send commands to, your reactors via MFR's RedNet.
+- Feature: Control Rods can now be named via their UI
 - Compatibility: Support for Thermal Expansion 3's Redstone Flux (RF) added.
 - Compatibility: Support for Thermal Expansion 3's Item Conduits added.
 - Compatibility: BuildCraft MJ power is no longer supported.
-- Feature: RedNet connection block added. Read data from, and send commands to, your reactors via MFR's RedNet.
+- Compatibility: Universal Electricity Joules are no longer supported. As of 1.6.4 versions, UE now supports TE's Redstone Flux.
 - Optimization: Small reductions in network traffic due to minor internal refactoring
+- Settings: userWorldGenVersion. If you want to re-run world regeneration, increment this number in your settings file.
 
 Current Release (0.1.14A)
 --------------------------------
