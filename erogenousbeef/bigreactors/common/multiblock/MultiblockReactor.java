@@ -8,6 +8,7 @@ import java.util.Set;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
@@ -244,15 +245,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 
 		energyGeneratedLastTick = getEnergyStored() - oldEnergy;
-		// leak 1% of heat to the environment per second
-		// TODO: Replace this with a better equation, so low heats leak less
-		// and high heats leak far more.
-		
-		// 1% base loss rate, +1% per thousand degrees C
-		
-		if(latentHeat > 0.0) {
-			float lossRate = 0.01f + (this.latentHeat * 0.000001f);
-			float latentHeatLoss = Math.max(0.02f, this.latentHeat * 0.01f);
+
+		// leak 1% of heat to the environment per tick
+		// TODO: Better equation.
+		if(latentHeat > 0.0f) {
+			float latentHeatLoss = Math.max(0.05f, this.latentHeat * 0.01f);
+			if(this.latentHeat < latentHeatLoss) { latentHeatLoss = latentHeat; }
 			this.addLatentHeat(-1 * latentHeatLoss);
 
 			// Generate power based on the amount of heat lost
@@ -274,7 +272,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 				if(tap == null) { continue; }
 
-				energyRemaining = splitEnergy - tap.onProvidePower(splitEnergy);
+				energyRemaining -= splitEnergy - tap.onProvidePower(splitEnergy);
 			}
 
 			// Next, just hose out whatever we can, if we have any left
@@ -343,7 +341,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		if(energyStored > maxEnergyStored) {
 			energyStored = maxEnergyStored;
 		}
-		if(energyStored < 0f) {
+		if(-0.00001f < energyStored && energyStored < 0.00001f) {
+			// Clamp to zero
 			energyStored = 0f;
 		}
 	}
@@ -363,6 +362,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 
 		latentHeat += newCasingHeat;
+		// Clamp to zero to prevent floating point issues
+		if(-0.00001f < latentHeat && latentHeat < 0.00001f) { latentHeat = 0.0f; }
 	}
 
 	public boolean isActive() {

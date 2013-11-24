@@ -87,7 +87,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 		}
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {
-			if(tc.isMouseOver(absoluteX,  absoluteY)) {
+			if(tc.isMouseOver(mouseX,  mouseY)) {
 				String tooltip = tc.getTooltip();
 				if(tooltip != null && !tooltip.equals("")) {
 					drawCreativeTabHoveringText(tooltip, absoluteX, absoluteY);
