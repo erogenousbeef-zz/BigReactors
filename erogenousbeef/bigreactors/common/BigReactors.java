@@ -119,7 +119,7 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
-	public static final float powerPerHeat = 1f; // RF units per C dissipated
+	public static final float powerPerHeat = 15f; // RF units per C dissipated
 	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
 	
 	/**
