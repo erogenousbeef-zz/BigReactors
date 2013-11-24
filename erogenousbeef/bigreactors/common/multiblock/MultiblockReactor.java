@@ -266,13 +266,27 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		int energyAvailable = (int)getEnergyStored();
 		int energyRemaining = energyAvailable;
 		if(attachedPowerTaps.size() > 0 && energyRemaining > 0) {
+			// First, try to distribute fairly
+			int splitEnergy = energyRemaining / attachedPowerTaps.size();
 			for(CoordTriplet coord : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
 				
 				TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 				if(tap == null) { continue; }
 
-				energyRemaining = tap.onProvidePower(energyRemaining);
+				energyRemaining = splitEnergy - tap.onProvidePower(splitEnergy);
+			}
+
+			// Next, just hose out whatever we can, if we have any left
+			if(energyRemaining > 0) {
+				for(CoordTriplet coord : attachedPowerTaps) {
+					if(energyRemaining <= 0) { break; }
+					
+					TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(tap == null) { continue; }
+
+					energyRemaining = tap.onProvidePower(energyRemaining);
+				}
 			}
 		}
 		
