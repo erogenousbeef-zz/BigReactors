@@ -73,8 +73,6 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 														"redNetPort" };
 
 	private Icon[] _icons = new Icon[_subBlocks.length];
-	
-	@SideOnly(Side.CLIENT)
 	private Icon[] _redNetPortConfigIcons = new Icon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
 	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
