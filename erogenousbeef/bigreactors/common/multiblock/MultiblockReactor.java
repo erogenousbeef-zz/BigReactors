@@ -776,6 +776,27 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		return this.fuelConsumedLastTick;
 	}
 
+	/**
+	 * UI Helper
+	 * @return Percentile fuel richness (fuel/fuel+waste), or 0 if all control rods are empty
+	 */
+	public float getFuelRichness() {
+		int amtFuel, amtWaste;
+		TileEntityReactorControlRod controlRod = null;
+		amtFuel = amtWaste = 0;
+
+		for(CoordTriplet coord : this.attachedControlRods) {
+			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(controlRod == null) { continue; } // Happens due to chunk unloads
+		
+			amtFuel += controlRod.getFuelAmount();
+			amtWaste += controlRod.getWasteAmount();
+		}
+
+		if(amtFuel + amtWaste <= 0f) { return 0f; }
+		else { return (float)amtFuel / (float)(amtFuel+amtWaste); }
+	}
+
 	/** DO NOT USE **/
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive,
