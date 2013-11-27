@@ -9,6 +9,7 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.utils.FloatAverager;
 import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -29,13 +30,22 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel heatString;
 	private BeefGuiLabel fuelRodsString;
 	private BeefGuiLabel energyGeneratedString;
+	private BeefGuiLabel fuelConsumedString;
 	private BeefGuiPowerBar powerBar;
+	
+	private FloatAverager averagedHeat;
+	private FloatAverager averagedRfOutput;
+	private FloatAverager averagedFuelConsumption;
 	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
 		
 		this.part = tileEntityReactorPart;
 		this.reactor = part.getReactorController();
+		
+		this.averagedHeat = new FloatAverager(100);
+		this.averagedRfOutput = new FloatAverager(100); // 10 updates should be roughly 5 seconds
+		this.averagedFuelConsumption = new FloatAverager(200); // 10 seconds, since this fluctuates more at the low end
 	}
 	
 	// Add controls, etc.
@@ -70,7 +80,10 @@ public class GuiReactorStatus extends BeefGuiBase {
 		topY += fuelRodsString.getHeight() + 4;
 
 		energyGeneratedString = new BeefGuiLabel(this, "Power Output: -- updating --", leftX, topY);
-		topY += fuelRodsString.getHeight() + 4;
+		topY += energyGeneratedString.getHeight() + 4;
+		
+		fuelConsumedString = new BeefGuiLabel(this, "Fuel Consumed: -- updating --", leftX, topY);
+		topY += fuelConsumedString.getHeight() + 4;
 		
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.reactor);
 		
@@ -79,7 +92,12 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(heatString);
 		registerControl(fuelRodsString);
 		registerControl(energyGeneratedString);
+		registerControl(fuelConsumedString);
 		registerControl(powerBar);
+		
+		averagedHeat.setAll(reactor.getHeat());
+		averagedRfOutput.setAll(reactor.getEnergyGeneratedLastTick());
+		averagedFuelConsumption.setAll(reactor.getFuelConsumedLastTick());
 	}
 
 	private String getReactorWastePolicyText(WasteEjectionSetting setting) {
@@ -112,7 +130,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 			statusString.setLabelText("Status: Offline");
 		}
 		
-		heatString.setLabelText("Heat: " + Integer.toString((int)reactor.getHeat()) + " degrees C");
 		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
 		
 		MultiblockReactor.WasteEjectionSetting wasteSetting = reactor.getWasteEjection();
@@ -120,7 +137,33 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
 		
-		energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF", reactor.getEnergyGeneratedLastTick()));
+		// Grab averaged values
+		averagedRfOutput.add(reactor.getEnergyGeneratedLastTick());
+		averagedHeat.add(reactor.getHeat());
+		averagedFuelConsumption.add(reactor.getFuelConsumedLastTick());
+		
+		float averagedOutput = averagedRfOutput.average();
+		if(averagedOutput >= 100f) {
+			energyGeneratedString.setLabelText(String.format("Power Output: %1.0f RF", averagedRfOutput.average()));			
+		}
+		else {
+			energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF", averagedRfOutput.average()));			
+		}
+
+		heatString.setLabelText("Heat: " + Integer.toString((int)averagedHeat.average()) + " degrees C");
+		
+		float averagedConsumption = averagedFuelConsumption.average();
+		if(averagedConsumption < 0.1f) {
+		}
+		else if(averagedConsumption < 1f) {
+			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.2f mB/t", averagedFuelConsumption.average()));
+		}
+		else if(averagedConsumption < 10f) {
+			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.1f mB/t", averagedFuelConsumption.average()));
+		}
+		else {
+			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.0f mB/t", averagedFuelConsumption.average()));
+		}
 	}
 	
 	@Override
