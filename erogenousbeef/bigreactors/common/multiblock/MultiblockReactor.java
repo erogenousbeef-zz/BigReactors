@@ -50,6 +50,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 	// UI stuff
 	private float energyGeneratedLastTick;
+	private int fuelConsumedLastTick;
 	
 	public enum WasteEjectionSetting {
 		kAutomatic,					// Full auto, always remove waste
@@ -77,6 +78,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		active = false;
 		latentHeat = 0f;
 		energyGeneratedLastTick = 0f;
+		fuelConsumedLastTick = 0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
 		attachedRedNetPorts = new HashSet<CoordTriplet>();
@@ -177,6 +179,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		float oldHeat = this.getHeat();
 		float oldEnergy = this.getEnergyStored();
 		energyGeneratedLastTick = 0f;
+		fuelConsumedLastTick = 0;
 
 		// How much waste do we have?
 		int wasteAmt = 0;
@@ -192,7 +195,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			if(controlRod == null) { continue; } // Happens due to chunk unloads
 
 			if(this.isActive()) {
+				int fuelChange = controlRod.getFuelAmount();
 				radiationResult = controlRod.radiate();
+				fuelChange -= controlRod.getFuelAmount();
+				if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
+
 				this.generateEnergy(radiationResult.getPowerProduced());
 				this.addLatentHeat(radiationResult.getHeatProduced());
 			}
@@ -476,7 +483,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 								this.active,
 								this.latentHeat,
 								energyStored,
-								this.energyGeneratedLastTick});
+								this.energyGeneratedLastTick,
+								this.fuelConsumedLastTick});
 	}
 	
 	/**
@@ -754,6 +762,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	 */
 	public float getEnergyGeneratedLastTick() {
 		return this.energyGeneratedLastTick;
+	}
+	
+	/**
+	 * Used to update the UI
+	 */
+	public void setFuelConsumedLastTick(int fuelConsumed) {
+		this.fuelConsumedLastTick = fuelConsumed;
+	}
+	
+	/**
+	 * UI Helper
+	 */
+	public int getFuelConsumedLastTick() {
+		return this.fuelConsumedLastTick;
 	}
 
 	/** DO NOT USE **/

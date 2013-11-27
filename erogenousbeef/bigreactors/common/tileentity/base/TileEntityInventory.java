@@ -319,7 +319,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 					if(itemToDistribute.stackSize <= 0) {
 						return null;
 					}
-				}				
+				}
 			}
 		}
 		
