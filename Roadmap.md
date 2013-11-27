@@ -32,8 +32,6 @@ TODO - Beta
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
 - Add graduation marks to liquid progress bars
 - Add a cool mixed fuel/waste bar to the control rods
-- Show fuel/waste overall mix in reactor controller
-- Multi-page reactor controller to remote-control control rods
 - Cool particle effects when the reactor is on!
 
 ### Add redstone interfaces
