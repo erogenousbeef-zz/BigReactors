@@ -201,12 +201,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
 
 				this.generateEnergy(radiationResult.getPowerProduced());
-				this.addLatentHeat(radiationResult.getHeatProduced());
 			}
 			
 			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
 			if(heatPulse != null) {
-				this.generateEnergy(heatPulse.powerProduced);
 				this.addLatentHeat(heatPulse.heatChange);
 			}
 			
