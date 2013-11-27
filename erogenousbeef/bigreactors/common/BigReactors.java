@@ -22,6 +22,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
@@ -119,7 +120,7 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
-	public static final float powerPerHeat = 25f; // RF units per C dissipated
+	public static final float powerPerHeat = IHeatEntity.powerPerHeat; // RF units per C dissipated
 	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
 	
 	/**

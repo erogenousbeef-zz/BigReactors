@@ -154,6 +154,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		float averagedConsumption = averagedFuelConsumption.average();
 		if(averagedConsumption < 0.1f) {
+			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.3f mB/t", averagedFuelConsumption.average()));
 		}
 		else if(averagedConsumption < 1f) {
 			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.2f mB/t", averagedFuelConsumption.average()));

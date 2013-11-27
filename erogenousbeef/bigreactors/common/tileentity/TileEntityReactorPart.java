@@ -319,12 +319,10 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// IRadiationModerator
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		float newHeat = radiation.getSlowRadiation() * 0.5f;
+		float freePower = radiation.getSlowRadiation() * 0.25f;
 		
-		// Convert 15% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower(newHeat*0.15f);
-		newHeat *= 0.85f * 0.5f;
-		radiation.changeHeat(newHeat);
+		// Convert 25% of incident radiation to power, for balance reasons.
+		radiation.addPower(freePower);
 		
 		// Slow radiation is all lost now
 		radiation.setSlowRadiation(0);
@@ -350,8 +348,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 		float heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0f/(float)faces) * contactArea;
 
-		pulse.powerProduced += heatToAbsorb * 0.15f;
-		pulse.heatChange += heatToAbsorb * 0.85f * 0.5f;
+		pulse.heatChange += heatToAbsorb;
 
 		return heatToAbsorb;
 	}
