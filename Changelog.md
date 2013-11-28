@@ -5,8 +5,10 @@ Next Release (Anticipated Version: 0.2.2)
 -----------------------------------------
 - UI: Reactors now show estimated fuel consumption. Not very accurate for small reactors!
 - UI: Reactors now show fuel richness as a percentage. This is the percent of stuff inside the reactor that's fuel (as opposed to waste).
+- Feature: Cyanite reprocessors and access ports will now emit products into chests and other adjacent inventories, such as TE machines
 - Rebalance: Heat & radiation mechanics overhauled and simplified. Base RF output is up, overheating penalties are higher, efficiencies available via water and fuel fertilization are also higher. Should no longer have cryogenic fuel rods.
 - Optimization: Heat transfer in tall reactors should now be much, much less expensive on the CPU, at the cost of a small degree of accuracy
+- Bugfix: TE pulverizer and induction smelter recipes work again
 
 Current Release (0.2.1A)
 --------------------------------
