@@ -1,6 +1,9 @@
 package erogenousbeef.bigreactors.utils;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -9,6 +12,7 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
 import buildcraft.api.tools.IToolWrench;
+import erogenousbeef.core.common.CoordTriplet;
 
 public class StaticUtils {
 
@@ -60,6 +64,51 @@ public class StaticUtils {
 			}
 			Item currentItem = Item.itemsList[player.inventory.getCurrentItem().itemID];
 			return currentItem instanceof IToolWrench;
+		}
+		
+		/**
+		 * Check to see if two stacks are equal. NBT-sensitive.
+		 * Lifted from PowerCrystalsCore.
+		 * @param s1 First stack to compare
+		 * @param s2 Second stack to compare
+		 * @return True if stacks are equal, false otherwise.
+		 */
+        public static boolean areStacksEqual(ItemStack s1, ItemStack s2)
+        {
+                return areStacksEqual(s1, s2, true);
+        }
+
+        /**
+		 * Check to see if two stacks are equal. Optionally NBT-sensitive.
+		 * Lifted from PowerCrystalsCore.
+		 * @param s1 First stack to compare
+		 * @param s2 Second stack to compare
+         * @param nbtSensitive True if stacks' NBT tags should be checked for equality.
+         * @return True if stacks are equal, false otherwise.
+         */
+        public static boolean areStacksEqual(ItemStack s1, ItemStack s2, boolean nbtSensitive)
+        {
+                if(s1 == null || s2 == null) return false;
+                if(!s1.isItemEqual(s2)) return false;
+                
+                if(nbtSensitive)
+                {
+                        if(s1.getTagCompound() == null && s2.getTagCompound() == null) return true;
+                        if(s1.getTagCompound() == null || s2.getTagCompound() == null) return false;
+                        return s1.getTagCompound().equals(s2.getTagCompound());
+                }
+                
+                return true;
+        }
+
+		public static IInventory checkForDoubleChest(World worldObj, IInventory te, int x, int y, int z) {
+			CoordTriplet[] coords = (new CoordTriplet(x, y, z)).getNeighbors();
+			for(CoordTriplet coord : coords) {
+				if(worldObj.getBlockId(coord.x, coord.y, coord.z) == Block.chest.blockID) {
+					return new InventoryLargeChest("Large Chest", te, ((IInventory)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z)));
+				}
+			}
+			return null;
 		}
 	}
 	

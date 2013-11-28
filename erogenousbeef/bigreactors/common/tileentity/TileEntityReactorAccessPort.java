@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.tileentity;
 
 import java.io.DataInputStream;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -23,6 +24,9 @@ import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.utils.InventoryHelper;
+import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, IItemConduitConnection {
 
@@ -235,12 +239,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	 * @return Null if the stack was distributed, the same ItemStack otherwise.
 	 */
 	protected ItemStack distributeItemToPipes(ItemStack itemToDistribute) {
-		if(itemToDistribute == null) { return null; }
-		
 		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
 										ForgeDirection.EAST, ForgeDirection.WEST };
 
 		for(ForgeDirection dir : dirsToCheck) {
+			if(itemToDistribute == null) { return null; }
+
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 			if(te instanceof IItemConduit) {
 				IItemConduit conduit = (IItemConduit)te;
@@ -255,6 +259,20 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 						return null;
 					}
 				}				
+			}
+			else if(te instanceof IInventory) {
+				InventoryHelper helper;
+				if(te instanceof ISidedInventory) {
+					helper = new SidedInventoryHelper((ISidedInventory)te, dir.getOpposite());
+				}
+				else {
+					IInventory inv = (IInventory)te;
+					if(worldObj.getBlockId(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest.blockID) {
+						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+					}
+					helper = new InventoryHelper(inv);
+				}
+				itemToDistribute = helper.addItem(itemToDistribute);
 			}
 		}
 		
