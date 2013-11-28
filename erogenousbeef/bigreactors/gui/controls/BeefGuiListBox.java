@@ -45,8 +45,8 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 	
 	@Override
 	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
-		drawRect(x, y, x+width, y+height, borderColor);
-		drawRect(x+margin, y+margin, x+width-margin*2, y+height-margin*2, backgroundColor);
+		drawRect(absoluteX, absoluteY, absoluteX+width, absoluteY+height, borderColor);
+		drawRect(absoluteX+margin, absoluteY+margin, absoluteX+width-margin*2, absoluteY+height-margin*2, backgroundColor);
 	}
 
 	@Override
@@ -58,10 +58,10 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 			if(entry.getHeight() + drawnY > this.height) { break; }
 			else {
 				if(this.selectedEntryIdx == i) {
-					entry.draw(this.guiContainer.getFontRenderer(), x+margin, y+margin+drawnY, selectedLineColor, selectedTextColor);
+					entry.draw(this.guiContainer.getFontRenderer(), relativeX+margin, relativeY+margin+drawnY, selectedLineColor, selectedTextColor);
 				}
 				else {
-					entry.draw(this.guiContainer.getFontRenderer(), x+margin, y+margin+drawnY, backgroundColor, textColor);
+					entry.draw(this.guiContainer.getFontRenderer(), relativeX+margin, relativeY+margin+drawnY, backgroundColor, textColor);
 				}
 			}
 			if(drawnY >= this.height) { break; }
@@ -77,7 +77,7 @@ public class BeefGuiListBox extends BeefGuiControlBase {
 				break;
 			}
 			
-			if(this.y + margin + checkedY <= mouseY && this.y + margin + entryHeight + checkedY >= mouseY) {
+			if(this.absoluteY + margin + checkedY <= mouseY && this.absoluteY + margin + entryHeight + checkedY >= mouseY) {
 				setSelectedIndex(i);
 				onEntryClicked(entries.get(i));
 				break;

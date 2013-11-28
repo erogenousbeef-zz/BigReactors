@@ -23,7 +23,7 @@ public class BeefGuiProgressArrow extends BeefGuiControlBase {
 		if(entity.getCycleCompletion() > 0.0) {
 			int progressWidth = (int)(entity.getCycleCompletion() * (float)(this.width-1));
 			renderEngine.bindTexture(this.guiContainer.getGuiBackground());
-			guiContainer.drawTexturedModalRect(this.x, this.y, arrowU, arrowV, 1+progressWidth, this.height);
+			guiContainer.drawTexturedModalRect(this.absoluteX, this.absoluteY, arrowU, arrowV, 1+progressWidth, this.height);
 		}
 	}
 

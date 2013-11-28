@@ -1,8 +1,12 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.2.2)
+Next Release (Anticipated Version: 0.2.3A)
 -----------------------------------------
+- Bugfix: Tooltips now work in the RedNet port UI
+
+Current Release (0.2.2A)
+--------------------------------
 - UI: Reactors now show estimated fuel consumption. Not very accurate for small reactors!
 - UI: Reactors now show fuel richness as a percentage. This is the percent of stuff inside the reactor that's fuel (as opposed to waste).
 - Feature: Cyanite reprocessors and access ports will now emit products into chests and other adjacent inventories, such as TE machines
@@ -10,12 +14,11 @@ Next Release (Anticipated Version: 0.2.2)
 - Optimization: Heat transfer in tall reactors should now be much, much less expensive on the CPU, at the cost of a small degree of accuracy
 - Bugfix: TE pulverizer and induction smelter recipes work again
 
-Current Release (0.2.1A)
---------------------------------
-- Bugfix: Fixed a startup crash that prevented SMP servers from running
-
 Older Releases
 --------------
+### Release 0.2.1A
+- Bugfix: Fixed a startup crash that prevented SMP servers from running
+
 ### Release 0.2.0A
 - FORGE: Big Reactors now requires Forge 916 for Minecraft 1.6.4
 - Feature: RedNet connection block added. Read data from, and send commands to, your reactors via MFR's RedNet.

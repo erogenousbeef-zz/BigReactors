@@ -38,9 +38,9 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 		_togglePort = new GuiButton(1, xCenter + 31, guiTop + 4, 50, 20, getStringFromMetadata(metadata));
 		buttonList.add(_togglePort);
 		
-		inletLabel = new BeefGuiLabel(this, "IN", 25, 46);
-		outletLabel = new BeefGuiLabel(this, "OUT", 142, 46);
-		inventoryLabel = new BeefGuiLabel(this, "Inventory", 8, 64);
+		inletLabel = new BeefGuiLabel(this, "IN", guiLeft + 25, guiTop + 46);
+		outletLabel = new BeefGuiLabel(this, "OUT", guiLeft = 142, guiTop + 46);
+		inventoryLabel = new BeefGuiLabel(this, "Inventory", guiLeft + 8, guiTop + 64);
 		registerControl(inletLabel);
 		registerControl(outletLabel);
 		registerControl(inventoryLabel);

@@ -27,6 +27,7 @@ TODO - Beta
 - Finish the RTG for mid/early-game power. Should be easy with the new TE framework I've built.
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
+- Add support for other materials inside the reactor aside from just water.
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons

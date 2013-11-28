@@ -83,8 +83,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	public void initGui() {
 		super.initGui();
 
-		int leftX = 4;
-		int topY = 4;
+		int leftX = guiLeft + 4;
+		int topY = guiTop + 4;
 		
 		titleString = new BeefGuiLabel(this, "Reactor RedNet Port", leftX+2, topY+2);
 		settingsString = new BeefGuiLabel(this, "Settings", leftX+154, topY+2);
@@ -107,7 +107,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			channelSelectors[i + 1] = new BeefGuiRedNetChannelSelector(this, channelLabelStrings[i+1], i+1, leftX, topY, 60, 20);
 			grabTargets[i + 1] = new RedNetConfigGrabTarget(this, leftX + 42, topY+2, port, i + 1);
 			topY += 24;
-			leftX = 4;
+			leftX = guiLeft + 4;
 			
 			registerControl(channelSelectors[i]);
 			registerControl(channelSelectors[i+1]);
@@ -119,15 +119,15 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
 		BlockReactorPart reactorPartBlock = (BlockReactorPart)BigReactors.blockReactorPart;
 		RedNetConfigGrabbable[] grabbables = new RedNetConfigGrabbable[circuitTypes.length - 1];
-		topY = 21;
-		leftX = 156;
+		topY = guiTop + 21;
+		leftX = guiLeft + 156;
 		for(int i = 1; i < circuitTypes.length; i++) {
 			grabbables[i-1] = new RedNetConfigGrabbable(grabbableTooltips[i-1], reactorPartBlock.getRedNetConfigIcon(circuitTypes[i]), circuitTypes[i]);
 			BeefGuiGrabSource source = new BeefGuiGrabSource(this, leftX, topY, grabbables[i - 1]);			
 			registerControl(source);
 			leftX += 20;
-			if(leftX >= 230) {
-				leftX = 156;
+			if(leftX >= guiLeft + 230) {
+				leftX = guiLeft + 156;
 				topY += 20;
 			}
 		}

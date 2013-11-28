@@ -30,14 +30,14 @@ public class BeefGuiGrabSource extends BeefGuiControlBase implements IBeefToolti
 		if(this.grabbable != null) {
 			renderEngine.bindTexture( TextureMap.locationBlocksTexture );
 			GL11.glColor4f(1f, 1f, 1f, 1f);
-			this.guiContainer.drawTexturedModelRectFromIcon(x, y, grabbable.getIcon(), width, height);
+			this.guiContainer.drawTexturedModelRectFromIcon(relativeX, relativeY, grabbable.getIcon(), width, height);
 		}
 		else {
-			this.drawRect(this.x, this.y, this.x+this.width, this.y+this.height, 0x66ff0000); // Red error spot			
+			this.drawRect(this.relativeX, this.relativeY, this.relativeX+this.width, this.relativeY+this.height, 0x66ff0000); // Red error spot			
 		}
 		
 		if(this.isMouseOver(mouseX, mouseY)) {
-			this.drawRect(this.x, this.y, this.x+this.width, this.y+this.height, hoverColor);
+			this.drawRect(this.relativeX, this.relativeY, this.relativeX+this.width, this.relativeY+this.height, hoverColor);
 		}
 	}
 	
@@ -45,14 +45,11 @@ public class BeefGuiGrabSource extends BeefGuiControlBase implements IBeefToolti
 
 	@Override
 	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
-		int relativeX = guiContainer.getGuiLeft() + x;
-		int relativeY = guiContainer.getGuiTop() + y;
-
 		// Draw Border
-		this.drawRect(relativeX-1, relativeY-1, relativeX+width+1, relativeY+height+1, 0xff222222);
+		this.drawRect(absoluteX-1, absoluteY-1, absoluteX+width+1, absoluteY+height+1, 0xff222222);
 		
 		// Draw Background
-		this.drawRect(relativeX, relativeY, relativeX+width, relativeY+height, 0xff777777);
+		this.drawRect(absoluteX, absoluteY, absoluteX+width, absoluteY+height, 0xff777777);
 	}
 	
 	@Override
