@@ -13,7 +13,6 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -256,9 +255,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     		return 0;
     	}
     	
-    	FMLLog.info("filling tank %d with fluid %d", tankIndex, resource.fluidID);
     	int res = tanks[tankIndex].fill(resource, doFill);
-    	FMLLog.info("added %d, tank now has %d mb in it", res, tanks[tankIndex].getFluidAmount());
     	return res;
     }
 
