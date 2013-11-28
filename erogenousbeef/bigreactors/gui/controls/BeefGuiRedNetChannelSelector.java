@@ -36,11 +36,11 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	@Override
 	public boolean isMouseOver(int mouseX, int mouseY) {
 		// Only mouse over when the color or line are moused over.
-		if(mouseX < x+height && mouseX >= x) {
-			return mouseY >= y && mouseY <= y+height;
+		if(mouseX < absoluteX+width && mouseX >= absoluteX) {
+			return mouseY >= absoluteY && mouseY <= absoluteY+height;
 		}
-		else if(mouseX < x+width-height && mouseX >= x+height) {
-			int barTop = y + height/2 - (barHeight/2-1);
+		else if(mouseX < absoluteX+width-height && mouseX >= absoluteX+height) {
+			int barTop = absoluteY + height/2 - (barHeight/2-1);
 			return mouseY >= barTop && mouseY < barTop+barHeight;
 		}
 		return false;
@@ -53,24 +53,19 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 
 	@Override
 	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
-		int guiLeft = guiContainer.getGuiLeft();
-		int guiTop = guiContainer.getGuiTop();
-		int relativeX = x + guiLeft;
-		int relativeY = y + guiTop;
-		
-		int barTop = relativeY + height/2 - (barHeight/2-1);
+		int barTop = absoluteY + height/2 - (barHeight/2-1);
 		int borderColor = 0xff000000;
 		if(this.selected) {
 			borderColor = 0xff22dd22; // bright green?
 		}
-		this.drawRect(relativeX, relativeY, relativeX+height, relativeY+height, borderColor);
-		this.drawRect(relativeX+width-height, relativeY, relativeX+width, relativeY+height, borderColor);
-		this.drawRect(relativeX+height, barTop, relativeX+width-height, barTop+barHeight, borderColor);
+		this.drawRect(absoluteX, absoluteY, absoluteX+height, absoluteY+height, borderColor);
+		this.drawRect(absoluteX+width-height, absoluteY, absoluteX+width, absoluteY+height, borderColor);
+		this.drawRect(absoluteX+height, barTop, absoluteX+width-height, barTop+barHeight, borderColor);
 		
 		float[] color = EntitySheep.fleeceColorTable[this.channelIdx];
 		
-		this.drawRect(relativeX+1, relativeY+1, relativeX+height-1, relativeY+height-1, color[0], color[1], color[2], 1.0f);
-		this.drawRect(relativeX+width-height+1, relativeY+1, relativeX+width-1, relativeY+height-1, 0xff777777);
+		this.drawRect(absoluteX+1, absoluteY+1, absoluteX+height-1, absoluteY+height-1, color[0], color[1], color[2], 1.0f);
+		this.drawRect(absoluteX+width-height+1, absoluteY+1, absoluteX+width-1, absoluteY+height-1, 0xff777777);
 	}
 
 	@Override

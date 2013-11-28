@@ -39,10 +39,10 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 		renderEngine.bindTexture(controlResource);
 		Tessellator tessellator = Tessellator.instance;
 		tessellator.startDrawingQuads();
-		tessellator.addVertexWithUV(this.x, this.y + this.height, 0, 0, 1.0);
-		tessellator.addVertexWithUV(this.x + this.width, this.y + this.height, 0, 0.61, 1.0);
-		tessellator.addVertexWithUV(this.x + this.width, this.y, 0, 0.61, 0);
-		tessellator.addVertexWithUV(this.x, this.y, 0, 0, 0);
+		tessellator.addVertexWithUV(this.absoluteX, this.absoluteY + this.height, 0, 0, 1.0);
+		tessellator.addVertexWithUV(this.absoluteX + this.width, this.absoluteY + this.height, 0, 0.61, 1.0);
+		tessellator.addVertexWithUV(this.absoluteX + this.width, this.absoluteY, 0, 0.61, 0);
+		tessellator.addVertexWithUV(this.absoluteX, this.absoluteY, 0, 0, 0);
 		tessellator.draw();
 		
 		float progress = getProgress();
@@ -62,10 +62,10 @@ public abstract class BeefGuiProgressBarVertical extends BeefGuiControlBase impl
 			
 			renderEngine.bindTexture(getResourceLocation());
 			
-			int barMinX = this.x + 2;
-			int barMaxX = this.x + this.width - 2;
-			int barMinY = this.y + this.height - 2 - barHeight;
-			int barMaxY = this.y + this.height - 2;
+			int barMinX = this.absoluteX + 2;
+			int barMaxX = this.absoluteX + this.width - 2;
+			int barMinY = this.absoluteY + this.height - 2 - barHeight;
+			int barMaxY = this.absoluteY + this.height - 2;
 			
 			// Draw the bar in 16-pixel slices from the bottom up.
 			for(int slicedBarY = barMaxY; slicedBarY > 0; slicedBarY -= 16) {

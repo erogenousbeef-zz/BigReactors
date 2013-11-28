@@ -78,11 +78,11 @@ public abstract class BeefGuiBase extends GuiContainer {
 		absoluteX = mouseX - this.guiLeft;
 		absoluteY = mouseY - this.guiTop;
 		for(IBeefGuiControl c : controls) {
-			c.drawForeground(this.mc.renderEngine, absoluteX, absoluteY);
+			c.drawForeground(this.mc.renderEngine, mouseX, mouseY);
 		}
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {
-			if(tc.isMouseOver(mouseX,  mouseY)) {
+			if(tc.isMouseOver(mouseX, mouseY)) {
 				String tooltip = tc.getTooltip();
 				if(tooltip != null && !tooltip.equals("")) {
 					drawCreativeTabHoveringText(tooltip, absoluteX, absoluteY);
@@ -101,17 +101,13 @@ public abstract class BeefGuiBase extends GuiContainer {
 	
 	@Override
 	protected void mouseClicked(int x, int y, int buttonIndex) {
-		int absoluteX, absoluteY;
-		absoluteX = x - this.guiLeft;
-		absoluteY = y - this.guiTop;
-		
 		super.mouseClicked(x, y, buttonIndex);
 		for(GuiTextField field : textFields) {
 			field.mouseClicked(x, y, buttonIndex);
 		}
 		
 		for(IBeefGuiControl c: controls) {
-			c.onMouseClicked(absoluteX, absoluteY, buttonIndex);
+			c.onMouseClicked(x, y, buttonIndex);
 		}
 	}
 	

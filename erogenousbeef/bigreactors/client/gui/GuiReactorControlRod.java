@@ -48,8 +48,8 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	public void initGui() {
 		super.initGui();
 
-		int leftX = 4;
-		int topY = 4;
+		int leftX = guiLeft + 4;
+		int topY = guiTop + 4;
 		
 		Keyboard.enableRepeatEvents(true);
 		
@@ -58,7 +58,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		
 		rodNameLabel = new BeefGuiLabel(this, "Name:", leftX, topY + 6);
 		
-		rodName = new GuiTextField(fontRenderer, guiLeft + leftX*2 + rodNameLabel.getWidth(), guiTop + topY, 100, 20);
+		rodName = new GuiTextField(fontRenderer, leftX + 4 + rodNameLabel.getWidth(), topY, 100, 20);
 		rodName.setCanLoseFocus(true);
 		rodName.setMaxStringLength(32);
 		rodName.setText(entity.getName());
@@ -80,9 +80,9 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		rodStatus = new BeefGuiLabel(this, "Control Rod: ???", leftX, topY);
 		
 		int btnLeftX = leftX + rodStatus.getWidth() + 16;
-		rodRetractBtn = new GuiButton(0, guiLeft + btnLeftX, guiTop + topY - 6, 20, 20, "-");
+		rodRetractBtn = new GuiButton(0, btnLeftX, topY - 6, 20, 20, "-");
 		btnLeftX += 22;
-		rodInsertBtn = new GuiButton(1, guiLeft + btnLeftX, guiTop + topY - 6, 20, 20, "+");
+		rodInsertBtn = new GuiButton(1, btnLeftX, topY - 6, 20, 20, "+");
 		
 		topY += rodStatus.getHeight() + 8;
 		

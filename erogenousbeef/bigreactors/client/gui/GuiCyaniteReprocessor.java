@@ -45,8 +45,8 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	public void initGui() {
 		super.initGui();
 
-		int leftX = 8;
-		int topY = 6;
+		int leftX = guiLeft + 8;
+		int topY = guiTop + 6;
 		
 		titleString = new BeefGuiLabel(this, _entity.getInvName(), leftX, topY);
 		topY += titleString.getHeight() + 8;

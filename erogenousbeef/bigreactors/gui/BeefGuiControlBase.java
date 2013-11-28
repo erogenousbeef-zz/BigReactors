@@ -9,13 +9,17 @@ import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 public abstract class BeefGuiControlBase implements IBeefGuiControl {
 
 	protected BeefGuiBase guiContainer;
-	protected int x, y;
+	protected int absoluteX, absoluteY; // Screen-relative X/Y (for backgrounds)
+	protected int relativeX, relativeY; // GUI-relative X/Y (for foregrounds)
 	protected int width, height;
 	
-	protected BeefGuiControlBase(BeefGuiBase container, int x, int y, int width, int height) {
+	// We use absolute coords to match other Minecraft controls.
+	protected BeefGuiControlBase(BeefGuiBase container, int absoluteX, int absoluteY, int width, int height) {
 		this.guiContainer = container;
-		this.x = x;
-		this.y = y;
+		this.absoluteX = absoluteX;
+		this.absoluteY = absoluteY;
+		this.relativeX = absoluteX - container.getGuiLeft();
+		this.relativeY = absoluteY - container.getGuiTop();
 		this.height = height;
 		this.width = width;
 	}
@@ -27,7 +31,7 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 	 * @return True if the mouse is over this control, false otherwise.
 	 */
 	public boolean isMouseOver(int mouseX, int mouseY) {
-		if(mouseX < x || mouseX > x+width || mouseY < y || mouseY > y+height) { return false; }
+		if(mouseX < absoluteX || mouseX > absoluteX+width || mouseY < absoluteY || mouseY > absoluteY+height) { return false; }
 		return true;
 	}
 	

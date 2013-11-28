@@ -26,15 +26,15 @@ public abstract class BeefGuiGrabTarget extends BeefGuiControlBase {
 		if(grabbable != null) {
 			renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 			GL11.glColor4f(1f, 1f, 1f, 1f);
-			this.guiContainer.drawTexturedModelRectFromIcon(x, y, grabbable.getIcon(), width, height);
+			this.guiContainer.drawTexturedModelRectFromIcon(relativeX, relativeY, grabbable.getIcon(), width, height);
 		}
 		
 		if(this.isMouseOver(mouseX, mouseY)) {
 			if(this.guiContainer.getGrabbedItem() != null && isAcceptedGrab(this.guiContainer.getGrabbedItem())) {
-				this.drawRect(this.x, this.y, this.x+this.width, this.y+this.height, invalidHoverColor);
+				this.drawRect(this.relativeX, this.relativeY, this.relativeX+this.width, this.relativeY+this.height, invalidHoverColor);
 			}
 			else {
-				this.drawRect(this.x, this.y, this.x+this.width, this.y+this.height, hoverColor);
+				this.drawRect(this.relativeX, this.relativeY, this.relativeX+this.width, this.relativeY+this.height, hoverColor);
 			}
 		}
 	}

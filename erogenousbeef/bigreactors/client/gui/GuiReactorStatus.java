@@ -64,8 +64,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		this.buttonList.add(_reactorWastePolicy);
 		this.buttonList.add(_ejectWaste);
 
-		int leftX = 4;
-		int topY = 4;
+		int leftX = guiLeft + 4;
+		int topY = guiTop + 4;
 		
 		titleString = new BeefGuiLabel(this, "Reactor Control", leftX, topY);
 		topY += titleString.getHeight() + 4;
