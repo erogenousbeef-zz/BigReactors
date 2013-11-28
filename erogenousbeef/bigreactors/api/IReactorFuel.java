@@ -1,7 +1,5 @@
 package erogenousbeef.bigreactors.api;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 
 /**

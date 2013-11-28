@@ -1,26 +1,19 @@
 package erogenousbeef.bigreactors.common;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import powercrystals.minefactoryreloaded.api.FactoryRegistry;
-
-import appeng.api.Util;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
+import powercrystals.minefactoryreloaded.api.FactoryRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
-import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
+import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 
 public class CommonProxy {
 

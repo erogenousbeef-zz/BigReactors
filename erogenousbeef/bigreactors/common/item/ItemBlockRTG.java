@@ -1,8 +1,8 @@
 package erogenousbeef.bigreactors.common.item;
 
-import erogenousbeef.bigreactors.common.BigReactors;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class ItemBlockRTG extends ItemBlock {
 	public ItemBlockRTG(int id)

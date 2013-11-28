@@ -2,21 +2,20 @@ package erogenousbeef.bigreactors.client.renderer;
 
 import java.util.HashMap;
 
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.fluids.Fluid;
+
 import org.lwjgl.opengl.GL11;
 
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.renderer.RenderHelpers.BlockInterface;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
 
 public class RendererControlRod extends TileEntitySpecialRenderer {
 

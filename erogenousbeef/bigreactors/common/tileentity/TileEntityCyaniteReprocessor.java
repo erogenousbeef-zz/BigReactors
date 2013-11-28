@@ -2,33 +2,24 @@ package erogenousbeef.bigreactors.common.tileentity;
 
 import java.util.ArrayList;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.BRRegistry;
-import erogenousbeef.bigreactors.common.BRUtilities;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.container.ContainerCyaniteReprocessor;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFluid {
 
@@ -135,7 +126,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	}
 	
 	private boolean consumeInputs() {
-		_inventories[SLOT_INLET] = BRUtilities.consumeItem(_inventories[SLOT_INLET], INGOTS_CONSUMED);
+		_inventories[SLOT_INLET] = StaticUtils.Inventory.consumeItem(_inventories[SLOT_INLET], INGOTS_CONSUMED);
 		drain(0, FLUID_CONSUMED, true);
 		
 		return true;

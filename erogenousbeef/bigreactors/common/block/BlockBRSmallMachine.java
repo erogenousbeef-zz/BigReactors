@@ -2,24 +2,11 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BRUtilities;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,6 +21,17 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BlockBRSmallMachine extends BlockContainer {
 
@@ -178,7 +176,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 
 		// WRENCH SUPPORT HAH.
-		if(te instanceof TileEntityBeefBase && BRUtilities.isPlayerHoldingWrench(entityPlayer)) {
+		if(te instanceof TileEntityBeefBase && StaticUtils.Inventory.isPlayerHoldingWrench(entityPlayer)) {
 			ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
 			((TileEntityBeefBase)te).rotateTowards(newFacing);
 			return true;
@@ -190,7 +188,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 			IFluidHandler fluidHandler = (IFluidHandler)te;
 			FluidTankInfo[] infoz = fluidHandler.getTankInfo(ForgeDirection.UNKNOWN);
 			for(FluidTankInfo info : infoz) {
-				if(BRUtilities.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
+				if(StaticUtils.Fluids.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
 					return true;
 				}
 			}
@@ -198,7 +196,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
 			FMLLog.info("trying to fill a TE with some fluid from a bucket");
-			if(BRUtilities.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
+			if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
 			{
 				FMLLog.info("success!");
 				return true;

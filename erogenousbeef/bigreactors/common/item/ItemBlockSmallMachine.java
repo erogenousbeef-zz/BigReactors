@@ -1,9 +1,8 @@
 package erogenousbeef.bigreactors.common.item;
 
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class ItemBlockSmallMachine extends ItemBlock {
 	public ItemBlockSmallMachine(int id)

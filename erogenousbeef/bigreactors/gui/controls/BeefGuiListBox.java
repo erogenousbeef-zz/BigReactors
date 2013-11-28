@@ -3,11 +3,7 @@ package erogenousbeef.bigreactors.gui.controls;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
-
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
 import erogenousbeef.bigreactors.gui.IBeefListBoxEntry;

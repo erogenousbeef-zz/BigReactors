@@ -2,8 +2,6 @@ package erogenousbeef.bigreactors.common.item;
 
 import java.util.List;
 
-import erogenousbeef.bigreactors.common.BigReactors;
-
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 

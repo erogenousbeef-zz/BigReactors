@@ -1,14 +1,11 @@
 package erogenousbeef.bigreactors.gui.controls;
 
-import cofh.api.energy.IEnergyHandler;
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
+import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements

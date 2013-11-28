@@ -1,34 +1,11 @@
 package erogenousbeef.bigreactors.common.block;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
-import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
-
-//import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-//import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import erogenousbeef.bigreactors.common.BRConfig;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -37,6 +14,18 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+//import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+//import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
 
 public class BlockReactorPart extends BlockContainer implements IConnectableRedNet {
 	

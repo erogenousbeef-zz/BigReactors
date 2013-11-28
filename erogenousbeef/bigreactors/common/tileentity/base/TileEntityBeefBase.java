@@ -7,18 +7,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
-import erogenousbeef.bigreactors.net.PacketWrapper;
-import erogenousbeef.bigreactors.net.Packets;
-
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
@@ -27,6 +16,12 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiEntity {
 	private Set<EntityPlayer> updatePlayers;

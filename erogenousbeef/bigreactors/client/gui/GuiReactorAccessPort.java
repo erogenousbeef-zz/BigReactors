@@ -1,5 +1,8 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -7,10 +10,6 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.core.common.CoordTriplet;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.Container;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorAccessPort extends BeefGuiBase {
 

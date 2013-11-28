@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.gui.controls.grab;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import net.minecraft.util.Icon;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 
 public class RedNetConfigGrabbable implements IBeefGuiGrabbable {
 

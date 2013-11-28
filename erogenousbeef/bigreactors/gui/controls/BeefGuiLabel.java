@@ -1,15 +1,12 @@
 package erogenousbeef.bigreactors.gui.controls;
 
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
-import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.inventory.Container;
 
 @SideOnly(Side.CLIENT)
 public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipControl {

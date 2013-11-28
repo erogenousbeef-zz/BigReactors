@@ -1,12 +1,10 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
 import cofh.api.tileentity.IEnergyInfo;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.ForgeDirection;
 
 public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IEnergyInfo  {
 	public static float energyPerRF = 1f;

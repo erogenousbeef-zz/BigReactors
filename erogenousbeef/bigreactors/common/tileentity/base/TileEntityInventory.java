@@ -3,27 +3,22 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import cofh.api.transport.IItemConduit;
-import cofh.api.transport.IItemConduitConnection;
-
-import buildcraft.api.transport.IPipeTile;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.bigreactors.common.item.ItemIngot;
-import erogenousbeef.bigreactors.net.PacketWrapper;
-import erogenousbeef.bigreactors.net.Packets;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
+import buildcraft.api.transport.IPipeTile;
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory, IItemConduitConnection {
 	
