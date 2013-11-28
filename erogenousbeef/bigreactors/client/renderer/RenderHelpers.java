@@ -3,11 +3,8 @@ package erogenousbeef.bigreactors.client.renderer;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 // Shamelessly stolen from BuildCraft
 

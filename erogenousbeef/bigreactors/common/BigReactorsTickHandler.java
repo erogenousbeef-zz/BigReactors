@@ -1,18 +1,14 @@
 package erogenousbeef.bigreactors.common;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
-
 import cpw.mods.fml.common.TickType;
-import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class BigReactorsTickHandler extends MultiblockServerTickHandler {

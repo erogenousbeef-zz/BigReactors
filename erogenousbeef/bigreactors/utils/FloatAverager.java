@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.utils;
 
-import java.util.ArrayList;
 
 public class FloatAverager {
 	

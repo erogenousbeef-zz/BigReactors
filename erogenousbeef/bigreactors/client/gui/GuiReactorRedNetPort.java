@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
-
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
@@ -13,19 +16,13 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort.CircuitType;
 import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
-import erogenousbeef.bigreactors.gui.controls.BeefGuiListBox;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiRedNetChannelSelector;
 import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
-import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabbable;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.Container;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorRedNetPort extends BeefGuiBase {
 

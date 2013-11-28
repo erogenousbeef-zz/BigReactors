@@ -2,15 +2,7 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-
-import cofh.api.energy.EnergyStorage;
-import cofh.api.energy.IEnergyHandler;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,13 +14,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
-
+import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
@@ -36,10 +28,10 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.MultiblockRegistry;
 
 public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler {
 	// Game stuff
@@ -650,14 +642,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			
 			if(fuelStack != null) {
 				if(fuelStack.stackSize >= fuelIngotsToConsume) {
-					fuelStack = BRUtilities.consumeItem(fuelStack, fuelIngotsToConsume);
+					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelIngotsToConsume);
 					fuelIngotsConsumed = fuelIngotsToConsume;
 					fuelIngotsToConsume = 0;
 				}
 				else {
 					fuelIngotsConsumed += fuelStack.stackSize;
 					fuelIngotsToConsume -= fuelStack.stackSize;
-					fuelStack = BRUtilities.consumeItem(fuelStack, fuelStack.stackSize);
+					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelStack.stackSize);
 				}
 				port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
 			}

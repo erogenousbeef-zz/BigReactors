@@ -1,26 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
 import java.io.DataInputStream;
-import java.util.HashMap;
 
-import cofh.api.transport.IItemConduit;
-import cofh.api.transport.IItemConduitConnection;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import buildcraft.api.transport.IPipeTile;
-import erogenousbeef.bigreactors.api.IReactorFuel;
-import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
-import erogenousbeef.bigreactors.common.BRRegistry;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.bigreactors.common.item.ItemIngot;
-import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
-import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
-import erogenousbeef.bigreactors.net.PacketWrapper;
-import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -30,6 +11,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
+import buildcraft.api.transport.IPipeTile;
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.api.IReactorFuel;
+import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
+import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 
 public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, IItemConduitConnection {
 

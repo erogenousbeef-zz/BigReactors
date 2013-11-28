@@ -1,29 +1,24 @@
 package erogenousbeef.bigreactors.client.gui;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import erogenousbeef.bigreactors.gui.IBeefGuiControl;
-import erogenousbeef.bigreactors.gui.IBeefListBoxEntry;
-import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
-import erogenousbeef.bigreactors.gui.controls.BeefGuiListBox;
-import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
-import erogenousbeef.bigreactors.gui.controls.grab.IBeefGuiGrabbable;
-
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Icon;
+
+import org.lwjgl.opengl.GL11;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.gui.IBeefGuiControl;
+import erogenousbeef.bigreactors.gui.IBeefListBoxEntry;
+import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiListBox;
+import erogenousbeef.bigreactors.gui.controls.grab.IBeefGuiGrabbable;
 
 @SideOnly(Side.CLIENT)
 public abstract class BeefGuiBase extends GuiContainer {

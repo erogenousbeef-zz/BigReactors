@@ -1,7 +1,11 @@
 package erogenousbeef.bigreactors.net;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.network.packet.Packet250CustomPayload;
 

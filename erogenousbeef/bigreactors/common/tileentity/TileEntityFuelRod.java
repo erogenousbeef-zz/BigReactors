@@ -1,24 +1,14 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
-import java.util.Random;
-
+import net.minecraft.tileentity.TileEntity;
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.RadiationPulse;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
-import net.minecraft.block.material.Material;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.ForgeDirection;
 
 public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 

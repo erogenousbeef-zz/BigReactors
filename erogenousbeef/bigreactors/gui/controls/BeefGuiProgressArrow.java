@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.gui.controls;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureManager;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;

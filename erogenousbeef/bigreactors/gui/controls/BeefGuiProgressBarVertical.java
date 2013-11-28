@@ -1,13 +1,12 @@
 package erogenousbeef.bigreactors.gui.controls;
 
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.inventory.Container;
 import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
+
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;

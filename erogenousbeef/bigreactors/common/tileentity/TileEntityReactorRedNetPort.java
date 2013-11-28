@@ -4,13 +4,6 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
-import cofh.api.energy.IEnergyHandler;
-
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,6 +11,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;

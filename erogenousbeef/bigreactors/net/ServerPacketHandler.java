@@ -13,7 +13,6 @@ import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 
 public class ServerPacketHandler implements IPacketHandler {

@@ -1,14 +1,13 @@
 package erogenousbeef.bigreactors.gui.container;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.gui.slot.SlotRestrictedOreTypes;
-import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
+import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
+import erogenousbeef.bigreactors.gui.slot.SlotRestrictedOreTypes;
 
 public class ContainerCyaniteReprocessor extends Container {
 
