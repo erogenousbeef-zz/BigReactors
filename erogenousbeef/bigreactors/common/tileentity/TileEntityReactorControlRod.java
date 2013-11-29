@@ -47,7 +47,6 @@ import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 
 public class TileEntityReactorControlRod extends MultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IHeatEntity, IBeefGuiEntity {
 	public final static int maxTotalFluidPerBlock = FluidContainerRegistry.BUCKET_VOLUME * 4;
-	public final static int maxFuelRodsBelow = 32;
 	public final static short maxInsertion = 100;
 	public final static short minInsertion = 0;
 
@@ -852,7 +851,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		// Look for at least one fuel rod beneath us
 		minFuelRodY = this.yCoord - 1;
 		int blocksChecked = 0;
-		while(blocksChecked <= maxFuelRodsBelow) {
+		while(blocksChecked <= BigReactors.maximumReactorHeight - 2) {
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, minFuelRodY, zCoord);
 			if(te != null && te instanceof TileEntityFuelRod) {
 				((TileEntityFuelRod)te).onAssemble(this);
