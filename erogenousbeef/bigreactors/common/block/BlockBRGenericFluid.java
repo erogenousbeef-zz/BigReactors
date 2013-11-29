@@ -27,6 +27,8 @@ public class BlockBRGenericFluid extends BlockFluidClassic {
 	public void registerIcons(IconRegister iconRegistry) {
 		_iconStill   = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		_iconFlowing = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName().replace(".still", ".flowing"));
+
+		this.stack.getFluid().setIcons(_iconStill, _iconFlowing);
 	}
 
 	// TODO: Remove me if no longer needed
