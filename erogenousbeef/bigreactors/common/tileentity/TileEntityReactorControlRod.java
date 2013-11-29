@@ -51,10 +51,6 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	public final static short maxInsertion = 100;
 	public final static short minInsertion = 0;
 
-	public final static int fuelTankIndex = 0;
-	public final static int wasteTankIndex = 1;
-	public final static int numTanks = 2;
-
 	// Game Balance Values
 	// TODO: Make these configurable
 	private static final float maximumNeutronsPerFuel = 50000f; // Should be a few minutes per ingot, on average.
@@ -364,14 +360,15 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	protected void updateWorldIfNeeded(boolean force) {
 		int fuelAmt = this.getFuelAmount();
 		int wasteAmt = this.getWasteAmount();
-		if(force) {
+		if(force || this.worldObj.isRemote) {
+			// On client, always re-render.
 			this.fuelAtLastUpdate = fuelAmt;
 			this.wasteAtLastUpdate = wasteAmt;
 			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 		else {
 			if(Math.abs(this.fuelAtLastUpdate - fuelAmt) > maximumDevianceInContentsBetweenUpdates ||
-				Math.abs(this.wasteAtLastUpdate -wasteAmt) > maximumDevianceInContentsBetweenUpdates) {
+				Math.abs(this.wasteAtLastUpdate - wasteAmt) > maximumDevianceInContentsBetweenUpdates) {
 					this.fuelAtLastUpdate = fuelAmt;
 					this.wasteAtLastUpdate = wasteAmt;
 					this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -1083,6 +1080,10 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			
 			if(localData.hasKey("name")) {
 				this.name = localData.getString("name");
+			}
+			
+			if(this.worldObj != null) {
+				this.worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
 			}
 		}
 	}
