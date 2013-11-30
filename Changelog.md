@@ -4,6 +4,8 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.3A)
 -----------------------------------------
 - Bugfix: Tooltips now work in the RedNet port UI
+- Optimization: Fuel rods now use a MUCH more efficient rendering method. Large reactors should be much less laggy to look at.
+- KNOWN ISSUE: Control rods are sometimes lit improperly
 
 Current Release (0.2.2A)
 --------------------------------
