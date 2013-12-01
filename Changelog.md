@@ -9,6 +9,7 @@ Current Release (0.2.4A)
 --------------------------------
 - Bugfix: Blutonium can again be added to reactor access ports via automation (e.g. itemducts)
 - Bugfix: Energy output number displayed for ludicrously-huge reactors was inaccurate. This is fixed.
+- Bugfix: Cyanite reprocessors were starting with 5000 free RF inside themselves. This has been removed.
 - BeefCore: Client-side data is now properly calculated on world load. Internal fix only, no visible effects.
 
 Older Releases
