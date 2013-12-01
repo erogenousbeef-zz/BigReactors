@@ -1,14 +1,25 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.2.3A)
+Next Release (Anticipated Version: 0.2.5A)
 -----------------------------------------
+- Feature: Redstone Ports, which can accept input and provide output via regular old redstone and anything compatible with it.
+
+Current Release (0.2.4A)
+--------------------------------
+- Bugfix: Blutonium can again be added to reactor access ports via automation (e.g. itemducts)
+- Bugfix: Energy output number displayed for ludicrously-huge reactors was inaccurate. This is fixed.
+- Bugfix: Cyanite reprocessors were starting with 5000 free RF inside themselves. This has been removed.
+- BeefCore: Client-side data is now properly calculated on world load. Internal fix only, no visible effects.
+
+Older Releases
+--------------
+### Release 0.2.3A
 - Bugfix: Tooltips now work in the RedNet port UI
 - Optimization: Fuel rods now use a MUCH more efficient rendering method. Large reactors should be much less laggy to look at.
 - KNOWN ISSUE: Control rods are sometimes lit improperly
 
-Current Release (0.2.2A)
---------------------------------
+### Release 0.2.2A
 - UI: Reactors now show estimated fuel consumption. Not very accurate for small reactors!
 - UI: Reactors now show fuel richness as a percentage. This is the percent of stuff inside the reactor that's fuel (as opposed to waste).
 - Feature: Cyanite reprocessors and access ports will now emit products into chests and other adjacent inventories, such as TE machines
@@ -16,8 +27,6 @@ Current Release (0.2.2A)
 - Optimization: Heat transfer in tall reactors should now be much, much less expensive on the CPU, at the cost of a small degree of accuracy
 - Bugfix: TE pulverizer and induction smelter recipes work again
 
-Older Releases
---------------
 ### Release 0.2.1A
 - Bugfix: Fixed a startup crash that prevented SMP servers from running
 
