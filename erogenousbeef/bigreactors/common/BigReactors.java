@@ -89,7 +89,7 @@ public class BigReactors {
 	public static final int defaultFluidColorWaste = 0x4d92b5;
 	
 	public static final int ITEM_ID_PREFIX = 17750;
-	public static Item ingotGeneric;
+	public static ItemIngot ingotGeneric;
 
 	public static BRSimpleOreGenerator yelloriteOreGeneration;
 	
@@ -538,9 +538,9 @@ public class BigReactors {
 		BRRegistry.registerReactorFluid(new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
 		BRRegistry.registerReactorFluid(new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
 		
-		ItemStack yelloriumStack 	= new ItemStack(ingotGeneric, 1, 0);
-		ItemStack cyaniteStack 		= new ItemStack(ingotGeneric, 1, 1);
-		ItemStack blutoniumStack 	= new ItemStack(ingotGeneric, 1, 2);
+		ItemStack yelloriumStack 	= ingotGeneric.getItemStackForType("ingotYellorium");
+		ItemStack cyaniteStack 		= ingotGeneric.getItemStackForType("ingotCyanite");
+		ItemStack blutoniumStack 	= ingotGeneric.getItemStackForType("ingotBlutonium");
 		
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(yelloriumStack, fluidYellorium));
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(cyaniteStack, fluidCyanite));
