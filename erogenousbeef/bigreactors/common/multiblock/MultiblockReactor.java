@@ -241,8 +241,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 		}
 
-		energyGeneratedLastTick = getEnergyStored() - oldEnergy;
-
 		// leak 1% of heat to the environment per tick
 		// TODO: Better equation.
 		if(latentHeat > 0.0f) {
@@ -252,7 +250,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 			// Generate power based on the amount of heat lost
 			this.generateEnergy(latentHeatLoss * BigReactors.powerPerHeat);
-			energyGeneratedLastTick += latentHeatLoss * BigReactors.powerPerHeat;
 		}
 		
 		if(latentHeat < 0.0f) { setHeat(0.0f); }
@@ -323,6 +320,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	 * @param newEnergy Base, unmultiplied energy to generate
 	 */
 	protected void generateEnergy(float newEnergy) {
+		this.energyGeneratedLastTick += newEnergy * BigReactors.powerProductionMultiplier;
 		this.addStoredEnergy(newEnergy * BigReactors.powerProductionMultiplier);
 	}
 
