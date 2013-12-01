@@ -18,7 +18,7 @@ Known Bugs
 
 TODO - 0.2: The Redstone Update
 -------------------------------
-- Redstone interface block
+- (0.2.5A - IN DEV) Redstone interface block
 - Allow different types of blocks inside reactor, e.g. iron blocks and TE cryotheum liquids
 - Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
