@@ -32,9 +32,6 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	
 	public TileEntityCyaniteReprocessor() {
 		super();
-		
-		// DEBUG: Add some energy so I can test the damn thing
-		this.receiveEnergy(ForgeDirection.UNKNOWN, this.getMaxEnergyStored()/2, false);
 	}
 
 	@Override
