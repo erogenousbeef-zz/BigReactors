@@ -22,6 +22,7 @@ import erogenousbeef.bigreactors.common.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
@@ -39,6 +40,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
 import erogenousbeef.bigreactors.world.BRWorldGenerator;
 
@@ -69,6 +71,7 @@ public class BigReactors {
 	public static Block blockReactorPart;
 	public static Block blockReactorGlass;
 	public static Block blockReactorControlRod;
+	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
 	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
@@ -275,6 +278,7 @@ public class BigReactors {
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
+			GameRegistry.registerTileEntity(TileEntityReactorRedstonePort.class,"BRReactorRedstonePort");
 			registeredTileEntities = true;
 		}
 	}
@@ -435,7 +439,15 @@ public class BigReactors {
 			GameRegistry.registerBlock(BigReactors.blockReactorGlass, ItemBlockBigReactors.class, "BRReactorGlass");
 			
 			BRConfig.CONFIGURATION.save();
+		}
+		
+		if(BigReactors.blockReactorRedstonePort == null) {
+			BRConfig.CONFIGURATION.load();
 			
+			BigReactors.blockReactorRedstonePort = new BlockReactorRedstonePort(BRConfig.CONFIGURATION.getBlock("ReactorRedstonePort",  BigReactors.BLOCK_ID_PREFIX + 9).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlockBigReactors.class, "BRReactorRedstonePort");
+			
+			BRConfig.CONFIGURATION.save();
 		}
 	}
 	
