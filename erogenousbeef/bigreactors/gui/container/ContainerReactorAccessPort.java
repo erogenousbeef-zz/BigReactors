@@ -6,6 +6,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.gui.slot.SlotReactorInput;
 import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
 import erogenousbeef.bigreactors.gui.slot.SlotRestrictedOreTypes;
 
@@ -22,7 +23,7 @@ public class ContainerReactorAccessPort extends Container {
 
 	protected void addSlots() {
 		// Input Slot
-		addSlotToContainer(new SlotRestrictedOreTypes(_port, 0, 44, 41, new String[] { "ingotUranium", "ingotPlutonium" }));
+		addSlotToContainer(new SlotReactorInput(_port, 0, 44, 41, true));
 	
 		// Output Slot
 		addSlotToContainer(new SlotRemoveOnly(_port, 1, 116, 41));
