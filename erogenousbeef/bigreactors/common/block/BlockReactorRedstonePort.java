@@ -143,15 +143,23 @@ public class BlockReactorRedstonePort extends BlockContainer {
 	public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side) {
 		if(side == 0 || side == 1) { return 0; }
 
-		int md = world.getBlockMetadata(x, y, z);
-		return (md == META_REDSTONE_LIT) ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedstonePort) {
+			return ((TileEntityReactorRedstonePort)te).isRedstoneActive() ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
+		}
+		
+		return REDSTONE_VALUE_OFF;
 	}
 	
 	@Override
 	public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
 		if(side == 0 || side == 1) { return 0; }
 
-		int md = world.getBlockMetadata(x, y, z);
-		return (md == META_REDSTONE_LIT) ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedstonePort) {
+			return ((TileEntityReactorRedstonePort)te).isRedstoneActive() ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
+		}
+		
+		return REDSTONE_VALUE_OFF;
 	}
 }
