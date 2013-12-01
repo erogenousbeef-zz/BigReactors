@@ -453,12 +453,27 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
+		data.setFloat("energy", this.energyStored);
+		data.setFloat("heat", this.latentHeat);
+		data.setBoolean("isActive", this.isActive());
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		if(data.hasKey("wasteEjection")) {
 			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection")];
+		}
+		
+		if(data.hasKey("isActive")) {
+			this.setActive(data.getBoolean("isActive"));
+		}
+		
+		if(data.hasKey("energy")) {
+			this.energyStored = data.getFloat("energyStored");
+		}
+		
+		if(data.hasKey("heat")) {
+			this.latentHeat = data.getFloat("heat");
 		}
 	}
 
