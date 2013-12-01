@@ -16,29 +16,72 @@ import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort.CircuitType;
 
 public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		implements IRadiationModerator, IHeatEntity {
 
-	ForgeDirection out;
+	protected ForgeDirection out;
+	protected CircuitType circuitType;
+	protected int outputLevel;
+	protected boolean greaterThan; // if false, less than
+	
+	protected boolean wasLit;
 	
 	public TileEntityReactorRedstonePort() {
 		super();
 		
 		out = ForgeDirection.UNKNOWN;
+		circuitType = circuitType.DISABLED;
+		wasLit = false;
 	}
 	
 	// Redstone methods
 	public boolean isRedstoneActive() {
 		if(!this.isConnected()) { return false; }
-		
+
 		MultiblockReactor reactor = (MultiblockReactor)getMultiblockController();
-		return reactor.isActive();
+
+		switch(circuitType) {
+		case outputTemperature:
+			return checkVariable((int)reactor.getHeat());
+		case outputFuelMix:
+			return checkVariable((int)(reactor.getFuelRichness()*100));
+		case outputFuelAmount:
+		case outputWasteAmount:
+			// TODO: These
+			return false;
+		default:
+			return false;
+		}
+	}
+	
+	public boolean isInput() {
+		return TileEntityReactorRedNetPort.isInput(this.circuitType);
+	}
+	
+	public boolean isOutput() {
+		return TileEntityReactorRedNetPort.isOutput(this.circuitType);
+	}
+	
+	protected boolean checkVariable(int value) {
+		if(value > outputLevel && this.greaterThan) {
+			return true;
+		}
+		else {
+			return value < outputLevel;
+		}
 	}
 	
 	public void sendRedstoneUpdate() {
 		if(this.worldObj != null && !this.worldObj.isRemote) {
-			this.worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, isRedstoneActive()?BlockReactorRedstonePort.META_REDSTONE_LIT:BlockReactorRedstonePort.META_REDSTONE_UNLIT, 3);
+			int md = BlockReactorRedstonePort.META_REDSTONE_LIT;
+
+			if(this.isOutput()) {
+				md = isRedstoneActive() ? BlockReactorRedstonePort.META_REDSTONE_LIT : BlockReactorRedstonePort.META_REDSTONE_UNLIT;
+			}
+
+			this.worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorRedstonePort.META_REDSTONE_LIT, 3);
 		}
 	}
 	
