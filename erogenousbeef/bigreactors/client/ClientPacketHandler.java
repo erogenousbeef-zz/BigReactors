@@ -17,6 +17,7 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
@@ -183,6 +184,24 @@ public class ClientPacketHandler implements IPacketHandler {
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
 				if(te instanceof TileEntityReactorRedNetPort) {
 					((TileEntityReactorRedNetPort)te).decodeSettings(data, false);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		break;
+		case Packets.RedstoneSetData: {
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te instanceof TileEntityReactorRedstonePort) {
+					int newCircuit = data.readInt();
+					int newLevel = data.readInt();
+					boolean newGt = data.readBoolean();
+					((TileEntityReactorRedstonePort)te).onReceiveUpdatePacket(newCircuit, newLevel, newGt);
 				}
 			} catch(IOException e) {
 				e.printStackTrace();

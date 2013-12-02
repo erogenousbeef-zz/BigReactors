@@ -41,7 +41,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	@Override
 	public ResourceLocation getGuiBackground() {
 		// TODO: Real gui?
-		return new ResourceLocation (BigReactors.GUI_DIRECTORY + "ReactorController.png");
+		return new ResourceLocation (BigReactors.GUI_DIRECTORY + "BasicBackground.png");
 	}
 
 	@Override
