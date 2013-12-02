@@ -1,5 +1,12 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
@@ -13,27 +20,32 @@ import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
+import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
+import erogenousbeef.bigreactors.client.gui.GuiReactorRedstonePort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort.CircuitType;
+import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
+import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 
 public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
-		implements IRadiationModerator, IHeatEntity {
+		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity {
 
 	protected ForgeDirection out;
 	protected CircuitType circuitType;
 	protected int outputLevel;
 	protected boolean greaterThan; // if false, less than
 	
-	protected boolean wasLit;
+	// These are local-only and used for handy state calculations
+	protected boolean isExternallyPowered;
 	
 	public TileEntityReactorRedstonePort() {
 		super();
 		
 		out = ForgeDirection.UNKNOWN;
 		circuitType = circuitType.DISABLED;
-		wasLit = false;
+		isExternallyPowered = false;
 	}
 	
 	// Redstone methods
@@ -51,8 +63,10 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		case outputWasteAmount:
 			// TODO: These
 			return false;
-		default:
+		case DISABLED:
 			return false;
+		default:
+			return this.isExternallyPowered;
 		}
 	}
 	
@@ -65,23 +79,115 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 	
 	protected boolean checkVariable(int value) {
-		if(value > outputLevel && this.greaterThan) {
+		if(value > getOutputLevel() && this.greaterThan) {
 			return true;
 		}
 		else {
-			return value < outputLevel;
+			return value < getOutputLevel();
 		}
 	}
 	
 	public void sendRedstoneUpdate() {
 		if(this.worldObj != null && !this.worldObj.isRemote) {
-			int md = BlockReactorRedstonePort.META_REDSTONE_LIT;
+			int md;
 
 			if(this.isOutput()) {
 				md = isRedstoneActive() ? BlockReactorRedstonePort.META_REDSTONE_LIT : BlockReactorRedstonePort.META_REDSTONE_UNLIT;
 			}
+			else {
+				md = isExternallyPowered ? BlockReactorRedstonePort.META_REDSTONE_LIT : BlockReactorRedstonePort.META_REDSTONE_UNLIT;
+			}
 
-			this.worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, BlockReactorRedstonePort.META_REDSTONE_LIT, 3);
+			this.worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, md, 3);
+		}
+	}
+	
+	public void onNeighborBlockChange(int x, int y, int z, int neighborBlockID) {
+		if(!this.isConnected()) { return; }
+
+		if(this.isInput()) {
+			int incomingSignal = this.worldObj.isBlockProvidingPowerTo(x+out.offsetX, y+out.offsetY, z+out.offsetZ, out.ordinal());
+			if(this.isExternallyPowered != (incomingSignal > 0)) {
+				this.isExternallyPowered = incomingSignal > 0;
+				this.onRedstoneInputUpdated();
+				this.sendRedstoneUpdate();
+			}
+		}
+		else {
+			this.isExternallyPowered = false;
+		}
+	}
+
+	// Called to do business logic when the redstone value has changed
+	protected void onRedstoneInputUpdated() {
+		if(!this.isConnected()) { return; }
+
+		MultiblockReactor reactor = (MultiblockReactor)getMultiblockController();
+		switch(this.circuitType) {
+		case inputActive:
+			if(this.isInputActiveOnPulse()) {
+				reactor.setActive(!reactor.isActive());
+			}
+			else {
+				reactor.setActive(this.isExternallyPowered);
+			}
+			break;
+		case inputSetControlRod:
+			// On/off only
+			if(this.isExternallyPowered) {
+				reactor.setAllControlRodInsertionValues(getControlRodLevelWhileOn());
+			}
+			else {
+				reactor.setAllControlRodInsertionValues(getControlRodLevelWhileOff());
+			}
+			break;
+		case inputEjectWaste:
+			// Pulse only
+			if(this.isExternallyPowered) {
+				reactor.ejectWaste();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	
+	protected int getOutputLevel() { return outputLevel; }
+	protected int getControlRodLevelWhileOff() { return ((outputLevel & 0xFF00) << 8) & 0xFF; }
+	protected int getControlRodLevelWhileOn () { return outputLevel & 0xFF; }
+	
+	public static int packControlRodLevels(byte off, byte on) {
+		return (((int)off >> 8) & 0xFF00) | (on & 0xFF);
+	}
+
+	protected boolean isInputActiveOnPulse() {
+		return (this.circuitType == CircuitType.inputActive && this.greaterThan) ||
+				this.circuitType == CircuitType.inputEjectWaste;
+	}
+
+	/**
+	 * @param newType The type of the new circuit.
+	 * @param param1 For inputs, the level of the control rod when the signal is off. For outputs, the numerical value
+	 * @param greaterThan For inputs, whether to activate on a pulse (only matters for inputActive right now). For outputs, whether to activate when greater than or less than the outputLevel value.
+	 */
+	public void onReceiveUpdatePacket(int newType, int outputLevel, boolean greaterThan) {
+		boolean oldTypeWasInput = this.isInput();
+		this.circuitType = CircuitType.values()[newType];
+		this.outputLevel = outputLevel;
+		this.greaterThan = greaterThan;
+
+		// Do updates
+		if(this.isInput() != oldTypeWasInput) {
+			if(this.isInput()) {
+				// Update inputs so we don't pulse/change automatically
+				this.isExternallyPowered = this.worldObj.isBlockProvidingPowerTo(xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.ordinal()) > 0;
+				if(!this.isInputActiveOnPulse()) {
+					onRedstoneInputUpdated();
+				}
+			}
+
+			// Ensure visuals and metadata reflect our new settings & state
+			this.sendRedstoneUpdate();
 		}
 	}
 	
@@ -94,6 +200,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		return out;
 	}
 	
+	// TileEntity overrides
+
 	// Only refresh if we're switching functionality
 	// Warning: dragonz!
 	@Override
@@ -111,6 +219,28 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		super.decodeDescriptionPacket(data);
+		
+		if(data.hasKey("circuitType")) {
+			this.circuitType = circuitType.values()[data.getInteger("circuitType")];
+		}
+		
+		if(data.hasKey("outputLevel")) {
+			this.outputLevel = data.getInteger("outputLevel");
+		}
+		
+		if(data.hasKey("greaterThan")) {
+			this.greaterThan = data.getBoolean("greaterThan");
+		}
+		
+		// TODO: Update values? See if this is necessary.
+	}
+	
+	@Override
+	public void formatDescriptionPacket(NBTTagCompound data) {
+		super.formatDescriptionPacket(data);
+		data.setInteger("circuitType", this.circuitType.ordinal());
+		data.setInteger("outputLevel", this.outputLevel);
+		data.setBoolean("greaterThan", this.greaterThan);
 	}
 	
 	@Override
@@ -145,8 +275,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 
 	@Override
 	public void onMachineAssembled() {
-		this.sendRedstoneUpdate();
 		recalculateOutDirection();
+		this.sendRedstoneUpdate();
 	}
 
 	@Override
@@ -252,4 +382,27 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		return null;
 	}
 
+	// IBeefGuiEntity
+	@Override
+	public GuiScreen getGUI(EntityPlayer player) {
+		return new GuiReactorRedstonePort(new ContainerBasic(), this);
+	}
+
+	@Override
+	public Container getContainer(EntityPlayer player) {
+		return new ContainerBasic();
+	}
+
+	@Override
+	public void beginUpdatingPlayer(EntityPlayer player) {
+	}
+
+	@Override
+	public void stopUpdatingPlayer(EntityPlayer player) {
+	}
+
+	@Override
+	public void onReceiveGuiButtonPress(String buttonName,
+			DataInputStream dataStream) throws IOException {
+	}
 }
