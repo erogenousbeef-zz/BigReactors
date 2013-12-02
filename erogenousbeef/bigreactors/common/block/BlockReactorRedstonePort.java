@@ -135,29 +135,34 @@ public class BlockReactorRedstonePort extends BlockContainer {
         }
     }
 	
+    @Override
+	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+    	TileEntity te = world.getBlockTileEntity(x, y, z);
+    	if(te instanceof TileEntityReactorRedstonePort) {
+    		((TileEntityReactorRedstonePort)te).onNeighborBlockChange(x, y, z, neighborBlockID);
+    	}
+    }
+    
 	// Redstone API
 	@Override
 	public boolean canProvidePower() { return true; }
 	
 	@Override
 	public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side) {
-		if(side == 0 || side == 1) { return 0; }
-
-		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te instanceof TileEntityReactorRedstonePort) {
-			return ((TileEntityReactorRedstonePort)te).isRedstoneActive() ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
-		}
-		
-		return REDSTONE_VALUE_OFF;
+		return isProvidingWeakPower(world, x, y, z, side);
 	}
 	
 	@Override
 	public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
-		if(side == 0 || side == 1) { return 0; }
+		if(side == 0 || side == 1) { return REDSTONE_VALUE_OFF; }
 
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedstonePort) {
-			return ((TileEntityReactorRedstonePort)te).isRedstoneActive() ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
+			TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
+			if(port.isOutput())
+				return port.isRedstoneActive() ? REDSTONE_VALUE_ON : REDSTONE_VALUE_OFF;
+			else
+				return REDSTONE_VALUE_OFF;
 		}
 		
 		return REDSTONE_VALUE_OFF;
