@@ -152,9 +152,9 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		}
 	}
 	
-	protected int getOutputLevel() { return outputLevel; }
-	protected int getControlRodLevelWhileOff() { return ((outputLevel & 0xFF00) << 8) & 0xFF; }
-	protected int getControlRodLevelWhileOn () { return outputLevel & 0xFF; }
+	public int getOutputLevel() { return outputLevel; }
+	public int getControlRodLevelWhileOff() { return ((outputLevel & 0xFF00) << 8) & 0xFF; }
+	public int getControlRodLevelWhileOn () { return outputLevel & 0xFF; }
 	
 	public static int packControlRodLevels(byte off, byte on) {
 		return (((int)off >> 8) & 0xFF00) | (on & 0xFF);
@@ -199,6 +199,11 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 
 		return out;
 	}
+	
+	@SideOnly(Side.CLIENT)
+	public boolean getGreaterThan() { return this.greaterThan; }
+	
+	public CircuitType getCircuitType() { return this.circuitType; }
 	
 	// TileEntity overrides
 
