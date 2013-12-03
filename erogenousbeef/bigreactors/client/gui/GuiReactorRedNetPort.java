@@ -47,7 +47,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			"LightGray", "Cyan", "Purple", "Blue", "Brown", "Green", "Red", "Black"
 	};
 	
-	protected static final String[] grabbableTooltips = {
+	public static final String[] grabbableTooltips = {
 		"Input: Toggle reactor on/off",
 		"Input: Change control rod insertion",
 		"Input: Eject Waste",

@@ -1,9 +1,12 @@
 package erogenousbeef.bigreactors.client.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -50,6 +53,14 @@ public abstract class BeefGuiBase extends GuiContainer {
 			controlsWithTooltips.add((IBeefTooltipControl) newControl);
 		}
 	}
+	
+	public void registerControl(GuiButton newButton) {
+		this.buttonList.add(newButton);
+
+		if(newButton instanceof IBeefTooltipControl) {
+			controlsWithTooltips.add((IBeefTooltipControl) newButton);
+		}
+	}
 
 	public FontRenderer getFontRenderer() { return this.fontRenderer; }
 	
@@ -85,7 +96,10 @@ public abstract class BeefGuiBase extends GuiContainer {
 			if(tc.isMouseOver(mouseX, mouseY)) {
 				String tooltip = tc.getTooltip();
 				if(tooltip != null && !tooltip.equals("")) {
-					drawCreativeTabHoveringText(tooltip, absoluteX, absoluteY);
+					// This prevents weird rendering issues with NEI
+					GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+					drawHoveringText(Arrays.asList(new String[]{tooltip}), absoluteX, absoluteY, Minecraft.getMinecraft().fontRenderer);
+					GL11.glPopAttrib();
 					break;
 				}
 			}
