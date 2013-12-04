@@ -116,7 +116,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		topY += 32;
 		leftX = guiLeft + 6;
 
-		// TODO: Subsetting display
+		// Subsetting display
 		subSettingLabel = new BeefGuiLabel(this, "Settings", leftX, topY);
 		topY += subSettingLabel.getHeight() + 4;
 
@@ -140,7 +140,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		subInputRodSetting = new GuiTextField(this.fontRenderer, leftX, topY, 32, 12);
 		subInputRodSetting.setCanLoseFocus(true);
 		subInputRodSetting.setMaxStringLength(3);
-		subInputRodSetting.setText("");
+		subInputRodSetting.setText("0");
 		subInputRodSetting.setEnabled(true);
 
 		subInputRodSettingPctLabel = new BeefGuiLabel(this, "%", leftX + 34, topY + 2);
@@ -148,7 +148,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		subInputRodSettingOff = new GuiTextField(this.fontRenderer, leftX + xSize/2, topY, 32, 12);
 		subInputRodSettingOff.setCanLoseFocus(true);
 		subInputRodSettingOff.setMaxStringLength(3);
-		subInputRodSettingOff.setText("");
+		subInputRodSettingOff.setText("0");
 		subInputRodSettingOff.setEnabled(true);
 		subInputRodSettingOffPctLabel = new BeefGuiLabel(this, "%", leftX + xSize/2 + 34, topY + 2);
 
@@ -178,6 +178,8 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		registerControl(resetBtn);
 		
 		updateSubSettings();
+		validateInputValues();
+		validateOutputValues();
 	}
 	
 	@Override
@@ -360,6 +362,9 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		else {
 			this.greaterThan = true;
 			this.retract = false;
+
+			// We do this so the state of the fields is accurate for the following two methods
+			updateSubSettingTextFields(selectedType);
 			
 			// This should reset outputLevel from stored values
 			if(TileEntityReactorRedNetPort.isInput(selectedType)) {
@@ -448,7 +453,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 					this.subInputRodSetting.setFocused(true);
 				}
 			}
-			else if(this.subInputRodSettingOff.getVisible()) {
+			else if(this.subInputRodSetting.getVisible()) {
 				if(this.subInputRodSetting.isFocused()) {
 					this.subInputRodSetting.setFocused(false);
 				}
