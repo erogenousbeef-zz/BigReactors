@@ -6,13 +6,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressArrow;
-import erogenousbeef.bigreactors.gui.controls.GuiImageButton;
+import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
@@ -23,11 +24,14 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 
 	private BeefGuiLabel titleString;
 	
-	private GuiImageButton leftInvExposureButton;
-	private GuiImageButton rightInvExposureButton;
-	private GuiImageButton topInvExposureButton;
-	private GuiImageButton bottomInvExposureButton;
-	private GuiImageButton rearInvExposureButton;
+	private static final int EXPOSURE_BUTTON_ID_BASE = 100;
+	private GuiIconButton[] exposureButtons;
+	
+	private GuiIconButton leftInvExposureButton;
+	private GuiIconButton rightInvExposureButton;
+	private GuiIconButton topInvExposureButton;
+	private GuiIconButton bottomInvExposureButton;
+	private GuiIconButton rearInvExposureButton;
 	
 	private BeefGuiPowerBar powerBar;
 	private BeefGuiFluidBar fluidBar;
@@ -37,8 +41,17 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		super(container);
 		
 		_entity = entity;
-		xSize = 241;
+		xSize = 245;
 		ySize = 175;
+		exposureButtons = new GuiIconButton[6];
+	}
+	
+	private void createInventoryExposureButton(ForgeDirection dir, int x, int y) {
+		if(exposureButtons[dir.ordinal()] != null) { throw new IllegalArgumentException("Direction already exposed"); }
+
+		GuiIconButton newBtn = new GuiIconButton(EXPOSURE_BUTTON_ID_BASE + dir.ordinal(), x, y, 20, 20, null);
+		buttonList.add(newBtn);
+		exposureButtons[dir.ordinal()] = newBtn;
 	}
 	
 	@Override
@@ -59,22 +72,17 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		registerControl(powerBar);
 		registerControl(fluidBar);
 		registerControl(progressArrow);
+
+		createInventoryExposureButton(ForgeDirection.WEST, guiLeft + 180, guiTop + 25);
+		createInventoryExposureButton(ForgeDirection.EAST, guiLeft + 222, guiTop + 25);
+		createInventoryExposureButton(ForgeDirection.NORTH, guiLeft + 201, guiTop + 25);
+		createInventoryExposureButton(ForgeDirection.UP, guiLeft + 201, guiTop + 4);
+		createInventoryExposureButton(ForgeDirection.DOWN, guiLeft + 201, guiTop + 46);
+		createInventoryExposureButton(ForgeDirection.SOUTH, guiLeft + 222, guiTop + 46);
 		
-		leftInvExposureButton = new GuiImageButton(ForgeDirection.WEST.ordinal(), guiLeft + 179, guiTop + 25, 20, 20, "");
-		buttonList.add(leftInvExposureButton);
-
-		rightInvExposureButton = new GuiImageButton(ForgeDirection.EAST.ordinal(), guiLeft + 219, guiTop + 25, 20, 20, "");
-		buttonList.add(rightInvExposureButton);
-
-		topInvExposureButton = new GuiImageButton(ForgeDirection.UP.ordinal(), guiLeft + 199, guiTop + 5, 20, 20, "");
-		buttonList.add(topInvExposureButton);
-		
-		bottomInvExposureButton = new GuiImageButton(ForgeDirection.DOWN.ordinal(), guiLeft + 199, guiTop + 45, 20, 20, "");
-		buttonList.add(bottomInvExposureButton);
-
-		rearInvExposureButton = new GuiImageButton(ForgeDirection.SOUTH.ordinal(), guiLeft + 219, guiTop + 45, 20, 20, "");
-		buttonList.add(rearInvExposureButton);
-	
+		exposureButtons[ForgeDirection.NORTH.ordinal()].setIcon(BigReactors.blockSmallMachine.getIcon(4, BlockBRSmallMachine.META_CYANITE_REPROCESSOR));
+		exposureButtons[ForgeDirection.NORTH.ordinal()].enabled = false;
+		updateInventoryExposures();
 	}
 
 	@Override
@@ -85,52 +93,7 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-
-		// Exposure buttons
-		int exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.EAST.ordinal());
-		int fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.EAST);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			rightInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			rightInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.WEST.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.WEST);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			leftInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			leftInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-		
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.UP.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.UP);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			topInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			topInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.DOWN.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.DOWN);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			bottomInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			bottomInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.SOUTH.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.SOUTH);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			rearInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			rearInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
+		updateInventoryExposures();
 	}
 	
 	@Override
@@ -140,29 +103,21 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		if(button.id >= 0 && button.id < 6) {
+		if(button.id >= EXPOSURE_BUTTON_ID_BASE && button.id < EXPOSURE_BUTTON_ID_BASE + 6) {
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
-						new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id }));
+						new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id - EXPOSURE_BUTTON_ID_BASE }));
 			return;
 		}
 	}
 
-	protected String getTextureForExposedInventory(int inv) {
-		if(inv == 0) {
-			return BigReactors.GUI_DIRECTORY + "redSquare.png";
+	protected void updateInventoryExposures() {
+		BlockBRSmallMachine smallMachineBlock = (BlockBRSmallMachine)BigReactors.blockSmallMachine;
+		for(ForgeDirection dir : ForgeDirection.values()) {
+			if(dir == ForgeDirection.UNKNOWN || dir == ForgeDirection.NORTH) { continue; }
+			int rotatedSide = _entity.getRotatedSide(dir.ordinal());
+			
+			exposureButtons[dir.ordinal()].setIcon( smallMachineBlock.getIconFromTileEntity(_entity, BlockBRSmallMachine.META_CYANITE_REPROCESSOR, rotatedSide) );
 		}
-		else if(inv == 1) {
-			return BigReactors.GUI_DIRECTORY + "greenSquare.png";
-		}
-		
-		return "";
 	}
-	
-	protected String getTextureForExposedFluidInventory(int tank) {
-		if(tank == 0) {
-			return BigReactors.GUI_DIRECTORY + "blueSquare.png";
-		}
-		
-		return "";
-	}
+
 }
