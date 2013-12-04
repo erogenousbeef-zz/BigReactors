@@ -4,6 +4,8 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.2.5A)
 -----------------------------------------
 - Feature: Redstone Ports, which can accept input and provide output via regular old redstone and anything compatible with it.
+- Bugfix: Cyanite reprocessor GUI's icons for exposing inventories & fluid tanks are now proper icons, not just colors.
+- Bugfix: Tooltips should no longer cause weird color changes in NEI
 
 Current Release (0.2.4A)
 --------------------------------

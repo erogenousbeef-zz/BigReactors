@@ -35,6 +35,8 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BlockBRSmallMachine extends BlockContainer {
 
+	public static int META_CYANITE_REPROCESSOR = 0;
+	
 	private static String[] _subBlocks = new String[] { "cyaniteReprocessor" };
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _activeIcons = new Icon[_subBlocks.length];
@@ -56,14 +58,10 @@ public class BlockBRSmallMachine extends BlockContainer {
 		return powerIcon;
 	}
 
-	@Override
-	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
-	{
-		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+	public Icon getIconFromTileEntity(TileEntity te, int metadata, int side) {
 		if(te instanceof TileEntityBeefBase)
 		{
 			if(side == ((TileEntityBeefBase)te).getFacingDirection().ordinal()) {
-				int metadata = blockAccess.getBlockMetadata(x, y, z);
 				if(te instanceof TileEntityPoweredInventory) {
 					if(((TileEntityPoweredInventory)te).isActive()) {
 						return _activeIcons[metadata];
@@ -87,7 +85,15 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 
 		return this.blockIcon;
-	}	
+	}
+	
+	@Override
+	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
+	{
+		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+		int metadata = blockAccess.getBlockMetadata(x, y, z);
+		return this.getIconFromTileEntity(te, metadata, side);
+	}
 	
 	@Override
 	public Icon getIcon(int side, int metadata)
@@ -110,12 +116,12 @@ public class BlockBRSmallMachine extends BlockContainer {
 			_activeIcons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i] + ".active");
 		}
 		
+		// TODO: Better icons for these
 		_inventorySideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".redPort");
 		_inventorySideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".greenPort");
-		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
+		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 
-		// TODO: Better icons for these
-		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
+		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
 		
 		// Ugly hack, fix later.
 		powerIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "gui.power");
@@ -150,7 +156,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 
 	public ItemStack getCyaniteReprocessorItemStack() {
-		return new ItemStack(this.blockID, 1, 0);
+		return new ItemStack(this.blockID, 1, META_CYANITE_REPROCESSOR);
 	}
 	
 	@Override
