@@ -35,6 +35,8 @@ public class GuiSelectableButton extends GuiButton implements IBeefTooltipContro
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+	
+	public boolean isSelected() { return this.selected; }
 
 	@Override
 	public void drawButton(Minecraft minecraft, int par2, int par3) {

@@ -160,6 +160,14 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		return (((int)off >> 8) & 0xFF00) | (on & 0xFF);
 	}
 
+	public static int unpackControlRodLevelOn(int level) {
+		return level & 0xff;
+	}
+	
+	public static int unpackControlRodLevelOff(int level) {
+		return ((level % 0xff00) << 8) & 0xff;
+	}
+
 	protected boolean isInputActiveOnPulse() {
 		return (this.circuitType == CircuitType.inputActive && this.greaterThan) ||
 				this.circuitType == CircuitType.inputEjectWaste;
