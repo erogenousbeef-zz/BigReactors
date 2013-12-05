@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common.tileentity;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -111,7 +112,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		if(!this.isConnected()) { return; }
 
 		if(this.isInput()) {
-			boolean nowPowered = this.worldObj.getIndirectPowerOutput(xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite().ordinal());
+			boolean nowPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), neighborBlockID);
 
 			if(this.isExternallyPowered != nowPowered) {
 				this.isExternallyPowered = nowPowered;
@@ -210,7 +211,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		// Do updates
 		if(this.isInput()) {
 			// Update inputs so we don't pulse/change automatically
-			this.isExternallyPowered = this.worldObj.getIndirectPowerOutput(xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite().ordinal());
+			this.isExternallyPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite());
 			if(!this.isInputActiveOnPulse()) {
 				onRedstoneInputUpdated();
 			}
@@ -243,6 +244,30 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	public CircuitType getCircuitType() { return this.circuitType; }
 	private boolean shouldSetControlRodsInsteadOfChange() { return !greaterThan; }
 
+	/**
+	 * Call with the coordinates of the block to check. If that block is emitting power TOWARDS the
+	 * given direction, returns true.
+	 */
+	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir) {
+		// This is because of bugs in vanilla redstone wires
+		int blockId = world.getBlockId(x, y, z);
+		return isReceivingRedstonePowerFrom(world, x, y, z, dir, blockId);
+	}
+	
+	/**
+	 * Call with the coordinates of the block to check. If that block is emitting power TOWARDS the
+	 * given direction, returns true.
+	 */
+	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir, int neighborBlockId) {
+		if(neighborBlockId == Block.redstoneWire.blockID) {
+			// Use metadata because of vanilla redstone wire bugs
+			return world.getBlockMetadata(x, y, z) > 0;
+		}
+		else {
+			return world.getIndirectPowerOutput(x, y, z,dir.ordinal()) || world.isBlockProvidingPowerTo(x, y, z, dir.ordinal()) > 0;
+		}
+	}
+	
 	// TileEntity overrides
 
 	// Only refresh if we're switching functionality

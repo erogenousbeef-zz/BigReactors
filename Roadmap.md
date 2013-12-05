@@ -15,6 +15,7 @@ Technical Debt / Fixes
 TODO - 0.2: The Redstone Update
 -------------------------------
 - (0.2.5A - IN DEV) Redstone interface block
+- Redstone/Rednet output setting: Stored power level
 - Allow different types of blocks inside reactor, e.g. iron blocks and TE cryotheum liquids
 - Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
