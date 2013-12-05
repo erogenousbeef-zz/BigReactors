@@ -43,9 +43,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 		this.part = tileEntityReactorPart;
 		this.reactor = part.getReactorController();
 		
-		this.averagedHeat = new FloatAverager(100);
-		this.averagedRfOutput = new FloatAverager(100); // 10 updates should be roughly 5 seconds
-		this.averagedFuelConsumption = new FloatAverager(200); // 10 seconds, since this fluctuates more at the low end
+		this.averagedHeat = new FloatAverager(30);
+		this.averagedRfOutput = new FloatAverager(30); // About 1.5 seconds
+		this.averagedFuelConsumption = new FloatAverager(60); // About 3 seconds
 	}
 	
 	// Add controls, etc.
