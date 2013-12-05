@@ -137,6 +137,8 @@ public class BlockReactorRedstonePort extends BlockContainer {
 	
     @Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+    	super.onNeighborBlockChange(world, x, y,z, neighborBlockID);
+
     	TileEntity te = world.getBlockTileEntity(x, y, z);
     	if(te instanceof TileEntityReactorRedstonePort) {
     		((TileEntityReactorRedstonePort)te).onNeighborBlockChange(x, y, z, neighborBlockID);
