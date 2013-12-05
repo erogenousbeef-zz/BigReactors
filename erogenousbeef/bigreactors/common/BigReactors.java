@@ -109,12 +109,12 @@ public class BigReactors {
 	private static boolean registeredTileEntities = false;
 	public static int maximumReactorSize = MultiblockReactor.DIMENSION_UNBOUNDED;
 	public static int maximumReactorHeight = MultiblockReactor.DIMENSION_UNBOUNDED;
+	public static int ticksPerRedstoneUpdate = 20; // Once per second, roughly
 	
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
 	public static final float powerPerHeat = IHeatEntity.powerPerHeat; // RF units per C dissipated
-	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
 	
 	/**
 	 * Call this function in your mod init stage.
@@ -140,7 +140,7 @@ public class BigReactors {
 
 			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
-
+			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
 			
 			BRConfig.CONFIGURATION.save();

@@ -10,6 +10,7 @@ Nothing that you see in this file should be taken as gospel. It's a collection o
 
 Technical Debt / Fixes
 ----------------------
+- Update the wiki!
 
 TODO - 0.2: The Redstone Update
 -------------------------------
