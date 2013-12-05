@@ -9,6 +9,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -81,8 +82,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 	
 	protected boolean checkVariable(int value) {
-		if(value > getOutputLevel() && this.greaterThan) {
-			return true;
+		if(this.greaterThan) {
+			return value > getOutputLevel();
 		}
 		else {
 			return value < getOutputLevel();
@@ -110,9 +111,10 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		if(!this.isConnected()) { return; }
 
 		if(this.isInput()) {
-			int incomingSignal = this.worldObj.isBlockProvidingPowerTo(x+out.offsetX, y+out.offsetY, z+out.offsetZ, out.ordinal());
-			if(this.isExternallyPowered != (incomingSignal > 0)) {
-				this.isExternallyPowered = incomingSignal > 0;
+			boolean nowPowered = this.worldObj.getIndirectPowerOutput(xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite().ordinal());
+
+			if(this.isExternallyPowered != nowPowered) {
+				this.isExternallyPowered = nowPowered;
 				this.onRedstoneInputUpdated();
 				this.sendRedstoneUpdate();
 			}
@@ -206,19 +208,20 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		else if(TileEntityReactorRedNetPort.isOutput(this.circuitType)) { this.activeOnPulse = false; }
 		
 		// Do updates
-		if(this.isInput() != oldTypeWasInput) {
-			if(this.isInput()) {
-				// Update inputs so we don't pulse/change automatically
-				this.isExternallyPowered = this.worldObj.isBlockProvidingPowerTo(xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.ordinal()) > 0;
-				if(!this.isInputActiveOnPulse()) {
-					onRedstoneInputUpdated();
-				}
+		if(this.isInput()) {
+			// Update inputs so we don't pulse/change automatically
+			this.isExternallyPowered = this.worldObj.getIndirectPowerOutput(xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite().ordinal());
+			if(!this.isInputActiveOnPulse()) {
+				onRedstoneInputUpdated();
 			}
-
-			// Ensure visuals and metadata reflect our new settings & state
-			this.sendRedstoneUpdate();
 		}
-		
+		else {
+			this.isExternallyPowered = false;
+		}
+
+		// Ensure visuals and metadata reflect our new settings & state
+		this.sendRedstoneUpdate();
+
 		if(!this.worldObj.isRemote) {
 			// Propagate the new settings
 			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -314,7 +317,6 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		super.decodeDescriptionPacket(data);
 		this.readData(data);
-		// TODO: Update values? See if this is necessary.
 	}
 
 	@Override
