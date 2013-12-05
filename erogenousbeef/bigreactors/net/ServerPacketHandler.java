@@ -109,7 +109,8 @@ public class ServerPacketHandler implements IPacketHandler {
 					int newCircuit = data.readInt();
 					int newLevel = data.readInt();
 					boolean newGt = data.readBoolean();
-					((TileEntityReactorRedstonePort)te).onReceiveUpdatePacket(newCircuit, newLevel, newGt);
+					boolean pulse = data.readBoolean();
+					((TileEntityReactorRedstonePort)te).onReceiveUpdatePacket(newCircuit, newLevel, newGt, pulse);
 				}
 			} catch(IOException e) {
 				e.printStackTrace();
