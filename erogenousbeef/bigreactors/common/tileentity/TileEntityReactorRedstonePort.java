@@ -5,37 +5,38 @@ import java.io.IOException;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.core.common.CoordTriplet;
-import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedstonePort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort.CircuitType;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
+import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 
 public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
-		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity {
+		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity, IReactorTickable {
 
 	protected ForgeDirection out;
 	protected CircuitType circuitType;
 	protected int outputLevel;
+	protected boolean activeOnPulse;
 	protected boolean greaterThan; // if false, less than
+	
+	protected int ticksSinceLastUpdate;
 	
 	// These are local-only and used for handy state calculations
 	protected boolean isExternallyPowered;
@@ -46,6 +47,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		out = ForgeDirection.UNKNOWN;
 		circuitType = circuitType.DISABLED;
 		isExternallyPowered = false;
+		ticksSinceLastUpdate = 0;
 	}
 	
 	// Redstone methods
@@ -60,9 +62,9 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		case outputFuelMix:
 			return checkVariable((int)(reactor.getFuelRichness()*100));
 		case outputFuelAmount:
+			return checkVariable(reactor.getFuelAmount());
 		case outputWasteAmount:
-			// TODO: These
-			return false;
+			return checkVariable(reactor.getWasteAmount());
 		case DISABLED:
 			return false;
 		default:
@@ -98,7 +100,9 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 				md = isExternallyPowered ? BlockReactorRedstonePort.META_REDSTONE_LIT : BlockReactorRedstonePort.META_REDSTONE_UNLIT;
 			}
 
-			this.worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, md, 3);
+			if(md != this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
+				this.worldObj.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, md, 3);
+			}
 		}
 	}
 	
@@ -126,7 +130,9 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		switch(this.circuitType) {
 		case inputActive:
 			if(this.isInputActiveOnPulse()) {
-				reactor.setActive(!reactor.isActive());
+				if(this.isExternallyPowered) {
+					reactor.setActive(!reactor.isActive());
+				}
 			}
 			else {
 				reactor.setActive(this.isExternallyPowered);
@@ -134,11 +140,23 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 			break;
 		case inputSetControlRod:
 			// On/off only
-			if(this.isExternallyPowered) {
-				reactor.setAllControlRodInsertionValues(getControlRodLevelWhileOn());
+			if(this.isInputActiveOnPulse()) {
+				if(this.isExternallyPowered) {
+					if(this.shouldSetControlRodsInsteadOfChange()) {
+						reactor.setAllControlRodInsertionValues(this.outputLevel);
+					}
+					else {
+						reactor.changeAllControlRodInsertionValues((short)this.outputLevel); // Can be negative, don't want to mask.
+					}
+				}
 			}
 			else {
-				reactor.setAllControlRodInsertionValues(getControlRodLevelWhileOff());
+				if(this.isExternallyPowered) {
+					reactor.setAllControlRodInsertionValues(getControlRodLevelWhileOn());
+				}
+				else {
+					reactor.setAllControlRodInsertionValues(getControlRodLevelWhileOff());
+				}
 			}
 			break;
 		case inputEjectWaste:
@@ -168,22 +186,25 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		return ((level % 0xff00) << 8) & 0xff;
 	}
 
-	protected boolean isInputActiveOnPulse() {
-		return (this.circuitType == CircuitType.inputActive && this.greaterThan) ||
-				this.circuitType == CircuitType.inputEjectWaste;
+	public boolean isInputActiveOnPulse() {
+		return this.activeOnPulse;
 	}
 
 	/**
 	 * @param newType The type of the new circuit.
-	 * @param param1 For inputs, the level of the control rod when the signal is off. For outputs, the numerical value
-	 * @param greaterThan For inputs, whether to activate on a pulse (only matters for inputActive right now). For outputs, whether to activate when greater than or less than the outputLevel value.
+	 * @param param1 For input/control rods, the level(s) to change or set. For outputs, the numerical value
+	 * @param greater Than For outputs, whether to activate when greater than or less than the outputLevel value. For input/control rods, whether to set (true) or change (false) the values.
 	 */
-	public void onReceiveUpdatePacket(int newType, int outputLevel, boolean greaterThan) {
+	public void onReceiveUpdatePacket(int newType, int outputLevel, boolean greaterThan, boolean activeOnPulse) {
 		boolean oldTypeWasInput = this.isInput();
 		this.circuitType = CircuitType.values()[newType];
 		this.outputLevel = outputLevel;
 		this.greaterThan = greaterThan;
+		this.activeOnPulse = activeOnPulse;
 
+		if(isAlwaysActiveOnPulse(circuitType)) { this.activeOnPulse = true; }
+		else if(TileEntityReactorRedNetPort.isOutput(this.circuitType)) { this.activeOnPulse = false; }
+		
 		// Do updates
 		if(this.isInput() != oldTypeWasInput) {
 			if(this.isInput()) {
@@ -196,6 +217,11 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 
 			// Ensure visuals and metadata reflect our new settings & state
 			this.sendRedstoneUpdate();
+		}
+		
+		if(!this.worldObj.isRemote) {
+			// Propagate the new settings
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 	
@@ -212,7 +238,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	public boolean getGreaterThan() { return this.greaterThan; }
 	
 	public CircuitType getCircuitType() { return this.circuitType; }
-	
+	private boolean shouldSetControlRodsInsteadOfChange() { return !greaterThan; }
+
 	// TileEntity overrides
 
 	// Only refresh if we're switching functionality
@@ -228,11 +255,24 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		return false;
     }
 
+	// IReactorTickable
+	/**
+	 * Updates the redstone block's status, if it's an output network, if there is one.
+	 * Will only send one update per N ticks, where N is a configurable setting.
+	 */
+	public void onReactorTick() {
+		ticksSinceLastUpdate++;
+		if(ticksSinceLastUpdate < BigReactors.ticksPerRedstoneUpdate) { return; }
+
+		if(this.isOutput()) {
+			// Will no-op if there's no change.
+			this.sendRedstoneUpdate();
+		}
+		ticksSinceLastUpdate = 0;
+	}
+	
 	// MultiblockTileEntityBase methods
-	@Override
-	public void decodeDescriptionPacket(NBTTagCompound data) {
-		super.decodeDescriptionPacket(data);
-		
+	private void readData(NBTTagCompound data) {
 		if(data.hasKey("circuitType")) {
 			this.circuitType = circuitType.values()[data.getInteger("circuitType")];
 		}
@@ -245,15 +285,45 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 			this.greaterThan = data.getBoolean("greaterThan");
 		}
 		
-		// TODO: Update values? See if this is necessary.
+		if(data.hasKey("activeOnPulse")) {
+			this.activeOnPulse = data.getBoolean("activeOnPulse");
+		}
 	}
 	
+	private void writeData(NBTTagCompound data) {
+		data.setInteger("circuitType", this.circuitType.ordinal());
+		data.setInteger("outputLevel", this.outputLevel);
+		data.setBoolean("greaterThan", this.greaterThan);
+		data.setBoolean("activeOnPulse", this.activeOnPulse);
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound data) {
+		super.readFromNBT(data);
+		this.readData(data);
+		this.sendRedstoneUpdate();
+	}
+
+	@Override
+	public void writeToNBT(NBTTagCompound data) {
+		super.writeToNBT(data);
+		this.writeData(data);
+	}
+	
+	@Override
+	public void decodeDescriptionPacket(NBTTagCompound data) {
+		super.decodeDescriptionPacket(data);
+		this.readData(data);
+		// TODO: Update values? See if this is necessary.
+	}
+
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
 		super.formatDescriptionPacket(data);
 		data.setInteger("circuitType", this.circuitType.ordinal());
 		data.setInteger("outputLevel", this.outputLevel);
 		data.setBoolean("greaterThan", this.greaterThan);
+		data.setBoolean("activeOnPulse", this.activeOnPulse);
 	}
 	
 	@Override
@@ -417,5 +487,9 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	@Override
 	public void onReceiveGuiButtonPress(String buttonName,
 			DataInputStream dataStream) throws IOException {
+	}
+	
+	public static boolean isAlwaysActiveOnPulse(CircuitType circuitType) {
+		return circuitType == CircuitType.inputEjectWaste;
 	}
 }

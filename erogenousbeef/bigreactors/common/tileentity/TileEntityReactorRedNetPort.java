@@ -18,12 +18,13 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
+public class TileEntityReactorRedNetPort extends TileEntityReactorPart implements IReactorTickable {
 
 	public enum CircuitType {
 		DISABLED,
@@ -260,9 +261,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	 * Updates the connected RedNet network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
-	public void updateRedNetNetwork() {
+	public void onReactorTick() {
 		ticksSinceLastUpdate++;
-		if(ticksSinceLastUpdate < BigReactors.ticksPerRedNetUpdate) { return; }
+		if(ticksSinceLastUpdate < BigReactors.ticksPerRedstoneUpdate) { return; }
 
 		if(redNetwork != null) {
 				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ);
@@ -271,6 +272,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		if(redNetConnectable != null) {
 			redNetConnectable.onInputsChanged(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), getOutputValues());
 		}
+		ticksSinceLastUpdate = 0;
 	}
 
 	public CircuitType getChannelCircuitType(int channel) {
