@@ -6,7 +6,6 @@ Next Release (Anticipated Version: 0.2.5A)
 - Feature: Redstone Ports, which can accept input and provide output via regular old redstone and anything compatible with it.
 - Performance: RedNet ports no longer send updates every tick. They now send updates every 20 ticks, by default. This rate can be controlled via the ticksPerRedstoneUpdate config value.
 - Bugfix: Cyanite reprocessor GUI's icons for exposing inventories & fluid tanks are now proper icons, not just colors.
-- Bugfix: Tooltips should no longer cause weird color changes in NEI
 
 Current Release (0.2.4A)
 --------------------------------
