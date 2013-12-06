@@ -16,8 +16,10 @@ TODO - 0.2: The Redstone Update
 -------------------------------
 - (0.2.5A - IN DEV) Redstone interface block
 - Redstone/Rednet output setting: Stored power level
+- Computercraft: Reactor Peripheral Interface block & code - should be super easy
 - Allow different types of blocks inside reactor, e.g. iron blocks and TE cryotheum liquids
-- Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
+- UI: Add a visual temperature gauge to the controller
+- UI: Fix the energy bars to use a redstone-like texture
 
 TODO - 0.3: The Coolant Update
 ------------------------------
@@ -27,24 +29,31 @@ TODO - 0.3: The Coolant Update
 - Coolant buffer in main reactor controller
 - Coolant I/O interface blocks
 - Reactor no longer generates power from heat directly, but instead converts coolant to superheated coolant
-- Superheated Coolant can be processed directly into power, converts back into regular coolant
+- Superheated Coolant can be processed directly into power, converts some back into regular coolant
+- Add "thermal turbine" small machine to do above
 
 ### Advanced coolant add-ons
 - Coolant manifolds inside reactor allow fuel rod heat to convert coolant
-- Heat exchanger allows conversion of superheated coolant + water -> steam + coolant
+- Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
 - Different types of coolant with different transference properties
 - Particle effects for venting steam and stuff!
+- Multiblock turbine for converting steam into power at a better rate
 
 TODO - 0.4: The Fueling Update
 ------------------------------
 ### Gameplay
+- Rewrite fertilization mechanics to be more sane/useful and expose fertility via control rod UI
 - Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
   and prevents problems with unbalanced fuel distribution across rods.
+- Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
 ### Reactor Mechanics
 - Blutonium: give it different properties than yellorium.
 - Blutonium: Create a proper fluid for it so it can be handled as a first-class member of the fuel cycle
 - Control Rods: Add "dump contents" button so they can be forcibly emptied
+- Add fluid fuel interfaces & magma crucible recipes for TE to fluidize fuel
+- Add "fluidizer" small machine - consumes power, outputs fluid fuel
+- Add "fluidic reprocessor" small machine - reprocesses fluid wastes into fluid fuels
 
 TODO - 0.5: The Reprocessing Update
 -----------------------------------
@@ -53,6 +62,9 @@ TODO - 0.5: The Reprocessing Update
 - Any reprocessing tanks between the stacks have some waste converted to fuel
 - Reprocessing tanks are mounted atop reprocessing tank valve blocks.
 - Needs sweet lightning effects
+
+### Blended fuels
+- Create a way to breed or blend fuel fluids into better fuels
 
 TODO - General
 --------------
@@ -74,8 +86,11 @@ Wishlist
 - Make better APIs/interfaces for extending the reactor
 - Migrate APIs to operate via IMC instead of requiring direct calls
 
+## User Interface/Graphics
+- Add a temperature gauge block and other "display blocks" that can be plugged into reactor
+- Add remote versions of above that read their inputs from RedNet
+
 ### Interoperability
-- ComputerCraft reactor peripheral? Requires research.
 - Add IAntiPoisonBlock interface to reactor blocks from Atomic Science
 - Add MFR compatibility for drinking BR fluids with a straw
 
