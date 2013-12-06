@@ -10,7 +10,6 @@ import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -244,6 +243,17 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	public CircuitType getCircuitType() { return this.circuitType; }
 	private boolean shouldSetControlRodsInsteadOfChange() { return !greaterThan; }
 
+	public void onRedNetUpdate(int powerLevel) {
+		if(this.isInput()) {
+			boolean wasPowered = this.isExternallyPowered;
+			this.isExternallyPowered = powerLevel > 0;
+			if(wasPowered != this.isExternallyPowered) {
+				this.onRedstoneInputUpdated();
+				this.sendRedstoneUpdate();
+			}
+		}
+	}
+	
 	/**
 	 * Call with the coordinates of the block to check and the direction
 	 * towards that block from your block.
