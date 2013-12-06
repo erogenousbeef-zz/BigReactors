@@ -12,6 +12,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import erogenousbeef.bigreactors.api.IHeatEntity;
@@ -221,8 +222,10 @@ public class BigReactors {
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
 
-				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RRR", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
+				if(Loader.isModLoaded("MineFactoryReloaded")) {
+					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', Item.ingotGold }));
+				}
 			}
 			
 			if(blockReactorGlass != null) {
@@ -239,6 +242,12 @@ public class BigReactors {
 				ItemStack cyaniteReprocessorStack = ((BlockBRSmallMachine)blockSmallMachine).getCyaniteReprocessorItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, new Object[] { "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', "ingotIron", 'F', blockYelloriumFuelRod, 'P', Block.pistonBase, 'R', Item.redstone}));
 			}
+			
+			if(blockReactorRedstonePort != null) {
+				ItemStack redstonePortStack = new ItemStack(BigReactors.blockReactorRedstonePort, 1);
+				GameRegistry.addRecipe(new ShapedOreRecipe(redstonePortStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold }));
+			}
+			
 			
 			/* TODO: Fixme
 			if(blockRadiothermalGen != null) {
