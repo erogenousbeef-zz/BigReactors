@@ -2,14 +2,6 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.Random;
 
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedstonePort;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -19,6 +11,13 @@ import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedstonePort;
 
 public class BlockReactorRedstonePort extends BlockContainer implements IConnectableRedNet {
 
@@ -201,14 +200,16 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	@Override
 	public void onInputsChanged(World world, int x, int y, int z,
 			ForgeDirection side, int[] inputValues) {
-    	// TODO: Does this need implementation? Or will
-		// we get a block change?
+		// Not used
 	}
 
 	@Override
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
-    	// TODO: Does this need implementation? Or will
-		// we get a block change?
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedstonePort) {
+			TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
+			port.onRedNetUpdate(inputValue);
+		}
 	}
 }
