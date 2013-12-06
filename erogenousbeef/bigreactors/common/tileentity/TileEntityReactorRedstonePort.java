@@ -112,7 +112,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		if(!this.isConnected()) { return; }
 
 		if(this.isInput()) {
-			boolean nowPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), neighborBlockID);
+			boolean nowPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out, neighborBlockID);
 
 			if(this.isExternallyPowered != nowPowered) {
 				this.isExternallyPowered = nowPowered;
@@ -211,7 +211,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		// Do updates
 		if(this.isInput()) {
 			// Update inputs so we don't pulse/change automatically
-			this.isExternallyPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite());
+			this.isExternallyPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out);
 			if(!this.isInputActiveOnPulse()) {
 				onRedstoneInputUpdated();
 			}
@@ -245,8 +245,10 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	private boolean shouldSetControlRodsInsteadOfChange() { return !greaterThan; }
 
 	/**
-	 * Call with the coordinates of the block to check. If that block is emitting power TOWARDS the
-	 * given direction, returns true.
+	 * Call with the coordinates of the block to check and the direction
+	 * towards that block from your block.
+	 * If the block towards which this block is emitting power lies north,
+	 * then pass in south.
 	 */
 	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir) {
 		// This is because of bugs in vanilla redstone wires
@@ -255,8 +257,10 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 	
 	/**
-	 * Call with the coordinates of the block to check. If that block is emitting power TOWARDS the
-	 * given direction, returns true.
+	 * Call with the coordinates of the block to check and the direction
+	 * towards that block from your block.
+	 * If the block towards which this block is emitting power lies north,
+	 * then pass in south.
 	 */
 	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir, int neighborBlockId) {
 		if(neighborBlockId == Block.redstoneWire.blockID) {
@@ -264,7 +268,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 			return world.getBlockMetadata(x, y, z) > 0;
 		}
 		else {
-			return world.getIndirectPowerOutput(x, y, z,dir.ordinal()) || world.isBlockProvidingPowerTo(x, y, z, dir.ordinal()) > 0;
+			return world.getIndirectPowerOutput(x, y, z, dir.ordinal()) || world.isBlockProvidingPowerTo(x, y, z, dir.ordinal()) > 0;
 		}
 	}
 	
