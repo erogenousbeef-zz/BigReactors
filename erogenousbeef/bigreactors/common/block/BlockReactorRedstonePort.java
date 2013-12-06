@@ -2,6 +2,8 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.Random;
 
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -18,7 +20,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 
-public class BlockReactorRedstonePort extends BlockContainer {
+public class BlockReactorRedstonePort extends BlockContainer implements IConnectableRedNet {
 
 	protected Icon blockIconLit;
 	
@@ -168,5 +170,45 @@ public class BlockReactorRedstonePort extends BlockContainer {
 		}
 		
 		return REDSTONE_VALUE_OFF;
+	}
+
+	// IConnectableRedNet - for pretty cable connections
+	@Override
+	public RedNetConnectionType getConnectionType(World world, int x, int y,
+			int z, ForgeDirection side) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorRedstonePort) {
+			TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
+			if(port.isConnected()) {
+				return RedNetConnectionType.CableSingle;
+			}
+		}
+		return RedNetConnectionType.None;
+	}
+
+	@Override
+	public int[] getOutputValues(World world, int x, int y, int z,
+			ForgeDirection side) {
+		return null;
+	}
+
+	@Override
+	public int getOutputValue(World world, int x, int y, int z,
+			ForgeDirection side, int subnet) {
+		return isProvidingWeakPower(world, x, y, z, side.ordinal());
+	}
+
+	@Override
+	public void onInputsChanged(World world, int x, int y, int z,
+			ForgeDirection side, int[] inputValues) {
+    	// TODO: Does this need implementation? Or will
+		// we get a block change?
+	}
+
+	@Override
+	public void onInputChanged(World world, int x, int y, int z,
+			ForgeDirection side, int inputValue) {
+    	// TODO: Does this need implementation? Or will
+		// we get a block change?
 	}
 }
