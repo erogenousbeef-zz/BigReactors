@@ -12,6 +12,10 @@ Technical Debt / Fixes
 ----------------------
 - Update the wiki!
 
+Known Issues
+------------
+- WR-CBE receivers do not activate redstone ports in input mode correctly if they are placed directly next to the input port. Workaround: Place one tile's worth of redstone (or another mod's redstone wire) between the receiver and the input port.
+
 TODO - 0.2: The Redstone Update
 -------------------------------
 - (0.2.5A - IN DEV) Redstone interface block
