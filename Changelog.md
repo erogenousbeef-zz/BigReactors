@@ -1,21 +1,26 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.2.5A)
+Next Release (Anticipated Version: 0.2.6A)
 -----------------------------------------
+
+Current Release (0.2.5A2)
+--------------------------------
+- Bugfix: Prevent server crashes due to inclusion of GUI methods when creating redstone ports
+
+Older Releases
+--------------
+### Release 0.2.5A
 - Feature: Redstone Ports, which can accept input and provide output via regular old redstone and anything compatible with it.
 - Performance: RedNet ports no longer send updates every tick. They now send updates every 20 ticks, by default. This rate can be controlled via the ticksPerRedstoneUpdate config value and also applies to redstone ports.
 - Bugfix: Cyanite reprocessor GUI's icons for exposing inventories & fluid tanks are now proper icons, not just colors.
 
-Current Release (0.2.4A)
---------------------------------
+### Release 0.2.4A
 - Bugfix: Blutonium can again be added to reactor access ports via automation (e.g. itemducts)
 - Bugfix: Energy output number displayed for ludicrously-huge reactors was inaccurate. This is fixed.
 - Bugfix: Cyanite reprocessors were starting with 5000 free RF inside themselves. This has been removed.
 - BeefCore: Client-side data is now properly calculated on world load. Internal fix only, no visible effects.
 
-Older Releases
---------------
 ### Release 0.2.3A
 - Bugfix: Tooltips now work in the RedNet port UI
 - Optimization: Fuel rods now use a MUCH more efficient rendering method. Large reactors should be much less laggy to look at.

@@ -507,6 +507,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 
 	// IBeefGuiEntity
+	@SideOnly(Side.CLIENT)
 	@Override
 	public GuiScreen getGUI(EntityPlayer player) {
 		return new GuiReactorRedstonePort(new ContainerBasic(), this);
