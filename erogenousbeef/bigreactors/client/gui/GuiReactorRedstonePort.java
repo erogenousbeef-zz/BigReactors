@@ -244,6 +244,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			case outputWasteAmount: 	return "Output - Waste Amount";
 			case outputFuelMix: 		return "Output - Fuel Enrichment %";
 			case outputTemperature: 	return "Output - Temperature (C)";
+			case outputEnergyAmount:	return "Output - Energy Amount (%)";
 		default:
 			return "";
 		}
@@ -290,6 +291,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		case outputFuelMix:
 		case outputFuelAmount:
 		case outputWasteAmount:
+		case outputEnergyAmount:
 			subInputButton.enabled = true;
 			if(this.greaterThan) {
 				subInputButton.displayString = "Active While Above";
@@ -324,6 +326,11 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			case outputFuelMix:
 				subOutputValueLabel.setLabelText("%");
 				subOutputValueLabel.setLabelTooltip("% of total contents, 0% if empty");
+				subOutputValue.setVisible(true);
+				break;
+			case outputEnergyAmount:
+				subOutputValueLabel.setLabelText("%");
+				subOutputValueLabel.setLabelTooltip("% of energy buffer filled, 0% if empty");
 				subOutputValue.setVisible(true);
 				break;
 			case outputFuelAmount:
@@ -596,7 +603,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 	private void validateOutputValues() {
 		CircuitType selectedType = getUserSelectedCircuitType();
 		int maxVal = Integer.MAX_VALUE;
-		if(selectedType == CircuitType.outputFuelMix) {
+		if(selectedType == CircuitType.outputFuelMix || selectedType == CircuitType.outputEnergyAmount) {
 			// Percentile
 			maxVal = 100;
 		}

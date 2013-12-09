@@ -35,13 +35,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		outputTemperature,				// Output: Temperature of the reactor
 		outputFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
 		outputFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
-		outputWasteAmount 	// Output: Waste amount in a control rod, raw value, (0-4*height)
+		outputWasteAmount, 	// Output: Waste amount in a control rod, raw value, (0-4*height)
+		outputEnergyAmount // Output: Energy in the reactor's buffer, percntile (0-100, 100 = 100% full)
 	}
 
 	protected final static int minInputEnumValue = CircuitType.inputActive.ordinal();
 	protected final static int maxInputEnumValue = CircuitType.inputEjectWaste.ordinal();
 	protected final static int minOutputEnumValue = CircuitType.outputTemperature.ordinal();
-	protected final static int maxOutputEnumValue = CircuitType.outputWasteAmount.ordinal();
+	protected final static int maxOutputEnumValue = CircuitType.outputEnergyAmount.ordinal();
 
 	protected CircuitType[] channelCircuitTypes;
 	protected CoordTriplet[] coordMappings;
@@ -193,6 +194,13 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 				clearChannel(channel);
 				return 0;
 			}
+		case outputEnergyAmount:
+			int energyStored, energyTotal;
+			MultiblockReactor reactor = this.getReactorController();
+			if(reactor != null) {
+				return reactor.getEnergyStoredPercentage();
+			}
+			return 0;
 		default:
 			return 0;
 		}

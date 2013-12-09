@@ -3,6 +3,9 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.2.6A)
 -----------------------------------------
+- Feature: RedNet and Redstone ports now have an output option to read how full the reactor's internal energy buffer is, as a percentile (0-100) value.
+- Bugfix: Fixed a crash that occured when connecting UE pipes to a cyanite reprocessor
+- Bugfix: Fixed a crash that could occur when opening the cyanite reprocessor's UI on Java 1.7
 
 Current Release (0.2.5A2)
 --------------------------------

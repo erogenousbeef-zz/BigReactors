@@ -18,7 +18,6 @@ Known Issues
 
 TODO - 0.2: The Redstone Update
 -------------------------------
-- Redstone/Rednet output setting: Stored power level
 - Computercraft: Reactor Peripheral Interface block & code - should be super easy
 - Allow different types of blocks inside reactor, e.g. iron blocks and TE cryotheum liquids
 - UI: Add a visual temperature gauge to the controller
