@@ -41,6 +41,9 @@ public class ItemBlockReactorPart extends ItemBlock {
 		else if (BlockReactorPart.isRedNetPort(damage)) {
 			metadata = 4;
 		}
+		else if (BlockReactorPart.isComputerPort(damage)) {
+			metadata = 5;
+		}
 
 		return BigReactors.blockReactorPart.getUnlocalizedName() + "." + metadata;
 	}
