@@ -66,6 +66,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 			return checkVariable(reactor.getFuelAmount());
 		case outputWasteAmount:
 			return checkVariable(reactor.getWasteAmount());
+		case outputEnergyAmount:
+			return checkVariable(reactor.getEnergyStoredPercentage());
 		case DISABLED:
 			return false;
 		default:

@@ -917,4 +917,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		return waste;
 	}
 
+	public int getEnergyStoredPercentage() {
+		return (int)(this.energyStored / (float)this.maxEnergyStored * 100f);
+	}
+
 }

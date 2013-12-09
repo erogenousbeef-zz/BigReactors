@@ -54,7 +54,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		"Output: Temperature (C)",
 		"Output: Fuel mix (% fuel, 0-100)",
 		"Output: Fuel amount",
-		"Output: Waste amount"
+		"Output: Waste amount",
+		"Output: Energy amount (%)"
 	};
 	
 	BeefGuiRedNetChannelSelector[] channelSelectors = new BeefGuiRedNetChannelSelector[numChannels];
