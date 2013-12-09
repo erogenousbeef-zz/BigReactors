@@ -378,7 +378,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
     	if(from != ForgeDirection.UNKNOWN) {
     		tankIdx = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
-    	
+
+    	if(tankIdx == FLUIDTANK_NONE) { return false; }
+
     	IFluidTank tank = tanks[tankIdx];
     	if(tank.getFluidAmount() <= 0) {
     		return true;
@@ -398,7 +400,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
     	if(from != ForgeDirection.UNKNOWN) {
     		tankIdx = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
-    	
+
+    	if(tankIdx == FLUIDTANK_NONE) { return false; }
+
     	IFluidTank tank = tanks[tankIdx];
     	if(tank.getFluidAmount() <= 0) {
     		return false;
