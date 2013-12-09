@@ -44,6 +44,9 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		xSize = 245;
 		ySize = 175;
 		exposureButtons = new GuiIconButton[6];
+		for(int i = 0; i < 6; i++) {
+			exposureButtons[i] = null;
+		}
 	}
 	
 	private void createInventoryExposureButton(ForgeDirection dir, int x, int y) {
