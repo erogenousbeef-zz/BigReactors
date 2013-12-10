@@ -16,9 +16,11 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		getEnergyStored, 		// No arguments
 		getFuelAmount,  		// Optional Arg: fuel rod index
 		getWasteAmount, 		// Optional Arg: fuel rod index
+		getFuelAmountMax,		// Optional Arg: fuel rod index
 		getControlRodName,		// Required Arg: fuel rod index
 		getNumberOfControlRods,	// No arguments
 		getControlRodLevel, 	// Required Arg: control rod index
+		getEnergyProducedLastTick, // No arguments
 		setActive,				// Required Arg: integer (active)
 		setControlRodLevel,		// Required Args: fuel rod index, integer (insertion)
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
@@ -96,6 +98,13 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 				controlRod = getControlRodFromArguments(reactor, arguments, 0);
 				return new Object[] { (int)controlRod.getWasteAmount() };
 			}
+		case getFuelAmountMax:
+			if(arguments.length <= 0) {
+				return new Object[] { reactor.getMaxFuelAmountPerColumn() * reactor.getFuelColumnCount() };
+			}
+			else {
+				return new Object[] { (int)reactor.getMaxFuelAmountPerColumn() };
+			}
 		case getControlRodName:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
@@ -112,6 +121,9 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			controlRod = getControlRodFromArguments(reactor, arguments, 0);
 			return new Object[] { (int)controlRod.getControlRodInsertion() };
 
+		case getEnergyProducedLastTick:
+			return new Object[] { (int)reactor.getEnergyGeneratedLastTick() };
+			
 		case setActive:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");

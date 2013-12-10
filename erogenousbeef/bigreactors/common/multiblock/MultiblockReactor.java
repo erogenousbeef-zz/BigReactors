@@ -15,6 +15,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -884,7 +885,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 
 	public int getFuelAmount() {
-		if(this.assemblyState != AssemblyState.Assembled) { return 0; }
+		// TODO FIXME: Assembly never happens on the client. Fix this.
+		if(this.assemblyState != AssemblyState.Assembled && (this.worldObj != null && !this.worldObj.isRemote)) {
+			return 0;
+		}
 		
 		TileEntity te;
 		TileEntityReactorControlRod cr;
@@ -901,7 +905,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	public int getWasteAmount() {
-		if(this.assemblyState != AssemblyState.Assembled) { return 0; }
+		if(this.assemblyState != AssemblyState.Assembled && (this.worldObj != null && !this.worldObj.isRemote)) {
+			return 0;
+		}
 		
 		TileEntity te;
 		TileEntityReactorControlRod cr;
@@ -921,4 +927,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		return (int)(this.energyStored / (float)this.maxEnergyStored * 100f);
 	}
 
+	public int getMaxFuelAmountPerColumn() {
+		return (this.getMaximumCoord().y - this.getMinimumCoord().y - 1) * TileEntityReactorControlRod.maxTotalFluidPerBlock;
+	}
 }
