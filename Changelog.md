@@ -1,19 +1,22 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.2.6A)
+Next Release (Anticipated Version: 0.2.7A)
 -----------------------------------------
+
+Current Release (0.2.6A)
+--------------------------------
 - Feature: Reactor Computer Ports added. Control your reactor with a ComputerCraft computer!
 - Feature: RedNet and Redstone ports now have an output option to read how full the reactor's internal energy buffer is, as a percentile (0-100) value.
+- UI: Reactor Controller now shows how full the reactor is with fuel and waste. Mouse-over for an absolute value in the tooltip.
 - Bugfix: Fixed a crash that occured when connecting UE pipes to a cyanite reprocessor
 - Bugfix: Fixed a crash that could occur when opening the cyanite reprocessor's UI on Java 1.7
 
-Current Release (0.2.5A2)
---------------------------------
-- Bugfix: Prevent server crashes due to inclusion of GUI methods when creating redstone ports
-
 Older Releases
 --------------
+### Release 0.2.5A2
+- Bugfix: Prevent server crashes due to inclusion of GUI methods when creating redstone ports
+
 ### Release 0.2.5A
 - Feature: Redstone Ports, which can accept input and provide output via regular old redstone and anything compatible with it.
 - Performance: RedNet ports no longer send updates every tick. They now send updates every 20 ticks, by default. This rate can be controlled via the ticksPerRedstoneUpdate config value and also applies to redstone ports.
