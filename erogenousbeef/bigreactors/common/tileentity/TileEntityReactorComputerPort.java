@@ -10,19 +10,19 @@ import erogenousbeef.core.common.CoordTriplet;
 public class TileEntityReactorComputerPort extends TileEntityReactorPart implements IPeripheral {
 
 	public enum ComputerMethod {
-		getConnected,		// No arguments
-		getActive,			// No arguments
-		getTemperature,		// Optional Arg: fuel rod index
-		getEnergyStored, 	// No arguments
-		getFuelAmount,  	// Optional Arg: fuel rod index
-		getWasteAmount, 	// Optional Arg: fuel rod index
+		getConnected,			// No arguments
+		getActive,				// No arguments
+		getTemperature,			// Optional Arg: fuel rod index
+		getEnergyStored, 		// No arguments
+		getFuelAmount,  		// Optional Arg: fuel rod index
+		getWasteAmount, 		// Optional Arg: fuel rod index
 		getControlRodName,		// Required Arg: fuel rod index
-		getNumberOfFuelRods,// No arguments
-		getControlRodLevel, // Required Arg: control rod index
-		setActive,			// Required Arg: integer (active)
+		getNumberOfControlRods,	// No arguments
+		getControlRodLevel, 	// Required Arg: control rod index
+		setActive,				// Required Arg: integer (active)
 		setControlRodLevel,		// Required Args: fuel rod index, integer (insertion)
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
-		doEjectWaste		// No arguments
+		doEjectWaste			// No arguments
 	}
 	
 	public static final int numMethods = ComputerMethod.values().length; 
@@ -68,7 +68,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		switch(computerMethod) {
 		case getEnergyStored:
 			return new Object[] { (int)reactor.getEnergyStoredPercentage() };
-		case getNumberOfFuelRods:
+		case getNumberOfControlRods:
 			return new Object[] { (int)reactor.getFuelColumnCount() };
 		case getActive:
 			return new Object[] { reactor.isActive() };
