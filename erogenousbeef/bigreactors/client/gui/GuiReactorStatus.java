@@ -30,6 +30,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel fuelRodsString;
 	private BeefGuiLabel energyGeneratedString;
 	private BeefGuiLabel fuelConsumedString;
+	private BeefGuiLabel fuelContainedString;
 	private BeefGuiLabel fuelMixString;
 	private BeefGuiPowerBar powerBar;
 	
@@ -85,6 +86,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 		fuelConsumedString = new BeefGuiLabel(this, "Fuel Consumed: -- updating --", leftX, topY);
 		topY += fuelConsumedString.getHeight() + 4;
 		
+		fuelContainedString = new BeefGuiLabel(this, "Fuel Contained: -- updating --", leftX, topY);
+		topY += fuelContainedString.getHeight() + 4;
+		
 		fuelMixString = new BeefGuiLabel(this, "Fuel Richness: -- updating --", leftX, topY);
 		topY += fuelMixString.getHeight() + 4;
 		
@@ -96,6 +100,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(fuelRodsString);
 		registerControl(energyGeneratedString);
 		registerControl(fuelConsumedString);
+		registerControl(fuelContainedString);
 		registerControl(fuelMixString);
 		registerControl(powerBar);
 		
@@ -140,6 +145,16 @@ public class GuiReactorStatus extends BeefGuiBase {
 		_reactorWastePolicy.displayString = getReactorWastePolicyText(wasteSetting);
 		
 		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
+		
+		int fuelAndWaste = reactor.getFuelAmount() + reactor.getWasteAmount();
+		int fuelAndWasteMax = reactor.getMaxFuelAmountPerColumn() * reactor.getFuelColumnCount();
+		if(fuelAndWasteMax > 0) {
+			fuelContainedString.setLabelText(String.format("Fuel Rod Contents: %2.1f%%", (fuelAndWaste/fuelAndWasteMax)*100f));
+			fuelContainedString.setLabelTooltip(String.format("%d / %d mB", fuelAndWaste, fuelAndWasteMax));
+		}
+		else {
+			fuelContainedString.setLabelText("Fuel Rod Contents: -- updating --");
+		}
 		
 		// Calculate fuel mix
 		fuelMixString.setLabelText(String.format("Fuel Richness: %2.1f%%", reactor.getFuelRichness()*100f));
