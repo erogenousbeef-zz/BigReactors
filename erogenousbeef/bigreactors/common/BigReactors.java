@@ -227,6 +227,11 @@ public class BigReactors {
 					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', Item.ingotGold }));
 				}
+				
+				if(Loader.isModLoaded("ComputerCraft")) {
+					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getComputerPortItemStack();
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold, 'P', "reactorRedstonePort" }));
+				}
 			}
 			
 			if(blockReactorGlass != null) {
@@ -457,6 +462,7 @@ public class BigReactors {
 			
 			BigReactors.blockReactorRedstonePort = new BlockReactorRedstonePort(BRConfig.CONFIGURATION.getBlock("ReactorRedstonePort",  BigReactors.BLOCK_ID_PREFIX + 9).getInt(), Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlockBigReactors.class, "BRReactorRedstonePort");
+			OreDictionary.registerOre("reactorRedstonePort", new ItemStack(blockReactorRedstonePort, 1));
 			
 			BRConfig.CONFIGURATION.save();
 		}
