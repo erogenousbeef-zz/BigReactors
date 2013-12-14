@@ -35,11 +35,17 @@ public abstract class BeefGuiBase extends GuiContainer {
 	public BeefGuiBase(Container container) {
 		super(container);
 		
+		grabbedItem = null;
+	}
+	
+	@Override
+	public void initGui() {
+		super.initGui();
+
+		// Refresh all controls so that the GUI is resize-proof
 		controls = new ArrayList<IBeefGuiControl>();
 		controlsWithTooltips = new ArrayList<IBeefTooltipControl>();
 		textFields = new ArrayList<GuiTextField>();
-		
-		grabbedItem = null;
 	}
 
 	public void registerControl(GuiTextField newTextField) {
