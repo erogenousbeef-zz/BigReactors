@@ -19,8 +19,6 @@ Known Issues
 TODO - 0.2: The Redstone Update
 -------------------------------
 - Allow different types of blocks inside reactor, e.g. iron blocks and TE cryotheum liquids
-- UI: Add a visual temperature gauge to the controller
-- UI: Fix the energy bars to use a redstone-like texture
 
 TODO - 0.3: The Coolant Update
 ------------------------------
@@ -75,8 +73,6 @@ TODO - General
 
 ### Graphics & UI
 - Highlight inventory slots when they are exposed via the right-hand-side buttons
-- Add graduation marks to liquid progress bars
-- Add a cool mixed fuel/waste bar to the control rods
 
 ### Reactor Mechanics
 - Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering

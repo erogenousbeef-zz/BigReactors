@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.multiblock;
+package erogenousbeef.bigreactors.common.interfaces;
 
 /**
  * Implement this to receive once-per-tick updates from the reactor.

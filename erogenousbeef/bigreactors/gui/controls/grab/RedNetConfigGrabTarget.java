@@ -53,7 +53,7 @@ public class RedNetConfigGrabTarget extends BeefGuiGrabTarget implements IBeefTo
 	public TileEntityReactorRedNetPort.CircuitType getCircuitType() { return this.currentCircuitType; }
 
 	@Override
-	public String getTooltip() {
-		return tooltip;
+	public String[] getTooltip() {
+		return new String[] { tooltip };
 	}
 }

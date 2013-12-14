@@ -67,8 +67,9 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 		}
 	}
 	@Override
-	public String getTooltip() {
-		return labelTooltip;
+	public String[] getTooltip() {
+		if(labelTooltip == null || labelTooltip.isEmpty()) { return null; }
+		return new String[] { labelTooltip };
 	}
 	
 	@Override

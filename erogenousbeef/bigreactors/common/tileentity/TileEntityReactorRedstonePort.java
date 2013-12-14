@@ -19,7 +19,7 @@ import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedstonePort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorRedstonePort;
-import erogenousbeef.bigreactors.common.multiblock.IReactorTickable;
+import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort.CircuitType;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;

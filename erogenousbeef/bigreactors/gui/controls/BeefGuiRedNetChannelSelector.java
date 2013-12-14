@@ -47,8 +47,8 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	}
 
 	@Override
-	public String getTooltip() {
-		return caption;
+	public String[] getTooltip() {
+		return new String[] { caption };
 	}
 
 	@Override

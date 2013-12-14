@@ -22,6 +22,8 @@ import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
+import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
@@ -33,7 +35,7 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler {
+public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
 	// Game stuff
 	protected boolean active;
 	private float latentHeat;
@@ -929,5 +931,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 	public int getMaxFuelAmountPerColumn() {
 		return (this.getMaximumCoord().y - this.getMinimumCoord().y - 1) * TileEntityReactorControlRod.maxTotalFluidPerBlock;
+	}
+
+	@Override
+	public int getCapacity() {
+		return getMaxFuelAmountPerColumn() * this.getFuelColumnCount();
 	}
 }

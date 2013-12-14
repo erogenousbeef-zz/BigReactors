@@ -13,7 +13,6 @@ import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
 public abstract class BeefGuiVerticalProgressBar extends BeefGuiControlBase {
 	private final static int controlWidth = 20;
 	private final static int controlHeight = 64;
-	private final static String controlTexture = "controls/FluidTank.png";
 
 	protected ResourceLocation controlResource;
 
