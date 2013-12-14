@@ -9,7 +9,7 @@ import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
-public class BeefGuiFluidBar extends BeefGuiProgressBarVertical implements
+public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 		IBeefTooltipControl {
 
 	TileEntityPoweredInventoryFluid _entity;
@@ -65,4 +65,7 @@ public class BeefGuiFluidBar extends BeefGuiProgressBarVertical implements
 	protected ResourceLocation getResourceLocation() {
 		return net.minecraft.client.renderer.texture.TextureMap.locationBlocksTexture;
 	}
+	
+	@Override
+	protected boolean drawGradationMarks() { return true; }
 }

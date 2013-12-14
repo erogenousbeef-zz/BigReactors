@@ -43,8 +43,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 	private Icon[] _inventorySideIcons = new Icon[3];
 	private Icon[] _fluidSideIcons = new Icon[1];
 	
-	protected static Icon powerIcon = null; // find a better home for this.
-	
 	public BlockBRSmallMachine(int id, Material material) {
 		super(id, material);
 		setStepSound(soundMetalFootstep);
@@ -54,10 +52,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 		setCreativeTab(BigReactors.TAB);
 	}
 	
-	public static Icon getPowerIcon() {
-		return powerIcon;
-	}
-
 	public Icon getIconFromTileEntity(TileEntity te, int metadata, int side) {
 		if(te instanceof TileEntityBeefBase)
 		{
@@ -122,9 +116,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 
 		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
-		
-		// Ugly hack, fix later.
-		powerIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "gui.power");
 	}
 	
 	@Override
