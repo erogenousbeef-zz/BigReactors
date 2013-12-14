@@ -71,7 +71,7 @@ public class GuiSelectableButton extends GuiButton implements IBeefTooltipContro
 	}
 
 	@Override
-	public String getTooltip() {
-		return this.displayString;
+	public String[] getTooltip() {
+		return new String[] { this.displayString };
 	}
 }

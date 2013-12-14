@@ -47,15 +47,15 @@ public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 	}
 	
 	@Override
-	public String getTooltip() {
+	public String[] getTooltip() {
 		FluidTankInfo[] tanks = this._entity.getTankInfo(ForgeDirection.UNKNOWN);
 		if(tanks != null && tankIdx < tanks.length) {
 			FluidStack tankFluid = tanks[tankIdx].fluid;
 			if(tankFluid != null) {
-				return String.format("%d / %d mB", tankFluid.amount, tanks[tankIdx].capacity);
+				return new String[] { tankFluid.getFluid().getLocalizedName(), String.format("%d / %d mB", tankFluid.amount, tanks[tankIdx].capacity) };
 			}
 			else {
-				return String.format("0 / %d mB", tanks[tankIdx].capacity);
+				return new String[] { "Empty", String.format("0 / %d mB", tanks[tankIdx].capacity) };
 			}
 		}
 		return null;

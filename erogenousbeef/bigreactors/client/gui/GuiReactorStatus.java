@@ -8,6 +8,8 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiFuelMixBar;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiHeatBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -30,9 +32,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel fuelRodsString;
 	private BeefGuiLabel energyGeneratedString;
 	private BeefGuiLabel fuelConsumedString;
-	private BeefGuiLabel fuelContainedString;
-	private BeefGuiLabel fuelMixString;
 	private BeefGuiPowerBar powerBar;
+	private BeefGuiHeatBar heatBar;
+	private BeefGuiFuelMixBar fuelMixBar;
 	
 	private FloatAverager averagedHeat;
 	private FloatAverager averagedRfOutput;
@@ -77,32 +79,30 @@ public class GuiReactorStatus extends BeefGuiBase {
 		heatString = new BeefGuiLabel(this, "Heat: -- updating --", leftX, topY);
 		topY += heatString.getHeight() + 4;
 		
-		fuelRodsString = new BeefGuiLabel(this, "Active Fuel Rods: -- updating --", leftX, topY);
+		fuelRodsString = new BeefGuiLabel(this, "Fuel Rods: -- updating --", leftX, topY);
 		topY += fuelRodsString.getHeight() + 4;
 
+		// Now move topY down so we're below the various status bars
+		topY = guiTop + 88;
 		energyGeneratedString = new BeefGuiLabel(this, "Power Output: -- updating --", leftX, topY);
 		topY += energyGeneratedString.getHeight() + 4;
 		
 		fuelConsumedString = new BeefGuiLabel(this, "Fuel Consumed: -- updating --", leftX, topY);
 		topY += fuelConsumedString.getHeight() + 4;
 		
-		fuelContainedString = new BeefGuiLabel(this, "Fuel Contained: -- updating --", leftX, topY);
-		topY += fuelContainedString.getHeight() + 4;
-		
-		fuelMixString = new BeefGuiLabel(this, "Fuel Richness: -- updating --", leftX, topY);
-		topY += fuelMixString.getHeight() + 4;
-		
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.reactor);
-		
+		heatBar = new BeefGuiHeatBar(this, guiLeft + 130, guiTop + 22, this.part);
+		fuelMixBar = new BeefGuiFuelMixBar(this, guiLeft + 108, guiTop + 22, this.reactor);
+
 		registerControl(titleString);
 		registerControl(statusString);
 		registerControl(heatString);
 		registerControl(fuelRodsString);
 		registerControl(energyGeneratedString);
 		registerControl(fuelConsumedString);
-		registerControl(fuelContainedString);
-		registerControl(fuelMixString);
 		registerControl(powerBar);
+		registerControl(heatBar);
+		registerControl(fuelMixBar);
 		
 		averagedHeat.setAll(reactor.getHeat());
 		averagedRfOutput.setAll(reactor.getEnergyGeneratedLastTick());
@@ -139,25 +139,12 @@ public class GuiReactorStatus extends BeefGuiBase {
 			statusString.setLabelText("Status: Offline");
 		}
 		
-		fuelRodsString.setLabelText("Active Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
+		fuelRodsString.setLabelText("Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
 		
 		MultiblockReactor.WasteEjectionSetting wasteSetting = reactor.getWasteEjection();
 		_reactorWastePolicy.displayString = getReactorWastePolicyText(wasteSetting);
 		
 		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
-		
-		int fuelAndWaste = reactor.getFuelAmount() + reactor.getWasteAmount();
-		int fuelAndWasteMax = reactor.getMaxFuelAmountPerColumn() * reactor.getFuelColumnCount();
-		if(fuelAndWasteMax > 0) {
-			fuelContainedString.setLabelText(String.format("Fuel Rod Contents: %2.1f%%", (fuelAndWaste/fuelAndWasteMax)*100f));
-			fuelContainedString.setLabelTooltip(String.format("%d / %d mB", fuelAndWaste, fuelAndWasteMax));
-		}
-		else {
-			fuelContainedString.setLabelText("Fuel Rod Contents: -- updating --");
-		}
-		
-		// Calculate fuel mix
-		fuelMixString.setLabelText(String.format("Fuel Richness: %2.1f%%", reactor.getFuelRichness()*100f));
 		
 		// Grab averaged values
 		averagedRfOutput.add(reactor.getEnergyGeneratedLastTick());
@@ -172,7 +159,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 			energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF", averagedRfOutput.average()));			
 		}
 
-		heatString.setLabelText("Heat: " + Integer.toString((int)averagedHeat.average()) + " degrees C");
+		heatString.setLabelText("Heat: " + Integer.toString((int)averagedHeat.average()) + " C");
 		
 		float averagedConsumption = averagedFuelConsumption.average();
 		if(averagedConsumption < 0.1f) {

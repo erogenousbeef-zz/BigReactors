@@ -100,11 +100,11 @@ public abstract class BeefGuiBase extends GuiContainer {
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {
 			if(tc.isMouseOver(mouseX, mouseY)) {
-				String tooltip = tc.getTooltip();
-				if(tooltip != null && !tooltip.equals("")) {
+				String[] tooltip = tc.getTooltip();
+				if(tooltip != null) {
 					// This prevents weird rendering issues with NEI
 					GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-					drawHoveringText(Arrays.asList(new String[]{tooltip}), absoluteX, absoluteY, Minecraft.getMinecraft().fontRenderer);
+					drawHoveringText(Arrays.asList(tooltip), absoluteX, absoluteY, Minecraft.getMinecraft().fontRenderer);
 					GL11.glPopAttrib();
 					break;
 				}

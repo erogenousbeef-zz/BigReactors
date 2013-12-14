@@ -60,7 +60,7 @@ public class BeefGuiGrabSource extends BeefGuiControlBase implements IBeefToolti
 	}
 
 	@Override
-	public String getTooltip() {
-		return this.grabbable.getName();
+	public String[] getTooltip() {
+		return new String[] { this.grabbable.getName() };
 	}
 }
