@@ -69,7 +69,7 @@ public abstract class BeefGuiVerticalProgressBar extends BeefGuiControlBase {
 			int barMinX = this.absoluteX + 1;
 			int barMaxX = this.absoluteX + this.width - 4;
 			int barMinY = this.absoluteY + this.height - barHeight;
-			int barMaxY = this.absoluteY + this.height - 3;
+			int barMaxY = this.absoluteY + this.height - 1;
 			
 			this.drawProgressBar(tessellator, renderEngine, barMinX, barMaxX, barMinY, barMaxY, 1);
 		}

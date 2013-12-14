@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.gui.controls;
 import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
@@ -52,7 +53,15 @@ public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 		if(tanks != null && tankIdx < tanks.length) {
 			FluidStack tankFluid = tanks[tankIdx].fluid;
 			if(tankFluid != null) {
-				return new String[] { tankFluid.getFluid().getLocalizedName(), String.format("%d / %d mB", tankFluid.amount, tanks[tankIdx].capacity) };
+				String fluidName = tankFluid.getFluid().getLocalizedName();
+				if(tankFluid.getFluid().getID() == FluidRegistry.WATER.getID()) {
+					fluidName = "Water";
+				}
+				else if(tankFluid.getFluid().getID() == FluidRegistry.LAVA.getID()) {
+					fluidName = "Lava";
+				}
+
+				return new String[] { fluidName, String.format("%d / %d mB", tankFluid.amount, tanks[tankIdx].capacity) };
 			}
 			else {
 				return new String[] { "Empty", String.format("0 / %d mB", tanks[tankIdx].capacity) };
