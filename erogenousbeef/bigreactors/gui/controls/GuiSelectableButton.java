@@ -1,15 +1,14 @@
 package erogenousbeef.bigreactors.gui.controls;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.util.Icon;
+
 import org.lwjgl.opengl.GL11;
 
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
 
 public class GuiSelectableButton extends GuiButton implements IBeefTooltipControl {
 
