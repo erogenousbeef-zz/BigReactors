@@ -43,10 +43,6 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		_entity = entity;
 		xSize = 245;
 		ySize = 175;
-		exposureButtons = new GuiIconButton[6];
-		for(int i = 0; i < 6; i++) {
-			exposureButtons[i] = null;
-		}
 	}
 	
 	private void createInventoryExposureButton(ForgeDirection dir, int x, int y) {
@@ -75,6 +71,13 @@ public class GuiCyaniteReprocessor extends BeefGuiBase {
 		registerControl(powerBar);
 		registerControl(fluidBar);
 		registerControl(progressArrow);
+
+
+		// Do this here to make the GUI resize-proof
+		exposureButtons = new GuiIconButton[6];
+		for(int i = 0; i < 6; i++) {
+			exposureButtons[i] = null;
+		}
 
 		createInventoryExposureButton(ForgeDirection.WEST, guiLeft + 180, guiTop + 25);
 		createInventoryExposureButton(ForgeDirection.EAST, guiLeft + 222, guiTop + 25);
