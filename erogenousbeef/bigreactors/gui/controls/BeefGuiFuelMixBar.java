@@ -79,7 +79,13 @@ public class BeefGuiFuelMixBar extends BeefGuiVerticalProgressBar implements
 	@Override
 	public String[] getTooltip() {
 		float fullness = getProgress() * 100f;
-		float richness = ((float)entity.getFuelAmount() / (float)(entity.getFuelAmount() + entity.getWasteAmount())) * 100f;
+		float richness;
+		if(entity.getFuelAmount() + entity.getWasteAmount() == 0) {
+			richness = 0f;
+		}
+		else {
+			richness = ((float)entity.getFuelAmount() / (float)(entity.getFuelAmount() + entity.getWasteAmount())) * 100f;
+		}
 		return new String[] {
 				"Reactor Fuel Rods",
 				String.format(" %2.1f%% full", fullness),
