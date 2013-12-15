@@ -161,6 +161,9 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
 			boolean simulate) {
+		if(!this.isConnected())
+			return 0;
+
 		if(from == out) {
 			return this.getReactorController().extractEnergy(from, maxExtract, simulate);
 		}
@@ -175,11 +178,17 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
+		if(!this.isConnected())
+			return 0;
+
 		return this.getReactorController().getEnergyStored(from);
 	}
 
 	@Override
 	public int getMaxEnergyStored(ForgeDirection from) {
+		if(!this.isConnected())
+			return 0;
+
 		return this.getReactorController().getMaxEnergyStored(from);
 	}
 }
