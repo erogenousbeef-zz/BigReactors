@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -12,7 +13,9 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.FMLLog;
@@ -406,14 +409,33 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 
 	// Static validation helpers
-	// Water and air.
+	// Water, air, and metal blocks
 	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
 		Material material = world.getBlockMaterial(x, y, z);
 		if(material == net.minecraft.block.material.MaterialLiquid.water ||
 			material == net.minecraft.block.material.Material.air) {
 			return true;
 		}
-
+		
+		int blockId = world.getBlockId(x, y, z);
+		if(blockId == Block.blockIron.blockID || blockId == Block.blockGold.blockID || blockId == Block.blockDiamond.blockID) {
+			return true;
+		}
+		
+		// Permit TE fluids
+		if(blockId > 0 && blockId < Block.blocksList.length) {
+			Block blockClass = Block.blocksList[blockId];
+			if(blockClass instanceof IFluidBlock) {
+				Fluid fluid = ((IFluidBlock)blockClass).getFluid();
+				String fluidName = fluid.getName();
+				if(fluidName.equals("redstone") || fluidName.equals("pyrotheum") ||
+					fluidName.equals("cryotheum") || fluidName.equals("glowstone") ||
+					fluidName.equals("ender")) {
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
 	
