@@ -1,30 +1,23 @@
 package erogenousbeef.bigreactors.common;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import powercrystals.minefactoryreloaded.api.FactoryRegistry;
-
-import appeng.api.Util;
-
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.common.FMLLog;
+import powercrystals.minefactoryreloaded.api.FactoryRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.ReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
+import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 
 public class CommonProxy {
 
@@ -37,6 +30,77 @@ public class CommonProxy {
 		NetworkRegistry.instance().registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
 		BigReactors.tickHandler = new BigReactorsTickHandler();
 		TickRegistry.registerTickHandler(BigReactors.tickHandler, Side.SERVER);
+		
+		sendInterModAPIMessages();
+	}
+
+	private void sendInterModAPIMessages() {
+		ItemIngot ingotGeneric = ((ItemIngot)BigReactors.ingotGeneric);
+		
+		ItemStack yelloriteOre 	= new ItemStack(BigReactors.blockYelloriteOre, 1);
+		ItemStack ingotYellorium= ingotGeneric.getItemStackForType("ingotYellorium");
+		ItemStack ingotCyanite 	= ingotGeneric.getItemStackForType("ingotCyanite");
+		ItemStack ingotGraphite = ingotGeneric.getItemStackForType("ingotGraphite");
+		ItemStack ingotBlutonium= ingotGeneric.getItemStackForType("ingotBlutonium");
+		ItemStack dustYellorium = ingotGeneric.getItemStackForType("dustYellorium");
+		ItemStack dustCyanite 	= ingotGeneric.getItemStackForType("dustCyanite");
+		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
+		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
+
+		ItemStack doubledYelloriumDust = null;
+		if(dustYellorium != null) {
+			doubledYelloriumDust = dustYellorium.copy();
+			doubledYelloriumDust.stackSize = 2;
+		}
+
+		if(Loader.isModLoaded("ThermalExpansion")) {
+			ItemStack sandStack = new ItemStack(Block.sand, 1);
+			ItemStack doubleYellorium = ingotYellorium.copy();
+			doubleYellorium.stackSize = 2;
+
+			if(yelloriteOre != null && ingotYellorium != null) {
+				addInductionSmelterRecipe(yelloriteOre, sandStack, doubleYellorium, 1600);
+			}
+			
+			if(yelloriteOre != null && doubledYelloriumDust != null) {
+				addPulverizerRecipe(yelloriteOre, doubledYelloriumDust, 4000);
+			}
+			
+			if(ingotYellorium != null && dustYellorium != null) {
+				addPulverizerRecipe(ingotYellorium, dustYellorium, 2400);
+				addInductionSmelterRecipe(doubledYelloriumDust, sandStack, doubleYellorium, 200);
+			}
+
+			if(ingotCyanite != null && dustCyanite != null) {
+				addPulverizerRecipe(ingotCyanite, dustCyanite, 2400);
+				
+				ItemStack doubleDust = dustCyanite.copy();
+				doubleDust.stackSize = 2;
+				ItemStack doubleIngot = ingotCyanite.copy();
+				doubleIngot.stackSize = 2;
+				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+			}
+
+			if(ingotGraphite != null && dustGraphite != null) {
+				addPulverizerRecipe(ingotGraphite, dustGraphite, 2400);
+
+				ItemStack doubleDust = dustGraphite.copy();
+				doubleDust.stackSize = 2;
+				ItemStack doubleIngot = ingotGraphite.copy();
+				doubleIngot.stackSize = 2;
+				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+			}
+
+			if(ingotBlutonium != null && dustBlutonium != null) {
+				addPulverizerRecipe(ingotBlutonium, dustBlutonium, 2400);
+
+				ItemStack doubleDust = dustBlutonium.copy();
+				doubleDust.stackSize = 2;
+				ItemStack doubleIngot = ingotBlutonium.copy();
+				doubleIngot.stackSize = 2;
+				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+			}
+		}
 	}
 
 	public void postInit() {
@@ -73,36 +137,6 @@ public class CommonProxy {
 		if(dustYellorium != null) {
 			doubledYelloriumDust = dustYellorium.copy();
 			doubledYelloriumDust.stackSize = 2;
-		}
-		
-		if(Loader.isModLoaded("ThermalExpansion")) {
-			if(yelloriteOre != null && ingotYellorium != null) {
-				addSmelterRecipe(yelloriteOre.copy(), ingotYellorium.copy(), 4000);
-			}
-			
-			if(yelloriteOre != null && dustYellorium != null) {
-				addPulverizerRecipe(yelloriteOre.copy(), dustYellorium.copy(), 4000);
-			}
-			
-			if(ingotYellorium != null && dustYellorium != null) {
-				addPulverizerRecipe(ingotYellorium.copy(), dustYellorium.copy(), 2400);
-				addSmelterRecipe(dustYellorium.copy(), ingotYellorium.copy(), 800);
-			}
-
-			if(ingotCyanite != null && dustCyanite != null) {
-				addPulverizerRecipe(ingotCyanite.copy(), dustCyanite.copy(), 2400);
-				addSmelterRecipe(dustCyanite.copy(), ingotCyanite.copy(), 800);
-			}
-
-			if(ingotGraphite != null && dustGraphite != null) {
-				addPulverizerRecipe(ingotGraphite.copy(), dustGraphite.copy(), 2400);
-				addSmelterRecipe(dustGraphite.copy(), ingotGraphite.copy(), 800);
-			}
-
-			if(ingotBlutonium != null && dustBlutonium != null) {
-				addPulverizerRecipe(ingotBlutonium.copy(), dustBlutonium.copy(), 2400);
-				addSmelterRecipe(dustBlutonium.copy(), ingotBlutonium.copy(), 800);
-			}
 		}
 		
 		if(Loader.isModLoaded("AppliedEnergistics")) {
@@ -219,11 +253,12 @@ public class CommonProxy {
 		sendInterModMessage("ThermalExpansion", "PulverizerRecipe", message);
 	}
 	
-	protected void addSmelterRecipe(ItemStack from, ItemStack to, int energy) {
+	protected void addInductionSmelterRecipe(ItemStack firstInput, ItemStack secondInput, ItemStack output, int energy) {
 		NBTTagCompound message = new NBTTagCompound();
 		message.setInteger("energy", energy);
-		message.setCompoundTag("input", from.writeToNBT(new NBTTagCompound()));
-		message.setCompoundTag("primaryOutput",to.writeToNBT(new NBTTagCompound()));
+		message.setCompoundTag("primaryInput", firstInput.writeToNBT(new NBTTagCompound()));
+		message.setCompoundTag("secondaryInput", secondInput.writeToNBT(new NBTTagCompound()));
+		message.setCompoundTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
 		sendInterModMessage("ThermalExpansion", "SmelterRecipe", message);
 	}
 	

@@ -3,12 +3,6 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.net.PacketWrapper;
-import erogenousbeef.bigreactors.net.Packets;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet;
@@ -19,6 +13,10 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class TileEntityPoweredInventoryFluid extends
 		TileEntityPoweredInventory implements IFluidHandler {
@@ -260,9 +258,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     		return 0;
     	}
     	
-    	FMLLog.info("filling tank %d with fluid %d", tankIndex, resource.fluidID);
     	int res = tanks[tankIndex].fill(resource, doFill);
-    	FMLLog.info("added %d, tank now has %d mb in it", res, tanks[tankIndex].getFluidAmount());
     	return res;
     }
 
@@ -385,7 +381,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
     	if(from != ForgeDirection.UNKNOWN) {
     		tankIdx = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
-    	
+
+    	if(tankIdx == FLUIDTANK_NONE) { return false; }
+
     	IFluidTank tank = tanks[tankIdx];
     	if(tank.getFluidAmount() <= 0) {
     		return true;
@@ -405,7 +403,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
     	if(from != ForgeDirection.UNKNOWN) {
     		tankIdx = tankExposure[this.getRotatedSide(from.ordinal())];
     	}
-    	
+
+    	if(tankIdx == FLUIDTANK_NONE) { return false; }
+
     	IFluidTank tank = tanks[tankIdx];
     	if(tank.getFluidAmount() <= 0) {
     		return false;

@@ -3,9 +3,9 @@ package erogenousbeef.bigreactors.gui.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 
-public class ContainerReactorRedNetPort extends Container {
+public class ContainerBasic extends Container {
 
-	public ContainerReactorRedNetPort() {
+	public ContainerBasic() {
 		super();
 	}
 	

@@ -1,8 +1,8 @@
 package erogenousbeef.bigreactors.gui.container;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 
 public class ContainerReactorControlRod extends Container {
 

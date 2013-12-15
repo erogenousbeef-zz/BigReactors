@@ -2,16 +2,9 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
-import cofh.api.energy.EnergyStorage;
-import cofh.api.energy.IEnergyHandler;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -20,28 +13,32 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
-
+import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.common.BRUtilities;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
+import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
+import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.MultiblockRegistry;
 
-public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler {
+public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
 	// Game stuff
 	protected boolean active;
 	private float latentHeat;
@@ -50,6 +47,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 	// UI stuff
 	private float energyGeneratedLastTick;
+	private int fuelConsumedLastTick;
 	
 	public enum WasteEjectionSetting {
 		kAutomatic,					// Full auto, always remove waste
@@ -58,7 +56,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	private Set<CoordTriplet> attachedPowerTaps;
-	private Set<CoordTriplet> attachedRedNetPorts;
+	private Set<CoordTriplet> attachedTickables;
 
 	// TODO: Convert these to sets.
 	private LinkedList<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
@@ -77,9 +75,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		active = false;
 		latentHeat = 0f;
 		energyGeneratedLastTick = 0f;
+		fuelConsumedLastTick = 0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
-		attachedRedNetPorts = new HashSet<CoordTriplet>();
+		attachedTickables = new HashSet<CoordTriplet>();
 		attachedControlRods = new LinkedList<CoordTriplet>();
 		attachedAccessPorts = new LinkedList<CoordTriplet>();
 		attachedControllers = new LinkedList<CoordTriplet>();
@@ -114,15 +113,17 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		else if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.add(coord);
 		}
-		else if(part instanceof TileEntityReactorRedNetPort) {
-			attachedRedNetPorts.add(coord);
-		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
 			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
 				attachedControllers.add(coord);
 			}
 		}
+
+		if(part instanceof IReactorTickable) {
+			attachedTickables.add(coord);
+		}
+
 	}
 	
 	@Override
@@ -142,15 +143,17 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		else if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.remove(coord);
 		}
-		else if(part instanceof TileEntityReactorRedNetPort) {
-			attachedRedNetPorts.remove(coord);
-		}
 		else if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
 			if(BlockReactorPart.isController(metadata) && attachedControllers.contains(coord)) {
 				attachedControllers.remove(coord);
 			}
 		}
+		
+		if(part instanceof IReactorTickable) {
+			attachedTickables.remove(coord);
+		}
+
 	}
 	
 	@Override
@@ -177,6 +180,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		float oldHeat = this.getHeat();
 		float oldEnergy = this.getEnergyStored();
 		energyGeneratedLastTick = 0f;
+		fuelConsumedLastTick = 0;
 
 		// How much waste do we have?
 		int wasteAmt = 0;
@@ -192,14 +196,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			if(controlRod == null) { continue; } // Happens due to chunk unloads
 
 			if(this.isActive()) {
+				int fuelChange = controlRod.getFuelAmount();
 				radiationResult = controlRod.radiate();
+				fuelChange -= controlRod.getFuelAmount();
+				if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
+
 				this.generateEnergy(radiationResult.getPowerProduced());
-				this.addLatentHeat(radiationResult.getHeatProduced());
 			}
 			
 			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
 			if(heatPulse != null) {
-				this.generateEnergy(heatPulse.powerProduced);
 				this.addLatentHeat(heatPulse.heatChange);
 			}
 			
@@ -244,8 +250,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 		}
 
-		energyGeneratedLastTick = getEnergyStored() - oldEnergy;
-
 		// leak 1% of heat to the environment per tick
 		// TODO: Better equation.
 		if(latentHeat > 0.0f) {
@@ -255,7 +259,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 			// Generate power based on the amount of heat lost
 			this.generateEnergy(latentHeatLoss * BigReactors.powerPerHeat);
-			energyGeneratedLastTick += latentHeatLoss * BigReactors.powerPerHeat;
 		}
 		
 		if(latentHeat < 0.0f) { setHeat(0.0f); }
@@ -301,11 +304,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		
 		// TODO: Overload/overheat
 
-		// Update any connected rednet networks
-		for(CoordTriplet coord : attachedRedNetPorts) {
-			TileEntityReactorRedNetPort port = (TileEntityReactorRedNetPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(port == null) { continue; }
-			port.updateRedNetNetwork();
+		// Update any connected tickables
+		for(CoordTriplet coord : attachedTickables) {
+			IReactorTickable tickable = (IReactorTickable)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(tickable == null) { continue; }
+			tickable.onReactorTick();
 		}
 
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
@@ -326,6 +329,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	 * @param newEnergy Base, unmultiplied energy to generate
 	 */
 	protected void generateEnergy(float newEnergy) {
+		this.energyGeneratedLastTick += newEnergy * BigReactors.powerProductionMultiplier;
 		this.addStoredEnergy(newEnergy * BigReactors.powerProductionMultiplier);
 	}
 
@@ -405,14 +409,33 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 
 	// Static validation helpers
-	// Water and air.
+	// Water, air, and metal blocks
 	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
 		Material material = world.getBlockMaterial(x, y, z);
 		if(material == net.minecraft.block.material.MaterialLiquid.water ||
 			material == net.minecraft.block.material.Material.air) {
 			return true;
 		}
-
+		
+		int blockId = world.getBlockId(x, y, z);
+		if(blockId == Block.blockIron.blockID || blockId == Block.blockGold.blockID || blockId == Block.blockDiamond.blockID) {
+			return true;
+		}
+		
+		// Permit TE fluids
+		if(blockId > 0 && blockId < Block.blocksList.length) {
+			Block blockClass = Block.blocksList[blockId];
+			if(blockClass instanceof IFluidBlock) {
+				Fluid fluid = ((IFluidBlock)blockClass).getFluid();
+				String fluidName = fluid.getName();
+				if(fluidName.equals("redstone") || fluidName.equals("pyrotheum") ||
+					fluidName.equals("cryotheum") || fluidName.equals("glowstone") ||
+					fluidName.equals("ender")) {
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
 	
@@ -458,12 +481,27 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
+		data.setFloat("energy", this.energyStored);
+		data.setFloat("heat", this.latentHeat);
+		data.setBoolean("isActive", this.isActive());
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		if(data.hasKey("wasteEjection")) {
 			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection")];
+		}
+		
+		if(data.hasKey("isActive")) {
+			this.setActive(data.getBoolean("isActive"));
+		}
+		
+		if(data.hasKey("energy")) {
+			this.energyStored = data.getFloat("energyStored");
+		}
+		
+		if(data.hasKey("heat")) {
+			this.latentHeat = data.getFloat("heat");
 		}
 	}
 
@@ -476,7 +514,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 								this.active,
 								this.latentHeat,
 								energyStored,
-								this.energyGeneratedLastTick});
+								this.energyGeneratedLastTick,
+								this.fuelConsumedLastTick});
 	}
 	
 	/**
@@ -541,7 +580,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	protected void onMachineMerge(MultiblockControllerBase otherMachine) {
 		this.attachedPowerTaps.clear();
-		this.attachedRedNetPorts.clear();
+		this.attachedTickables.clear();
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
@@ -644,14 +683,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			
 			if(fuelStack != null) {
 				if(fuelStack.stackSize >= fuelIngotsToConsume) {
-					fuelStack = BRUtilities.consumeItem(fuelStack, fuelIngotsToConsume);
+					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelIngotsToConsume);
 					fuelIngotsConsumed = fuelIngotsToConsume;
 					fuelIngotsToConsume = 0;
 				}
 				else {
 					fuelIngotsConsumed += fuelStack.stackSize;
 					fuelIngotsToConsume -= fuelStack.stackSize;
-					fuelStack = BRUtilities.consumeItem(fuelStack, fuelStack.stackSize);
+					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelStack.stackSize);
 				}
 				port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
 			}
@@ -755,6 +794,41 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	public float getEnergyGeneratedLastTick() {
 		return this.energyGeneratedLastTick;
 	}
+	
+	/**
+	 * Used to update the UI
+	 */
+	public void setFuelConsumedLastTick(int fuelConsumed) {
+		this.fuelConsumedLastTick = fuelConsumed;
+	}
+	
+	/**
+	 * UI Helper
+	 */
+	public int getFuelConsumedLastTick() {
+		return this.fuelConsumedLastTick;
+	}
+
+	/**
+	 * UI Helper
+	 * @return Percentile fuel richness (fuel/fuel+waste), or 0 if all control rods are empty
+	 */
+	public float getFuelRichness() {
+		int amtFuel, amtWaste;
+		TileEntityReactorControlRod controlRod = null;
+		amtFuel = amtWaste = 0;
+
+		for(CoordTriplet coord : this.attachedControlRods) {
+			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(controlRod == null) { continue; } // Happens due to chunk unloads
+		
+			amtFuel += controlRod.getFuelAmount();
+			amtWaste += controlRod.getWasteAmount();
+		}
+
+		if(amtFuel + amtWaste <= 0f) { return 0f; }
+		else { return (float)amtFuel / (float)(amtFuel+amtWaste); }
+	}
 
 	/** DO NOT USE **/
 	@Override
@@ -810,6 +884,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 		}
 	}
+	
+	public void changeAllControlRodInsertionValues(short delta) {
+		if(this.assemblyState != AssemblyState.Assembled) { return; }
+		
+		TileEntity te;
+		TileEntityReactorControlRod cr;
+		for(CoordTriplet coord : attachedControlRods) {
+			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(te instanceof TileEntityReactorControlRod) {
+				cr = (TileEntityReactorControlRod)te;
+				cr.setControlRodInsertion( (short) (cr.getControlRodInsertion() + delta) );
+			}
+		}
+	}
 
 	public CoordTriplet[] getControlRodLocations() {
 		CoordTriplet[] coords = new CoordTriplet[this.attachedControlRods.size()];
@@ -818,5 +906,57 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			coords[i++] = coord.copy();
 		}
 		return coords;
+	}
+
+	public int getFuelAmount() {
+		// TODO FIXME: Assembly never happens on the client. Fix this.
+		if(this.assemblyState != AssemblyState.Assembled && (this.worldObj != null && !this.worldObj.isRemote)) {
+			return 0;
+		}
+		
+		TileEntity te;
+		TileEntityReactorControlRod cr;
+		int fuel = 0;
+		for(CoordTriplet coord : attachedControlRods) {
+			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(te instanceof TileEntityReactorControlRod) {
+				cr = (TileEntityReactorControlRod)te;
+				fuel += cr.getFuelAmount();
+			}
+		}
+		
+		return fuel;
+	}
+	
+	public int getWasteAmount() {
+		if(this.assemblyState != AssemblyState.Assembled && (this.worldObj != null && !this.worldObj.isRemote)) {
+			return 0;
+		}
+		
+		TileEntity te;
+		TileEntityReactorControlRod cr;
+		int waste = 0;
+		for(CoordTriplet coord : attachedControlRods) {
+			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(te instanceof TileEntityReactorControlRod) {
+				cr = (TileEntityReactorControlRod)te;
+				waste += cr.getWasteAmount();
+			}
+		}
+		
+		return waste;
+	}
+
+	public int getEnergyStoredPercentage() {
+		return (int)(this.energyStored / (float)this.maxEnergyStored * 100f);
+	}
+
+	public int getMaxFuelAmountPerColumn() {
+		return (this.getMaximumCoord().y - this.getMinimumCoord().y - 1) * TileEntityReactorControlRod.maxTotalFluidPerBlock;
+	}
+
+	@Override
+	public int getCapacity() {
+		return getMaxFuelAmountPerColumn() * this.getFuelColumnCount();
 	}
 }

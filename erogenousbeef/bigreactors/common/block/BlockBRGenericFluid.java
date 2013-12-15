@@ -1,16 +1,13 @@
 package erogenousbeef.bigreactors.common.block;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.util.Icon;
+import net.minecraftforge.fluids.BlockFluidClassic;
+import net.minecraftforge.fluids.Fluid;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fluids.BlockFluidClassic;
-import net.minecraftforge.fluids.Fluid;
 
 // TODO: IRedNetNoConnection for 0.2 merge
 public class BlockBRGenericFluid extends BlockFluidClassic {
@@ -30,6 +27,8 @@ public class BlockBRGenericFluid extends BlockFluidClassic {
 	public void registerIcons(IconRegister iconRegistry) {
 		_iconStill   = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		_iconFlowing = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName().replace(".still", ".flowing"));
+
+		this.stack.getFluid().setIcons(_iconStill, _iconFlowing);
 	}
 
 	// TODO: Remove me if no longer needed

@@ -3,27 +3,26 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import cofh.api.transport.IItemConduit;
-import cofh.api.transport.IItemConduitConnection;
-
-import buildcraft.api.transport.IPipeTile;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.bigreactors.common.item.ItemIngot;
-import erogenousbeef.bigreactors.net.PacketWrapper;
-import erogenousbeef.bigreactors.net.Packets;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
+import buildcraft.api.transport.IPipeTile;
+import cofh.api.transport.IItemConduit;
+import cofh.api.transport.IItemConduitConnection;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.net.PacketWrapper;
+import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.utils.InventoryHelper;
+import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory, IItemConduitConnection {
 	
@@ -293,16 +292,16 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	/**
 	 * @param fromSlot The inventory slot into which this object would normally go.
 	 * @param itemToDistribute An ItemStack to distribute to pipes
-	 * @return Null if the stack was distributed, the same ItemStack otherwise.
+	 * @return Null if the stack was distributed, an ItemStack indicating the remainder otherwise.
 	 */
 	protected ItemStack distributeItemToPipes(int fromSlot, ItemStack itemToDistribute) {
-		if(itemToDistribute == null) { return null; }
-
 		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
 										ForgeDirection.EAST, ForgeDirection.WEST, ForgeDirection.UP, ForgeDirection.DOWN };
 
 		for(ForgeDirection dir : dirsToCheck) {
 			// Are we exposed on that side?
+			if(itemToDistribute == null) { return null; }
+
 			int rotatedSide = this.getRotatedSide(dir.ordinal());
 			if(invExposures[rotatedSide] != fromSlot) { continue; }
 			
@@ -319,7 +318,21 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 					if(itemToDistribute.stackSize <= 0) {
 						return null;
 					}
-				}				
+				}
+			}
+			else if(te instanceof IInventory) {
+				InventoryHelper helper;
+				if(te instanceof ISidedInventory) {
+					helper = new SidedInventoryHelper((ISidedInventory)te, dir.getOpposite());
+				}
+				else {
+					IInventory inv = (IInventory)te;
+					if(worldObj.getBlockId(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest.blockID) {
+						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+					}
+					helper = new InventoryHelper(inv);
+				}
+				itemToDistribute = helper.addItem(itemToDistribute);
 			}
 		}
 		

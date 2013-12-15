@@ -1,19 +1,14 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.FMLLog;
-
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
-import erogenousbeef.core.common.CoordTriplet;
-import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import cofh.api.energy.IEnergyHandler;
+import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler {
 	public static final float rfPowerFactor = 1f;    // 1 RF per 1 internal power

@@ -2,14 +2,13 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import erogenousbeef.bigreactors.common.BigReactors;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class BlockBROre extends Block {
 	private Icon iconYellorite;

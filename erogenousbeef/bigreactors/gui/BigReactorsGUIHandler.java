@@ -4,8 +4,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
-import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 
 public class BigReactorsGUIHandler implements IGuiHandler {

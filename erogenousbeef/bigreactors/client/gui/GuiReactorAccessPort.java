@@ -1,5 +1,8 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
@@ -7,10 +10,6 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.core.common.CoordTriplet;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.Container;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorAccessPort extends BeefGuiBase {
 
@@ -39,9 +38,9 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 		_togglePort = new GuiButton(1, xCenter + 31, guiTop + 4, 50, 20, getStringFromMetadata(metadata));
 		buttonList.add(_togglePort);
 		
-		inletLabel = new BeefGuiLabel(this, "IN", 25, 46);
-		outletLabel = new BeefGuiLabel(this, "OUT", 142, 46);
-		inventoryLabel = new BeefGuiLabel(this, "Inventory", 8, 64);
+		inletLabel = new BeefGuiLabel(this, "IN", guiLeft + 25, guiTop + 46);
+		outletLabel = new BeefGuiLabel(this, "OUT", guiLeft + 142, guiTop + 46);
+		inventoryLabel = new BeefGuiLabel(this, "Inventory", guiLeft + 8, guiTop + 64);
 		registerControl(inletLabel);
 		registerControl(outletLabel);
 		registerControl(inventoryLabel);

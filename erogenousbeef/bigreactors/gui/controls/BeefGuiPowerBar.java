@@ -1,16 +1,11 @@
 package erogenousbeef.bigreactors.gui.controls;
 
-import cofh.api.energy.IEnergyHandler;
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.Icon;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
+import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
-import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
-public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
+public class BeefGuiPowerBar extends BeefGuiTextureProgressBar implements
 		IBeefTooltipControl {
 
 	IEnergyHandler _entity;
@@ -19,24 +14,23 @@ public class BeefGuiPowerBar extends BeefGuiProgressBarVertical implements
 		super(container, x, y);
 		_entity = entity;
 	}
-
+	
 	@Override
-	protected Icon getProgressBarIcon() {
-		return BigReactors.powerIcon;
-	}
+	protected String getBackgroundTexture() { return "controls/Energy.png"; }
 	
 	@Override
 	protected float getProgress() {
-		return (float)_entity.getEnergyStored(ForgeDirection.UNKNOWN) / (float)_entity.getMaxEnergyStored(ForgeDirection.UNKNOWN);
+		return Math.min(1f, Math.max(0f, (float)_entity.getEnergyStored(ForgeDirection.UNKNOWN) / (float)_entity.getMaxEnergyStored(ForgeDirection.UNKNOWN)));
 	}
-	
+
 	@Override
-	public String getTooltip() {
-		return String.format("%d / %d RF", _entity.getEnergyStored(ForgeDirection.UNKNOWN), _entity.getMaxEnergyStored(ForgeDirection.UNKNOWN));
-	}
-	
-	@Override
-	protected ResourceLocation getResourceLocation() {
-		return net.minecraft.client.renderer.texture.TextureMap.locationBlocksTexture;
+	public String[] getTooltip() {
+		int energyStored = _entity.getEnergyStored(ForgeDirection.UNKNOWN);
+		int energyMax = _entity.getMaxEnergyStored(ForgeDirection.UNKNOWN);
+		float fullness = (float)energyStored / (float)energyMax * 100f;
+		return new String[] { "Energy Buffer", 
+				String.format("%d / %d RF", energyStored, energyMax),
+				String.format("%2.1f%% full", fullness)
+		};
 	}
 }

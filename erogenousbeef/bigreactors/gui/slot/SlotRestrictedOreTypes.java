@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.gui.slot;
 
 import java.util.ArrayList;
 
-import erogenousbeef.bigreactors.common.BigReactors;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

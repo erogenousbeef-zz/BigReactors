@@ -3,13 +3,14 @@ package erogenousbeef.bigreactors.gui.controls;
 import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
-public class BeefGuiFluidBar extends BeefGuiProgressBarVertical implements
+public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 		IBeefTooltipControl {
 
 	TileEntityPoweredInventoryFluid _entity;
@@ -47,15 +48,23 @@ public class BeefGuiFluidBar extends BeefGuiProgressBarVertical implements
 	}
 	
 	@Override
-	public String getTooltip() {
+	public String[] getTooltip() {
 		FluidTankInfo[] tanks = this._entity.getTankInfo(ForgeDirection.UNKNOWN);
 		if(tanks != null && tankIdx < tanks.length) {
 			FluidStack tankFluid = tanks[tankIdx].fluid;
 			if(tankFluid != null) {
-				return String.format("%d / %d mB", tankFluid.amount, tanks[tankIdx].capacity);
+				String fluidName = tankFluid.getFluid().getLocalizedName();
+				if(tankFluid.getFluid().getID() == FluidRegistry.WATER.getID()) {
+					fluidName = "Water";
+				}
+				else if(tankFluid.getFluid().getID() == FluidRegistry.LAVA.getID()) {
+					fluidName = "Lava";
+				}
+
+				return new String[] { fluidName, String.format("%d / %d mB", tankFluid.amount, tanks[tankIdx].capacity) };
 			}
 			else {
-				return String.format("0 / %d mB", tanks[tankIdx].capacity);
+				return new String[] { "Empty", String.format("0 / %d mB", tanks[tankIdx].capacity) };
 			}
 		}
 		return null;
@@ -65,4 +74,7 @@ public class BeefGuiFluidBar extends BeefGuiProgressBarVertical implements
 	protected ResourceLocation getResourceLocation() {
 		return net.minecraft.client.renderer.texture.TextureMap.locationBlocksTexture;
 	}
+	
+	@Override
+	protected boolean drawGradationMarks() { return true; }
 }

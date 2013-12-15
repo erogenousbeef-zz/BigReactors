@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
-
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
@@ -13,19 +16,13 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort.CircuitType;
 import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
-import erogenousbeef.bigreactors.gui.controls.BeefGuiListBox;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiRedNetChannelSelector;
 import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
-import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabbable;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.Container;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiReactorRedNetPort extends BeefGuiBase {
 
@@ -50,14 +47,15 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			"LightGray", "Cyan", "Purple", "Blue", "Brown", "Green", "Red", "Black"
 	};
 	
-	protected static final String[] grabbableTooltips = {
+	public static final String[] grabbableTooltips = {
 		"Input: Toggle reactor on/off",
 		"Input: Change control rod insertion",
 		"Input: Eject Waste",
 		"Output: Temperature (C)",
 		"Output: Fuel mix (% fuel, 0-100)",
 		"Output: Fuel amount",
-		"Output: Waste amount"
+		"Output: Waste amount",
+		"Output: Energy amount (%)"
 	};
 	
 	BeefGuiRedNetChannelSelector[] channelSelectors = new BeefGuiRedNetChannelSelector[numChannels];
@@ -86,8 +84,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	public void initGui() {
 		super.initGui();
 
-		int leftX = 4;
-		int topY = 4;
+		int leftX = guiLeft + 4;
+		int topY = guiTop + 4;
 		
 		titleString = new BeefGuiLabel(this, "Reactor RedNet Port", leftX+2, topY+2);
 		settingsString = new BeefGuiLabel(this, "Settings", leftX+154, topY+2);
@@ -110,7 +108,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			channelSelectors[i + 1] = new BeefGuiRedNetChannelSelector(this, channelLabelStrings[i+1], i+1, leftX, topY, 60, 20);
 			grabTargets[i + 1] = new RedNetConfigGrabTarget(this, leftX + 42, topY+2, port, i + 1);
 			topY += 24;
-			leftX = 4;
+			leftX = guiLeft + 4;
 			
 			registerControl(channelSelectors[i]);
 			registerControl(channelSelectors[i+1]);
@@ -122,15 +120,15 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
 		BlockReactorPart reactorPartBlock = (BlockReactorPart)BigReactors.blockReactorPart;
 		RedNetConfigGrabbable[] grabbables = new RedNetConfigGrabbable[circuitTypes.length - 1];
-		topY = 21;
-		leftX = 156;
+		topY = guiTop + 21;
+		leftX = guiLeft + 156;
 		for(int i = 1; i < circuitTypes.length; i++) {
 			grabbables[i-1] = new RedNetConfigGrabbable(grabbableTooltips[i-1], reactorPartBlock.getRedNetConfigIcon(circuitTypes[i]), circuitTypes[i]);
 			BeefGuiGrabSource source = new BeefGuiGrabSource(this, leftX, topY, grabbables[i - 1]);			
 			registerControl(source);
 			leftX += 20;
-			if(leftX >= 230) {
-				leftX = 156;
+			if(leftX >= guiLeft + 230) {
+				leftX = guiLeft + 156;
 				topY += 20;
 			}
 		}

@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
-import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.api.IReactorSolid;
 
 public class ReactorSolidMapping implements IReactorSolid {
