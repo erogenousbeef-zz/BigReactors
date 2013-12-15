@@ -13,7 +13,7 @@ public class BRConfig {
 	public static final int MINOR_VERSION = 2;
 	public static final int REVISION_VERSION = 7;
 	public static final char STATUS_VERSION = 'A'; // a/alpha, b/beta, f/final, x/experimental
-	public static final String BUGFIX_VERSION = "";
+	public static final String BUGFIX_VERSION = "2";
 	public static final String VERSION = MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION_VERSION + STATUS_VERSION + BUGFIX_VERSION;
 	public static final int WORLDGEN_VERSION = 1; // Bump this when changing world generation so the world regens
 
