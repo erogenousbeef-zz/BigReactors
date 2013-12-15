@@ -108,7 +108,8 @@ public class StaticUtils {
 					return new InventoryLargeChest("Large Chest", te, ((IInventory)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z)));
 				}
 			}
-			return null;
+			// Not a large chest, so just return the single chest.
+			return te;
 		}
 	}
 	
