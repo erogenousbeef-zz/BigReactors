@@ -1,15 +1,11 @@
 package erogenousbeef.bigreactors.common.item;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.item.Item;
+import net.minecraft.util.Icon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
 
 public class ItemBase extends Item {
 	protected Icon[] icons;

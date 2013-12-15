@@ -1,15 +1,12 @@
 package erogenousbeef.bigreactors.gui.controls;
 
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.texture.TextureManager;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
-import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.inventory.Container;
 
 @SideOnly(Side.CLIENT)
 public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipControl {
@@ -63,15 +60,16 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY) {
 		FontRenderer fontRenderer = guiContainer.getFontRenderer();
 		if(xMax > 0) {
-			fontRenderer.drawSplitString(labelText, x, y, color, xMax);
+			fontRenderer.drawSplitString(labelText, relativeX, relativeY, color, xMax);
 		}
 		else {
-			fontRenderer.drawString(labelText, x, y, color, dropShadow);
+			fontRenderer.drawString(labelText, relativeX, relativeY, color, dropShadow);
 		}
 	}
 	@Override
-	public String getTooltip() {
-		return labelTooltip;
+	public String[] getTooltip() {
+		if(labelTooltip == null || labelTooltip.isEmpty()) { return null; }
+		return new String[] { labelTooltip };
 	}
 	
 	@Override
@@ -82,10 +80,7 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 	 * @return True if the mouse is over this control, false otherwise.
 	 */
 	public boolean isMouseOver(int mouseX, int mouseY) {
-		// Gotta transform these, as labels work in window-relative space, THANKS FONTRENDERER.
-		mouseX -= guiContainer.getGuiLeft();
-		mouseY -= guiContainer.getGuiTop();
-		if(mouseX < x || mouseX > x+width || mouseY < y || mouseY > y+height) { return false; }
+		if(mouseX < absoluteX || mouseX > absoluteX+width || mouseY < absoluteY || mouseY > absoluteY+height) { return false; }
 		return true;
 	}
 	

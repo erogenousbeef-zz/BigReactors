@@ -1,15 +1,61 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.2.2)
------------------------------------------
+Next Release (Anticipated Version: 0.3.0A)
+------------------------------------------
 
-Current Release (0.2.1A)
+Current Release (0.2.7A)
 --------------------------------
-- Bugfix: Fixed a startup crash that prevented SMP servers from running
+- Feature: Reactor interiors can now have iron, gold and diamond blocks put inside them. These perform better than water, in general.
+- Feature: Reactor interiors can now have TE's redstone, glowstone, ender, pyrotheum and cryotheum fluids placed inside them. These perform better than water and iron, in general.
+- UI: Stored-energy meters now visually match Thermal Expansion
+- UI: Reactor controller now have visual meters for fueling and heat
+- UI: Some tooltips have been improved, e.g. the cyanite reprocessor's fluid tank
+- UI: Added red/green outlines to cyanite reprocessor to clarify how the inventory exposure stuff works
+- Bugfix: Fixed crash on resizing the screen with the cyanite reprocessor's GUI open
+- Bugfix: Fixed all GUIs having their controls show up twice when the screen is resized while they're open
+- Bugfix: Computer Ports were not allowing per-control-rod queries or most "set" methods, due to a data type mixup. Fixed them.
+- Bugfix: Fixed a crash that happened when putting single-size chests next to outlet ports or cyanite reprocessors
 
 Older Releases
 --------------
+### Release 0.2.6A
+- Feature: Reactor Computer Ports added. Control your reactor with a ComputerCraft computer!
+- Feature: RedNet and Redstone ports now have an output option to read how full the reactor's internal energy buffer is, as a percentile (0-100) value.
+- UI: Reactor Controller now shows how full the reactor is with fuel and waste. Mouse-over for an absolute value in the tooltip.
+- Bugfix: Fixed a crash that occured when connecting UE pipes to a cyanite reprocessor
+- Bugfix: Fixed a crash that could occur when opening the cyanite reprocessor's UI on Java 1.7
+
+### Release 0.2.5A2
+- Bugfix: Prevent server crashes due to inclusion of GUI methods when creating redstone ports
+
+### Release 0.2.5A
+- Feature: Redstone Ports, which can accept input and provide output via regular old redstone and anything compatible with it.
+- Performance: RedNet ports no longer send updates every tick. They now send updates every 20 ticks, by default. This rate can be controlled via the ticksPerRedstoneUpdate config value and also applies to redstone ports.
+- Bugfix: Cyanite reprocessor GUI's icons for exposing inventories & fluid tanks are now proper icons, not just colors.
+
+### Release 0.2.4A
+- Bugfix: Blutonium can again be added to reactor access ports via automation (e.g. itemducts)
+- Bugfix: Energy output number displayed for ludicrously-huge reactors was inaccurate. This is fixed.
+- Bugfix: Cyanite reprocessors were starting with 5000 free RF inside themselves. This has been removed.
+- BeefCore: Client-side data is now properly calculated on world load. Internal fix only, no visible effects.
+
+### Release 0.2.3A
+- Bugfix: Tooltips now work in the RedNet port UI
+- Optimization: Fuel rods now use a MUCH more efficient rendering method. Large reactors should be much less laggy to look at.
+- KNOWN ISSUE: Control rods are sometimes lit improperly
+
+### Release 0.2.2A
+- UI: Reactors now show estimated fuel consumption. Not very accurate for small reactors!
+- UI: Reactors now show fuel richness as a percentage. This is the percent of stuff inside the reactor that's fuel (as opposed to waste).
+- Feature: Cyanite reprocessors and access ports will now emit products into chests and other adjacent inventories, such as TE machines
+- Rebalance: Heat & radiation mechanics overhauled and simplified. Base RF output is up, overheating penalties are higher, efficiencies available via water and fuel fertilization are also higher. Should no longer have cryogenic fuel rods.
+- Optimization: Heat transfer in tall reactors should now be much, much less expensive on the CPU, at the cost of a small degree of accuracy
+- Bugfix: TE pulverizer and induction smelter recipes work again
+
+### Release 0.2.1A
+- Bugfix: Fixed a startup crash that prevented SMP servers from running
+
 ### Release 0.2.0A
 - FORGE: Big Reactors now requires Forge 916 for Minecraft 1.6.4
 - Feature: RedNet connection block added. Read data from, and send commands to, your reactors via MFR's RedNet.

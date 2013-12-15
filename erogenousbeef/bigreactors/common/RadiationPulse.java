@@ -8,21 +8,18 @@ public class RadiationPulse implements IRadiationPulse {
 	float slow;
 	int ttl;
 	float power;
-	float heat;
 	
 	public RadiationPulse() { 
 		fast = slow = 0;
 		ttl = 1;
-		heat = 0.0f;
 		power = 0.0f;
 	}
 	
-	public RadiationPulse(float fast, float slow, int timeToLive, float heat, float power) {
+	public RadiationPulse(float fast, float slow, int timeToLive, float power) {
 		this.fast = fast;
 		this.slow = slow;
 		this.ttl = timeToLive;
 		this.power = power;
-		this.heat = heat;
 	}
 	
 	@Override
@@ -68,15 +65,5 @@ public class RadiationPulse implements IRadiationPulse {
 	@Override
 	public void addPower(float additionalPower) {
 		power += additionalPower;
-	}
-
-	@Override
-	public float getHeatProduced() {
-		return heat;
-	}
-
-	@Override
-	public void changeHeat(float difference) {
-		heat += difference;
 	}
 }

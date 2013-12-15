@@ -4,13 +4,6 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
-import cofh.api.energy.IEnergyHandler;
-
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -18,15 +11,20 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
-import erogenousbeef.bigreactors.gui.container.ContainerReactorRedNetPort;
+import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
+public class TileEntityReactorRedNetPort extends TileEntityReactorPart implements IReactorTickable {
 
 	public enum CircuitType {
 		DISABLED,
@@ -37,13 +35,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		outputTemperature,				// Output: Temperature of the reactor
 		outputFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
 		outputFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
-		outputWasteAmount 	// Output: Waste amount in a control rod, raw value, (0-4*height)
+		outputWasteAmount, 	// Output: Waste amount in a control rod, raw value, (0-4*height)
+		outputEnergyAmount // Output: Energy in the reactor's buffer, percntile (0-100, 100 = 100% full)
 	}
 
 	protected final static int minInputEnumValue = CircuitType.inputActive.ordinal();
 	protected final static int maxInputEnumValue = CircuitType.inputEjectWaste.ordinal();
 	protected final static int minOutputEnumValue = CircuitType.outputTemperature.ordinal();
-	protected final static int maxOutputEnumValue = CircuitType.outputWasteAmount.ordinal();
+	protected final static int maxOutputEnumValue = CircuitType.outputEnergyAmount.ordinal();
 
 	protected CircuitType[] channelCircuitTypes;
 	protected CoordTriplet[] coordMappings;
@@ -104,12 +103,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
-		return new GuiReactorRedNetPort(new ContainerReactorRedNetPort(), this);
+		return new GuiReactorRedNetPort(new ContainerBasic(), this);
 	}
 	
 	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
-		return new ContainerReactorRedNetPort();
+		return new ContainerBasic();
 	}
 
 	@Override
@@ -195,6 +194,13 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 				clearChannel(channel);
 				return 0;
 			}
+		case outputEnergyAmount:
+			int energyStored, energyTotal;
+			MultiblockReactor reactor = this.getReactorController();
+			if(reactor != null) {
+				return reactor.getEnergyStoredPercentage();
+			}
+			return 0;
 		default:
 			return 0;
 		}
@@ -263,9 +269,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 	 * Updates the connected RedNet network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
-	public void updateRedNetNetwork() {
+	public void onReactorTick() {
 		ticksSinceLastUpdate++;
-		if(ticksSinceLastUpdate < BigReactors.ticksPerRedNetUpdate) { return; }
+		if(ticksSinceLastUpdate < BigReactors.ticksPerRedstoneUpdate) { return; }
 
 		if(redNetwork != null) {
 				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ);
@@ -274,6 +280,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart {
 		if(redNetConnectable != null) {
 			redNetConnectable.onInputsChanged(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), getOutputValues());
 		}
+		ticksSinceLastUpdate = 0;
 	}
 
 	public CircuitType getChannelCircuitType(int channel) {

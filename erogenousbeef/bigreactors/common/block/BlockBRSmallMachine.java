@@ -2,25 +2,12 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BRUtilities;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -35,10 +22,22 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
+import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BlockBRSmallMachine extends BlockContainer {
 
-	private static String[] _subBlocks = new String[] { "cyaniteReprocessor", "heatGenerator" };
+	public static int META_CYANITE_REPROCESSOR = 0;
+	
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _activeIcons = new Icon[_subBlocks.length];
 	private Icon[] _inventorySideIcons = new Icon[3];
@@ -53,14 +52,10 @@ public class BlockBRSmallMachine extends BlockContainer {
 		setCreativeTab(BigReactors.TAB);
 	}
 	
-	@Override
-	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
-	{
-		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+	public Icon getIconFromTileEntity(TileEntity te, int metadata, int side) {
 		if(te instanceof TileEntityBeefBase)
 		{
 			if(side == ((TileEntityBeefBase)te).getFacingDirection().ordinal()) {
-				int metadata = blockAccess.getBlockMetadata(x, y, z);
 				if(te instanceof TileEntityPoweredInventory) {
 					if(((TileEntityPoweredInventory)te).isActive()) {
 						return _activeIcons[metadata];
@@ -87,7 +82,15 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 
 		return this.blockIcon;
-	}	
+	}
+	
+	@Override
+	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
+	{
+		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+		int metadata = blockAccess.getBlockMetadata(x, y, z);
+		return this.getIconFromTileEntity(te, metadata, side);
+	}
 	
 	@Override
 	public Icon getIcon(int side, int metadata)
@@ -110,13 +113,12 @@ public class BlockBRSmallMachine extends BlockContainer {
 			_activeIcons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i] + ".active");
 		}
 		
+		// TODO: Better icons for these
 		_inventorySideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".redPort");
 		_inventorySideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".greenPort");
-		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
+		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 
-		// TODO: Better icons for these
-		_fluidSideIcons[0] = _inventorySideIcons[2];
-		_fluidSideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
+		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
 	}
 	
 	@Override
@@ -151,7 +153,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 
 	public ItemStack getCyaniteReprocessorItemStack() {
-		return new ItemStack(this.blockID, 1, 0);
+		return new ItemStack(this.blockID, 1, META_CYANITE_REPROCESSOR);
 	}
 	
 	public ItemStack getHeatGeneratorItemStack() {
@@ -182,7 +184,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 
 		// WRENCH SUPPORT HAH.
-		if(te instanceof TileEntityBeefBase && BRUtilities.isPlayerHoldingWrench(entityPlayer)) {
+		if(te instanceof TileEntityBeefBase && StaticUtils.Inventory.isPlayerHoldingWrench(entityPlayer)) {
 			ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
 			((TileEntityBeefBase)te).rotateTowards(newFacing);
 			return true;
@@ -194,14 +196,14 @@ public class BlockBRSmallMachine extends BlockContainer {
 			IFluidHandler fluidHandler = (IFluidHandler)te;
 			FluidTankInfo[] infoz = fluidHandler.getTankInfo(ForgeDirection.UNKNOWN);
 			for(FluidTankInfo info : infoz) {
-				if(BRUtilities.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
+				if(StaticUtils.Fluids.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
 					return true;
 				}
 			}
 		}
 		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			if(BRUtilities.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer)) {
+			if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
 				return true;
 			}
 		}

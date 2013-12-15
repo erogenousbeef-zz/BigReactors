@@ -1,9 +1,8 @@
 package erogenousbeef.bigreactors.common.item;
 
-import erogenousbeef.bigreactors.common.BigReactors;
-import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class ItemBlockYelloriumFuelRod extends ItemBlock {
 	public ItemBlockYelloriumFuelRod(int id)

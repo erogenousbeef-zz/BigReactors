@@ -2,7 +2,9 @@ package erogenousbeef.bigreactors.api;
 
 public interface IHeatEntity {
 	public static final float ambientHeat = 20.0f; // Normal ambient temperature
-	public static final float powerPerHeat = 3.0f; // Internal power units per C radiated
+	public static final float powerPerHeat = 10f;  // RF power units per C radiated
+												   // Note that this is controlled via a BigReactors config setting
+												   // For all internal calculations!
 	
 	/**
 	 * Returns the amount of heat in the entity, in celsius.
@@ -13,7 +15,7 @@ public interface IHeatEntity {
 	/**
 	 * The thermal conductivity of the entity.
 	 * This is the percentage of the available heat difference
-	 * that will be absorbed in one second, with 1 being 100%.
+	 * that will be absorbed in one tick, with 1 being 100%.
 	 * Numbers over 1 are ignored.
 	 * @return Thermal conductivity constant, the percentage heat difference to absorb in 1 sec
 	 */
@@ -40,14 +42,15 @@ public interface IHeatEntity {
 	 */
 	public HeatPulse onRadiateHeat(float ambientHeat);
 	
-	
-	public static final float conductivityAir = 0.0005f;
+	// Centigrade to transfer per tick per degree centigrade of difference
+	public static final float conductivityAir = 0.005f;
 	public static final float conductivityRubber = 0.001f;
 	public static final float conductivityWater = 0.01f;
-	public static final float conductivityStone = 0.02f;
-	public static final float conductivityGlass = 0.02f;
-	public static final float conductivityIron = 0.05f; // Stainless steel, really.
+	public static final float conductivityStone = 0.015f;
+	public static final float conductivityGlass = 0.03f;
+	public static final float conductivityIron = 0.06f; // Stainless steel, really.
 	public static final float conductivityCopper = 0.1f;
-	public static final float conductivityDiamond = 0.15f;
-	public static final float conductivityGraphene = 0.25f;
+	public static final float conductivityGold = 0.2f;
+	public static final float conductivityDiamond = 0.3f;
+	public static final float conductivityGraphene = 0.5f;
 }

@@ -1,18 +1,13 @@
 package erogenousbeef.bigreactors.common;
 
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
-import cpw.mods.fml.common.FMLLog;
-
-import erogenousbeef.bigreactors.api.IReactorFuel;
-import erogenousbeef.bigreactors.api.IReactorSolid;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
+import cpw.mods.fml.common.FMLLog;
+import erogenousbeef.bigreactors.api.IReactorFuel;
+import erogenousbeef.bigreactors.api.IReactorSolid;
 
 public abstract class BRRegistry {
 	

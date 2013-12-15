@@ -3,7 +3,6 @@ package erogenousbeef.bigreactors.common;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureObject;
 import net.minecraft.creativetab.CreativeTabs;
@@ -11,34 +10,26 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.util.Icon;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.World;
-import net.minecraftforge.event.Event.Result;
-import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.api.IHeatEntity;
+import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.block.BlockFuelRod;
-import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
-import erogenousbeef.bigreactors.common.block.BlockRTG;
 import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
-import erogenousbeef.bigreactors.common.item.ItemBlockRTG;
 import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockSmallMachine;
 import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
@@ -49,11 +40,13 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
 import erogenousbeef.bigreactors.world.BRWorldGenerator;
 
@@ -83,6 +76,7 @@ public class BigReactors {
 	public static Block blockReactorPart;
 	public static Block blockReactorGlass;
 	public static Block blockReactorControlRod;
+	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
 	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
@@ -106,7 +100,7 @@ public class BigReactors {
 	public static final int defaultFluidColorWaste = 0x4d92b5;
 	
 	public static final int ITEM_ID_PREFIX = 17750;
-	public static Item ingotGeneric;
+	public static ItemIngot ingotGeneric;
 
 	public static BRSimpleOreGenerator yelloriteOreGeneration;
 	
@@ -123,12 +117,12 @@ public class BigReactors {
 	private static boolean registeredTileEntities = false;
 	public static int maximumReactorSize = MultiblockReactor.DIMENSION_UNBOUNDED;
 	public static int maximumReactorHeight = MultiblockReactor.DIMENSION_UNBOUNDED;
+	public static int ticksPerRedstoneUpdate = 20; // Once per second, roughly
 	
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
-	public static final float powerPerHeat = 25f; // RF units per C dissipated
-	public static final int ticksPerRedNetUpdate = 20; // Once per second, roughly
+	public static final float powerPerHeat = IHeatEntity.powerPerHeat; // RF units per C dissipated
 	
 	protected static Icon iconSteamStill;
 	protected static Icon iconSteamFlowing;
@@ -161,7 +155,7 @@ public class BigReactors {
 
 			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
-
+			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
 			
 			BRConfig.CONFIGURATION.save();
@@ -242,8 +236,15 @@ public class BigReactors {
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
 
-				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RRR", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
+				if(Loader.isModLoaded("MineFactoryReloaded")) {
+					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', Item.ingotGold }));
+				}
+				
+				if(Loader.isModLoaded("ComputerCraft")) {
+					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getComputerPortItemStack();
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold, 'P', "reactorRedstonePort" }));
+				}
 			}
 			
 			if(blockReactorGlass != null) {
@@ -260,6 +261,12 @@ public class BigReactors {
 				ItemStack cyaniteReprocessorStack = ((BlockBRSmallMachine)blockSmallMachine).getCyaniteReprocessorItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, new Object[] { "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', "ingotIron", 'F', blockYelloriumFuelRod, 'P', Block.pistonBase, 'R', Item.redstone}));
 			}
+			
+			if(blockReactorRedstonePort != null) {
+				ItemStack redstonePortStack = new ItemStack(BigReactors.blockReactorRedstonePort, 1);
+				GameRegistry.addRecipe(new ShapedOreRecipe(redstonePortStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold }));
+			}
+			
 			
 			/* TODO: Fixme
 			if(blockRadiothermalGen != null) {
@@ -300,6 +307,8 @@ public class BigReactors {
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
+			GameRegistry.registerTileEntity(TileEntityReactorRedstonePort.class,"BRReactorRedstonePort");
+			GameRegistry.registerTileEntity(TileEntityReactorComputerPort.class, "BRReactorComputerPort");
 			registeredTileEntities = true;
 		}
 	}
@@ -449,7 +458,7 @@ public class BigReactors {
 			OreDictionary.registerOre("reactorController", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack());
 			OreDictionary.registerOre("reactorPowerTap", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack());
 			OreDictionary.registerOre("reactorRedNetPort", 	((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack());
-
+			OreDictionary.registerOre("reactorComputerPort", ((BlockReactorPart) BigReactors.blockReactorPart).getComputerPortItemStack());
 			BRConfig.CONFIGURATION.save();
 		}
 		
@@ -460,7 +469,16 @@ public class BigReactors {
 			GameRegistry.registerBlock(BigReactors.blockReactorGlass, ItemBlockBigReactors.class, "BRReactorGlass");
 			
 			BRConfig.CONFIGURATION.save();
+		}
+		
+		if(BigReactors.blockReactorRedstonePort == null) {
+			BRConfig.CONFIGURATION.load();
 			
+			BigReactors.blockReactorRedstonePort = new BlockReactorRedstonePort(BRConfig.CONFIGURATION.getBlock("ReactorRedstonePort",  BigReactors.BLOCK_ID_PREFIX + 9).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlockBigReactors.class, "BRReactorRedstonePort");
+			OreDictionary.registerOre("reactorRedstonePort", new ItemStack(blockReactorRedstonePort, 1));
+			
+			BRConfig.CONFIGURATION.save();
 		}
 	}
 	
@@ -578,9 +596,9 @@ public class BigReactors {
 		BRRegistry.registerReactorFluid(new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
 		BRRegistry.registerReactorFluid(new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
 		
-		ItemStack yelloriumStack 	= new ItemStack(ingotGeneric, 1, 0);
-		ItemStack cyaniteStack 		= new ItemStack(ingotGeneric, 1, 1);
-		ItemStack blutoniumStack 	= new ItemStack(ingotGeneric, 1, 2);
+		ItemStack yelloriumStack 	= ingotGeneric.getItemStackForType("ingotYellorium");
+		ItemStack cyaniteStack 		= ingotGeneric.getItemStackForType("ingotCyanite");
+		ItemStack blutoniumStack 	= ingotGeneric.getItemStackForType("ingotBlutonium");
 		
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(yelloriumStack, fluidYellorium));
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(cyaniteStack, fluidCyanite));

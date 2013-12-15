@@ -2,39 +2,28 @@ package erogenousbeef.bigreactors.common.tileentity;
 
 import java.io.DataInputStream;
 
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import cofh.api.tileentity.IEnergyInfo;
-
-import com.google.common.io.ByteArrayDataInput;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
-import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
-import erogenousbeef.bigreactors.gui.container.ContainerReactorRedNetPort;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
 
 public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity, IEnergyInfo {
 
@@ -196,17 +185,20 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {
-			Class decodeAs[] = { Boolean.class, Float.class, Float.class, Float.class};
+			Class decodeAs[] = { Boolean.class, Float.class, Float.class, Float.class, Integer.class};
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			boolean active = (Boolean) decodedData[0];
 			float heat = (Float) decodedData[1];
 			float storedEnergy = (Float) decodedData[2];
 			float energyGeneratedLastTick = (Float) decodedData[3];
+			int fuelConsumedLastTick = (Integer) decodedData[4];
 
-			getReactorController().setActive(active);
-			getReactorController().setHeat(heat);
-			getReactorController().setStoredEnergy(storedEnergy);
-			getReactorController().setEnergyGeneratedLastTick(energyGeneratedLastTick);
+			MultiblockReactor reactor = getReactorController();
+			reactor.setActive(active);
+			reactor.setHeat(heat);
+			reactor.setStoredEnergy(storedEnergy);
+			reactor.setEnergyGeneratedLastTick(energyGeneratedLastTick);
+			reactor.setFuelConsumedLastTick(fuelConsumedLastTick);
 		}		
 	}
 
@@ -316,12 +308,10 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// IRadiationModerator
 	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		float newHeat = radiation.getSlowRadiation() * 0.5f;
+		float freePower = radiation.getSlowRadiation() * 0.25f;
 		
-		// Convert 15% of newly-gained heat to energy (thermocouple or something)
-		radiation.addPower(newHeat*0.15f);
-		newHeat *= 0.85f * 0.5f;
-		radiation.changeHeat(newHeat);
+		// Convert 25% of incident radiation to power, for balance reasons.
+		radiation.addPower(freePower);
 		
 		// Slow radiation is all lost now
 		radiation.setSlowRadiation(0);
@@ -347,8 +337,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 		float heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0f/(float)faces) * contactArea;
 
-		pulse.powerProduced += heatToAbsorb * 0.15f;
-		pulse.heatChange += heatToAbsorb * 0.85f * 0.5f;
+		pulse.heatChange += heatToAbsorb;
 
 		return heatToAbsorb;
 	}

@@ -1,34 +1,11 @@
 package erogenousbeef.bigreactors.common.block;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
-import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
-
-//import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-//import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-import erogenousbeef.bigreactors.common.BRConfig;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -37,6 +14,17 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
+import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorComputerPort;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 
 public class BlockReactorPart extends BlockContainer implements IConnectableRedNet {
 	
@@ -56,6 +44,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public static final int ACCESSPORT_INLET = 11;
 	public static final int ACCESSPORT_OUTLET = 12;
 	public static final int REDNETPORT = 13;
+	public static final int COMPUTERPORT = 14;
 	
 	private static String[] _subBlocks = new String[] { "casingDefault",
 														"casingCorner",
@@ -70,7 +59,8 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 														"powerTapConnected",
 														"accessInlet",
 														"accessOutlet",
-														"redNetPort" };
+														"redNetPort",
+														"computerPort" };
 
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _redNetPortConfigIcons = new Icon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
@@ -80,6 +70,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE && metadata < ACCESSPORT_INLET; }
 	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET && metadata < REDNETPORT; }
 	public static boolean isRedNetPort(int metadata) { return metadata == REDNETPORT; }
+	public static boolean isComputerPort(int metadata) { return metadata == COMPUTERPORT; }
 	
 	public BlockReactorPart(int id, Material material) {
 		super(id, material);
@@ -184,6 +175,9 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		else if(isRedNetPort(metadata)) {
 			return new TileEntityReactorRedNetPort();
 		}
+		else if(isComputerPort(metadata)) {
+			return new TileEntityReactorComputerPort();
+		}
 		else {
 			return new TileEntityReactorPart();
 		}
@@ -263,6 +257,9 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		else if(isRedNetPort(metadata)) {
 			return REDNETPORT;
 		}
+		else if(isComputerPort(metadata)) {
+			return COMPUTERPORT;
+		}
 		else {
 			return CASING_METADATA_BASE;
 		}
@@ -288,6 +285,10 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		return new ItemStack(this.blockID, 1, REDNETPORT);
 	}
 	
+	public ItemStack getComputerPortItemStack() {
+		return new ItemStack(this.blockID, 1, COMPUTERPORT);
+	}
+	
 	@Override
 	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
@@ -296,6 +297,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		par3List.add(this.getReactorPowerTapItemStack());
 		par3List.add(this.getAccessPortItemStack());
 		par3List.add(this.getRedNetPortItemStack());
+		par3List.add(this.getComputerPortItemStack());
 	}
 	
 	@Override

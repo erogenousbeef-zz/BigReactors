@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.gui;
 
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 
 public interface IBeefGuiControl {

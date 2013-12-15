@@ -1,24 +1,22 @@
 package erogenousbeef.bigreactors.common.block;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BRUtilities;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 
 public class BlockReactorControlRod extends BlockContainer {
 
+	public static int renderId;
+	
 	protected Icon topIcon;
 	
 	public BlockReactorControlRod(int id, Material material) {
@@ -30,6 +28,11 @@ public class BlockReactorControlRod extends BlockContainer {
 		this.setCreativeTab(BigReactors.TAB);
 	}
 
+	@Override
+	public int getRenderType() {
+		return renderId;
+	}
+	
 	@Override
 	public TileEntity createNewTileEntity(World world) {
 		return null;
