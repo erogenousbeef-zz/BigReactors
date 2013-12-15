@@ -4,8 +4,13 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.7A)
+Current Release (0.2.7A2)
 --------------------------------
+- Bugfix: Fixing a crash that can occur when using EnderIO power conduits with reactor power taps
+
+Older Releases
+--------------
+### Release 0.2.7A
 - Feature: Reactor interiors can now have iron, gold and diamond blocks put inside them. These perform better than water, in general.
 - Feature: Reactor interiors can now have TE's redstone, glowstone, ender, pyrotheum and cryotheum fluids placed inside them. These perform better than water and iron, in general.
 - UI: Stored-energy meters now visually match Thermal Expansion
@@ -17,8 +22,6 @@ Current Release (0.2.7A)
 - Bugfix: Computer Ports were not allowing per-control-rod queries or most "set" methods, due to a data type mixup. Fixed them.
 - Bugfix: Fixed a crash that happened when putting single-size chests next to outlet ports or cyanite reprocessors
 
-Older Releases
---------------
 ### Release 0.2.6A
 - Feature: Reactor Computer Ports added. Control your reactor with a ComputerCraft computer!
 - Feature: RedNet and Redstone ports now have an output option to read how full the reactor's internal energy buffer is, as a percentile (0-100) value.
