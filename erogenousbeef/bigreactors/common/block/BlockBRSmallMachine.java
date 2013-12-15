@@ -192,10 +192,8 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			FMLLog.info("trying to fill a TE with some fluid from a bucket");
 			if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
 			{
-				FMLLog.info("success!");
 				return true;
 			}
 		}

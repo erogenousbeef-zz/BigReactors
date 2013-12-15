@@ -16,13 +16,21 @@ Known Issues
 ------------
 - WR-CBE receivers do not activate redstone ports in input mode correctly if they are placed directly next to the input port. Workaround: Place one tile's worth of redstone (or another mod's redstone wire) between the receiver and the input port.
 
-TODO - 0.2: The Redstone Update
--------------------------------
-- Allow different types of blocks inside reactor, e.g. iron blocks and TE cryotheum liquids
-
 TODO - 0.3: The Coolant Update
 ------------------------------
 - Cool particle effects when the reactor is on!
+
+### Core
+- Change BeefCore so client-side machines know when they're assembled, etc.
+- Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
+- Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
+
+### Radiation refactor number two
+- Change radiation system to be much more lightweight on the CPU
+- Change fuel to be shared throughout the entire machine instead of being located inside the control rod TEs
+- Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
+- Add ISBRH for fuel rods and move fuel rendering into there
+- Add radiation reflector to give players more control over radiation
 
 ### Active Coolant Loop
 - Coolant buffer in main reactor controller
@@ -42,8 +50,6 @@ TODO - 0.4: The Fueling Update
 ------------------------------
 ### Gameplay
 - Rewrite fertilization mechanics to be more sane/useful and expose fertility via control rod UI
-- Change refueling to be per-column instead of pan-machine. This considerably simplifies the logic
-  and prevents problems with unbalanced fuel distribution across rods.
 - Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
 ### Reactor Mechanics
@@ -68,14 +74,11 @@ TODO - 0.5: The Reprocessing Update
 TODO - General
 --------------
 
-### Core
-- Move away from using metadata to distinguish assembled/disassembled blocks; this will fix client lag on assembly/disassembly
-
 ### Graphics & UI
-- Highlight inventory slots when they are exposed via the right-hand-side buttons
+- Highlight inventory & fluid slots dynamically when they are exposed via the right-hand-side buttons
+- Change all UI strings to be in the localization file to allow for full localization
 
 ### Reactor Mechanics
-- Radiation reflectors: a passive internal block that reverses the direction of a radiation packet, at the cost of some scattering
 - Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
 
 Wishlist
