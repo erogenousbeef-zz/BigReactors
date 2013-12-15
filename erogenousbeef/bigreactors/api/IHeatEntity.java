@@ -50,6 +50,7 @@ public interface IHeatEntity {
 	public static final float conductivityGlass = 0.03f;
 	public static final float conductivityIron = 0.06f; // Stainless steel, really.
 	public static final float conductivityCopper = 0.1f;
-	public static final float conductivityDiamond = 0.03f;
-	public static final float conductivityGraphene = 0.05f;
+	public static final float conductivityGold = 0.2f;
+	public static final float conductivityDiamond = 0.3f;
+	public static final float conductivityGraphene = 0.5f;
 }

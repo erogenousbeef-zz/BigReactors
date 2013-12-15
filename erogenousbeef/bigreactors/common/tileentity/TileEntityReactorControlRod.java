@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,6 +23,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidBlock;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -571,6 +573,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 
 		// Propagate radiation up to 4 blocks away
 		int i = 1;
+		int blockId;
 		while(radiation.getTimeToLive() > 0 && (radiation.getFastRadiation() > 0 || radiation.getSlowRadiation() > 0)) {
 			te = worldObj.getBlockTileEntity(xCoord + (dx*i), dy, zCoord+(dz*i));
 			if(te != null && te instanceof IRadiationModerator) {
@@ -579,12 +582,13 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			}
 			else {
 				mat = worldObj.getBlockMaterial(xCoord + (dx*i), dy, zCoord+(dz*i));
+				blockId = worldObj.getBlockId(xCoord + (dx*i), dy, zCoord+(dz*i));
 				if(mat != null) {
-					modulateRadiationByMaterial(radiation, mat);
+					modulateRadiationByMaterialAndBlock(radiation, mat, blockId);
 				}
 				else {
 					// Durr..?
-					modulateRadiationByMaterial(radiation, Material.air);
+					modulateRadiationByMaterialAndBlock(radiation, Material.air, -1);
 				}
 			}
 			
@@ -801,7 +805,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 				lostHeat += he.onAbsorbHeat(this, results, dirs.length, this.getColumnHeight());
 			}
 			else {
-				lostHeat += transmitHeatByMaterial(ambientHeat, this.worldObj.getBlockMaterial(xCoord + dir.offsetX, heatY + dir.offsetY, zCoord + dir.offsetZ), results);
+				int blockId = worldObj.getBlockId(xCoord + dir.offsetX, heatY + dir.offsetY, zCoord + dir.offsetZ);
+				lostHeat += transmitHeatByMaterialAndBlock(ambientHeat, this.worldObj.getBlockMaterial(xCoord + dir.offsetX, heatY + dir.offsetY, zCoord + dir.offsetZ), blockId, results);
 			}
 		}
 		
@@ -818,7 +823,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	 * @param pulse The heatpulse result.
 	 * @return
 	 */
-	private float transmitHeatByMaterial(float ambientHeat, Material material, HeatPulse pulse) {
+	private float transmitHeatByMaterialAndBlock(float ambientHeat, Material material, int blockId, HeatPulse pulse) {
 		if(localHeat <= ambientHeat) {
 			return 0.0f;
 		}
@@ -828,8 +833,43 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		if(material.equals(Material.water)) {
 			thermalConductivity = IHeatEntity.conductivityWater;
 		}
-		else if(material.equals(Material.iron)) {
-			thermalConductivity = IHeatEntity.conductivityIron;
+		else if(!material.equals(Material.air)) {
+			// Check block for data
+			if(blockId == Block.blockGold.blockID) {
+				thermalConductivity = IHeatEntity.conductivityGold;
+			}
+			else if(blockId == Block.blockDiamond.blockID) {
+				thermalConductivity = IHeatEntity.conductivityDiamond;
+			}
+			else if(blockId == Block.blockIron.blockID) {
+				thermalConductivity = IHeatEntity.conductivityIron;
+			}
+			else if(blockId > 0 && blockId < Block.blocksList.length) {
+				// Check for fluids
+				Block blockClass = Block.blocksList[blockId];
+				if(blockClass instanceof IFluidBlock) {
+					String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
+					if(fluidName.equals("cryotheum")) {
+						thermalConductivity = IHeatEntity.conductivityCopper;
+					}
+					else if(fluidName.equals("pyrotheum")) {
+						thermalConductivity = IHeatEntity.conductivityGold;
+					}
+					else if(fluidName.equals("redstone")) {
+						thermalConductivity = IHeatEntity.conductivityIron;
+					}
+					else if(fluidName.equals("glowstone")) {
+						thermalConductivity = IHeatEntity.conductivityIron;
+					}
+					else if(fluidName.equals("ender")) {
+						thermalConductivity = IHeatEntity.conductivityGold;
+					}
+				}
+			}
+			else {
+				// Weird edge case?
+				thermalConductivity = IHeatEntity.conductivityGlass;
+			}
 		}
 		
 		float heatToTransfer = (localHeat - ambientHeat) * thermalConductivity * 0.25f * this.getColumnHeight();
@@ -903,46 +943,72 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		return from + (to - from) * proportion;
 	}
 	
-	private void modulateRadiationByMaterial(RadiationPulse radiation,
-			Material material) {
-		if(material == Material.lava) {
-			// Lose 25% of slow
-			int moderated = (int)((float)radiation.getSlowRadiation() * 0.25f);
-			radiation.setSlowRadiation(radiation.getSlowRadiation() - moderated);
-			
-			// Convert 50% of remainder to fast, because you are dumb
-			moderated = (int)((float)radiation.getSlowRadiation() * 0.5f);
-			radiation.setSlowRadiation(radiation.getSlowRadiation() - moderated);
-			radiation.setFastRadiation(radiation.getFastRadiation() + moderated);
-		}
-		else {
-			// Air/stone/dirt produces only tiny amounts of moderation, 20%
-			float moderationFactor = 0.2f;
-			
-			// Water will consume 80% of slow
-			if(material == Material.water) {
-				moderationFactor = 0.80f;
+	private void modulateRadiationByMaterialAndBlock(RadiationPulse radiation,
+			Material material, int blockId) {
+		// This data is for air
+		float neutronPermeability = 0.95f; // How much radiation can pass through (allowing slow neutrons to pass)
+		float neutronHeating = 0.5f; // How much heat to generate per absorbed neutron
+		float neutronModeration = 0.1f; // How many neutrons to moderate (i.e. how many fast neutrons to downconvert)
+		
+		if(material == Material.water) {
+			neutronPermeability = 0.8f;
+			neutronModeration = 0.5f;
+		} else if(material != Material.air) {
+			// Check block for data
+			if(blockId == Block.blockIron.blockID) {
+				neutronPermeability = 0.5f;
+				neutronModeration = 0.6f;
 			}
-
-			// Remove moderated slow radiation
-			float moderated = radiation.getSlowRadiation() * moderationFactor;
-			radiation.setSlowRadiation(Math.max(0.0f, radiation.getSlowRadiation() - moderated));
-			
-			// Convert moderated slow to power if in water.
-			if(material == Material.water) {
-				// Moderate 60% of fast in water and generate some bonus power
-				moderationFactor = 0.60f;
-
-				// Directly generate energy based on moderation
-				radiation.addPower(moderated * moderationFactor * BigReactors.powerPerHeat);
-				moderated -= moderated * moderationFactor;
-				
-				// Convert some fast to slow, using the same proportions as above.
-				moderated = radiation.getFastRadiation() * moderationFactor;
-				radiation.setFastRadiation(radiation.getFastRadiation() - moderated);
-				radiation.setSlowRadiation(radiation.getSlowRadiation() + moderated);
+			else if(blockId == Block.blockGold.blockID) {
+				neutronPermeability = 0.6f;
+				neutronModeration = 0.7f;
+				neutronHeating = 0.75f;
+			}
+			else if(blockId == Block.blockDiamond.blockID) {
+				neutronPermeability = 0.7f;
+				neutronModeration = 0.5f;
+				neutronHeating = 1.0f;
+			}
+			else if(blockId > 0 && blockId < Block.blocksList.length) {
+				Block blockClass = Block.blocksList[blockId];
+				if(blockClass instanceof IFluidBlock) {
+					String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
+					if(fluidName.equals("cryotheum")) {
+						neutronHeating = 0.1f;
+						neutronModeration = 0.4f;
+						neutronPermeability = 0.9f;
+					}
+					else if(fluidName.equals("pyrotheum")) {
+						neutronHeating = 0.9f;
+						neutronModeration = 0.2f;
+						neutronPermeability = 0.85f;
+					}
+					else if(fluidName.equals("redstone")) {
+						neutronModeration = 0.75f;
+						neutronPermeability = 0.75f;
+					}
+					else if(fluidName.equals("glowstone")) {
+						neutronModeration = 0.4f;
+						neutronPermeability = 0.8f;
+					}
+					else if(fluidName.equals("ender")) {
+						// It's basically a brick wall
+						neutronModeration = 1.0f;
+						neutronPermeability = 0.0f;
+						neutronHeating = 1.0f;
+					}
+				}
 			}
 		}
+		
+		float neutronsCaptured, neutronsModerated;
+		neutronsCaptured = radiation.getSlowRadiation() * 1f - neutronPermeability;
+		neutronsModerated = radiation.getFastRadiation() * neutronModeration;
+		
+		// TODO: Allow heating from radiation again in 0.3
+		radiation.setSlowRadiation(Math.max(0f, radiation.getSlowRadiation() - neutronsCaptured + neutronsModerated));
+		radiation.setFastRadiation(Math.max(0f, radiation.getFastRadiation() - neutronsModerated));
+		radiation.addPower(neutronsCaptured * neutronHeating * BigReactors.powerPerHeat);
 	}
 
 	private void readLocalDataFromNBT(NBTTagCompound data) {
