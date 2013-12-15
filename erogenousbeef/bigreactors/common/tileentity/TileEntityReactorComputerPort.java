@@ -137,10 +137,10 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
 			}
-			if(!(arguments[0] instanceof Integer)) {
-				throw new IllegalArgumentException("Invalid argument 0, expected Integer");
+			if(!(arguments[0] instanceof Double)) {
+				throw new IllegalArgumentException("Invalid argument 0, expected Number");
 			}
-			newLevel = (Integer)arguments[0];
+			newLevel = (int)Math.round((Double)arguments[0]);
 			reactor.setAllControlRodInsertionValues(newLevel);
 			return null;
 
@@ -149,11 +149,11 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 2 (control rod index, level)");
 			}
 
-			if(!(arguments[1] instanceof Integer)) {
-				throw new IllegalArgumentException("Invalid argument 0, expected Integer");
+			if(!(arguments[1] instanceof Double)) {
+				throw new IllegalArgumentException("Invalid argument 0, expected Number");
 			}
 
-			newLevel = (Integer)arguments[1];
+			newLevel = (int)Math.round((Double)arguments[1]);
 			if(newLevel < 0 || newLevel > 100) {
 				throw new IllegalArgumentException("Invalid argument 1, valid range is 0-100");
 			}
@@ -185,11 +185,11 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	}
 	
 	private TileEntityReactorControlRod getControlRodFromArguments(MultiblockReactor reactor, Object[] arguments, int index) throws Exception {
-		if(!(arguments[index] instanceof Integer)) {
-			throw new IllegalArgumentException(String.format("Invalid argument %d, expected Integer", index));
+		if(!(arguments[index] instanceof Double)) {
+			throw new IllegalArgumentException(String.format("Invalid argument %d, expected Number", index));
 		}
 		
-		int rodIndex = (Integer)arguments[index];
+		int rodIndex = (int)Math.round((Double)arguments[index]);
 		
 		if(index < 0 || index >= reactor.getFuelColumnCount()) {
 			throw new IndexOutOfBoundsException(String.format("Invalid argument %d, control rod index is out of bounds", index));
