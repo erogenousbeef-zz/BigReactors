@@ -1,14 +1,14 @@
 package erogenousbeef.bigreactors.gui.container;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
+import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 
 public class ContainerHeatGenerator extends Container {
-	protected TileEntityHeatGenerator entity;
+	protected TileEntitySteamCreator entity;
 	
-	public ContainerHeatGenerator(TileEntityHeatGenerator generator, EntityPlayer player) {
+	public ContainerHeatGenerator(TileEntitySteamCreator generator, EntityPlayer player) {
 		super();
 		
 		entity = generator;

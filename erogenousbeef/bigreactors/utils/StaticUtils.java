@@ -167,4 +167,19 @@ public class StaticUtils {
 			return false;
 		}
 	}
+	
+	public static class ExtraMath {
+		/**
+		 * Linear interpolate between two numbers.
+		 * @param from
+		 * @param to
+		 * @param modifier
+		 * @return
+		 */
+		public static float Lerp(float from, float to, float modifier)
+		{
+			modifier = Math.min(1f, Math.max(0f, modifier));
+		    return from + modifier * (to - from);
+		}
+	}
 }

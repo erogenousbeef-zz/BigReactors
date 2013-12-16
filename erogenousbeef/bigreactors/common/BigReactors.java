@@ -10,6 +10,7 @@ import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraft.util.Icon;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
@@ -18,6 +19,8 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
@@ -37,7 +40,7 @@ import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
+import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorComputerPort;
@@ -129,8 +132,6 @@ public class BigReactors {
 	protected static Icon iconFuelColumnStill;
 	protected static Icon iconFuelColumnFlowing;
 	
-	public static Icon powerIcon;
-
 	/**
 	 * Call this function in your mod init stage.
 	 */
@@ -303,7 +304,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityFuelRod.class, 			"BRFuelRod");
 			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
-			GameRegistry.registerTileEntity(TileEntityHeatGenerator.class, 		"BRHeatGenerator");
+			GameRegistry.registerTileEntity(TileEntitySteamCreator.class, 		"BRHeatGenerator");
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
@@ -661,8 +662,6 @@ public class BigReactors {
 	// Thanks KingLemming!
 	@SideOnly(Side.CLIENT)
 	public static void registerNonBlockFluidIcons(TextureMap map) {
-		powerIcon = map.registerIcon(TEXTURE_NAME_PREFIX + "gui.power");
-
 		iconFuelColumnStill = map.registerIcon(TEXTURE_NAME_PREFIX + "fluid.fuelColumn.still");
 		iconFuelColumnFlowing = map.registerIcon(TEXTURE_NAME_PREFIX + "fluid.fuelColumn.flowing");
 		
