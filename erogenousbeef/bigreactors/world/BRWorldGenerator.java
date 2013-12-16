@@ -37,7 +37,7 @@ public class BRWorldGenerator implements IWorldGenerator {
 		
 		for(BRSimpleOreGenerator generator : oreGenerators) {
 			if(generator.shouldGenerateInWorld(world)) {
-				generator.generate(world, random, chunkX, chunkZ);
+				generator.generateChunk(world, random, chunkX, chunkZ);
 			}
 		}
 	}
