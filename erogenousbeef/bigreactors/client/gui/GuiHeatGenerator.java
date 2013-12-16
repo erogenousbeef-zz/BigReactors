@@ -3,13 +3,14 @@ package erogenousbeef.bigreactors.client.gui;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
+import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
+import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressArrow;
-import erogenousbeef.bigreactors.gui.controls.GuiImageButton;
+import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import net.minecraft.client.gui.GuiButton;
@@ -17,18 +18,12 @@ import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.ForgeDirection;
 
-public class GuiHeatGenerator extends BeefGuiBase {
+public class GuiHeatGenerator extends BeefGuiSmallMachineBase {
 
-	private TileEntityHeatGenerator _entity;
+	private TileEntitySteamCreator _entity;
 
 	private BeefGuiLabel titleString;
 	private BeefGuiLabel tempString;
-	
-	private GuiImageButton leftInvExposureButton;
-	private GuiImageButton rightInvExposureButton;
-	private GuiImageButton topInvExposureButton;
-	private GuiImageButton bottomInvExposureButton;
-	private GuiImageButton rearInvExposureButton;
 	
 	private GuiButton toggleActive;
 	
@@ -36,8 +31,8 @@ public class GuiHeatGenerator extends BeefGuiBase {
 	private BeefGuiFluidBar fluidBar;
 	private BeefGuiProgressArrow progressArrow;
 	
-	public GuiHeatGenerator(Container container, TileEntityHeatGenerator entity) {
-		super(container);
+	public GuiHeatGenerator(Container container, TileEntitySteamCreator entity) {
+		super(container, entity);
 		
 		_entity = entity;
 		xSize = 241;
@@ -48,8 +43,8 @@ public class GuiHeatGenerator extends BeefGuiBase {
 	public void initGui() {
 		super.initGui();
 
-		int leftX = 8;
-		int topY = 6;
+		int leftX = guiLeft + 8;
+		int topY = guiTop + 6;
 		
 		titleString = new BeefGuiLabel(this, "Water-Steam Thingus", leftX, topY);
 		topY += titleString.getHeight() + 8;
@@ -67,28 +62,10 @@ public class GuiHeatGenerator extends BeefGuiBase {
 		registerControl(steamBar);
 		registerControl(progressArrow);
 		
-		leftInvExposureButton = new GuiImageButton(ForgeDirection.WEST.ordinal(), guiLeft + 179, guiTop + 25, 20, 20, "");
-		buttonList.add(leftInvExposureButton);
-
-		rightInvExposureButton = new GuiImageButton(ForgeDirection.EAST.ordinal(), guiLeft + 219, guiTop + 25, 20, 20, "");
-		buttonList.add(rightInvExposureButton);
-
-		topInvExposureButton = new GuiImageButton(ForgeDirection.UP.ordinal(), guiLeft + 199, guiTop + 5, 20, 20, "");
-		buttonList.add(topInvExposureButton);
-		
-		bottomInvExposureButton = new GuiImageButton(ForgeDirection.DOWN.ordinal(), guiLeft + 199, guiTop + 45, 20, 20, "");
-		buttonList.add(bottomInvExposureButton);
-
-		rearInvExposureButton = new GuiImageButton(ForgeDirection.SOUTH.ordinal(), guiLeft + 219, guiTop + 45, 20, 20, "");
-		buttonList.add(rearInvExposureButton);
-	
 		toggleActive = new GuiButton(10, guiLeft + 58, guiTop + 70, 60, 20, "On/Off");
 		buttonList.add(toggleActive);
-	}
 
-	@Override
-	public ResourceLocation getGuiBackground() {
-		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "CyaniteReprocessor.png");
+		createInventoryExposureButtons(guiLeft + 180, guiTop + 4);
 	}
 
 	@Override
@@ -96,85 +73,30 @@ public class GuiHeatGenerator extends BeefGuiBase {
 		super.updateScreen();
 
 		tempString.setLabelText(String.format("Temperature: %.1fC", _entity.internalTemperature-273f));
-
-		// Exposure buttons
-		int exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.EAST.ordinal());
-		int fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.EAST);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			rightInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			rightInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.WEST.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.WEST);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			leftInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			leftInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-		
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.UP.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.UP);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			topInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			topInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.DOWN.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.DOWN);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			bottomInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			bottomInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
-
-		exposed = _entity.getExposedSlotFromReferenceSide(ForgeDirection.SOUTH.ordinal());
-		fluidExposed = _entity.getExposedTankFromReferenceSide(ForgeDirection.SOUTH);
-		if(exposed != TileEntityInventory.INVENTORY_UNEXPOSED) {
-			rearInvExposureButton.displayString = getTextureForExposedInventory(exposed);
-		}
-		else {
-			rearInvExposureButton.displayString = getTextureForExposedFluidInventory(fluidExposed);
-		}
 	}
+
+	@Override
+	public ResourceLocation getGuiBackground() {
+		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "CyaniteReprocessor.png");
+	}
+	
 	
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float gameTicks) {
 		super.drawScreen(mouseX, mouseY, gameTicks);
 	}
-
+	
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		if(button.id >= 0 && button.id < 6) {
+		super.actionPerformed(button);
+		if(button.id == 10) {
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
-						new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id }));
-			return;
+					new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "active", 0 }));
 		}
-		else if(button.id == 10) {
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
-					new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "active" }));
-		}
-	}
-
-	protected String getTextureForExposedInventory(int inv) {
-		return "";
 	}
 	
-	protected String getTextureForExposedFluidInventory(int tank) {
-		if(tank == 0) {
-			return BigReactors.GUI_DIRECTORY + "blueSquare.png";
-		}
-		else if(tank == 1) {
-			return BigReactors.GUI_DIRECTORY + "whiteSquare.png";
-		}
-		
-		return "";
+	@Override
+	protected int getBlockMetadata() {
+		return BlockBRSmallMachine.META_CYANITE_REPROCESSOR;
 	}
-
 }

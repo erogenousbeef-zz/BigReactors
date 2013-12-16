@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntityHeatGenerator;
+import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -36,7 +36,13 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BlockBRSmallMachine extends BlockContainer {
 
-	public static int META_CYANITE_REPROCESSOR = 0;
+	public static final int META_CYANITE_REPROCESSOR = 0;
+	public static final int META_DEBUG_STEAM_CREATOR = 1;
+	
+	public static final String[] _subBlocks = {
+		"cyaniteReprocessor",
+		"debugSteamMachine",
+	};
 	
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _activeIcons = new Icon[_subBlocks.length];
@@ -119,6 +125,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
 
 		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
+		_fluidSideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".fluidTank2");
 	}
 	
 	@Override
@@ -128,10 +135,14 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		if(metadata == 1) {
-			return new TileEntityHeatGenerator();
+		switch(metadata) {
+		case META_CYANITE_REPROCESSOR:
+			return new TileEntityCyaniteReprocessor();
+		case META_DEBUG_STEAM_CREATOR:
+			return new TileEntitySteamCreator();
+		default:
+			throw new IllegalArgumentException("Unknown metadata for tile entity");
 		}
-		return new TileEntityCyaniteReprocessor();
 	}
 
 	@Override
@@ -203,7 +214,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
 		{
-			if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer))
+			if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer)) {
 				return true;
 			}
 		}

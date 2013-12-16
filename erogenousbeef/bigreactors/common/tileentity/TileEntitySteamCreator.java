@@ -23,18 +23,24 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.container.ContainerHeatGenerator;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
-public class TileEntityHeatGenerator extends TileEntityPoweredInventoryFluid {
+public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 
 	protected static final int TANK_WATER = 0;
 	protected static final int TANK_STEAM = 1;
 	
 	public float internalTemperature;
 	public float internalTemperatureRate;
+	public float energyAbsorbed;
 	public boolean isActive;
-	protected static final float waterSpecificHeat = 0.1f; // mB vaporized per degree C absorbed
-	
-	public TileEntityHeatGenerator() {
+	protected static final float waterSpecificHeat = 1.0f; // mB vaporized per degree C absorbed
+	protected static final float waterCriticalTemperatureMin = 100f; // Temperature above which water begins to vaporize
+	protected static final float waterCriticalTemperatureOptimal = 500f; // Temperature above which water vaporizes at its optimal rate
+	protected static final float heatTransferPerSquareMeter = 1f; // Transfer at most 1C worth of heat per tick
+	protected static final float progressLossThreshold = 0.98f; // If your heat dips below 98% of your minimum critical temp, progress is lost
+
+	public TileEntitySteamCreator() {
 		super();
 		
 		isActive = false;
@@ -54,30 +60,51 @@ public class TileEntityHeatGenerator extends TileEntityPoweredInventoryFluid {
 			}
 		}
 		
-		IFluidTank[] tanks = getTanks(ForgeDirection.UNKNOWN);
-		int waterAmt = tanks[0].getFluidAmount();
-		int boilingTemp = 373; // Water boils at 373K
-		float tempDifferential = internalTemperature - boilingTemp;
-
-		if(!worldObj.isRemote)
-			FMLLog.info("[BRDEBUG] Temp Differential %.1f", tempDifferential);
-		
-		if(waterAmt > 0 && tempDifferential >= 0.0001f) {
-			// Try to convert some water to steam
-			float amtVaporized = waterSpecificHeat * tempDifferential;
-			int amtToVaporize = Math.min(Math.round(amtVaporized), waterAmt);
-			
-			if(amtToVaporize > 0) {
-				FluidStack fluidToFill = new FluidStack(BigReactors.fluidSteam, amtToVaporize);
-				int amtActuallyVaporized = tanks[1].fill(fluidToFill, true);
-				tanks[0].drain(amtActuallyVaporized, true);
-				
-				float heatRemoved = amtActuallyVaporized / waterSpecificHeat;
-				internalTemperature -= heatRemoved;
+		if(internalTemperature < waterCriticalTemperatureMin) {
+			// Can't vaporize yet
+			if(internalTemperature < waterCriticalTemperatureMin * progressLossThreshold) {
+				energyAbsorbed = 0f;
 			}
+			return;
+		}
+
+		IFluidTank[] tanks = getTanks(ForgeDirection.UNKNOWN);
+		int waterAmt = tanks[TANK_WATER].getFluidAmount();
+		int steamAmt = tanks[TANK_STEAM].getFluidAmount();
+		int maxSteamAmt = tanks[TANK_STEAM].getCapacity();
+
+		if(waterAmt > 0 && steamAmt < tanks[TANK_STEAM].getCapacity()) {
+			// Not full
+			float heatTransferOptimalRate = getContactArea() * heatTransferPerSquareMeter;
+			float heatTransferRate = StaticUtils.ExtraMath.Lerp(0f, heatTransferOptimalRate, (internalTemperature - waterCriticalTemperatureMin) / (waterCriticalTemperatureOptimal - waterCriticalTemperatureMin));
+			
+			// Clamp so we don't slurp out so much heat that we go below 100C
+			heatTransferRate = Math.min(heatTransferRate, internalTemperature - waterCriticalTemperatureMin);
+
+			// Calculate how much water that heat can boil, capped at the amount present
+			int waterToVaporize = Math.min(waterAmt, (int)(waterSpecificHeat * heatTransferRate));
+			
+			// Cap by the available space in the boiler thing.
+			waterToVaporize = Math.min(waterToVaporize, maxSteamAmt - steamAmt);
+
+			// And recalculate how much we actually transferred via vaporization
+			float temperatureToTransfer = waterToVaporize / waterSpecificHeat;
+			
+			// And now modify everything!
+			tanks[TANK_WATER].drain(waterToVaporize, true);
+			
+			FluidStack incoming = new FluidStack(BigReactors.fluidSteam, waterToVaporize);
+			tanks[TANK_STEAM].fill(incoming, true);
+			
+			internalTemperature -= temperatureToTransfer;
 		}
 	}
 	
+	private float getContactArea() {
+		// Debug
+		return 1f;
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public GuiScreen getGUI(EntityPlayer player) {
@@ -86,7 +113,6 @@ public class TileEntityHeatGenerator extends TileEntityPoweredInventoryFluid {
 
 	@Override
 	public Container getContainer(EntityPlayer player) {
-		// TODO Auto-generated method stub
 		return new ContainerHeatGenerator(this, player);
 	}
 	
