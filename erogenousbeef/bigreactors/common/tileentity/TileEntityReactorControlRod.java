@@ -974,8 +974,9 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 				if(blockClass instanceof IFluidBlock) {
 					String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
 					if(fluidName.equals("cryotheum")) {
-						neutronHeating = 0.1f;
-						neutronModeration = 0.4f;
+						// Effortdynamics
+						neutronHeating = 0.75f;
+						neutronModeration = 0.6f;
 						neutronPermeability = 0.9f;
 					}
 					else if(fluidName.equals("pyrotheum")) {
