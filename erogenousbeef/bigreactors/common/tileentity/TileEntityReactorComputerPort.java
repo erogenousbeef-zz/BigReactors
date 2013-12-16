@@ -70,7 +70,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 
 		switch(computerMethod) {
 		case getEnergyStored:
-			return new Object[] { (int)reactor.getEnergyStoredPercentage() };
+			return new Object[] { (int)reactor.getEnergyStored() };
 		case getNumberOfControlRods:
 			return new Object[] { (int)reactor.getFuelColumnCount() };
 		case getActive:
