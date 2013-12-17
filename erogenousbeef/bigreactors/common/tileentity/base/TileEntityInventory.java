@@ -15,7 +15,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemConduit;
-import cofh.api.transport.IItemConduitConnection;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -24,7 +23,7 @@ import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 
-public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory, IItemConduitConnection {
+public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
 	
 	// Configurable Sides
 	protected int[] invExposures;
