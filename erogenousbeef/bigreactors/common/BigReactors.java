@@ -251,6 +251,9 @@ public class BigReactors {
 			if(blockReactorGlass != null) {
 				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', "reactorCasing" } ));
+				if(OreDictionary.getOres("glass").size() > 0) {
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glass", 'C', "reactorCasing" } ));
+				}
 			}
 			
 			if(blockReactorControlRod != null) {
@@ -332,35 +335,27 @@ public class BigReactors {
 			int clustersPerChunk;
 			int orePerCluster;
 			int maxY;
-			float oreGenChance;
-			float oreGenMultiplier;
 			
-			clustersPerChunk = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteClustersPerChunk", 4, "Target number of clusters per chunk; note that this isn't a guarantee").getInt();
-			orePerCluster = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteOrePerCluster", 4, "Minimum number of blocks to generate in each cluster; usually guaranteed").getInt();
+			clustersPerChunk = BRConfig.CONFIGURATION.get("WorldGen", "MaxYelloriteClustersPerChunk", 5, "Maximum number of clusters per chunk; will generate at least half this number, rounded down").getInt();
+			orePerCluster = BRConfig.CONFIGURATION.get("WorldGen", "MaxYelloriteOrePerCluster", 10, "Maximum number of blocks to generate in each cluster; will usually generate at least half this number").getInt();
 			maxY = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteMaxY", 50, "Maximum height (Y coordinate) in the world to generate yellorite ore").getInt();
-			oreGenChance = (float)BRConfig.CONFIGURATION.get("WorldGen", "YelloriteOreGenBaseChance", 0.75, "Base chance to generate additional ore above the minimum number per cluster").getDouble(0.75);
-			oreGenMultiplier = (float)BRConfig.CONFIGURATION.get("WorldGen", "YelloriteOreGenChanceMultiplier", 0.5, "For each additional ore generated above the minimum number, generation chance is multiplied by this").getDouble(0.5);
 			int[] dimensionBlacklist = BRConfig.CONFIGURATION.get("WorldGen", "YelloriteDimensionBlacklist", new int[] {}, "Dimensions in which yellorite ore should not be generated; Nether/End automatically included").getIntList();
 			
 			yelloriteOreGeneration = new BRSimpleOreGenerator(blockYelloriteOre.blockID, 0, Block.stone.blockID,
-											clustersPerChunk, maxY, orePerCluster, oreGenChance, oreGenMultiplier);
+											clustersPerChunk/2, clustersPerChunk, 4, maxY, orePerCluster);
+
+			// Per KingLemming's request, bonus yellorite around y12. :)
+			BRSimpleOreGenerator yelloriteOreGeneration2 = new BRSimpleOreGenerator(blockYelloriteOre.blockID, 0, Block.stone.blockID,
+					1, 2, 11, 13, orePerCluster);
+
 			if(dimensionBlacklist != null) {
 				for(int dimension : dimensionBlacklist) {
 					yelloriteOreGeneration.blacklistDimension(dimension);
-				}
-			}
-			
-			BRWorldGenerator.addGenerator(BigReactors.yelloriteOreGeneration);
-			
-			// Per KingLemming's request, bonus yellorite at y12. :)
-			BRSimpleOreGenerator yelloriteOreGeneration2 = new BRSimpleOreGenerator(blockYelloriteOre.blockID, 0, Block.stone.blockID,
-					0, 2, 12, 12, orePerCluster, oreGenChance * 0.25f, oreGenMultiplier * 0.25f);
-			if(dimensionBlacklist != null) {
-				for(int dimension : dimensionBlacklist) {
 					yelloriteOreGeneration2.blacklistDimension(dimension);
 				}
 			}
-			
+
+			BRWorldGenerator.addGenerator(BigReactors.yelloriteOreGeneration);
 			BRWorldGenerator.addGenerator(yelloriteOreGeneration2);
 		}
 		

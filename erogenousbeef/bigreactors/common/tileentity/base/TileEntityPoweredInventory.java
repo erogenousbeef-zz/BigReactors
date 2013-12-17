@@ -4,9 +4,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.EnergyStorage;
 import cofh.api.energy.IEnergyHandler;
-import cofh.api.tileentity.IEnergyInfo;
 
-public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler, IEnergyInfo  {
+public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler {
 	public static float energyPerRF = 1f;
 	
 	// Internal power
@@ -177,31 +176,5 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	public int getMaxEnergyStored(ForgeDirection from) {
 
 		return energyStorage.getMaxEnergyStored();
-	}
-	
-	// IEnergyInfo
-	@Override
-	public int getEnergyPerTick() {
-		if(this.isActive()) {
-			return this.getCycleEnergyCost() / this.getCycleLength();			
-		}
-		else {
-			return 0;
-		}
-	}
-
-	@Override
-	public int getMaxEnergyPerTick() {
-		return this.getCycleEnergyCost() / this.getCycleLength();
-	}
-
-	@Override
-	public int getEnergy() {
-		return this.getEnergyStored(ForgeDirection.UNKNOWN);
-	}
-
-	@Override
-	public int getMaxEnergy() {
-		return this.getMaxEnergyStored();
 	}
 }
