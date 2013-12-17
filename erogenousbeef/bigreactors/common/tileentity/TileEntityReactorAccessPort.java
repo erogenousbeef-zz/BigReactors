@@ -14,7 +14,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemConduit;
-import cofh.api.transport.IItemConduitConnection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IReactorFuel;
@@ -28,7 +27,7 @@ import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 
-public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, IItemConduitConnection {
+public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
 
 	protected ItemStack[] _inventories;
 	
@@ -286,11 +285,5 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(BlockReactorPart.ACCESSPORT_OUTLET == this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
 			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
 		}
-	}
-
-	// IItemConduitConnection
-	@Override
-	public boolean canConduitConnect(ForgeDirection from) {
-		return from != ForgeDirection.UNKNOWN;
 	}
 }

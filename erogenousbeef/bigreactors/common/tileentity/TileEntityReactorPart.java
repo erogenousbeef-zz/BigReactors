@@ -7,7 +7,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import cofh.api.tileentity.IEnergyInfo;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -25,7 +24,7 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 
-public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity, IEnergyInfo {
+public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity {
 
 	public TileEntityReactorPart() {
 		super();
@@ -351,46 +350,5 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	@Override
 	public float getThermalConductivity() {
 		return IHeatEntity.conductivityIron;
-	}
-
-	// IEnergyInfo
-	@Override
-	public int getEnergyPerTick() {
-		if(!this.isConnected() || !this.getReactorController().isActive()) {
-			return 0;
-		}
-		else {
-			return (int)this.getReactorController().getEnergyGeneratedLastTick();
-		}
-	}
-
-	@Override
-	public int getMaxEnergyPerTick() {
-		if(!this.isConnected()) {
-			return 0;
-		}
-		else {
-			return (int)this.getReactorController().getMaxEnergyPerTick();
-		}
-	}
-
-	@Override
-	public int getEnergy() {
-		if(!this.isConnected()) {
-			return 0;
-		}
-		else {
-			return (int)this.getReactorController().getEnergyStored(ForgeDirection.UNKNOWN);
-		}
-	}
-
-	@Override
-	public int getMaxEnergy() {
-		if(!this.isConnected()) {
-			return 0;
-		}
-		else {
-			return (int)this.getReactorController().getMaxEnergyStored(ForgeDirection.UNKNOWN);
-		}
 	}
 }
