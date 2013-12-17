@@ -47,6 +47,9 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		
 		checkOutwardDirection();
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+		
+		// Force a connection to the power taps
+		this.onInventoryChanged();
 	}
 
 	// Custom PowerTap methods
