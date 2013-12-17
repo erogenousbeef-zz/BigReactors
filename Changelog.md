@@ -4,12 +4,21 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.7A2)
+Current Release (0.2.8A)
 --------------------------------
-- Bugfix: Fixing a crash that can occur when using EnderIO power conduits with reactor power taps
+- Bugfix: Computer Port's getEnergyStored method now returns full amount of energy stored, as documented.
+- Bugfix: World generation code streamlined, fixed to be compatible with mods that change the underground significantly, e.g. Underground Biomes. Big Reactors now uses vanilla's worldgen code. Ore clusters will look like vanilla clusters and have more variability in size.
+- Bugfix: Squashed the reactors-go-offline-when-chunks-unload bug, finally. Again. I think.
+- Bugfix: Thermal Expansion's new energy conduits properly connect to power taps again (only affects TE b9c and above)
+- Config: Yellorite cluster size and cluster number configs have had their names and default values changed due to the above.
+- Balance: Cryotheum rebalanced to be better than water. Derp.
+- Compatibility: Reactor glass can now be made with anything in the ore dictionary as "glass", such as Tinker's Construct or Extra Utilies glass.
 
 Older Releases
 --------------
+### Release 0.2.7A2
+- Bugfix: Fixing a crash that can occur when using EnderIO power conduits with reactor power taps
+
 ### Release 0.2.7A
 - Feature: Reactor interiors can now have iron, gold and diamond blocks put inside them. These perform better than water, in general.
 - Feature: Reactor interiors can now have TE's redstone, glowstone, ender, pyrotheum and cryotheum fluids placed inside them. These perform better than water and iron, in general.
