@@ -237,6 +237,9 @@ public class BigReactors {
 			if(blockReactorGlass != null) {
 				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', "reactorCasing" } ));
+				if(OreDictionary.getOres("glass").size() > 0) {
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glass", 'C', "reactorCasing" } ));
+				}
 			}
 			
 			if(blockReactorControlRod != null) {
