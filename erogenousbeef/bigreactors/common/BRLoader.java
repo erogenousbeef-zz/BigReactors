@@ -50,7 +50,7 @@ public class BRLoader {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		BigReactors.registerOres(0, true);
-		BigReactors.registerIngots(0, true);
+		BigReactors.registerIngots(0);
 		BigReactors.registerFuelRods(0, true);
 		BigReactors.registerReactorPartBlocks(0, true);
 		BigReactors.registerSmallMachines(0,  true);

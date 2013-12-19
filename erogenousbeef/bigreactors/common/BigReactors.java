@@ -118,6 +118,9 @@ public class BigReactors {
 	// Game Balance values
 	public static final float powerPerHeat = IHeatEntity.powerPerHeat; // RF units per C dissipated
 	
+	private static boolean registerYelloriteSmeltToUranium = true;
+	private static boolean registerYelloriumAsUranium = true;
+	
 	/**
 	 * Call this function in your mod init stage.
 	 */
@@ -139,7 +142,8 @@ public class BigReactors {
 			boolean registerCharcoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCharcoalForSmelting", true, "If set, charcoal will be smeltable into graphite bars. Disable this if other mods need to smelt charcoal into their own products. (Default: true)").getBoolean(true);
 			boolean registerCoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 coal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
 			boolean registerCharcoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCharcoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 charcoal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
-
+			registerYelloriteSmeltToUranium = BRConfig.CONFIGURATION.get("Recipes", "registerYelloriteSmeltToUranium", true, "If set, yellorite ore will smelt into whichever item is registered as ingotUranium in the ore dictionary. If false, it will smelt into ingotYellorium. (Default: true)").getBoolean(true);
+			
 			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
@@ -160,7 +164,12 @@ public class BigReactors {
 			// Yellorium
 			if (blockYelloriteOre != null)
 			{
-				FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotUranium").get(0), 0.5f);
+				if(registerYelloriteSmeltToUranium) {
+					FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotUranium").get(0), 0.5f);
+				}
+				else {
+					FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotYellorium").get(0), 0.5f);
+				}
 			}
 			
 			if(ingotGeneric != null) {
@@ -170,18 +179,7 @@ public class BigReactors {
 				}
 			}
 			
-			ItemStack ingotUranium = null;
-			ItemStack ingotCyanite = null;
-			ItemStack ingotGraphite = null;
-			if(OreDictionary.getOres("ingotUranium") != null) {
-				ingotUranium = OreDictionary.getOres("ingotUranium").get(0);
-			}
-			if(OreDictionary.getOres("ingotDepletedUranium") != null) {
-				ingotCyanite = OreDictionary.getOres("ingotCyanite").get(0);
-			}
-			if(OreDictionary.getOres("ingotGraphite") != null) {
-				ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0);
-			}
+			ItemStack ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0);
 			
 			if(registerCoalFurnaceRecipe) {
 				// Coal -> Graphite
@@ -203,6 +201,7 @@ public class BigReactors {
 			
 			// Basic Parts: Reactor Casing, Fuel Rods
 			if(blockYelloriumFuelRod != null) {
+				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" } ));
 				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" } ));
 			}
 
@@ -210,12 +209,14 @@ public class BigReactors {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack(); 
 				reactorPartStack.stackSize = 4;
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" }));
 			}
 			
 			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack(); 
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotUranium", 'C', "reactorCasing", 'R', Item.redstone }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotYellorium", 'C', "reactorCasing", 'R', Item.redstone }));
 				
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
@@ -245,6 +246,7 @@ public class BigReactors {
 			if(blockReactorControlRod != null) {
 				ItemStack reactorControlRodStack = new ItemStack(BigReactors.blockReactorControlRod, 1);
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotUranium" }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotYellorium" }));
 			}
 			
 			if(blockSmallMachine != null) {
@@ -350,61 +352,28 @@ public class BigReactors {
 	}
 
 
-	public static ItemStack registerIngots(int id, boolean require) {
+	public static ItemStack registerIngots(int id) {
 		if (BigReactors.ingotGeneric == null)
 		{
 			BRConfig.CONFIGURATION.load();
+			registerYelloriumAsUranium = BRConfig.CONFIGURATION.get("Recipes", "registerYelloriumAsUranium", true, "If set, yellorium will be registered in the ore dictionary as ingotUranium as well as ingotYellorium. Otherwise, it will only be registered as ingotYellorium. (Default: true)").getBoolean(true);
 			BigReactors.ingotGeneric = new ItemIngot(BRConfig.CONFIGURATION.getItem("IngotYellorium", BigReactors.ITEM_ID_PREFIX + 0).getInt());
 
-			if (OreDictionary.getOres("ingotUranium").size() <= 0 || require)
-			{
-				ItemStack yelloriumStack = new ItemStack(ingotGeneric, 1, 0);
-				OreDictionary.registerOre("ingotUranium", yelloriumStack);
+			// Register all generic ingots & dusts
+			String itemName;
+			for(int i = 0; i < ItemIngot.TYPES.length; i++) {
+				itemName = ItemIngot.TYPES[i];
+				OreDictionary.registerOre(itemName, ingotGeneric.getItemStackForType(itemName));
 			}
 			
-			if (OreDictionary.getOres("ingotCyanite").size() <= 0 || require)
-			{
-				ItemStack cyaniteStack = new ItemStack(ingotGeneric, 1, 1);
-				OreDictionary.registerOre("ingotCyanite", cyaniteStack);
-			}
-			
-			if (OreDictionary.getOres("ingotGraphite").size() <= 0 || require)
-			{
-				OreDictionary.registerOre("ingotGraphite", new ItemStack(ingotGeneric, 1, 2));
-			}
-			
-			if (OreDictionary.getOres("ingotPlutonium").size() <= 0 || require)
-			{
-				ItemStack blutoniumStack = new ItemStack(ingotGeneric, 1, 3);
-				OreDictionary.registerOre("ingotPlutonium", blutoniumStack);
+			// Add aliases, if appropriate
+			if(registerYelloriumAsUranium) {
+				OreDictionary.registerOre("ingotUranium", ingotGeneric.getItemStackForType("ingotYellorium"));
+				OreDictionary.registerOre("ingotPlutonium", ingotGeneric.getItemStackForType("ingotBlutonium"));
+				OreDictionary.registerOre("dustUranium", ingotGeneric.getItemStackForType("dustYellorium"));
+				OreDictionary.registerOre("dustPlutonium", ingotGeneric.getItemStackForType("dustBlutonium"));
 			}
 
-			// Dusts
-			
-			if (OreDictionary.getOres("dustUranium").size() <= 0 || require)
-			{
-				ItemStack yelloriumDustStack = new ItemStack(ingotGeneric, 1, 4);
-				OreDictionary.registerOre("dustUranium", yelloriumDustStack);
-			}
-
-			if (OreDictionary.getOres("dustCyanite").size() <= 0 || require)
-			{
-				ItemStack cyaniteDustStack = new ItemStack(ingotGeneric, 1, 5);
-				OreDictionary.registerOre("dustCyanite", cyaniteDustStack);
-			}
-
-			if (OreDictionary.getOres("dustGraphite").size() <= 0 || require)
-			{
-				ItemStack graphiteDustStack = new ItemStack(ingotGeneric, 1, 6);
-				OreDictionary.registerOre("dustGraphite", graphiteDustStack);
-			}
-
-			if (OreDictionary.getOres("dustPlutonium").size() <= 0 || require)
-			{
-				ItemStack blutoniumDustStack = new ItemStack(ingotGeneric, 1, 7);
-				OreDictionary.registerOre("dustPlutonium", blutoniumDustStack);
-			}
-			
 			BRConfig.CONFIGURATION.save();
 		}
 
