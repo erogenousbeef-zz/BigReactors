@@ -456,32 +456,33 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 			// This will generate some side heat & power
 			internalHeatGenerated += rawNeutronsGenerated * heatPerNeutron;
 			internalPowerGenerated += rawNeutronsGenerated * powerPerNeutron;
-		}
 
-		// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
-		if(this.incidentRadiation > 0.0f && this.localHeat > 0.0f) {
-			float additionalNeutronsGenerated = Math.max(0.0f, heatFertilityModifier * this.incidentRadiation * 0.5f - (float)Math.log10(this.localHeat));
-			additionalNeutronsGenerated *= 1.0f - ((float)this.controlRodInsertion / 100.0f);
-
-			if(additionalNeutronsGenerated > 0.0f) {
-				fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate * Math.max(1.0, Math.log10(this.localHeat));
-				rawNeutronsGenerated += additionalNeutronsGenerated;
-				
-				// This will generate some side heat & power
-				internalHeatGenerated += additionalNeutronsGenerated * heatPerNeutron;
-				internalPowerGenerated += additionalNeutronsGenerated * powerPerNeutron;
-
-				// Reduce incident radiation at a slower rate than they're actually used.
-				// This should help smooth out power production.
-				this.incidentRadiation -= additionalNeutronsGenerated * incidentRadiationDecayRate;
-
-				if(this.incidentRadiation < 0.01) { this.incidentRadiation = 0; }
-				else if(this.localHeat > 1000.0){ this.incidentRadiation /= Math.log10(this.localHeat); }
+			// Step 1b: Generate neutrons from incident radiation (consumes fuel, but less than above per neutron)
+			if(this.incidentRadiation > 0.0f && this.localHeat > 0.0f) {
+				float additionalNeutronsGenerated = Math.max(0.0f, heatFertilityModifier * this.incidentRadiation * 0.5f - (float)Math.log10(this.localHeat));
+				additionalNeutronsGenerated *= 1.0f - ((float)this.controlRodInsertion / 100.0f);
+	
+				if(additionalNeutronsGenerated > 0.0f) {
+					fuelDesired += additionalNeutronsGenerated * incidentNeutronFuelRate * Math.max(1.0, Math.log10(this.localHeat));
+					rawNeutronsGenerated += additionalNeutronsGenerated;
+					
+					// This will generate some side heat & power
+					internalHeatGenerated += additionalNeutronsGenerated * heatPerNeutron;
+					internalPowerGenerated += additionalNeutronsGenerated * powerPerNeutron;
+	
+					// Reduce incident radiation at a slower rate than they're actually used.
+					// This should help smooth out power production.
+					this.incidentRadiation -= additionalNeutronsGenerated * incidentRadiationDecayRate;
+	
+					if(this.incidentRadiation < 0.01) { this.incidentRadiation = 0; }
+					else if(this.localHeat > 1000.0){ this.incidentRadiation /= Math.log10(this.localHeat); }
+				}
 			}
 		}
 
-		// Step 1c: Consume fuel based on incident neutrons
-		if(fuelDesired > 0.0) {
+
+		// Step 1c: Consume fuel based on incident neutrons, if we have any fuel
+		if(fuelDesired > 0.0 && this.getFuelAmount() > 0) {
 			// Fuel desired is a multiplier to consumption chance.
 			// Each neutron adds a 4% chance to consume fuel on top of the normal, time-based chance
 			neutronsSinceLastFuelConsumption += (int)fuelDesired;
