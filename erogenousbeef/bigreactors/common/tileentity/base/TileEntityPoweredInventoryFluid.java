@@ -23,7 +23,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
 
 	private FluidTank[] tanks;
 	private int[] tankExposure;
+	private FluidTank[] exposedTankCache;
 
+	protected static final FluidTank[] kEmptyFluidTankList = new FluidTank[0];
+	
 	public static final int FLUIDTANK_NONE = -1;
 	
 	public TileEntityPoweredInventoryFluid() {
@@ -34,6 +37,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
 			tanks[i] = new FluidTank(getTankSize(i));
 		}
 
+		tankExposure = new int[6];
 		resetFluidExposures();
 	}
 
@@ -333,7 +337,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     	else {
     		int exposure = tankExposure[this.getRotatedSide(direction.ordinal())];
     		if(exposure == FLUIDTANK_NONE) {
-    			return new IFluidTank[0];
+    			return kEmptyFluidTankList;
     		}
 
     		IFluidTank[] exposedTanks = new IFluidTank[1];
@@ -442,7 +446,6 @@ public abstract class TileEntityPoweredInventoryFluid extends
 	// Helpers
 	
 	private void resetFluidExposures() {
-		tankExposure = new int[6]; // 6 forgedirections
 		for(int i = 0; i < 6; i++) {
 			tankExposure[i] = FLUIDTANK_NONE;
 		}
