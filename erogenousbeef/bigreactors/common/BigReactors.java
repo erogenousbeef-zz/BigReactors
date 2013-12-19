@@ -156,6 +156,11 @@ public class BigReactors {
 				GameRegistry.registerWorldGenerator(worldGenerator);
 			}
 			
+			// Patch up vanilla being stupid - most mods already do this, so it's usually a no-op
+			if(OreDictionary.getOres("ingotIron").size() <= 0) {
+				OreDictionary.registerOre("ingotIron", Item.ingotIron);
+			}
+			
 			/*
 			 * Register Recipes
 			 */
@@ -192,32 +197,38 @@ public class BigReactors {
 			}
 			
 			if(registerCoalCraftingRecipe) {
-				GameRegistry.addRecipe(new ShapedOreRecipe( ingotGraphite.copy(), new Object[] { "GCG", 'G', Block.gravel, 'C', new ItemStack(Item.coal, 1, 0) } ));
+				GameRegistry.addRecipe(new ShapedOreRecipe( ingotGraphite, new Object[] { "GCG", 'G', Block.gravel, 'C', new ItemStack(Item.coal, 1, 0) } ));
 			}
 			
 			if(registerCharcoalCraftingRecipe) {
-				GameRegistry.addRecipe(new ShapedOreRecipe( ingotGraphite.copy(), new Object[] { "GCG", 'G', Block.gravel, 'C', new ItemStack(Item.coal, 1, 1) } ));
+				GameRegistry.addRecipe(new ShapedOreRecipe( ingotGraphite, new Object[] { "GCG", 'G', Block.gravel, 'C', new ItemStack(Item.coal, 1, 1) } ));
 			}
 			
 			// Basic Parts: Reactor Casing, Fuel Rods
 			if(blockYelloriumFuelRod != null) {
-				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" } ));
-				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" } ));
+				if(registerYelloriumAsUranium)
+					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" } ));
+				else
+					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" } ));
 			}
 
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack(); 
 				reactorPartStack.stackSize = 4;
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" }));
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" }));
+				if(registerYelloriumAsUranium)
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" }));
+				else
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" }));
 			}
 			
 			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack(); 
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotUranium", 'C', "reactorCasing", 'R', Item.redstone }));
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotYellorium", 'C', "reactorCasing", 'R', Item.redstone }));
 				
+				if(registerYelloriumAsUranium)
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotUranium", 'C', "reactorCasing", 'R', Item.redstone }));
+				else
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotYellorium", 'C', "reactorCasing", 'R', Item.redstone }));
 				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
 
@@ -245,8 +256,10 @@ public class BigReactors {
 			
 			if(blockReactorControlRod != null) {
 				ItemStack reactorControlRodStack = new ItemStack(BigReactors.blockReactorControlRod, 1);
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotUranium" }));
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotYellorium" }));
+				if(registerYelloriumAsUranium)
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotUranium" }));
+				else
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotYellorium" }));
 			}
 			
 			if(blockSmallMachine != null) {
