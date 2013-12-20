@@ -4,8 +4,16 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.8A)
+Current Release (0.2.9A)
 --------------------------------
+- Bugfix: Fixed a rare crash that could occur when adding fuel rods to a reactor and leaving them unfueled before starting the reactor again
+- Config: Added "registerYelloriumAsUranium" under Recipes section. When set to true, yellorium ingots will be aliased in the ore dictionary as "ingotUranium", for use with other mods, and BR recipes will also accept uranium in place of yellorium. When false, recipes will be forced to use yellorium and yellorium will only be registered in the ore dictionary as ingotYellorium. Defaults to true.
+- Config: Added "registerYelloriteSmeltsToUranium" under Recipes section. When set to true, yellorite ore will smelt into whatever has been set as "ingotUranium" in the ore dictionary, for use with other mods. When false, yellorite will be forced to smelt into yellorium ingots. Defaults to true.
+- Revert: Reverted the bugfix for reactors going offline on chunkload from 0.2.8A. It was causing frequent crashes on servers. Will try to fix this again later.
+
+Older Releases
+--------------
+### Release 0.2.8A
 - Bugfix: Computer Port's getEnergyStored method now returns full amount of energy stored, as documented.
 - Bugfix: World generation code streamlined, fixed to be compatible with mods that change the underground significantly, e.g. Underground Biomes. Big Reactors now uses vanilla's worldgen code. Ore clusters will look like vanilla clusters and have more variability in size.
 - Bugfix: Squashed the reactors-go-offline-when-chunks-unload bug, finally. Again. I think.
@@ -14,8 +22,6 @@ Current Release (0.2.8A)
 - Balance: Cryotheum rebalanced to be better than water. Derp.
 - Compatibility: Reactor glass can now be made with anything in the ore dictionary as "glass", such as Tinker's Construct or Extra Utilies glass.
 
-Older Releases
---------------
 ### Release 0.2.7A2
 - Bugfix: Fixing a crash that can occur when using EnderIO power conduits with reactor power taps
 
