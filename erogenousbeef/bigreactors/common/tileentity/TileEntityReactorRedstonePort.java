@@ -400,7 +400,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 
 	@Override
-	public void onMachineAssembled() {
+	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
 		recalculateOutDirection();
 		this.sendRedstoneUpdate();
 	}

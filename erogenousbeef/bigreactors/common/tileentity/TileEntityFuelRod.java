@@ -150,7 +150,7 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 	}
 
 	@Override
-	public void onMachineAssembled() {
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 	}
 
 	@Override

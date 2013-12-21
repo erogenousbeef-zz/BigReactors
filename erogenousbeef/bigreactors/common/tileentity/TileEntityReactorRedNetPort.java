@@ -91,8 +91,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 	
 	@Override
-	public void onMachineAssembled() {
-		super.onMachineAssembled();
+	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
+		super.onMachineAssembled(multiblockController);
 
 		if(this.worldObj.isRemote) { return; } 
 		
