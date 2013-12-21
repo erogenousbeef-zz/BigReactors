@@ -1100,7 +1100,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	}
 
 	@Override
-	public void onMachineAssembled() {
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 		this.onControlRodAssembled();
 	}
 

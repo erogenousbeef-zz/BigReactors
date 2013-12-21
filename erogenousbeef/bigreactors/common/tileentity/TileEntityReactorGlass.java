@@ -41,7 +41,7 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	}
 
 	@Override
-	public void onMachineAssembled() {
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 	}
 
 	@Override
