@@ -37,6 +37,7 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
 	// Game stuff
@@ -157,14 +158,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	@Override
-	protected boolean isMachineWhole() {
+	protected boolean isMachineWhole() throws MultiblockValidationException {
 		// Ensure that there is at least one controller and control rod attached.
 		if(attachedControlRods.size() < 1) {
-			return false;
+			throw new MultiblockValidationException("Not enough control rods. Reactors require at least 1.");
 		}
 		
 		if(attachedControllers.size() < 1) {
-			return false;
+			throw new MultiblockValidationException("Not enough controllers. Reactors require at least 1.");
 		}
 		
 		return super.isMachineWhole();
