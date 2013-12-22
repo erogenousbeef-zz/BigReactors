@@ -10,7 +10,6 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.IScheduledTickHandler;
 import cpw.mods.fml.common.TickType;
-import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class BigReactorsTickHandler implements IScheduledTickHandler {
 

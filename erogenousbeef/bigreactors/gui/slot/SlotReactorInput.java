@@ -1,14 +1,10 @@
 package erogenousbeef.bigreactors.gui.slot;
 
-import java.util.ArrayList;
-
-import erogenousbeef.bigreactors.api.IReactorFuel;
-import erogenousbeef.bigreactors.common.BRRegistry;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
+import erogenousbeef.bigreactors.api.IReactorFuel;
+import erogenousbeef.bigreactors.common.BRRegistry;
 
 public class SlotReactorInput extends Slot {
 

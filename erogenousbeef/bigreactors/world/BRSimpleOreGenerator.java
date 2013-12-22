@@ -1,19 +1,14 @@
 package erogenousbeef.bigreactors.world;
 
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
-import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
 import net.minecraft.world.gen.ChunkProviderHell;
 import net.minecraft.world.gen.feature.WorldGenMinable;
-import net.minecraftforge.oredict.OreDictionary;
-import erogenousbeef.core.common.CoordTriplet;
 
 /**
  * This class handles simple ore generation.
