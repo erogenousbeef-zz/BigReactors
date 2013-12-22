@@ -24,7 +24,7 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.init();
 
-		TickRegistry.registerTickHandler(new MultiblockClientTickHandler(), Side.SERVER);
+		TickRegistry.registerTickHandler(new MultiblockClientTickHandler(), Side.CLIENT);
 		
 		BlockReactorControlRod.renderId = RenderingRegistry.getNextAvailableRenderId();
 		ISimpleBlockRenderingHandler controlRodISBRH = new SimpleRendererControlRod();
