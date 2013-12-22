@@ -170,9 +170,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		return super.isMachineWhole();
 	}
 	
+	@Override
+	public void updateClient() {}
+	
 	// Update loop. Only called when the machine is assembled.
 	@Override
-	public boolean update() {
+	public boolean updateServer() {
 		if(Float.isNaN(this.getHeat())) {
 			this.setHeat(0.0f);
 		}
@@ -407,7 +410,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		return attachedControlRods.size();
 	}
 
-
 	// Static validation helpers
 	// Water, air, and metal blocks
 	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
@@ -578,12 +580,38 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 
 	@Override
-	protected void onMachineMerge(MultiblockControllerBase otherMachine) {
+	protected void onAssimilated(MultiblockControllerBase otherMachine) {
 		this.attachedPowerTaps.clear();
 		this.attachedTickables.clear();
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
+	}
+	
+	@Override
+	protected void onAssimilate(MultiblockControllerBase otherMachine) {
+		if(!(otherMachine instanceof MultiblockReactor)) {
+			FMLLog.warning("[%s] Reactor @ %s is attempting to assimilate a non-Reactor machine!", worldObj.isRemote?"CLIENT":"SERVER", referenceCoord);
+		}
+		
+		MultiblockReactor otherReactor = (MultiblockReactor)otherMachine;
+
+		// TODO FIXME: Only change heat based on relative sizes
+		if(otherReactor.latentHeat > this.latentHeat) { latentHeat = otherReactor.latentHeat; }
+		this.addStoredEnergy(otherReactor.getEnergyStored());
+	}
+	
+	@Override
+	public void onAttachedPartWithMultiblockData(IMultiblockPart part, NBTTagCompound data) {
+		if(data.hasKey("heat")) {
+			float dataHeat = data.getFloat("heat");
+			if(dataHeat > latentHeat) { latentHeat = dataHeat; } // TODO FIXME - only change heat based on relative sizes
+		}
+	}
+	
+	@Override
+	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
+		dataContainer.setFloat("heat", this.latentHeat);
 	}
 
 	public float getEnergyStored() {
@@ -909,8 +937,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 
 	public int getFuelAmount() {
-		// TODO FIXME: Assembly never happens on the client. Fix this.
-		if(this.assemblyState != AssemblyState.Assembled && (this.worldObj != null && !this.worldObj.isRemote)) {
+		if(this.assemblyState != AssemblyState.Assembled) {
 			return 0;
 		}
 		
@@ -929,7 +956,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	public int getWasteAmount() {
-		if(this.assemblyState != AssemblyState.Assembled && (this.worldObj != null && !this.worldObj.isRemote)) {
+		if(this.assemblyState != AssemblyState.Assembled) {
 			return 0;
 		}
 		
