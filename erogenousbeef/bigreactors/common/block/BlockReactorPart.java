@@ -184,15 +184,6 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	}
 	
 	@Override
-	public void onBlockAdded(World world, int x, int y, int z) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te != null && te instanceof TileEntityReactorPart) {
-			TileEntityReactorPart rp = (TileEntityReactorPart)te;
-			rp.onBlockAdded(world, x, y, z);
-		}
-	}
-	
-	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorPowerTap) {

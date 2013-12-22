@@ -361,8 +361,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 
 	@Override
-	public void formatDescriptionPacket(NBTTagCompound data) {
-		super.formatDescriptionPacket(data);
+	public void encodeDescriptionPacket(NBTTagCompound data) {
+		super.encodeDescriptionPacket(data);
 		data.setInteger("circuitType", this.circuitType.ordinal());
 		data.setInteger("outputLevel", this.outputLevel);
 		data.setBoolean("greaterThan", this.greaterThan);
@@ -370,10 +370,13 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 	
 	@Override
-	public MultiblockControllerBase getNewMultiblockControllerObject() {
+	public MultiblockControllerBase createNewMultiblock() {
 		return new MultiblockReactor(this.worldObj);
 	}
 
+	@Override
+	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
+	
 	@Override
 	public boolean isGoodForFrame() {
 		return false;

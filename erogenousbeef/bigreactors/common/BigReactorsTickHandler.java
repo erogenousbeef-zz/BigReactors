@@ -8,10 +8,11 @@ import java.util.Random;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
+import cpw.mods.fml.common.IScheduledTickHandler;
 import cpw.mods.fml.common.TickType;
 import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
-public class BigReactorsTickHandler extends MultiblockServerTickHandler {
+public class BigReactorsTickHandler implements IScheduledTickHandler {
 
 	protected HashMap<Integer, Queue<ChunkCoordIntPair>> chunkRegenMap;
 	protected static final long maximumDeltaTimeNanoSecs = 16000000; // 16 milliseconds
@@ -35,10 +36,16 @@ public class BigReactorsTickHandler extends MultiblockServerTickHandler {
 	
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
-		super.tickEnd(type, tickData);
+		if(!type.contains(TickType.WORLD)) {
+			return;
+		}
+		
 		if(chunkRegenMap == null) { return; }
 		
 		World world = (World)tickData[0];
+		
+		if(world.isRemote) { return; }
+
 		int dimensionId = world.provider.dimensionId;
 		
 		if(chunkRegenMap.containsKey(dimensionId)) {
@@ -62,5 +69,24 @@ public class BigReactorsTickHandler extends MultiblockServerTickHandler {
 				chunkRegenMap.remove(dimensionId);
 			}
 		}
+	}
+
+	@Override
+	public void tickStart(EnumSet<TickType> type, Object... tickData) {
+	}
+
+	@Override
+	public EnumSet<TickType> ticks() {
+		return EnumSet.of(TickType.WORLD);
+	}
+
+	@Override
+	public String getLabel() {
+		return "BigReactors:TickHandler";
+	}
+
+	@Override
+	public int nextTickSpacing() {
+		return 1;
 	}
 }

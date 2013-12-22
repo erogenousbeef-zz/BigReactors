@@ -59,6 +59,9 @@ public class BRLoader {
 		BigReactors.eventHandler = new BREventHandler();
 		MinecraftForge.EVENT_BUS.register(BigReactors.eventHandler);
 		
+		multiblockEventHandler = new MultiblockEventHandler();
+		MinecraftForge.EVENT_BUS.register(multiblockEventHandler);
+		
 		proxy.preInit();
 		
 		metadata.modId = MOD_ID;
@@ -80,12 +83,6 @@ public class BRLoader {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent evt) {
 		proxy.postInit();
-	}
-	
-	@EventHandler
-	public void serverAboutToStart(FMLServerAboutToStartEvent evt) {
-		multiblockEventHandler = new MultiblockEventHandler();
-		MinecraftForge.EVENT_BUS.register(multiblockEventHandler);
 	}
 	
 	// GAME EVENT HANDLERS
