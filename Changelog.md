@@ -1,21 +1,28 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.2.10A)
+Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
+
+Current Release (0.2.10A)
+--------------------------------
+- Config: Added 'Debugging' config section with 'debugMultiblocks' option. Set this to true if you like seeing debugging spam and/or you have a reproducible reactor bug and want to send in a debugging log.
+- Config: Added 'useSteelForIron' config under the 'Recipes' section. Set this to true if you want Big Reactors to require steel ingots instead of iron ingots. If you do not have an installed mod which adds steel ingots, this setting is ignored. Defaults to off.
+- Config: Added 'useExpensiveGlass' config under the 'Recipes' section. Set this to true if you want Big Reactors to require IC2 hardened glass or TE reinforced glass instead of plain glass. If you do not have an installed mod which adds reinforced or hardened glass, this setting is ignored. Defaults to off.
+- Bugfix: Yellorium and graphite ingots should no longer be renamed by Gregtech if you install Big Reactors alongside Gregtech.
+- Bugfix: Reactor online state should properly persist, finally. Reactors should maintain their online/offline state across world or chunk loads/unloads.
+- Feature: Right-click on an incomplete reactor with empty hands, and you will receive a message indicating why the reactor is not completed. Note that this only tells you the first rule that was invalid, but should help when figuring out why very large reactors aren't assembling right.
 - Core: Rewrote most of the multiblock library. It is now exponentially more efficient during chunk loading/unloading.
 - Core: Rewritten multiblock code should be fully thread-safe, so it can be safely used with MCPC+'s asynchronous chunk loading feature. This should entirely eliminate "double add" exceptions and similar crashes related to asynchronous block changes.
 - Core: Multiblock system now supports tracking multiple types of multiblocks. Not yet used in Big Reactors.
-- Core: Multiblocks can now report validation errors. These do not go to the user yet, but they could in the future.
 - Core: Client-side multiblock handlers now recalculate their size properly and also have their own update loop, in case there's some client-only multiblock game logic. This is not yet used in Big Reactors.
-- Config: Added 'Debugging' config section with 'debugMultiblocks' option. Set this to true if you like seeing debugging spam and/or you have a reproducible reactor bug and want to send in a debugging log.
-
-Current Release (0.2.9A3)
---------------------------------
-- Bugfix: A more paranoid version of the 0.2.9A NPE crash fixes. Auto-repairs a situation that leads to a NPE during reactor assembly. If a reactor ends up corrupted, it is also now possible to tear it down and rebuild it to fix it.
+- Localization: German localization improved, thanks Vexatos!
 
 Older Releases
 --------------
+### Release 0.2.9A3
+- Bugfix: A more paranoid version of the 0.2.9A NPE crash fixes. Auto-repairs a situation that leads to a NPE during reactor assembly. If a reactor ends up corrupted, it is also now possible to tear it down and rebuild it to fix it.
+
 ### Release 0.2.9A
 - Bugfix: Fixed a rare crash that could occur when adding fuel rods to a reactor and leaving them unfueled before starting the reactor again
 - Config: Added "registerYelloriumAsUranium" under Recipes section. When set to true, yellorium ingots will be aliased in the ore dictionary as "ingotUranium", for use with other mods, and BR recipes will also accept uranium in place of yellorium. When false, recipes will be forced to use yellorium and yellorium will only be registered in the ore dictionary as ingotYellorium. Defaults to true.
