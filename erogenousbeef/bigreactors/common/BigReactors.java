@@ -145,6 +145,9 @@ public class BigReactors {
 			boolean registerCharcoalCraftingRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerGraphiteCharcoalCraftingRecipes", false, "If set, graphite bars can be crafted from 2 gravel, 1 charcoal. Use this if other mods interfere with the smelting recipe. (Default: false)").getBoolean(false);
 			registerYelloriteSmeltToUranium = BRConfig.CONFIGURATION.get("Recipes", "registerYelloriteSmeltToUranium", true, "If set, yellorite ore will smelt into whichever item is registered as ingotUranium in the ore dictionary. If false, it will smelt into ingotYellorium. (Default: true)").getBoolean(true);
 			
+			boolean useSteelForIron = BRConfig.CONFIGURATION.get("Recipes", "requireSteelInsteadOfIron", false, "If set, then all Big Reactors components will require steel ingots (ingotSteel) in place of iron ingots. Will be ignored if no other mod registers steel ingots. (default: false)").getBoolean(false);
+			boolean useExpensiveGlass = BRConfig.CONFIGURATION.get("Recipes", "requireObsidianGlass", false, "If set, then Big Reactors will require hardened or reinforced glass (glassHardened or glassReinforced) instead of plain glass. Will be ignored if no other mod registers those glass types. (default: false)").getBoolean(false);
+			
 			maximumReactorSize = BRConfig.CONFIGURATION.get("General", "maxReactorSize", 32, "The maximum valid size of a reactor in the X/Z plane, in blocks. Lower this if your server's players are building ginormous reactors.").getInt();
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
@@ -162,6 +165,12 @@ public class BigReactors {
 			// Patch up vanilla being stupid - most mods already do this, so it's usually a no-op
 			if(OreDictionary.getOres("ingotIron").size() <= 0) {
 				OreDictionary.registerOre("ingotIron", Item.ingotIron);
+			}
+			
+			// Use steel if the players are masochists and someone else has supplied steel.
+			String ironOrSteelIngot = "ingotIron";
+			if(useSteelForIron && OreDictionary.getOres("ingotSteel").size() > 0) {
+				ironOrSteelIngot = "ingotSteel";
 			}
 			
 			/*
@@ -214,18 +223,18 @@ public class BigReactors {
 			// Basic Parts: Reactor Casing, Fuel Rods
 			if(blockYelloriumFuelRod != null) {
 				if(registerYelloriumAsUranium)
-					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotUranium" } ));
 				else
-					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotYellorium" } ));
 			}
 
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack(); 
 				reactorPartStack.stackSize = 4;
 				if(registerYelloriumAsUranium)
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotUranium" }));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotUranium" }));
 				else
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', "ingotIron", 'C', "ingotGraphite", 'U', "ingotYellorium" }));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotYellorium" }));
 			}
 			
 			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
@@ -255,9 +264,16 @@ public class BigReactors {
 			
 			if(blockReactorGlass != null) {
 				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', "reactorCasing" } ));
-				if(OreDictionary.getOres("glass").size() > 0) {
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glass", 'C', "reactorCasing" } ));
+				
+				if(useExpensiveGlass && (OreDictionary.getOres("glassReinforced").size() > 0 || OreDictionary.getOres("glassHardened").size() > 0)) {
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glassReinforced", 'C', "reactorCasing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glassHardened", 'C', "reactorCasing" } ));
+				}
+				else {
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', "reactorCasing" } ));
+					if(OreDictionary.getOres("glass").size() > 0) {
+						GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glass", 'C', "reactorCasing" } ));
+					}
 				}
 			}
 			
@@ -271,26 +287,13 @@ public class BigReactors {
 			
 			if(blockSmallMachine != null) {
 				ItemStack cyaniteReprocessorStack = ((BlockBRSmallMachine)blockSmallMachine).getCyaniteReprocessorItemStack();
-				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, new Object[] { "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', "ingotIron", 'F', blockYelloriumFuelRod, 'P', Block.pistonBase, 'R', Item.redstone}));
+				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, new Object[] { "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', ironOrSteelIngot, 'F', blockYelloriumFuelRod, 'P', Block.pistonBase, 'R', Item.redstone}));
 			}
 			
 			if(blockReactorRedstonePort != null) {
 				ItemStack redstonePortStack = new ItemStack(BigReactors.blockReactorRedstonePort, 1);
 				GameRegistry.addRecipe(new ShapedOreRecipe(redstonePortStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold }));
 			}
-			
-			
-			/* TODO: Fixme
-			if(blockRadiothermalGen != null) {
-				GameRegistry.addRecipe(new ItemStack(blockRadiothermalGen, 1), new Object[] {
-					"III",
-					"IUI",
-					"III",
-					Character.valueOf('I'), Item.ingotIron,
-					Character.valueOf('U'), new ItemStack(blockYelloriumFuelRod, 1)
-				});
-			}
-			*/
 			
 			registerReactorFuelData();
 		}
