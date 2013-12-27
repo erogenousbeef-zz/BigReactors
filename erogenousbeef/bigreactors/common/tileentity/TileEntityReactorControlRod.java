@@ -1068,9 +1068,12 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	
 	// MultiblockTileEntityBase
 	@Override
-	public MultiblockControllerBase getNewMultiblockControllerObject() {
+	public MultiblockControllerBase createNewMultiblock() {
 		return new MultiblockReactor(this.worldObj);
 	}
+	
+	@Override
+	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 
 	@Override
 	public boolean isGoodForFrame() {
@@ -1118,8 +1121,8 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	}
 	
 	@Override
-	protected void formatDescriptionPacket(NBTTagCompound packet) {
-		super.formatDescriptionPacket(packet);
+	protected void encodeDescriptionPacket(NBTTagCompound packet) {
+		super.encodeDescriptionPacket(packet);
 		NBTTagCompound localData = new NBTTagCompound();
 		this.writeLocalDataToNBT(localData);
 		localData.setBoolean("isAssembled", this.isAssembled);
