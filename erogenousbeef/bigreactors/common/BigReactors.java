@@ -172,12 +172,16 @@ public class BigReactors {
 			// Yellorium
 			if (blockYelloriteOre != null)
 			{
+				ItemStack product;
+
 				if(registerYelloriteSmeltToUranium) {
-					FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotUranium").get(0), 0.5f);
+					product = OreDictionary.getOres("ingotUranium").get(0).copy();
 				}
 				else {
-					FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, OreDictionary.getOres("ingotYellorium").get(0), 0.5f);
+					product = OreDictionary.getOres("ingotYellorium").get(0).copy();
 				}
+
+				FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, product, 0.5f);
 			}
 			
 			if(ingotGeneric != null) {
@@ -187,7 +191,7 @@ public class BigReactors {
 				}
 			}
 			
-			ItemStack ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0);
+			ItemStack ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0).copy();
 			
 			if(registerCoalFurnaceRecipe) {
 				// Coal -> Graphite
