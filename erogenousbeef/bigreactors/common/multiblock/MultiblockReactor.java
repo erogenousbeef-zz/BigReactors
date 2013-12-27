@@ -75,6 +75,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		// Game stuff
 		active = false;
 		latentHeat = 0f;
+		energyStored = 0f;
 		energyGeneratedLastTick = 0f;
 		fuelConsumedLastTick = 0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
@@ -457,17 +458,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		
 		if(data.hasKey("heat")) {
-			setHeat(data.getFloat("heat"));
-		}
-		else {
-			setHeat(0.0f);
+			setHeat(Math.max(getHeat(), data.getFloat("heat")));
 		}
 		
 		if(data.hasKey("storedEnergy")) {
-			setStoredEnergy(data.getFloat("storedEnergy"));
-		}
-		else {
-			setStoredEnergy(0.0f);
+			setStoredEnergy(Math.max(getEnergyStored(), data.getFloat("storedEnergy")));
 		}
 		
 		if(data.hasKey("wasteEjection")) {
