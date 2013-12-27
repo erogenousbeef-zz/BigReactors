@@ -153,8 +153,6 @@ public class BigReactors {
 			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
 			
-			MultiblockRegistry.debugMode = BRConfig.CONFIGURATION.get("Debugging", "debugMultiblocks", false, "If true, lots of multiblock debugging messages will spam into your logs. (Default: false)").getBoolean(false);
-			
 			BRConfig.CONFIGURATION.save();
 
 			if(enableWorldGen) {
