@@ -6,7 +6,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -136,8 +135,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// Networking
 
 	@Override
-	protected void formatDescriptionPacket(NBTTagCompound packetData) {
-		super.formatDescriptionPacket(packetData);
+	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
+		super.encodeDescriptionPacket(packetData);
 	}
 	
 	@Override
@@ -212,9 +211,12 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 
 	@Override
-	public MultiblockControllerBase getNewMultiblockControllerObject() {
+	public MultiblockControllerBase createNewMultiblock() {
 		return new MultiblockReactor(this.worldObj);
 	}
+	
+	@Override
+	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 	
 	private void setCasingMetadataBasedOnWorldPosition() {
 		MultiblockControllerBase controller = this.getMultiblockController();

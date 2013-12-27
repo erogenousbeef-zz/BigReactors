@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.common.interfaces;
 
-import net.minecraftforge.fluids.Fluid;
 
 /**
  * Implement on entities which expose their internal fueling state

@@ -1,8 +1,14 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.3.0A)
+Next Release (Anticipated Version: 0.2.10A)
 ------------------------------------------
+- Core: Rewrote most of the multiblock library. It is now exponentially more efficient during chunk loading/unloading.
+- Core: Rewritten multiblock code should be fully thread-safe, so it can be safely used with MCPC+'s asynchronous chunk loading feature. This should entirely eliminate "double add" exceptions and similar crashes related to asynchronous block changes.
+- Core: Multiblock system now supports tracking multiple types of multiblocks. Not yet used in Big Reactors.
+- Core: Multiblocks can now report validation errors. These do not go to the user yet, but they could in the future.
+- Core: Client-side multiblock handlers now recalculate their size properly and also have their own update loop, in case there's some client-only multiblock game logic. This is not yet used in Big Reactors.
+- Config: Added 'Debugging' config section with 'debugMultiblocks' option. Set this to true if you like seeing debugging spam and/or you have a reproducible reactor bug and want to send in a debugging log.
 
 Current Release (0.2.9A3)
 --------------------------------

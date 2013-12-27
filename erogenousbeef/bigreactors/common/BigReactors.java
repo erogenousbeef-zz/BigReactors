@@ -45,6 +45,7 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
 import erogenousbeef.bigreactors.world.BRWorldGenerator;
+import erogenousbeef.core.multiblock.MultiblockRegistry;
 
 public class BigReactors {
 
@@ -148,6 +149,8 @@ public class BigReactors {
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
+			
+			MultiblockRegistry.debugMode = BRConfig.CONFIGURATION.get("Debugging", "debugMultiblocks", false, "If true, lots of multiblock debugging messages will spam into your logs. (Default: false)").getBoolean(false);
 			
 			BRConfig.CONFIGURATION.save();
 
