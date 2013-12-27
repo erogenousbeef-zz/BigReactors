@@ -604,15 +604,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	
 	@Override
 	public void onAttachedPartWithMultiblockData(IMultiblockPart part, NBTTagCompound data) {
-		if(data.hasKey("heat")) {
-			float dataHeat = data.getFloat("heat");
-			if(dataHeat > latentHeat) { latentHeat = dataHeat; } // TODO FIXME - only change heat based on relative sizes
-		}
+		this.readFromNBT(data);
 	}
 	
 	@Override
 	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
-		dataContainer.setFloat("heat", this.latentHeat);
+		this.writeToNBT(dataContainer);
 	}
 
 	public float getEnergyStored() {
@@ -780,6 +777,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void onMachineAssembled() {
+		// Force an update of the client's multiblock information
+		worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 	}
 
 	@Override
