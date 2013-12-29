@@ -21,7 +21,7 @@ TODO - 0.3: The Coolant Update
 - Cool particle effects when the reactor is on!
 
 ### Core
-- Change BeefCore so client-side machines know when they're assembled, etc.
+- (DONE) Change BeefCore so client-side machines know when they're assembled, etc.
 - Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
 - Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
 

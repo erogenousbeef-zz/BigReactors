@@ -78,13 +78,4 @@ public class BlockReactorControlRod extends BlockContainer {
 		}
 		return true;
 	}
-	
-	@Override
-	public void onBlockAdded(World world, int x, int y, int z) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te instanceof TileEntityReactorControlRod) {
-			TileEntityReactorControlRod rp = (TileEntityReactorControlRod)te;
-			rp.onBlockAdded(world, x, y, z);
-		}
-	}
 }

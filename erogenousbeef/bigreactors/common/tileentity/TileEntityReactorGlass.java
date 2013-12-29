@@ -11,9 +11,12 @@ import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 public class TileEntityReactorGlass extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
 	@Override
-	public MultiblockControllerBase getNewMultiblockControllerObject() {
+	public MultiblockControllerBase createNewMultiblock() {
 		return new MultiblockReactor(this.worldObj);
 	}
+	
+	@Override
+	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 
 	@Override
 	public boolean isGoodForFrame() {
@@ -41,7 +44,7 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	}
 
 	@Override
-	public void onMachineAssembled() {
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 	}
 
 	@Override

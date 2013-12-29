@@ -25,8 +25,10 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
 	
+	protected static final int[] kEmptyIntArray = new int[0];
+	
 	// Configurable Sides
-	protected int[] invExposures;
+	protected int[][] invExposures;
 	public static final int INVENTORY_UNEXPOSED = -1;
 	
 	// Inventory
@@ -35,6 +37,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public TileEntityInventory() {
 		super();
 		_inventories = new ItemStack[getSizeInventory()];
+		invExposures = new int[6][1]; // 6 forge directions - we keep them in 1-length arrays because some stuff uses it that way
 		
 		resetInventoryExposures();
 	}
@@ -65,7 +68,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			for(int i = 0; i < exposureList.tagCount(); i++) {
 				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.tagAt(i);
 				int exposureIdx = exposureTag.getInteger("exposureIdx");
-				invExposures[exposureIdx] = exposureTag.getInteger("direction");
+				invExposures[exposureIdx][0] = exposureTag.getInteger("direction");
 			}
 		}
 	}
@@ -92,12 +95,12 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		// Save inventory exposure orientations
 		NBTTagList exposureTagList = new NBTTagList();
 		for(int i = 0; i < 6; i++) {
-			if(invExposures[i] == INVENTORY_UNEXPOSED) {
+			if(invExposures[i][0] == INVENTORY_UNEXPOSED) {
 				continue;
 			}
 			NBTTagCompound exposureTag = new NBTTagCompound();
 			exposureTag.setInteger("exposureIdx", i);
-			exposureTag.setInteger("direction", invExposures[i]);
+			exposureTag.setInteger("direction", invExposures[i][0]);
 			exposureTagList.appendTag(exposureTag);
 		}
 		
@@ -133,11 +136,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	 */
 	public void setExposedInventorySlotReference(int referenceSide, int slot) {
 		if(referenceSide < 0 || referenceSide >= invExposures.length) { return; }
-		if(invExposures[referenceSide] == slot) {
+		if(invExposures[referenceSide][0] == slot) {
 			return;
 		}
 
-		invExposures[referenceSide] = slot;
+		invExposures[referenceSide][0] = slot;
 		
 		if(!this.worldObj.isRemote) {
 			// Send unrotated, as the rotation will be re-applied on the client
@@ -157,7 +160,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public int getExposedSlotFromReferenceSide(int side) {
 		if(side < 0 || side > 5) { return INVENTORY_UNEXPOSED; }
 		
-		return invExposures[side];
+		return invExposures[side][0];
 	}
 	
 	// IInventory
@@ -245,11 +248,9 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public int[] getAccessibleSlotsFromSide(int side) {
 		int rotatedSide = this.getRotatedSide(side);
 		
-		if(invExposures[rotatedSide] == INVENTORY_UNEXPOSED) { return new int[0]; }
+		if(invExposures[rotatedSide][0] == INVENTORY_UNEXPOSED) { return kEmptyIntArray; }
 		
-		int[] slots = new int[1];
-		slots[0] = invExposures[rotatedSide];
-		return slots;
+		return invExposures[rotatedSide];
 	}
 
 	@Override
@@ -278,7 +279,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	
 	// Helpers
 	protected void iterateInventoryExposure(int side) {
-		int slot = invExposures[side];
+		int slot = invExposures[side][0];
 		slot++;
 		if(slot >= getSizeInventory()) {
 			slot = INVENTORY_UNEXPOSED;
@@ -302,7 +303,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			if(itemToDistribute == null) { return null; }
 
 			int rotatedSide = this.getRotatedSide(dir.ordinal());
-			if(invExposures[rotatedSide] != fromSlot) { continue; }
+			if(invExposures[rotatedSide][0] != fromSlot) { continue; }
 			
 			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 			if(te instanceof IItemConduit) {
@@ -337,11 +338,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		
 		return itemToDistribute;
 	}
-	
+
 	private void resetInventoryExposures() {
-		invExposures = new int[6]; // 6 forge directions
 		for(int i = 0; i < 6; i++) {
-			invExposures[i] = INVENTORY_UNEXPOSED;
+			invExposures[i][0] = INVENTORY_UNEXPOSED;
 		}
+		
 	}
 }
