@@ -30,6 +30,10 @@ public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 		_entity = tileEntity;
 	}
 
+	/**
+	 * Used to set the icon for the front face of the machine on the exposure button panel. No other uses.
+	 * @return The metadata of the machine whose icon should show up in the center of the exposure buttons.
+	 */
 	protected abstract int getBlockMetadata();
 	
 	private void createInventoryExposureButton(ForgeDirection dir, int x, int y) {

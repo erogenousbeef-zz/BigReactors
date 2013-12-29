@@ -1,17 +1,19 @@
 package erogenousbeef.bigreactors.gui.container;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 
-public class ContainerHeatGenerator extends Container {
-	protected TileEntitySteamCreator entity;
+/**
+ * Generic container for entities which need to know about players for updates, but do not bind slots.
+ * @author Erogenous Beef
+ */
+public class ContainerSlotless extends Container {
+	protected ISlotlessUpdater entity;
 	
-	public ContainerHeatGenerator(TileEntitySteamCreator generator, EntityPlayer player) {
+	public ContainerSlotless(ISlotlessUpdater theEntity, EntityPlayer player) {
 		super();
 		
-		entity = generator;
+		entity = theEntity;
 		entity.beginUpdatingPlayer(player);
 	}
 	

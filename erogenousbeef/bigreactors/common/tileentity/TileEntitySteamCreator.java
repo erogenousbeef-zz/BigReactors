@@ -22,10 +22,11 @@ import erogenousbeef.bigreactors.client.gui.GuiHeatGenerator;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
-import erogenousbeef.bigreactors.gui.container.ContainerHeatGenerator;
+import erogenousbeef.bigreactors.gui.container.ContainerSlotless;
+import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 
-public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
+public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid implements ISlotlessUpdater {
 
 	protected static final int TANK_WATER = 0;
 	protected static final int TANK_STEAM = 1;
@@ -161,7 +162,7 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 
 	@Override
 	public Container getContainer(EntityPlayer player) {
-		return new ContainerHeatGenerator(this, player);
+		return new ContainerSlotless(this, player);
 	}
 	
 	@Override
