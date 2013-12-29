@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
+import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -37,10 +38,12 @@ public class BlockBRSmallMachine extends BlockContainer {
 
 	public static final int META_CYANITE_REPROCESSOR = 0;
 	public static final int META_DEBUG_STEAM_CREATOR = 1;
+	public static final int META_DEBUG_TURBINE = 2;
 	
 	public static final String[] _subBlocks = {
 		"cyaniteReprocessor",
 		"debugSteamMachine",
+		"debugTurbine",
 	};
 	
 	private Icon[] _icons = new Icon[_subBlocks.length];
@@ -139,6 +142,8 @@ public class BlockBRSmallMachine extends BlockContainer {
 			return new TileEntityCyaniteReprocessor();
 		case META_DEBUG_STEAM_CREATOR:
 			return new TileEntitySteamCreator();
+		case META_DEBUG_TURBINE:
+			return new TileEntityDebugTurbine();
 		default:
 			throw new IllegalArgumentException("Unknown metadata for tile entity");
 		}
@@ -167,7 +172,11 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 	
 	public ItemStack getHeatGeneratorItemStack() {
-		return new ItemStack(this.blockID, 1, 1);
+		return new ItemStack(this.blockID, 1, META_DEBUG_STEAM_CREATOR);
+	}
+	
+	public ItemStack getDebugTurbineItemStack() {
+		return new ItemStack(this.blockID, 1, META_DEBUG_TURBINE);
 	}
 	
 	@Override
@@ -175,6 +184,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	{
 		par3List.add(this.getCyaniteReprocessorItemStack());
 		par3List.add(this.getHeatGeneratorItemStack());
+		par3List.add(this.getDebugTurbineItemStack());
 	}
 
 	@Override
