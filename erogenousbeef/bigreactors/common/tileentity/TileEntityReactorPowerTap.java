@@ -40,8 +40,8 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	}
 	
 	@Override
-	public void onMachineAssembled() {
-		super.onMachineAssembled();
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
+		super.onMachineAssembled(multiblockControllerBase);
 
 		if(this.worldObj.isRemote) { return; } 
 		

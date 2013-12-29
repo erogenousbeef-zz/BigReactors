@@ -91,8 +91,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 	
 	@Override
-	public void onMachineAssembled() {
-		super.onMachineAssembled();
+	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
+		super.onMachineAssembled(multiblockController);
 
 		if(this.worldObj.isRemote) { return; } 
 		
@@ -119,8 +119,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 	
 	@Override
-	protected void formatDescriptionPacket(NBTTagCompound packetData) {
-		super.formatDescriptionPacket(packetData);
+	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
+		super.encodeDescriptionPacket(packetData);
 		encodeSettings(packetData);
 	}
 	

@@ -18,6 +18,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
+import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class CommonProxy {
 
@@ -30,6 +31,7 @@ public class CommonProxy {
 		NetworkRegistry.instance().registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
 		BigReactors.tickHandler = new BigReactorsTickHandler();
 		TickRegistry.registerTickHandler(BigReactors.tickHandler, Side.SERVER);
+		TickRegistry.registerTickHandler(new MultiblockServerTickHandler(), Side.SERVER);
 		
 		sendInterModAPIMessages();
 	}

@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
@@ -25,6 +26,8 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorComputerPort
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.core.multiblock.IMultiblockPart;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class BlockReactorPart extends BlockContainer implements IConnectableRedNet {
 	
@@ -184,15 +187,6 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	}
 	
 	@Override
-	public void onBlockAdded(World world, int x, int y, int z) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te != null && te instanceof TileEntityReactorPart) {
-			TileEntityReactorPart rp = (TileEntityReactorPart)te;
-			rp.onBlockAdded(world, x, y, z);
-		}
-	}
-	
-	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorPowerTap) {
@@ -209,6 +203,20 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
 		if(player.isSneaking()) {
 			return false;
+		}
+
+		// If the player's hands are empty and they rightclick on a multiblock, they get a 
+		// multiblock-debugging message if the machine is not assembled.
+		if(!world.isRemote && player.getCurrentEquippedItem() == null) {
+			TileEntity te = world.getBlockTileEntity(x, y, z);
+			if(te instanceof IMultiblockPart) {
+				MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
+				Exception e = controller.getLastValidationException();
+				if(e != null) {
+					player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage()));
+					return true;
+				}
+			}
 		}
 		
 		int metadata = world.getBlockMetadata(x, y, z);

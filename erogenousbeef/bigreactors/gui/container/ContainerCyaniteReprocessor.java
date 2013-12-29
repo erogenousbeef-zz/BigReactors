@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.gui.slot.SlotReactorInput;
 import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
-import erogenousbeef.bigreactors.gui.slot.SlotRestrictedOreTypes;
 
 public class ContainerCyaniteReprocessor extends Container {
 

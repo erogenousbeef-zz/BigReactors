@@ -19,7 +19,6 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import erogenousbeef.bigreactors.client.ClientPacketHandler;
@@ -51,7 +50,7 @@ public class BRLoader {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		BigReactors.registerOres(0, true);
-		BigReactors.registerIngots(0, true);
+		BigReactors.registerIngots(0);
 		BigReactors.registerFuelRods(0, true);
 		BigReactors.registerReactorPartBlocks(0, true);
 		BigReactors.registerSmallMachines(0,  true);
@@ -60,6 +59,9 @@ public class BRLoader {
 		BigReactors.eventHandler = new BREventHandler();
 		MinecraftForge.EVENT_BUS.register(BigReactors.eventHandler);
 		MinecraftForge.EVENT_BUS.register(proxy);
+		
+		multiblockEventHandler = new MultiblockEventHandler();
+		MinecraftForge.EVENT_BUS.register(multiblockEventHandler);
 		
 		proxy.preInit();
 		
@@ -82,12 +84,6 @@ public class BRLoader {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent evt) {
 		proxy.postInit();
-	}
-	
-	@EventHandler
-	public void serverAboutToStart(FMLServerAboutToStartEvent evt) {
-		multiblockEventHandler = new MultiblockEventHandler();
-		MinecraftForge.EVENT_BUS.register(multiblockEventHandler);
 	}
 	
 	// GAME EVENT HANDLERS

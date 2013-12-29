@@ -6,7 +6,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.HeatPulse;
@@ -69,9 +69,18 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 
 	@Override
-	public void onMachineAssembled() {
+	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
 		if(this.worldObj.isRemote) { return; }
+		if(multiblockController == null) {
+			throw new IllegalArgumentException("Being assembled into a null controller. This should never happen. Please report this stacktrace to http://github.com/ErogenousBeef/BigReactors/");
+		}
 
+		// Autoheal, for issue #65.
+		if(this.getMultiblockController() == null) {
+			FMLLog.warning("Reactor part at (%d, %d, %d) is being assembled without being attached to a reactor. Attempting to auto-heal. Fully destroying and re-building this reactor is recommended if errors persist.", xCoord, yCoord, zCoord);
+			this.onAttached(multiblockController);
+		}
+		
 		int metadata = this.getBlockMetadata();
 		if(BlockReactorPart.isCasing(metadata)) {
 			this.setCasingMetadataBasedOnWorldPosition();
@@ -126,8 +135,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	// Networking
 
 	@Override
-	protected void formatDescriptionPacket(NBTTagCompound packetData) {
-		super.formatDescriptionPacket(packetData);
+	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
+		super.encodeDescriptionPacket(packetData);
 	}
 	
 	@Override
@@ -202,13 +211,18 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 
 	@Override
-	public MultiblockControllerBase getNewMultiblockControllerObject() {
+	public MultiblockControllerBase createNewMultiblock() {
 		return new MultiblockReactor(this.worldObj);
 	}
 	
+	@Override
+	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
+	
 	private void setCasingMetadataBasedOnWorldPosition() {
-		CoordTriplet minCoord = this.getMultiblockController().getMinimumCoord();
-		CoordTriplet maxCoord = this.getMultiblockController().getMaximumCoord();
+		MultiblockControllerBase controller = this.getMultiblockController();
+		assert(controller != null);
+		CoordTriplet minCoord = controller.getMinimumCoord();
+		CoordTriplet maxCoord = controller.getMaximumCoord();
 		
 		int extremes = 0;
 		boolean xExtreme, yExtreme, zExtreme;
