@@ -24,7 +24,8 @@ public class GuiHeatGenerator extends BeefGuiSmallMachineBase {
 
 	private BeefGuiLabel titleString;
 	private BeefGuiLabel tempString;
-	
+	private BeefGuiLabel absorbedString;
+
 	private GuiButton toggleActive;
 	
 	private BeefGuiFluidBar steamBar;
@@ -52,12 +53,16 @@ public class GuiHeatGenerator extends BeefGuiSmallMachineBase {
 		tempString = new BeefGuiLabel(this, "Temp: ???", leftX+22, topY);
 		topY += tempString.getHeight() + 4;
 		
+		absorbedString = new BeefGuiLabel(this, "Int-NRG: ???", leftX+22, topY);
+		topY += absorbedString.getHeight() + 4;
+
 		fluidBar = new BeefGuiFluidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);
 		steamBar = new BeefGuiFluidBar(this, guiLeft + 148, guiTop + 16, _entity, 1);
 		progressArrow = new BeefGuiProgressArrow(this, guiLeft + 76, guiTop + 41, 0, 178, _entity);
 
 		registerControl(titleString);
 		registerControl(tempString);
+		registerControl(absorbedString);
 		registerControl(fluidBar);
 		registerControl(steamBar);
 		registerControl(progressArrow);
@@ -73,6 +78,7 @@ public class GuiHeatGenerator extends BeefGuiSmallMachineBase {
 		super.updateScreen();
 
 		tempString.setLabelText(String.format("Temperature: %.1fC", _entity.internalTemperature-273f));
+		absorbedString.setLabelText(String.format("Int-NRG: %.2f", _entity.energyAbsorbed));
 	}
 
 	@Override

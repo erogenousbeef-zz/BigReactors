@@ -29,23 +29,34 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 
 	protected static final int TANK_WATER = 0;
 	protected static final int TANK_STEAM = 1;
-	
+
+	// Debugging tools
 	public float internalTemperature;
 	public float internalTemperatureRate;
-	public float energyAbsorbed;
-	public boolean isActive;
-	protected static final float waterSpecificHeat = 1.0f; // mB vaporized per degree C absorbed
-	protected static final float waterCriticalTemperatureMin = 100f; // Temperature above which water begins to vaporize
-	protected static final float waterCriticalTemperatureOptimal = 500f; // Temperature above which water vaporizes at its optimal rate
-	protected static final float heatTransferPerSquareMeter = 1f; // Transfer at most 1C worth of heat per tick
-	protected static final float progressLossThreshold = 0.98f; // If your heat dips below 98% of your minimum critical temp, progress is lost
 
+	// Values for the heat transfer system
+	protected static final float heatTransferPerSquareMeter = 1f; // Transfer at most 1C worth of heat per tick
+	protected static final float progressLossThreshold = 0.98f; // If your heat dips below 98% of your minimum critical temp, progress is lost by the above value per tick
+	protected static final float minimumTransfer = 0.001f; // Minimum heat transferred per tick, to prevent float easing
+	
+	// Gameplay values for each individual fluid
+	protected static final float waterVaporizedPerDegreeAbsorbed = 1f; // mB vaporized per degree absorbed
+	protected static final float waterCriticalTemperatureMin = 273f+100f; // Temperature above which water begins to vaporize (kelvin)
+	protected static final float waterCriticalTemperatureOptimal = 273f+500f; // Temperature above which water vaporizes at its optimal rate (kelvin)
+
+	protected static final float standardRestingTemperature = 293f; // 20C = room-temperature-ish
+	
+	// Internal values
+	public float energyAbsorbed; // Partial heat absorbed.
+	protected boolean isActive;
+	
 	public TileEntitySteamCreator() {
 		super();
 		
 		isActive = false;
-		internalTemperature = FluidRegistry.WATER.getTemperature();
+		internalTemperature = standardRestingTemperature;
 		internalTemperatureRate = 0.2f; // 4C per second
+		energyAbsorbed = 0f;
 	}
 	
 	@Override
@@ -60,15 +71,25 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 			}
 		}
 		
+		IFluidTank[] tanks = getTanks(ForgeDirection.UNKNOWN);
 		if(internalTemperature < waterCriticalTemperatureMin) {
 			// Can't vaporize yet
-			if(internalTemperature < waterCriticalTemperatureMin * progressLossThreshold) {
-				energyAbsorbed = 0f;
+			if(energyAbsorbed > 0f && internalTemperature < waterCriticalTemperatureMin * progressLossThreshold) {
+				energyAbsorbed = Math.max(0f, energyAbsorbed - heatTransferPerSquareMeter);
+			}
+			
+			// Lose small amounts of energy while heating up
+			float restTemp = standardRestingTemperature;
+			if(tanks[TANK_WATER].getFluid() != null) {
+				restTemp = tanks[TANK_WATER].getFluid().getFluid().getTemperature();
+			}
+
+			if(internalTemperature > restTemp) {
+				internalTemperature = Math.max(restTemp, internalTemperature - minimumTransfer);
 			}
 			return;
 		}
 
-		IFluidTank[] tanks = getTanks(ForgeDirection.UNKNOWN);
 		int waterAmt = tanks[TANK_WATER].getFluidAmount();
 		int steamAmt = tanks[TANK_STEAM].getFluidAmount();
 		int maxSteamAmt = tanks[TANK_STEAM].getCapacity();
@@ -76,27 +97,54 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 		if(waterAmt > 0 && steamAmt < tanks[TANK_STEAM].getCapacity()) {
 			// Not full
 			float heatTransferOptimalRate = getContactArea() * heatTransferPerSquareMeter;
-			float heatTransferRate = StaticUtils.ExtraMath.Lerp(0f, heatTransferOptimalRate, (internalTemperature - waterCriticalTemperatureMin) / (waterCriticalTemperatureOptimal - waterCriticalTemperatureMin));
+			float heatTransferred = StaticUtils.ExtraMath.Lerp(0f, heatTransferOptimalRate, (internalTemperature - waterCriticalTemperatureMin) / (waterCriticalTemperatureOptimal - waterCriticalTemperatureMin));
 			
-			// Clamp so we don't slurp out so much heat that we go below 100C
-			heatTransferRate = Math.min(heatTransferRate, internalTemperature - waterCriticalTemperatureMin);
+			// Minimum transfer amount to prevent small transfers from taking forever.
+			heatTransferred = Math.max(minimumTransfer, heatTransferred);
+			
+			// Clamp so we don't slurp out so much heat that we go below the critical temperature
+			heatTransferred = Math.min(heatTransferred, internalTemperature - waterCriticalTemperatureMin);
 
-			// Calculate how much water that heat can boil, capped at the amount present
-			int waterToVaporize = Math.min(waterAmt, (int)(waterSpecificHeat * heatTransferRate));
-			
-			// Cap by the available space in the boiler thing.
-			waterToVaporize = Math.min(waterToVaporize, maxSteamAmt - steamAmt);
+			// Add cached heat
+			float energyAvailable = heatTransferred + energyAbsorbed;
 
-			// And recalculate how much we actually transferred via vaporization
-			float temperatureToTransfer = waterToVaporize / waterSpecificHeat;
-			
-			// And now modify everything!
-			tanks[TANK_WATER].drain(waterToVaporize, true);
-			
-			FluidStack incoming = new FluidStack(BigReactors.fluidSteam, waterToVaporize);
-			tanks[TANK_STEAM].fill(incoming, true);
-			
-			internalTemperature -= temperatureToTransfer;
+			if((waterVaporizedPerDegreeAbsorbed * energyAvailable) < 1f) {
+				// If we can't actually produce 1 mB, just cache progress
+				energyAbsorbed = energyAvailable;
+				internalTemperature -= heatTransferred;
+			}
+			else {
+				// Okay, now for complicated shit - we can theoretically produce at least 1 mB
+				// So, we need to produce as many mBs as possible with the energy available
+				// Based on the amount actually produced, see how much energy remains
+				// Of that remaining energy, first drain the energyAbsorbed cache, then burn off temperature
+
+				// Cap steam created by the amount of water left in the water tank
+				int steamToCreate = Math.min(waterAmt, (int)(waterVaporizedPerDegreeAbsorbed * energyAvailable));
+				
+				// Cap by the available space in the boiler thing
+				steamToCreate = Math.min((int)steamToCreate, maxSteamAmt - steamAmt);
+	
+				// And recalculate how much we actually transferred via vaporization
+				float energyConsumed = (int)steamToCreate / waterVaporizedPerDegreeAbsorbed;
+				
+				// And now modify everything!
+				tanks[TANK_WATER].drain(steamToCreate, true);
+				
+				FluidStack incoming = new FluidStack(BigReactors.fluidSteam, steamToCreate);
+				tanks[TANK_STEAM].fill(incoming, true);
+
+				// If we have lots of energy cached (this generally shouldn't happen), bleed off the cache first
+				if(energyAbsorbed > energyConsumed) {
+					energyAbsorbed = Math.max(0f, energyAbsorbed - energyConsumed);
+				}
+				else {
+					// This should be the majority case. Remove the absorbed energy, then bleed off heat
+					energyConsumed = Math.max(0f, energyConsumed - energyAbsorbed);
+					energyAbsorbed = 0f;
+					internalTemperature -= energyConsumed;
+				}
+			}
 		}
 	}
 	
@@ -132,6 +180,7 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 		
 		updateTag.setFloat("temp", internalTemperature);
 		updateTag.setBoolean("active", isActive);
+		updateTag.setFloat("energyAbsorbed", energyAbsorbed);
 	}
 	
 	@Override
@@ -140,6 +189,7 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 		
 		internalTemperature = updateTag.getFloat("temp");
 		isActive = updateTag.getBoolean("active");
+		energyAbsorbed = updateTag.getFloat("energyAbsorbed");
 	}
 
 	@Override
@@ -150,7 +200,7 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 			internalTemperature = tag.getFloat("temp");
 		}
 		else {
-			internalTemperature = FluidRegistry.WATER.getTemperature();
+			internalTemperature = standardRestingTemperature;
 		}
 		
 		if(tag.hasKey("active")) {
@@ -158,6 +208,10 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 		}
 		else {
 			isActive = false;
+		}
+		
+		if(tag.hasKey("energyAbsorbed")) {
+			energyAbsorbed = tag.getFloat("energyAbsorbed");
 		}
 	}
 	
@@ -167,6 +221,7 @@ public class TileEntitySteamCreator extends TileEntityPoweredInventoryFluid {
 		
 		tag.setFloat("temp", internalTemperature);
 		tag.setBoolean("active", isActive);
+		tag.setFloat("energyAbsorbed", energyAbsorbed);
 	}
 	
 	// Fluids
