@@ -39,6 +39,7 @@ import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
@@ -331,6 +332,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
 			GameRegistry.registerTileEntity(TileEntitySteamCreator.class, 		"BRHeatGenerator");
+			GameRegistry.registerTileEntity(TileEntityDebugTurbine.class,		"BRDebugTurbine");
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");

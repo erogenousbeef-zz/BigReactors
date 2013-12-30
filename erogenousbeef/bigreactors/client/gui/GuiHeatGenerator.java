@@ -68,7 +68,7 @@ public class GuiHeatGenerator extends BeefGuiSmallMachineBase {
 		registerControl(progressArrow);
 		
 		toggleActive = new GuiButton(10, guiLeft + 58, guiTop + 70, 60, 20, "On/Off");
-		buttonList.add(toggleActive);
+		registerControl(toggleActive);
 
 		createInventoryExposureButtons(guiLeft + 180, guiTop + 4);
 	}
