@@ -70,12 +70,13 @@ public class TileEntityDebugTurbine extends TileEntityPoweredInventoryFluid impl
 		int bladeSurfaceArea = 4; // in blocks. 4x blade blocks
 
 		// Inductor constants
-		float inductionEnergyCoefficient = 500f; // RF per energy-unit converted. A constant, multiplied by the energy density of the fluid.
+		float inductionEnergyCoefficient = 1.2f; // Power to raise the induced current by. This makes higher RPMs more efficient.
 		
 		// Inductor dynamic constants - get from a table on assembly
 		float inductorDragCoefficient = 0.01f; // Keep this small, as it gets multiplied by v^2 and dominates at high speeds. Higher = more drag from the inductor vs. aerodynamic drag = more efficient energy conversion.
 		int inductorVolume = 8; // in blocks, assumed to be in a ring around the rotor. 8xblocks
 		float inductionEnergyBonus = 1f; // Bonus to energy generation based on construction materials. 1 = plain iron.
+		float inductionEnergyExponentBonus = 0f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
 
 		// Rotor constants - calculate on assembly
 		float rotorMass = 60f; // in deci-blocks-of-iron (1 block of iron = 10 units)
@@ -93,21 +94,19 @@ public class TileEntityDebugTurbine extends TileEntityPoweredInventoryFluid impl
 		float inductionTorque = (float)(Math.pow(rotationalVelocity*0.1f, 1.5)*inductorDragCoefficient*inductorVolume);
 
 		// Aerodynamic drag equation. Thanks, Mr. Euler.
-		// Floored at 0.001f so the damn thing spins down in a reasonable period of time.
-		float aerodynamicDragTorque = Math.max(0.001f, (float)Math.pow(rotationalVelocity, 2) * fluidEnergyDensity * bladeDragCoefficient * bladeSurfaceArea / 2f);
+		float aerodynamicDragTorque = (float)Math.pow(rotationalVelocity, 2) * fluidEnergyDensity * bladeDragCoefficient * bladeSurfaceArea / 2f;
 
 		// Frictional drag equation. Basically, a small amount of constant drag based on the size of your rotor.
 		float frictionalDragTorque = rotorDragCoefficient * rotorMass;
 		
 		// Aerodynamic lift equation. Also via Herr Euler.
-		// Steam is an integer, so this 
 		float liftTorque = 2 * (float)Math.pow(steamIn, 2) * fluidEnergyDensity * bladeLiftCoefficient * bladeSurfaceArea;
 
 		// Yay for derivation. We're assuming delta-Time is always 1, as we're always calculating for 1 tick.
 		// TODO: When calculating rotor mass, factor in a division by two to eliminate the constant term.
 		float deltaV = (2 * (liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque)) / rotorMass;
 
-		energyGeneratedLastTick = inductionTorque * inductionEnergyCoefficient * inductionEnergyBonus * fluidEnergyDensity;
+		energyGeneratedLastTick = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEnergyBonus * BigReactors.powerProductionMultiplier;
 		energyStored += energyGeneratedLastTick;
 
 		if(energyStored >= 1f) {
@@ -126,6 +125,10 @@ public class TileEntityDebugTurbine extends TileEntityPoweredInventoryFluid impl
 	
 	public float getEnergyGeneratedLastTick() {
 		return energyGeneratedLastTick;
+	}
+	
+	public boolean getUserActivated() {
+		return isActive;
 	}
 	
 	@Override
@@ -267,12 +270,12 @@ public class TileEntityDebugTurbine extends TileEntityPoweredInventoryFluid impl
 	// Powered
 	@Override
 	protected int getMaxEnergyStored() {
-		return 10000;
+		return 100000;
 	}
 
 	@Override
 	public int getCycleEnergyCost() {
-		return 20000;
+		return 200000;
 	}
 
 	@Override
