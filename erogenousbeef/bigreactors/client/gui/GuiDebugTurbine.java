@@ -76,7 +76,7 @@ public class GuiDebugTurbine extends BeefGuiSmallMachineBase {
 
 		rpmString.setLabelText(String.format("Speed: %.0f RPM", turbine.getTurbineSpeed()));
 		energyGennedString.setLabelText(String.format("Generating: %2.2f RF/t", turbine.getEnergyGeneratedLastTick()));
-		toggleActive.displayString = turbine.isActive() ? "Deactivate":"Activate";
+		toggleActive.displayString = turbine.getUserActivated() ? "Deactivate":"Activate";
 	}
 
 	@Override
