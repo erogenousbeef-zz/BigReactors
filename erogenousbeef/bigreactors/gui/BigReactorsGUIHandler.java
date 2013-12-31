@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 
 public class BigReactorsGUIHandler implements IGuiHandler {
 
@@ -16,8 +16,8 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 		if(te == null) {
 			return null;
 		}
-		else if(te instanceof TileEntityReactorPart) {
-			return ((TileEntityReactorPart)te).getContainer(player.inventory);
+		else if(te instanceof IMultiblockGuiHandler) {
+			return ((IMultiblockGuiHandler)te).getContainer(player.inventory);
 		}
 		else if(te instanceof IBeefGuiEntity) {
 			return ((IBeefGuiEntity)te).getContainer(player);
@@ -34,8 +34,8 @@ public class BigReactorsGUIHandler implements IGuiHandler {
 			return null;
 		}
 		
-		if(te instanceof TileEntityReactorPart) {
-			TileEntityReactorPart part = (TileEntityReactorPart)te;
+		if(te instanceof IMultiblockGuiHandler) {
+			IMultiblockGuiHandler part = (IMultiblockGuiHandler)te;
 			return part.getGuiElement(player.inventory);
 		}
 		else if(te instanceof IBeefGuiEntity) {

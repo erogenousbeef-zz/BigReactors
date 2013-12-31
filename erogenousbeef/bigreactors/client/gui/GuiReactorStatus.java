@@ -153,10 +153,10 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		float averagedOutput = averagedRfOutput.average();
 		if(averagedOutput >= 100f) {
-			energyGeneratedString.setLabelText(String.format("Power Output: %1.0f RF", averagedRfOutput.average()));			
+			energyGeneratedString.setLabelText(String.format("Power Output: %1.0f RF/t", averagedRfOutput.average()));			
 		}
 		else {
-			energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF", averagedRfOutput.average()));			
+			energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF/t", averagedRfOutput.average()));			
 		}
 
 		heatString.setLabelText("Heat: " + Integer.toString((int)averagedHeat.average()) + " C");
