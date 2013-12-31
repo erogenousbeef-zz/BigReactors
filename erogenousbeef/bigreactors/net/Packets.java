@@ -16,4 +16,5 @@ public final class Packets {
 	public static final int RedNetSetData = 12;
 	public static final int RedstoneSetData = 13;
 	public static final int MultiblockTurbineFullUpdate = 14;
+	public static final int TurbineControllerButton = 15;
 }

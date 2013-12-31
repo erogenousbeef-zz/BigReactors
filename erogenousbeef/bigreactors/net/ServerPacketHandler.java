@@ -30,6 +30,7 @@ public class ServerPacketHandler implements IPacketHandler {
 		case Packets.ReactorControllerButton:
 		case Packets.AccessPortButton:
 		case Packets.ReactorWasteEjectionSettingUpdate:
+		case Packets.TurbineControllerButton:
 			try {
 				x = data.readInt();
 				y = data.readInt();
