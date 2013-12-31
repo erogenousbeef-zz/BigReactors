@@ -7,17 +7,18 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
+import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 		IBeefTooltipControl {
 
-	TileEntityPoweredInventoryFluid _entity;
+	IMultipleFluidHandler _entity;
 	int tankIdx;
 	
 	public BeefGuiFluidBar(BeefGuiBase container, int x, int y,
-			TileEntityPoweredInventoryFluid entity, int tankIdx) {
+			IMultipleFluidHandler entity, int tankIdx) {
 		super(container, x, y);
 		
 		this._entity = entity;
@@ -26,7 +27,7 @@ public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 
 	@Override
 	protected Icon getProgressBarIcon() {
-		FluidTankInfo[] tanks = this._entity.getTankInfo(ForgeDirection.UNKNOWN);
+		FluidTankInfo[] tanks = this._entity.getTankInfo();
 		if(tanks != null && tankIdx < tanks.length) {
 			if(tanks[tankIdx].fluid != null) {
 				return tanks[tankIdx].fluid.getFluid().getIcon();
@@ -37,7 +38,7 @@ public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 	
 	@Override
 	protected float getProgress() {
-		FluidTankInfo[] tanks = this._entity.getTankInfo(ForgeDirection.UNKNOWN);
+		FluidTankInfo[] tanks = this._entity.getTankInfo();
 		if(tanks != null && tankIdx < tanks.length) {
 			FluidStack tankFluid = tanks[tankIdx].fluid;
 			if(tankFluid != null) {
@@ -49,7 +50,7 @@ public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 	
 	@Override
 	public String[] getTooltip() {
-		FluidTankInfo[] tanks = this._entity.getTankInfo(ForgeDirection.UNKNOWN);
+		FluidTankInfo[] tanks = this._entity.getTankInfo();
 		if(tanks != null && tankIdx < tanks.length) {
 			FluidStack tankFluid = tanks[tankIdx].fluid;
 			if(tankFluid != null) {

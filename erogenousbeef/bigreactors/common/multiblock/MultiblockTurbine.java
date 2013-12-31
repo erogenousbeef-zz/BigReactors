@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import cofh.api.energy.IEnergyHandler;
+
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -12,6 +14,7 @@ import cpw.mods.fml.common.network.Player;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -21,12 +24,15 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
+import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class MultiblockTurbine extends MultiblockControllerBase {
+public class MultiblockTurbine extends MultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
 
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
@@ -38,6 +44,13 @@ public class MultiblockTurbine extends MultiblockControllerBase {
 	public static final int NUM_TANKS = 2;
 	public static final int FLUID_NONE = -1;
 	private FluidTank[] tanks;
+	
+	static final float maxEnergyStored = 1000000f; // 1 MegaRF
+	
+	// Game data
+	float energyStored;
+	boolean active;
+	
 	
 	private Set<IMultiblockPart> attachedControllers;
 	
@@ -53,18 +66,11 @@ public class MultiblockTurbine extends MultiblockControllerBase {
 			tanks[i] = new FluidTank(0);
 		
 		attachedControllers = new HashSet<IMultiblockPart>();
+		
+		energyStored = 0f;
+		active = false;
 	}
 
-	// GUI Updates
-	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
-		updatePlayers.add(playerToUpdate);
-		sendIndividualUpdate(playerToUpdate);
-	}
-	
-	public void stopUpdatingPlayer(EntityPlayer playerToRemove) {
-		updatePlayers.remove(playerToRemove);
-	}
-	
 	/**
 	 * Sends a full state update to a player.
 	 */
@@ -264,6 +270,8 @@ public class MultiblockTurbine extends MultiblockControllerBase {
 	public void writeToNBT(NBTTagCompound data) {
 		data.setCompoundTag("inputTank", tanks[TANK_INPUT].writeToNBT(new NBTTagCompound()));
 		data.setCompoundTag("outputTank", tanks[TANK_OUTPUT].writeToNBT(new NBTTagCompound()));
+		data.setBoolean("active", active);
+		data.setFloat("energy", energyStored);
 	}
 
 	@Override
@@ -275,12 +283,22 @@ public class MultiblockTurbine extends MultiblockControllerBase {
 		if(data.hasKey("outputTank")) {
 			tanks[TANK_OUTPUT].readFromNBT(data.getCompoundTag("outputTank"));
 		}
+		
+		if(data.hasKey("active")) {
+			active = data.getBoolean("active");
+		}
+		
+		if(data.hasKey("energy")) {
+			energyStored = data.getFloat("energy");
+		}
 	}
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
 		data.setCompoundTag("inputTank", tanks[TANK_INPUT].writeToNBT(new NBTTagCompound()));
 		data.setCompoundTag("outputTank", tanks[TANK_OUTPUT].writeToNBT(new NBTTagCompound()));
+		data.setBoolean("active", active);
+		data.setFloat("energy", energyStored);
 	}
 
 	@Override
@@ -291,6 +309,14 @@ public class MultiblockTurbine extends MultiblockControllerBase {
 		
 		if(data.hasKey("outputTank")) {
 			tanks[TANK_OUTPUT].readFromNBT(data.getCompoundTag("outputTank"));
+		}
+		
+		if(data.hasKey("active")) {
+			active = data.getBoolean("active");
+		}
+		
+		if(data.hasKey("energy")) {
+			energyStored = data.getFloat("energy");
 		}
 	}
 
@@ -360,9 +386,71 @@ public class MultiblockTurbine extends MultiblockControllerBase {
 		return infos;
 	}
 
-	public boolean isActive() {
-		// TODO Auto-generated method stub
-		return false;
+	// IEnergyHandler
+
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
+		// haha no
+		return 0;
 	}
 
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from) {
+		return true;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from) {
+		return (int)energyStored;
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from) {
+		return (int)maxEnergyStored;
+	}
+
+	// Activity state
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean newValue) {
+		if(newValue != active) {
+			this.active = newValue;
+			TileEntity te = null; 
+			IMultiblockPart part = null;
+			for(CoordTriplet coord : connectedBlocks) {
+				te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				if(te instanceof IMultiblockPart) {
+					part = (IMultiblockPart)te;
+					if(this.active) { part.onMachineActivated(); }
+					else { part.onMachineDeactivated(); }
+				}
+			}
+		}
+	}
+
+	// ISlotlessUpdater
+	@Override
+	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
+		updatePlayers.add(playerToUpdate);
+		sendIndividualUpdate(playerToUpdate);
+	}
+	
+	@Override
+	public void stopUpdatingPlayer(EntityPlayer playerToRemove) {
+		updatePlayers.remove(playerToRemove);
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer player) {
+		// TODO DISTANCE CHECK
+		return true;
+	}
 }

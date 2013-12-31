@@ -8,14 +8,18 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraftforge.common.ForgeDirection;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.bigreactors.client.gui.GuiTurbineController;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
+import erogenousbeef.bigreactors.gui.container.ContainerSlotless;
+import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public class TileEntityTurbinePart extends MultiblockTileEntityBase implements IMultiblockGuiHandler, IMultiblockNetworkHandler {
@@ -187,7 +191,17 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 		}
 
 		// Client->Server Packets
-		
+		if(packetType == Packets.ReactorControllerButton) {
+			Class decodeAs[] = { String.class, Boolean.class };
+			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
+			String buttonName = (String) decodedData[0];
+			boolean newValue = (Boolean) decodedData[1];
+			
+			if(buttonName.equals("activate")) {
+				getTurbine().setActive(newValue);
+			}
+		}
+
 		// Server->Client Packets
 		if(packetType == Packets.MultiblockTurbineFullUpdate) {
 			getTurbine().onReceiveUpdatePacket(data);
@@ -204,6 +218,10 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 			return null;
 		}
 		
+		if(getMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
+			return (Object)(new ContainerSlotless(getTurbine(), inventoryPlayer.player));
+		}
+		
 		return null;
 	}
 	
@@ -214,6 +232,9 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 			return null;
 		}
 
+		if(getMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
+			return new GuiTurbineController((Container)getContainer(inventoryPlayer), this);
+		}
 		return null;
 	}
 

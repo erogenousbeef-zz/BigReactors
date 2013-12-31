@@ -15,11 +15,12 @@ import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class TileEntityPoweredInventoryFluid extends
-		TileEntityPoweredInventory implements IFluidHandler {
+		TileEntityPoweredInventory implements IFluidHandler, IMultipleFluidHandler {
 
 	private FluidTank[] tanks;
 	private int[] tankExposure;
@@ -428,6 +429,16 @@ public abstract class TileEntityPoweredInventoryFluid extends
      * @return Info for the relevant internal tanks.
      */
     public FluidTankInfo[] getTankInfo(ForgeDirection from) {
+    	return getTankInfo();
+    }
+
+    /**
+     * Returns an array of objects which represent the internal tanks. These objects cannot be used
+     * to manipulate the internal tanks. See {@link FluidTankInfo}.
+     * 
+     * @return Info for the relevant internal tanks.
+     */
+    public FluidTankInfo[] getTankInfo() {
     	FluidTankInfo[] infos = new FluidTankInfo[tanks.length];
     	for(int i = 0; i < tanks.length; i++) {
     		infos[i] = tanks[i].getInfo();
