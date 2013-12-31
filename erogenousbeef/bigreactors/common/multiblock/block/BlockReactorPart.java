@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.block;
+package erogenousbeef.bigreactors.common.multiblock.block;
 
 import java.util.List;
 
@@ -21,11 +21,11 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorComputerPort;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 

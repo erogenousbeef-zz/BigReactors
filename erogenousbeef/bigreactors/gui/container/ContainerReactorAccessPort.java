@@ -5,7 +5,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.gui.slot.SlotReactorInput;
 import erogenousbeef.bigreactors.gui.slot.SlotRemoveOnly;
 

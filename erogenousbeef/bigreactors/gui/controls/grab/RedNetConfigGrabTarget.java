@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.gui.controls.grab;
 
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class RedNetConfigGrabTarget extends BeefGuiGrabTarget implements IBeefTooltipControl {

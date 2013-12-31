@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.block;
+package erogenousbeef.bigreactors.common.multiblock.block;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorGlass;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorGlass;
 
 public class BlockReactorGlass extends BlockContainer {
 

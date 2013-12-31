@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.block;
+package erogenousbeef.bigreactors.common.multiblock.block;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -11,7 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 
 public class BlockReactorControlRod extends BlockContainer {
 

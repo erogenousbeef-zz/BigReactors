@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.tileentity;
+package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -17,9 +17,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;

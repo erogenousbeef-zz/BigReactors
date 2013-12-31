@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.tileentity;
+package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -40,6 +40,7 @@ import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.RadiationPulse;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorControlRod;
 import erogenousbeef.bigreactors.net.PacketWrapper;
