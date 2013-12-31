@@ -208,7 +208,8 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		
 		return isItemValidForSlot(slot, itemstack);
 	}
-	
+
+	// IMultiblockNetworkHandler
 	@Override
 	public void onNetworkPacket(int packetType, DataInputStream data) {
 		if(packetType == Packets.AccessPortButton) {
@@ -220,8 +221,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, newMetadata, 2);
 			}
 		}
+		else {
+			super.onNetworkPacket(packetType, data);
+		}
 	}
-	
+
+	// IMultiblockGuiHandler
 	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		return new ContainerReactorAccessPort(this, inventoryPlayer);

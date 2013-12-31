@@ -16,6 +16,8 @@ import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
@@ -24,7 +26,7 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 
-public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity {
+public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity, IMultiblockGuiHandler, IMultiblockNetworkHandler {
 
 	public TileEntityReactorPart() {
 		super();
@@ -130,8 +132,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		}
 	}
 
-	// IPacketReceiver
-	
 	// Networking
 
 	@Override
@@ -163,8 +163,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		super.writeToNBT(par1NBTTagCompound);
 	}
 
-	///// Network communication
-
+	///// Network communication - IMultiblockNetworkHandler
+	@Override
 	public void onNetworkPacket(int packetType, DataInputStream data) {
 		if(!this.isConnected()) {
 			return;
@@ -228,7 +228,6 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		boolean xExtreme, yExtreme, zExtreme;
 		xExtreme = yExtreme = zExtreme = false;
 
-		TileEntity te;
 		if(xCoord == minCoord.x) { extremes++; xExtreme = true; }
 		if(yCoord == minCoord.y) { extremes++; yExtreme = true; }
 		if(zCoord == minCoord.z) { extremes++; zExtreme = true; }
@@ -264,9 +263,11 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		}		
 	}
 
+	// IMultiblockGuiHandler
 	/**
 	 * @return The Container object for use by the GUI. Null if there isn't any.
 	 */
+	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
 			return null;
@@ -280,6 +281,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	}
 
 	@SideOnly(Side.CLIENT)
+	@Override
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
 			return null;

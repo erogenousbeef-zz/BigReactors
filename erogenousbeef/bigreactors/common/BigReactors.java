@@ -30,6 +30,7 @@ import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockSmallMachine;
+import erogenousbeef.bigreactors.common.item.ItemBlockTurbinePart;
 import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
@@ -38,6 +39,7 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -46,6 +48,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
@@ -82,6 +85,8 @@ public class BigReactors {
 	public static Block blockReactorGlass;
 	public static Block blockReactorControlRod;
 	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
+	
+	public static BlockTurbinePart blockTurbinePart;
 	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
@@ -338,6 +343,8 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
 			GameRegistry.registerTileEntity(TileEntityReactorRedstonePort.class,"BRReactorRedstonePort");
 			GameRegistry.registerTileEntity(TileEntityReactorComputerPort.class, "BRReactorComputerPort");
+
+			GameRegistry.registerTileEntity(TileEntityTurbinePart.class,  "BRTurbinePart");
 			registeredTileEntities = true;
 		}
 	}
@@ -466,6 +473,20 @@ public class BigReactors {
 			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlockBigReactors.class, "BRReactorRedstonePort");
 			OreDictionary.registerOre("reactorRedstonePort", new ItemStack(blockReactorRedstonePort, 1));
 			
+			BRConfig.CONFIGURATION.save();
+		}
+	}
+	
+	public static void registerTurbineParts() {
+		if(BigReactors.blockTurbinePart == null) {
+			BRConfig.CONFIGURATION.load();
+			BigReactors.blockTurbinePart = new BlockTurbinePart(BRConfig.CONFIGURATION.getBlock("TurbinePart", BigReactors.BLOCK_ID_PREFIX + 10).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockTurbinePart, ItemBlockTurbinePart.class, "BRTurbinePart");
+
+			OreDictionary.registerOre("turbineHousing", 	BigReactors.blockTurbinePart.getItemStack("housing"));
+			OreDictionary.registerOre("turbineController", 	BigReactors.blockTurbinePart.getItemStack("controller"));
+			OreDictionary.registerOre("turbinePowerTap", 	BigReactors.blockTurbinePart.getItemStack("powerTap"));
+			OreDictionary.registerOre("turbineFluidPort", 	BigReactors.blockTurbinePart.getItemStack("fluidPort"));
 			BRConfig.CONFIGURATION.save();
 		}
 	}

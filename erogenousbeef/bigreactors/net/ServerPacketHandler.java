@@ -11,9 +11,9 @@ import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 
 public class ServerPacketHandler implements IPacketHandler {
@@ -35,8 +35,8 @@ public class ServerPacketHandler implements IPacketHandler {
 				y = data.readInt();
 				z = data.readInt();
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-				if(te != null & te instanceof TileEntityReactorPart) {
-					((TileEntityReactorPart)te).onNetworkPacket(packetType, data);
+				if(te instanceof IMultiblockNetworkHandler) {
+					((IMultiblockNetworkHandler)te).onNetworkPacket(packetType, data);
 				}
 				else {
 					throw new IOException("Invalid TileEntity for receipt of ReactorControllerButton packet");

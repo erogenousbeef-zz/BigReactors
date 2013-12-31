@@ -14,8 +14,9 @@ import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
@@ -35,24 +36,26 @@ public class ClientPacketHandler implements IPacketHandler {
 		
 		int x, y, z;
 		switch(packetType) {
-		case Packets.ReactorControllerFullUpdate: {
-				try {
-					x = data.readInt();
-					y = data.readInt();
-					z = data.readInt();
-					TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-					if(te != null & te instanceof TileEntityReactorPart) {
-						((TileEntityReactorPart)te).onNetworkPacket(packetType, data);
-					}
-					else {
-						throw new IOException("Invalid TileEntity for receipt of TickUpdate packet");
-					}
-	
-				} catch (IOException e) {
-					e.printStackTrace();
-					// TODO: Crash all the things.
-				}			
+		case Packets.ReactorControllerFullUpdate:
+		case Packets.MultiblockTurbineFullUpdate:
+		{
+			try {
+				x = data.readInt();
+				y = data.readInt();
+				z = data.readInt();
+				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				if(te instanceof IMultiblockNetworkHandler) {
+					((IMultiblockNetworkHandler)te).onNetworkPacket(packetType, data);
+				}
+				else {
+					throw new IOException("Invalid TileEntity for receipt of multiblock packet");
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				// TODO: Crash all the things.
 			}
+		}
 		break;
 		case Packets.ReactorWasteEjectionSettingUpdate: {
 				try {
