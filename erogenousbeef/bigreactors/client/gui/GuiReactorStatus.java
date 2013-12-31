@@ -7,7 +7,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFuelMixBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiHeatBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;

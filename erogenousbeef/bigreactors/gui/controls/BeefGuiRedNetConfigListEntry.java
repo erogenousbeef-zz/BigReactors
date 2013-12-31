@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraft.client.gui.FontRenderer;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.gui.IBeefListBoxEntry;
 
 public class BeefGuiRedNetConfigListEntry implements IBeefListBoxEntry {

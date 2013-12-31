@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.block;
+package erogenousbeef.bigreactors.common.multiblock.block;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

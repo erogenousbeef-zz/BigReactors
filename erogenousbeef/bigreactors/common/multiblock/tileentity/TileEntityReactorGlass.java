@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.tileentity;
+package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;

@@ -12,7 +12,7 @@ import erogenousbeef.bigreactors.client.renderer.SimpleRendererControlRod;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.CommonProxy;
-import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
 import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
 @SideOnly(Side.CLIENT)

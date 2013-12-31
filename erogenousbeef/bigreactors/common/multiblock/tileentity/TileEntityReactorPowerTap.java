@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.tileentity;
+package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
-import erogenousbeef.bigreactors.common.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 

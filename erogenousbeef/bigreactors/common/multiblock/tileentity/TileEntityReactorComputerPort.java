@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.tileentity;
+package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.tileentity.TileEntity;
 import dan200.computer.api.IComputerAccess;

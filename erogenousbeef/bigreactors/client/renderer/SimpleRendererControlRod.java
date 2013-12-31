@@ -13,8 +13,8 @@ import org.lwjgl.opengl.GL11;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockReactorControlRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 
 public class SimpleRendererControlRod implements ISimpleBlockRenderingHandler {
 
