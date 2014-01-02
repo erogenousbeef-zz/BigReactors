@@ -4,8 +4,18 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.10A)
+Current Release (0.2.12A)
 --------------------------------
+- Bugfix: Fixed a rare crash when reactors ate the last of their fuel and then tried to create waste
+- Bugfix: Working around a crash that appears to be caused by an interaction with Forge Multipart. Log lines will be spammed to help further debug this issue.
+- Bugfix: Maximum-dimension problems with assembly were not being reported by empty-hand right-clicks. This is fixed.
+
+Older Releases
+--------------
+### Release 0.2.11A
+- Bugfix: Cyanite reprocessors were not working when the 'registerYelloriumAsUranium' config was set to false. This has been fixed.
+
+### Release 0.2.10A
 - Config: Added 'Debugging' config section with 'debugMultiblocks' option. Set this to true if you like seeing debugging spam and/or you have a reproducible reactor bug and want to send in a debugging log.
 - Config: Added 'useSteelForIron' config under the 'Recipes' section. Set this to true if you want Big Reactors to require steel ingots instead of iron ingots. If you do not have an installed mod which adds steel ingots, this setting is ignored. Defaults to off.
 - Config: Added 'useExpensiveGlass' config under the 'Recipes' section. Set this to true if you want Big Reactors to require IC2 hardened glass or TE reinforced glass instead of plain glass. If you do not have an installed mod which adds reinforced or hardened glass, this setting is ignored. Defaults to off.
@@ -18,8 +28,6 @@ Current Release (0.2.10A)
 - Core: Client-side multiblock handlers now recalculate their size properly and also have their own update loop, in case there's some client-only multiblock game logic. This is not yet used in Big Reactors.
 - Localization: German localization improved, thanks Vexatos!
 
-Older Releases
---------------
 ### Release 0.2.9A3
 - Bugfix: A more paranoid version of the 0.2.9A NPE crash fixes. Auto-repairs a situation that leads to a NPE during reactor assembly. If a reactor ends up corrupted, it is also now possible to tear it down and rebuild it to fix it.
 
