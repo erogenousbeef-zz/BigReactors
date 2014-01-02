@@ -277,10 +277,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			for(CoordTriplet coord : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
 				
-				TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-				if(tap == null) { continue; }
-
-				energyRemaining -= splitEnergy - tap.onProvidePower(splitEnergy);
+				TileEntity te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				if(te instanceof TileEntityReactorPowerTap) {
+					energyRemaining -= splitEnergy - ((TileEntityReactorPowerTap)te).onProvidePower(splitEnergy);
+				}
+				else {
+					// Some kind of weird FMP thing seems to be causing this...
+					FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorPowerTap. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
+				}
 			}
 
 			// Next, just hose out whatever we can, if we have any left
@@ -288,10 +292,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				for(CoordTriplet coord : attachedPowerTaps) {
 					if(energyRemaining <= 0) { break; }
 					
-					TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					if(tap == null) { continue; }
-
-					energyRemaining = tap.onProvidePower(energyRemaining);
+					TileEntity te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(te instanceof TileEntityReactorPowerTap) {
+						energyRemaining = ((TileEntityReactorPowerTap)te).onProvidePower(energyRemaining);
+					}
+					else {
+						FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorPowerTap. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
+					}
 				}
 			}
 		}
@@ -311,9 +318,13 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		// Update any connected tickables
 		for(CoordTriplet coord : attachedTickables) {
-			IReactorTickable tickable = (IReactorTickable)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(tickable == null) { continue; }
-			tickable.onReactorTick();
+			TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(te instanceof IReactorTickable) {
+				((IReactorTickable)te).onReactorTick();
+			}
+			else {
+				FMLLog.warning("Found an instance of %s at %s but was expecting an IReactorTickable (redstone/rednet port). If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
+			}
 		}
 
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
