@@ -496,9 +496,6 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 					fuelUsed = rand.nextInt(fuelUsed) + 1;
 				}
 
-				// Just slurp out whatever fuel we've got inside. This may need a refactor if we allow fuel blends.
-				this.removeFuel(null, fuelUsed, true);
-				
 				if(this.waste == null) {
 					IReactorFuel fuelData = BRRegistry.getDataForFuel(this.fuel.getFluid());
 					FluidStack wasteToAdd = null;
@@ -511,12 +508,13 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 						wasteToAdd = new FluidStack(BigReactors.fluidCyanite, fuelUsed);
 					}
 
+					this.removeFuel(null, fuelUsed, true);
 					this.addWaste(wasteToAdd, fuelUsed, true);
 				}
 				else {
+					this.removeFuel(null, fuelUsed, true);
 					this.addWaste(this.waste, fuelUsed, true);
 				}
-				
 
 				neutronsSinceLastFuelConsumption = 0;
 			}
