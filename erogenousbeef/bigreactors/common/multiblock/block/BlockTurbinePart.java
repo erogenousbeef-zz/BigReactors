@@ -33,11 +33,15 @@ public class BlockTurbinePart extends BlockContainer {
 	public static final int METADATA_CONTROLLER = 1;
 	public static final int METADATA_POWERTAP = 2;
 	public static final int METADATA_FLUIDPORT = 3;
+	public static final int METADATA_BEARING = 4;
+	public static final int METADATA_CREATIVE_GENERATOR = 5;
 	
 	private static final String[] _subBlocks = new String[] { "housing",
 														"controller",
 														"powerTap",
-														"fluidPort" };
+														"fluidPort",
+														"bearing",
+														"creativeSteamGenerator" };
 
 	// Additional non-metadata-based icons
 	private static final int SUBICON_NONE = -1;
