@@ -8,6 +8,7 @@ Current Release (0.2.12A)
 --------------------------------
 - Bugfix: Fixed a rare crash when reactors ate the last of their fuel and then tried to create waste
 - Bugfix: Working around a crash that appears to be caused by an interaction with Forge Multipart. Log lines will be spammed to help further debug this issue.
+- Bugfix: Maximum-dimension problems with assembly were not being reported by empty-hand right-clicks. This is fixed.
 
 Older Releases
 --------------
