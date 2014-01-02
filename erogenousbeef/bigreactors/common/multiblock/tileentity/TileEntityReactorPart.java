@@ -172,7 +172,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 		/// Client->Server packets
 		
-		if(packetType == Packets.ReactorControllerButton) {
+		if(packetType == Packets.MultiblockControllerButton) {
 			Class decodeAs[] = { String.class, Boolean.class };
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			String buttonName = (String) decodedData[0];

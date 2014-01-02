@@ -191,13 +191,14 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 		}
 
 		// Client->Server Packets
-		if(packetType == Packets.ReactorControllerButton) {
+		if(packetType == Packets.MultiblockControllerButton) {
 			Class decodeAs[] = { String.class, Boolean.class };
 			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
 			String buttonName = (String) decodedData[0];
 			boolean newValue = (Boolean) decodedData[1];
 			
 			if(buttonName.equals("activate")) {
+				FMLLog.info("setting turbine controller active: %b", newValue);
 				getTurbine().setActive(newValue);
 			}
 		}

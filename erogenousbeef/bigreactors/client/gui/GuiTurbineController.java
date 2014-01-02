@@ -28,6 +28,8 @@ public class GuiTurbineController extends BeefGuiBase {
 	private BeefGuiPowerBar powerBar;
 	private BeefGuiFluidBar steamBar;
 	private BeefGuiFluidBar waterBar;
+	
+	// TODO: Progress bar for turbine speed
 
 	private GuiButton toggleActive;
 	
@@ -41,7 +43,7 @@ public class GuiTurbineController extends BeefGuiBase {
 	@Override
 	public ResourceLocation getGuiBackground() {
 		// TODO FIXME
-		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "ReactorController.png");
+		return new ResourceLocation(BigReactors.GUI_DIRECTORY + "TurbineController.png");
 	}
 	
 	// Add controls, etc.
@@ -92,8 +94,8 @@ public class GuiTurbineController extends BeefGuiBase {
 			toggleActive.displayString = "Activate";
 		}
 		
-		speedString.setLabelText(String.format("Rotor Speed: %.1f RPM", 0f)); // TODO
-		energyGeneratedString.setLabelText(String.format("Energy Output: %.0f RF/t", 0f)); // TODO
+		speedString.setLabelText(String.format("Speed: %.1f RPM", 0f)); // TODO
+		energyGeneratedString.setLabelText(String.format("Output: %.0f RF/t", 0f)); // TODO
 	}
 
 	@Override
@@ -105,10 +107,10 @@ public class GuiTurbineController extends BeefGuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		CoordTriplet saveDelegate = turbine.getReferenceCoord();
 		if(button.id == 1) {
+			CoordTriplet saveDelegate = turbine.getReferenceCoord();
 			boolean newValue = !turbine.isActive();
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.TurbineControllerButton,
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", newValue }));
 		}
 	}
