@@ -23,15 +23,19 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class MultiblockTurbine extends MultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
 
@@ -53,6 +57,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	boolean active;
 	
 	private Set<IMultiblockPart> attachedControllers;
+	private Set<IMultiblockPart> attachedRotorBearings;
 	
 	public MultiblockTurbine(World world) {
 		super(world);
@@ -66,6 +71,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 			tanks[i] = new FluidTank(1000);
 		
 		attachedControllers = new HashSet<IMultiblockPart>();
+		attachedRotorBearings = new HashSet<IMultiblockPart>();
 		
 		energyStored = 0f;
 		active = false;
@@ -184,11 +190,19 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	@Override
 	protected void onBlockAdded(IMultiblockPart newPart) {
 		// TODO
+		if(newPart instanceof TileEntityTurbinePart) {
+			CoordTriplet coord = newPart.getWorldLocation();
+			int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
+			if(metadata == BlockTurbinePart.METADATA_BEARING) {
+				this.attachedRotorBearings.add(newPart);
+			}
+		}
 	}
 
 	@Override
 	protected void onBlockRemoved(IMultiblockPart oldPart) {
 		// TODO
+		this.attachedRotorBearings.remove(oldPart);
 	}
 
 	@Override
@@ -209,10 +223,34 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	// Validation code
 	@Override
+	protected boolean isMachineWhole() throws MultiblockValidationException {
+		if(attachedRotorBearings.size() != 1) {
+			throw new MultiblockValidationException("Turbines require exactly 1 rotor bearing");
+		}
+		
+		// TODO: Validate that the interior has the appropriate configuration - one rotor shaft running the length of the turbine
+		// Rotor blades must emit from the rotor shaft.
+		// Slice rotor into layers along its length
+		// Layers with non-air-blocks must not occur before the end of the layers with rotor blades
+		return super.isMachineWhole();
+	}
+	
+	@Override
 	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
 		// We only allow air and functional parts in turbines.
 		
-		return world.isAirBlock(x, y, z);
+		// Air is ok
+		if(world.isAirBlock(x, y, z)) { return true; }
+		
+		int blockId = world.getBlockId(x, y, z);
+		
+		// Allow rotors and stuff
+		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { return true; }
+
+		// TODO: Allow iron/gold blocks... how I do this.
+		
+		// Everything else, gtfo
+		return false;
 	}
 
 	@Override

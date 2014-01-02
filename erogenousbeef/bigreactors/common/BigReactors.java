@@ -31,6 +31,7 @@ import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockSmallMachine;
 import erogenousbeef.bigreactors.common.item.ItemBlockTurbinePart;
+import erogenousbeef.bigreactors.common.item.ItemBlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
@@ -40,6 +41,7 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -87,6 +89,7 @@ public class BigReactors {
 	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
 	
 	public static BlockTurbinePart blockTurbinePart;
+	public static BlockTurbineRotorPart blockTurbineRotorPart;
 	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
@@ -487,6 +490,20 @@ public class BigReactors {
 			OreDictionary.registerOre("turbineController", 	BigReactors.blockTurbinePart.getItemStack("controller"));
 			OreDictionary.registerOre("turbinePowerTap", 	BigReactors.blockTurbinePart.getItemStack("powerTap"));
 			OreDictionary.registerOre("turbineFluidPort", 	BigReactors.blockTurbinePart.getItemStack("fluidPort"));
+			OreDictionary.registerOre("turbineBearing", 	BigReactors.blockTurbinePart.getItemStack("bearing"));
+			OreDictionary.registerOre("turbineCreativeSteamGenerator", 	BigReactors.blockTurbinePart.getItemStack("creativeSteamGenerator"));
+
+			BRConfig.CONFIGURATION.save();
+		}
+		
+		if(BigReactors.blockTurbineRotorPart == null) {
+			BRConfig.CONFIGURATION.load();
+			BigReactors.blockTurbineRotorPart = new BlockTurbineRotorPart(BRConfig.CONFIGURATION.getBlock("TurbineRotorPart", BigReactors.BLOCK_ID_PREFIX + 11).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockTurbineRotorPart.class, "BRTurbineRotorPart");
+
+			OreDictionary.registerOre("turbineRotorShaft", 	BigReactors.blockTurbineRotorPart.getItemStack("housing"));
+			OreDictionary.registerOre("turbineRotorBlade", 	BigReactors.blockTurbineRotorPart.getItemStack("controller"));
+
 			BRConfig.CONFIGURATION.save();
 		}
 	}
