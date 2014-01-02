@@ -181,7 +181,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		CoordTriplet saveDelegate = reactor.getReferenceCoord();
 		if(button.id == 1) {
 			boolean newValue = !reactor.isActive();
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", newValue }));
 		}
 		else if(button.id == 2) {
@@ -190,7 +190,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		}
 		else if(button.id == 3) {
 			// Boolean value is ignored here.
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorControllerButton,
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "ejectWaste", false }));
 		}
 	}

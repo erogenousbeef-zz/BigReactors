@@ -25,6 +25,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
@@ -51,7 +52,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	float energyStored;
 	boolean active;
 	
-	
 	private Set<IMultiblockPart> attachedControllers;
 	
 	public MultiblockTurbine(World world) {
@@ -63,7 +63,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		
 		tanks = new FluidTank[NUM_TANKS];
 		for(int i = 0; i < NUM_TANKS; i++)
-			tanks[i] = new FluidTank(0);
+			tanks[i] = new FluidTank(1000);
 		
 		attachedControllers = new HashSet<IMultiblockPart>();
 		
@@ -193,11 +193,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void onMachineAssembled() {
-		// TODO FIXME
-		int machineSize = 1;
-		for(int i = 0; i < NUM_TANKS; i++) {
-			tanks[i].setCapacity(machineSize * 100);
-		}
 	}
 
 	@Override
@@ -217,13 +212,13 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
 		// We only allow air and functional parts in turbines.
 		
-		return true; // TODO FIXME world.isAirBlock(x, y, z);
+		return world.isAirBlock(x, y, z);
 	}
 
 	@Override
 	protected int getMinimumNumberOfBlocksForAssembledMachine() {
-		// Hollow 5x5x5 cube (125 - 64)
-		return 61;
+		// Hollow 5x5x4 cube (100 - 18), interior minimum is 3x3x2
+		return 82;
 	}
 
 	@Override
@@ -245,6 +240,16 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	}
 	
 	@Override
+	protected int getMinimumXSize() { return 5; }
+
+	@Override
+	protected int getMinimumYSize() { return 4; }
+
+	@Override
+	protected int getMinimumZSize() { return 5; }
+	
+	
+	@Override
 	protected void onAssimilate(MultiblockControllerBase assimilated) {
 		// TODO Auto-generated method stub
 	}
@@ -262,8 +267,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void updateClient() {
-		// TODO Auto-generated method stub
-		
+		// TODO: Keep track of rotor position based on rotor speed. This will be used by a TESR in fancy-graphics mode.
 	}
 
 	@Override
@@ -312,7 +316,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		}
 		
 		if(data.hasKey("active")) {
-			active = data.getBoolean("active");
+			setActive(data.getBoolean("active"));
 		}
 		
 		if(data.hasKey("energy")) {
@@ -358,8 +362,8 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 			return fluidStack.getFluid().getID() == fluid.getID();
 		}
 		else if(tank == TANK_INPUT) {
-			// TODO: Input tank can only be filled with compatible fluids
-			return true;
+			// TODO: Input tank can only be filled with compatible fluids from a registry
+			return fluid.getName().equals("steam");
 		}
 		else {
 			// Output tank can be filled with anything. Don't be a dumb.
@@ -396,8 +400,13 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-		// TODO Auto-generated method stub
-		return 0;
+		int energyExtracted = Math.min((int)energyStored, maxExtract);
+		
+		if(!simulate) {
+			energyStored -= energyExtracted;
+		}
+		
+		return energyExtracted;
 	}
 
 	@Override
@@ -433,6 +442,8 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 					else { part.onMachineDeactivated(); }
 				}
 			}
+			
+			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
 	}
 

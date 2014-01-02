@@ -27,10 +27,9 @@ public class ServerPacketHandler implements IPacketHandler {
 		
 		int x, y, z;
 		switch(packetType) {
-		case Packets.ReactorControllerButton:
+		case Packets.MultiblockControllerButton:
 		case Packets.AccessPortButton:
 		case Packets.ReactorWasteEjectionSettingUpdate:
-		case Packets.TurbineControllerButton:
 			try {
 				x = data.readInt();
 				y = data.readInt();
