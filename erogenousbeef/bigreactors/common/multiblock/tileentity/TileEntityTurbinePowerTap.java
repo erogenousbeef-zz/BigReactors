@@ -7,25 +7,35 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler {
-	ForgeDirection out;
-	
+public class TileEntityTurbinePowerTap extends TileEntityTurbinePart implements IEnergyHandler, INeighborUpdatableEntity {
+
 	IEnergyHandler 	rfNetwork;
 	
-	public TileEntityReactorPowerTap() {
+	public TileEntityTurbinePowerTap() {
 		super();
-		
-		out = ForgeDirection.UNKNOWN;
+		rfNetwork = null;
+	}
+
+	public TileEntityTurbinePowerTap(int metadata) {
+		super(metadata);
 		rfNetwork = null;
 	}
 	
+	// INeighborUpdatableEntity
+	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		if(isConnected()) {
 			checkForConnections(world, x, y, z);
 		}
+	}
+	
+	// TODO: Check that this works with TE... do they spawn client-side TEs for their power blocks?
+	public boolean isAttachedToPowerNetwork() {
+		return rfNetwork != null;
 	}
 	
 	// IMultiblockPart
@@ -33,7 +43,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	public void onAttached(MultiblockControllerBase newController) {
 		super.onAttached(newController);
 		
-		checkOutwardDirection();
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 	
@@ -41,47 +50,12 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 		super.onMachineAssembled(multiblockControllerBase);
 
-		if(this.worldObj.isRemote) { return; } 
 		
-		checkOutwardDirection();
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 		
-		// Force a connection to the power taps
-		this.onInventoryChanged();
-	}
-
-	// Custom PowerTap methods
-	/**
-	 * Discover which direction is normal to the multiblock face.
-	 */
-	protected void checkOutwardDirection() {
-		MultiblockControllerBase controller = this.getMultiblockController();
-		CoordTriplet minCoord = controller.getMinimumCoord();
-		CoordTriplet maxCoord = controller.getMaximumCoord();
-		
-		if(this.xCoord == minCoord.x) {
-			out = ForgeDirection.WEST;
-		}
-		else if(this.xCoord == maxCoord.x){
-			out = ForgeDirection.EAST;
-		}
-		else if(this.zCoord == minCoord.z) {
-			out = ForgeDirection.NORTH;
-		}
-		else if(this.zCoord == maxCoord.z) {
-			out = ForgeDirection.SOUTH;
-		}
-		else if(this.yCoord == minCoord.y) {
-			// Just in case I end up making omnidirectional taps.
-			out = ForgeDirection.DOWN;
-		}
-		else if(this.yCoord == maxCoord.y){
-			// Just in case I end up making omnidirectional taps.
-			out = ForgeDirection.UP;
-		}
-		else {
-			// WTF BRO
-			out = ForgeDirection.UNKNOWN;
+		if(!this.worldObj.isRemote) { 
+			// Force a connection to neighboring objects
+			this.onInventoryChanged();
 		}
 	}
 	
@@ -94,6 +68,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	 */
 	protected void checkForConnections(World world, int x, int y, int z) {
 		boolean wasConnected = (rfNetwork != null);
+		ForgeDirection out = getOutwardsDir();
 		if(out == ForgeDirection.UNKNOWN) {
 			wasConnected = false;
 			rfNetwork = null;
@@ -109,19 +84,12 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 					rfNetwork = (IEnergyHandler)te;
 				}
 			}
-			
 		}
 		
 		boolean isConnected = (rfNetwork != null);
-		if(wasConnected != isConnected) {
-			if(isConnected) {
-				// Newly connected
-				world.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE+1, 2);
-			}
-			else {
-				// No longer connected
-				world.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
-			}
+		if(wasConnected != isConnected && worldObj.isRemote) {
+			// Re-render on clients
+			world.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 
@@ -132,52 +100,51 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		if(rfNetwork == null) {
 			return units;
 		}
-		
-		ForgeDirection approachDirection = out.getOpposite();
+
+		ForgeDirection approachDirection = getOutwardsDir().getOpposite();
 		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, (int)units, false);
 		units -= energyConsumed;
 		
 		return units;
 	}
-	
-	// Thermal Expansion
+
+
+	// IEnergyHandler
+
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive,
 			boolean simulate) {
+		// HAHA NO
 		return 0;
 	}
 
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
 			boolean simulate) {
-		if(!this.isConnected())
-			return 0;
+		if(!this.isConnected()) { return 0; }
 
-		if(from == out) {
-			return this.getReactorController().extractEnergy(from, maxExtract, simulate);
-		}
-
-		return 0;
+		return getTurbine().extractEnergy(from, maxExtract, simulate);
 	}
 
 	@Override
 	public boolean canInterface(ForgeDirection from) {
-		return from == out;
+		if(!this.isConnected()) { return false; }
+
+		return from == getOutwardsDir();
 	}
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
-		if(!this.isConnected())
-			return 0;
-
-		return this.getReactorController().getEnergyStored(from);
+		if(!this.isConnected()) { return 0; }
+		
+		return getTurbine().getEnergyStored(from);
 	}
 
 	@Override
 	public int getMaxEnergyStored(ForgeDirection from) {
-		if(!this.isConnected())
-			return 0;
+		if(!this.isConnected()) { return 0; }
 
-		return this.getReactorController().getMaxEnergyStored(from);
+		return getTurbine().getMaxEnergyStored(from);
 	}
+
 }

@@ -103,4 +103,24 @@ public class BlockTurbineRotorPart extends BlockContainer {
 			par3List.add(new ItemStack(blockID, 1, i));
 		}
 	}
+	
+	public int getRotorMass(int blockId, int metadata) {
+		if(this.blockID == blockId) {
+			switch(metadata) {
+			// TODO: add masses when you add non-standard turbine parts
+			default:
+				return 10;
+			}
+		}
+		
+		return 0;
+	}
+	
+	public static boolean isRotorBlade(int metadata) {
+		return metadata == METADATA_BLADE;
+	}
+	
+	public static boolean isRotorShaft(int metadata) {
+		return metadata == METADATA_SHAFT;
+	}
 }
