@@ -29,8 +29,11 @@ import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
@@ -54,12 +57,21 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	
 	static final float maxEnergyStored = 1000000f; // 1 MegaRF
 	
-	// Game data
+	// Persistent game data
 	float energyStored;
 	boolean active;
 	
+	// Derivable game data
+	int bladeArea; // # of blocks that are blades
+	int rotorMass; // 10 = 1 standard block-weight
+	int coilSize;  // number of blocks in the coils
+	
+	float energyGeneratedLastTick;
+	
 	private Set<IMultiblockPart> attachedControllers;
 	private Set<IMultiblockPart> attachedRotorBearings;
+	
+	private Set<TileEntityTurbinePowerTap> attachedPowerTaps;
 	
 	public MultiblockTurbine(World world) {
 		super(world);
@@ -74,9 +86,15 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		
 		attachedControllers = new HashSet<IMultiblockPart>();
 		attachedRotorBearings = new HashSet<IMultiblockPart>();
+		attachedPowerTaps = new HashSet<TileEntityTurbinePowerTap>();
 		
 		energyStored = 0f;
 		active = false;
+		
+		bladeArea = 0;
+		rotorMass = 0;
+		coilSize = 0;
+		energyGeneratedLastTick = 0f;
 	}
 
 	/**
@@ -191,7 +209,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void onBlockAdded(IMultiblockPart newPart) {
-		// TODO
 		if(newPart instanceof TileEntityTurbinePart) {
 			CoordTriplet coord = newPart.getWorldLocation();
 			int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
@@ -199,20 +216,29 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 				this.attachedRotorBearings.add(newPart);
 			}
 		}
+		
+		if(newPart instanceof TileEntityTurbinePowerTap) {
+			attachedPowerTaps.add((TileEntityTurbinePowerTap)newPart);
+		}
 	}
 
 	@Override
 	protected void onBlockRemoved(IMultiblockPart oldPart) {
-		// TODO
 		this.attachedRotorBearings.remove(oldPart);
+		
+		if(oldPart instanceof TileEntityTurbinePowerTap) {
+			attachedPowerTaps.remove((TileEntityTurbinePowerTap)oldPart);
+		}
 	}
 
 	@Override
 	protected void onMachineAssembled() {
+		recalculateDerivedStatistics();
 	}
 
 	@Override
 	protected void onMachineRestored() {
+		recalculateDerivedStatistics();
 	}
 
 	@Override
@@ -221,6 +247,9 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void onMachineDisassembled() {
+		rotorMass = 0;
+		bladeArea = 0;
+		coilSize = 0;
 	}
 
 	// Validation code
@@ -250,18 +279,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { return true; }
 
 		// Coil windings below here:
-		
-		// Allow vanilla iron and gold blocks
-		if(blockId == Block.blockGold.blockID || blockId == Block.blockIron.blockID) { return true; }
-		
-		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
-		int oreId = OreDictionary.getOreID(new ItemStack(blockId, 1, world.getBlockMetadata(x, y, z)));
-
-		// Not oredicted? Buzz off.
-		if(oreId < 0) { return false; }
-		
-		String oreName = OreDictionary.getOreName(oreId);
-		if(oreName.equals("blockCopper") || oreName.equals("blockIron") || oreName.equals("blockGold")) { return true; }
+		if(isBlockPartOfCoil(x, y, z, blockId, world.getBlockMetadata(x,y,z))) { return true; }
 		
 		// Everything else, gtfo
 		return false;
@@ -313,7 +331,35 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected boolean updateServer() {
-		// TODO Auto-generated method stub
+		energyGeneratedLastTick = 0f;
+		
+		int energyAvailable = (int)getEnergyStored();
+		int energyRemaining = energyAvailable;
+		if(energyStored > 0 && attachedPowerTaps.size() > 0) {
+			// First, try to distribute fairly
+			int splitEnergy = energyRemaining / attachedPowerTaps.size();
+			for(TileEntityTurbinePowerTap powerTap : attachedPowerTaps) {
+				if(energyRemaining <= 0) { break; }
+				if(powerTap == null || !powerTap.isConnected()) { continue; }
+
+				energyRemaining -= splitEnergy - powerTap.onProvidePower(splitEnergy);
+			}
+
+			// Next, just hose out whatever we can, if we have any left
+			if(energyRemaining > 0) {
+				for(TileEntityTurbinePowerTap powerTap : attachedPowerTaps) {
+					if(energyRemaining <= 0) { break; }
+					if(powerTap == null || !powerTap.isConnected()) { continue; }
+
+					energyRemaining = powerTap.onProvidePower(energyRemaining);
+				}
+			}
+		}
+		
+		if(energyAvailable != energyRemaining) {
+			reduceStoredEnergy((energyAvailable - energyRemaining));
+		}
+		
 		return false;
 	}
 
@@ -475,7 +521,58 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	public int getMaxEnergyStored(ForgeDirection from) {
 		return (int)maxEnergyStored;
 	}
+	
+	// Energy Helpers
+	public float getEnergyStored() {
+		return energyStored;
+	}
+	
+	/**
+	 * Remove some energy from the internal storage buffer.
+	 * Will not reduce the buffer below 0.
+	 * @param energy Amount by which the buffer should be reduced.
+	 */
+	protected void reduceStoredEnergy(float energy) {
+		addStoredEnergy(-1f * energy);
+	}
 
+	/**
+	 * Add some energy to the internal storage buffer.
+	 * Will not increase the buffer above the maximum or reduce it below 0.
+	 * @param newEnergy
+	 */
+	protected void addStoredEnergy(float newEnergy) {
+		if(Float.isNaN(newEnergy)) { return; }
+
+		energyStored += newEnergy;
+		if(energyStored > maxEnergyStored) {
+			energyStored = maxEnergyStored;
+		}
+		if(-0.00001f < energyStored && energyStored < 0.00001f) {
+			// Clamp to zero
+			energyStored = 0f;
+		}
+	}
+
+	public void setStoredEnergy(float oldEnergy) {
+		energyStored = oldEnergy;
+		if(energyStored < 0.0 || Float.isNaN(energyStored)) {
+			energyStored = 0.0f;
+		}
+		else if(energyStored > maxEnergyStored) {
+			energyStored = maxEnergyStored;
+		}
+	}
+	
+	/**
+	 * Generate energy, internally. Will be multiplied by the BR Setting powerProductionMultiplier
+	 * @param newEnergy Base, unmultiplied energy to generate
+	 */
+	protected void generateEnergy(float newEnergy) {
+		energyGeneratedLastTick += newEnergy * BigReactors.powerProductionMultiplier;
+		addStoredEnergy(newEnergy * BigReactors.powerProductionMultiplier);
+	}
+	
 	// Activity state
 	public boolean isActive() {
 		return active;
@@ -515,5 +612,61 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	public boolean isUseableByPlayer(EntityPlayer player) {
 		// TODO DISTANCE CHECK
 		return true;
+	}
+	
+	private boolean isBlockPartOfCoil(int x, int y, int z) {
+		return isBlockPartOfCoil(x, y, z, worldObj.getBlockId(x,y,z), worldObj.getBlockMetadata(x, y, z));
+	}
+	
+	private boolean isBlockPartOfCoil(int x, int y, int z, int blockID, int metadata) {
+		// Allow vanilla iron and gold blocks
+		if(blockID == Block.blockGold.blockID || blockID == Block.blockIron.blockID) { return true; }
+		
+		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
+		int oreId = OreDictionary.getOreID(new ItemStack(blockID, 1, metadata));
+
+		// Not oredicted? Buzz off.
+		if(oreId < 0) { return false; }
+		
+		String oreName = OreDictionary.getOreName(oreId);
+		if(oreName.equals("blockCopper") || oreName.equals("blockIron") || oreName.equals("blockGold")) { return true; }
+		
+		return false;
+	}
+	
+	/**
+	 * Recalculate rotor and coil parameters
+	 */
+	private void recalculateDerivedStatistics() {
+		CoordTriplet minInterior, maxInterior;
+		minInterior = getMinimumCoord();
+		maxInterior = getMaximumCoord();
+		minInterior.x++; minInterior.y++; minInterior.z++;
+		maxInterior.x++; maxInterior.y++; maxInterior.z++;
+		
+		rotorMass = 0;
+		bladeArea = 0;
+		coilSize = 0;
+
+		// Loop over interior space. Calculate mass and blade area of rotor and size of coils
+		for(int x = minInterior.x; x <= maxInterior.x; x++) {
+			for(int y = minInterior.y; y <= maxInterior.y; y++) {
+				for(int z = minInterior.z; z <= maxInterior.z; z++) {
+					int blockId = worldObj.getBlockId(x, y, z);
+					int metadata = worldObj.getBlockMetadata(x, y, z);
+
+					if(blockId == BigReactors.blockTurbineRotorPart.blockID) {
+						rotorMass += BigReactors.blockTurbineRotorPart.getRotorMass(blockId, metadata);
+						if(BlockTurbineRotorPart.isRotorBlade(metadata)) {
+							bladeArea += 1;
+						}
+					}
+					
+					if(isBlockPartOfCoil(x, y, z, blockId, metadata)) {
+						coilSize += 1;
+					}
+				} // end z
+			} // end y
+		} // end x loop - looping over interior
 	}
 }

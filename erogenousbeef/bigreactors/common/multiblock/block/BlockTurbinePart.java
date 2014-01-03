@@ -8,7 +8,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
@@ -125,7 +127,9 @@ public class BlockTurbinePart extends BlockContainer {
 						}
 					}
 					else if(metadata == METADATA_POWERTAP) {
-						// TODO
+						if(te instanceof TileEntityTurbinePowerTap && ((TileEntityTurbinePowerTap)te).isAttachedToPowerNetwork()) {
+							subIcon = SUBICON_POWERTAP_ACTIVE;
+						}
 					}
 					else if(metadata == METADATA_FLUIDPORT) {
 						// TODO
@@ -217,13 +221,21 @@ public class BlockTurbinePart extends BlockContainer {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		return new TileEntityTurbinePart(metadata);
+		if(metadata == METADATA_POWERTAP) {
+			return new TileEntityTurbinePowerTap(metadata);
+		}
+		else {
+			return new TileEntityTurbinePart(metadata);
+		}
 	}
 
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
-		// TODO: Signal power taps when their buddies change
+		// Signal power taps when their neighbors change, etc.
+		if(te instanceof INeighborUpdatableEntity) {
+			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlockID);
+		}
 	}
 	
 	@Override
