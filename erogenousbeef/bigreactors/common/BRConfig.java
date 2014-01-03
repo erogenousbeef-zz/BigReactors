@@ -11,7 +11,7 @@ public class BRConfig {
 	 */
 	public static final int MAJOR_VERSION = 0;
 	public static final int MINOR_VERSION = 2;
-	public static final int REVISION_VERSION = 12;
+	public static final int REVISION_VERSION = 13;
 	public static final char STATUS_VERSION = 'A'; // a/alpha, b/beta, f/final, x/experimental
 	public static final String BUGFIX_VERSION = "";
 	public static final String VERSION = MAJOR_VERSION + "." + MINOR_VERSION + "." + REVISION_VERSION + STATUS_VERSION + BUGFIX_VERSION;
