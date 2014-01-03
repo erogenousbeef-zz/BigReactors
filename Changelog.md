@@ -4,14 +4,20 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.12A)
+Current Release (0.2.13A)
 --------------------------------
+- Bugfix: Reactors now send radiation west, as well as the other cardinal directions. Silly typo.
+- Bugfix: Fixed a crash that could occur with inventory-polling objects next to access ports (#83), such as AE import/export buses.
+- Bugfix: Fixed the source of the weird "this should not be here" crashes (#81, #82, #77). Turned out there were odd cases with chunk unloading and modifying a reactor that could make those lists inaccurate.
+- Bugfix: Fixed a client crash that could occur when placing blocks really really fast after breaking them in SSP.
+
+Older Releases
+--------------
+### Release 0.2.12A
 - Bugfix: Fixed a rare crash when reactors ate the last of their fuel and then tried to create waste
 - Bugfix: Working around a crash that appears to be caused by an interaction with Forge Multipart. Log lines will be spammed to help further debug this issue.
 - Bugfix: Maximum-dimension problems with assembly were not being reported by empty-hand right-clicks. This is fixed.
 
-Older Releases
---------------
 ### Release 0.2.11A
 - Bugfix: Cyanite reprocessors were not working when the 'registerYelloriumAsUranium' config was set to false. This has been fixed.
 
