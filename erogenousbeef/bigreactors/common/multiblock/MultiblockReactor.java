@@ -56,13 +56,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		kManual, 					// Manual, only on button press
 	}
 	
-	private Set<CoordTriplet> attachedPowerTaps;
-	private Set<CoordTriplet> attachedTickables;
+	private Set<TileEntityReactorPowerTap> attachedPowerTaps;
+	private Set<IReactorTickable> attachedTickables;
 
-	// TODO: Convert these to sets.
-	private LinkedList<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
-	private LinkedList<CoordTriplet> attachedAccessPorts;
-	private LinkedList<CoordTriplet> attachedControllers;
+	private Set<TileEntityReactorControlRod> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
+	private Set<TileEntityReactorAccessPort> attachedAccessPorts;
+	private Set<TileEntityReactorPart> attachedControllers;
 
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
@@ -79,12 +78,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		energyGeneratedLastTick = 0f;
 		fuelConsumedLastTick = 0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
-		attachedPowerTaps = new HashSet<CoordTriplet>();
-		attachedTickables = new HashSet<CoordTriplet>();
-		attachedControlRods = new LinkedList<CoordTriplet>();
-		attachedAccessPorts = new LinkedList<CoordTriplet>();
-		attachedControllers = new LinkedList<CoordTriplet>();
-		
+		attachedPowerTaps = new HashSet<TileEntityReactorPowerTap>();
+		attachedTickables = new HashSet<IReactorTickable>();
+		attachedControlRods = new HashSet<TileEntityReactorControlRod>();
+		attachedAccessPorts = new HashSet<TileEntityReactorAccessPort>();
+		attachedControllers = new HashSet<TileEntityReactorPart>();
+
 		updatePlayers = new HashSet<EntityPlayer>();
 		
 		ticksSinceLastUpdate = 0;
@@ -101,61 +100,54 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	
 	@Override
 	protected void onBlockAdded(IMultiblockPart part) {
-		CoordTriplet coord = part.getWorldLocation();
 		if(part instanceof TileEntityReactorAccessPort) {
-			if(!attachedAccessPorts.contains(coord)) {
-				attachedAccessPorts.add(coord);
-			}
+			attachedAccessPorts.add((TileEntityReactorAccessPort)part);
 		}
-		else if(part instanceof TileEntityReactorControlRod) {
-			if(!attachedControlRods.contains(coord)) {
-				attachedControlRods.add(coord);
-			}
+		
+		if(part instanceof TileEntityReactorControlRod) {
+			attachedControlRods.add((TileEntityReactorControlRod)part);
 		}
-		else if(part instanceof TileEntityReactorPowerTap) {
-			attachedPowerTaps.add(coord);
+
+		if(part instanceof TileEntityReactorPowerTap) {
+			attachedPowerTaps.add((TileEntityReactorPowerTap)part);
 		}
-		else if(part instanceof TileEntityReactorPart) {
-			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
-			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
-				attachedControllers.add(coord);
+
+		if(part instanceof TileEntityReactorPart) {
+			TileEntityReactorPart reactorPart = (TileEntityReactorPart)part;
+			if(BlockReactorPart.isController(reactorPart.getBlockMetadata())) {
+				attachedControllers.add(reactorPart);
 			}
 		}
 
 		if(part instanceof IReactorTickable) {
-			attachedTickables.add(coord);
+			attachedTickables.add((IReactorTickable)part);
 		}
-
 	}
 	
 	@Override
 	protected void onBlockRemoved(IMultiblockPart part) {
-		CoordTriplet coord = part.getWorldLocation();
 		if(part instanceof TileEntityReactorAccessPort) {
-			if(attachedAccessPorts.contains(coord)) {
-				attachedAccessPorts.remove(coord);
-			}
-		}
-		else if(part instanceof TileEntityReactorControlRod) {
-			attachedControlRods.remove(coord);
-			if(attachedControlRods.contains(coord)) {
-				attachedControlRods.remove(coord);
-			}
-		}
-		else if(part instanceof TileEntityReactorPowerTap) {
-			attachedPowerTaps.remove(coord);
-		}
-		else if(part instanceof TileEntityReactorPart) {
-			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
-			if(BlockReactorPart.isController(metadata) && attachedControllers.contains(coord)) {
-				attachedControllers.remove(coord);
-			}
-		}
-		
-		if(part instanceof IReactorTickable) {
-			attachedTickables.remove(coord);
+			attachedAccessPorts.remove((TileEntityReactorAccessPort)part);
 		}
 
+		if(part instanceof TileEntityReactorControlRod) {
+			attachedControlRods.remove((TileEntityReactorControlRod)part);
+		}
+
+		if(part instanceof TileEntityReactorPowerTap) {
+			attachedPowerTaps.remove((TileEntityReactorPowerTap)part);
+		}
+
+		if(part instanceof TileEntityReactorPart) {
+			TileEntityReactorPart reactorPart = (TileEntityReactorPart)part;
+			if(BlockReactorPart.isController(reactorPart.getBlockMetadata())) {
+				attachedControllers.remove(reactorPart);
+			}
+		}
+
+		if(part instanceof IReactorTickable) {
+			attachedTickables.remove((IReactorTickable)part);
+		}
 	}
 	
 	@Override
@@ -195,11 +187,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		IRadiationPulse radiationResult;
 
 		// Look for waste and run radiation & heat simulations
-		TileEntityReactorControlRod controlRod;
-		for(CoordTriplet coord : attachedControlRods) {
-			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(controlRod == null) { continue; } // Happens due to chunk unloads
-
+		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
+			if(controlRod == null || !controlRod.isConnected()) { continue; }
+			
 			if(this.isActive()) {
 				int fuelChange = controlRod.getFuelAmount();
 				radiationResult = controlRod.radiate();
@@ -225,9 +215,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			// Auto/Replace: Discover amount of available fuel and peg wasteAmt to that.
 			if(this.wasteEjection == WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
 				int fuelIngotsAvailable = 0;
-				for(CoordTriplet coord : attachedAccessPorts) {
-					TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					if(port == null) { continue; }
+				for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+					if(port == null || !port.isConnected()) { continue; }
 
 					ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
 					if(fuelStack != null) {
@@ -274,31 +263,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		if(attachedPowerTaps.size() > 0 && energyRemaining > 0) {
 			// First, try to distribute fairly
 			int splitEnergy = energyRemaining / attachedPowerTaps.size();
-			for(CoordTriplet coord : attachedPowerTaps) {
+			for(TileEntityReactorPowerTap powerTap : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
-				
-				TileEntity te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-				if(te instanceof TileEntityReactorPowerTap) {
-					energyRemaining -= splitEnergy - ((TileEntityReactorPowerTap)te).onProvidePower(splitEnergy);
-				}
-				else {
-					// Some kind of weird FMP thing seems to be causing this...
-					FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorPowerTap. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
-				}
+				if(powerTap == null || !powerTap.isConnected()) { continue; }
+
+				energyRemaining -= splitEnergy - powerTap.onProvidePower(splitEnergy);
 			}
 
 			// Next, just hose out whatever we can, if we have any left
 			if(energyRemaining > 0) {
-				for(CoordTriplet coord : attachedPowerTaps) {
+				for(TileEntityReactorPowerTap powerTap : attachedPowerTaps) {
 					if(energyRemaining <= 0) { break; }
-					
-					TileEntity te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					if(te instanceof TileEntityReactorPowerTap) {
-						energyRemaining = ((TileEntityReactorPowerTap)te).onProvidePower(energyRemaining);
-					}
-					else {
-						FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorPowerTap. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
-					}
+					if(powerTap == null || !powerTap.isConnected()) { continue; }
+
+					energyRemaining = powerTap.onProvidePower(energyRemaining);
 				}
 			}
 		}
@@ -317,14 +295,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		// TODO: Overload/overheat
 
 		// Update any connected tickables
-		for(CoordTriplet coord : attachedTickables) {
-			TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te instanceof IReactorTickable) {
-				((IReactorTickable)te).onReactorTick();
-			}
-			else {
-				FMLLog.warning("Found an instance of %s at %s but was expecting an IReactorTickable (redstone/rednet port). If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
-			}
+		for(IReactorTickable tickable : attachedTickables) {
+			if(tickable == null) { continue; }
+			tickable.onReactorTick();
 		}
 
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
@@ -551,8 +524,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 	}
 	
-	private void tryDistributeWaste(TileEntityReactorAccessPort port, CoordTriplet coord, ItemStack wasteToDistribute, boolean distributeToInputs) {
+	private void tryDistributeWaste(TileEntityReactorAccessPort port, ItemStack wasteToDistribute, boolean distributeToInputs) {
 		ItemStack wasteStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
+		CoordTriplet coord = port.getWorldLocation();
 		int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
 
 		if(metadata == BlockReactorPart.ACCESSPORT_OUTLET || (distributeToInputs || attachedAccessPorts.size() < 2)) {
@@ -598,7 +572,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	protected void onAssimilate(MultiblockControllerBase otherMachine) {
 		if(!(otherMachine instanceof MultiblockReactor)) {
-			FMLLog.warning("[%s] Reactor @ %s is attempting to assimilate a non-Reactor machine!", worldObj.isRemote?"CLIENT":"SERVER", referenceCoord);
+			FMLLog.warning("[%s] Reactor @ %s is attempting to assimilate a non-Reactor machine! That machine's data will be lost!", worldObj.isRemote?"CLIENT":"SERVER", referenceCoord);
+			return;
 		}
 		
 		MultiblockReactor otherReactor = (MultiblockReactor)otherMachine;
@@ -668,12 +643,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	public void ejectWaste() {
-		TileEntityReactorControlRod controlRod;
 		int wasteAmt = 0;
 		int freeFuelSpace = 0;
-		for(CoordTriplet coord : attachedControlRods) {
-			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(controlRod == null) { continue; }
+		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
+			if(controlRod == null || !controlRod.isConnected()) { continue; }
 
 			wasteAmt += controlRod.getWasteAmount();
 			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getFuelAmount();
@@ -703,13 +676,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		int fuelIngotsConsumed = 0;
 		
 		// Distribute waste, slurp in ingots.
-		for(CoordTriplet coord : attachedAccessPorts) {
+		for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 			if(fuelIngotsToConsume <= 0 && (wasteToDistribute == null || wasteToDistribute.stackSize <= 0)) {
 				break;
 			}
-
-			TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(port == null) { continue; }
+			
+			if(port == null || !port.isConnected()) { continue; }
 
 			ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
 			
@@ -728,22 +700,21 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 
 			if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {
-				tryDistributeWaste(port, coord, wasteToDistribute, false);
+				tryDistributeWaste(port, wasteToDistribute, false);
 			}
 		}
 		
 		// If we have waste leftover and we have multiple ports, go back over them for the
 		// outlets.
 		if(wasteToDistribute != null && wasteToDistribute.stackSize > 0 && attachedAccessPorts.size() > 1) {
-			for(CoordTriplet coord : attachedAccessPorts) {
+			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 				if(wasteToDistribute == null || wasteToDistribute.stackSize <= 0) {
 					break;
 				}
 
-				TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-				if(port == null) { continue; }
+				if(port == null || !port.isConnected()) { continue; }
 
-				tryDistributeWaste(port, coord, wasteToDistribute, true);
+				tryDistributeWaste(port, wasteToDistribute, true);
 			}
 		}
 		
@@ -755,13 +726,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				wasteToConsume = ((wasteAmt/1000) - wasteToDistribute.stackSize) * 1000;
 			}
 			
-			TileEntityReactorControlRod controlRod;
-			for(CoordTriplet coord : attachedControlRods) {
+			for(TileEntityReactorControlRod controlRod : attachedControlRods) {
 				if(wasteToConsume <= 0 && fuelToDistribute <= 0) { break; }
+				if(controlRod == null || !controlRod.isConnected()) { continue; }
 				
-				controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-				if(controlRod == null) { continue; }
-
 				if(wasteToConsume > 0 && controlRod.getWasteAmount() > 0) {
 					int amtDrained = controlRod.removeWaste(new FluidStack(controlRod.getWasteType(), wasteToConsume), wasteToConsume, true);
 					wasteToConsume -= amtDrained;
@@ -849,12 +817,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	 */
 	public float getFuelRichness() {
 		int amtFuel, amtWaste;
-		TileEntityReactorControlRod controlRod = null;
 		amtFuel = amtWaste = 0;
 
-		for(CoordTriplet coord : this.attachedControlRods) {
-			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(controlRod == null) { continue; } // Happens due to chunk unloads
+		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
+			if(controlRod == null || !controlRod.isConnected()) { continue; } // Happens due to chunk unloads
 		
 			amtFuel += controlRod.getFuelAmount();
 			amtWaste += controlRod.getWasteAmount();
@@ -908,12 +874,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	public void setAllControlRodInsertionValues(int newValue) {
 		if(this.assemblyState != AssemblyState.Assembled) { return; }
 		
-		TileEntity te;
-		TileEntityReactorControlRod cr;
-		for(CoordTriplet coord : attachedControlRods) {
-			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te instanceof TileEntityReactorControlRod) {
-				cr = (TileEntityReactorControlRod)te;
+		for(TileEntityReactorControlRod cr : attachedControlRods) {
+			if(cr != null && cr.isConnected()) {
 				cr.setControlRodInsertion((short)newValue);
 			}
 		}
@@ -922,12 +884,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	public void changeAllControlRodInsertionValues(short delta) {
 		if(this.assemblyState != AssemblyState.Assembled) { return; }
 		
-		TileEntity te;
-		TileEntityReactorControlRod cr;
-		for(CoordTriplet coord : attachedControlRods) {
-			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te instanceof TileEntityReactorControlRod) {
-				cr = (TileEntityReactorControlRod)te;
+		for(TileEntityReactorControlRod cr : attachedControlRods) {
+			if(cr != null && cr.isConnected()) {
 				cr.setControlRodInsertion( (short) (cr.getControlRodInsertion() + delta) );
 			}
 		}
@@ -936,8 +894,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	public CoordTriplet[] getControlRodLocations() {
 		CoordTriplet[] coords = new CoordTriplet[this.attachedControlRods.size()];
 		int i = 0;
-		for(CoordTriplet coord : this.attachedControlRods) {
-			coords[i++] = coord.copy();
+		for(TileEntityReactorControlRod cr : attachedControlRods) {
+			coords[i++] = cr.getWorldLocation();
 		}
 		return coords;
 	}
@@ -947,13 +905,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			return 0;
 		}
 		
-		TileEntity te;
-		TileEntityReactorControlRod cr;
 		int fuel = 0;
-		for(CoordTriplet coord : attachedControlRods) {
-			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te instanceof TileEntityReactorControlRod) {
-				cr = (TileEntityReactorControlRod)te;
+		for(TileEntityReactorControlRod cr : attachedControlRods) {
+			if(cr != null && cr.isConnected()) {
 				fuel += cr.getFuelAmount();
 			}
 		}
@@ -965,14 +919,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		if(this.assemblyState != AssemblyState.Assembled) {
 			return 0;
 		}
-		
-		TileEntity te;
-		TileEntityReactorControlRod cr;
+
 		int waste = 0;
-		for(CoordTriplet coord : attachedControlRods) {
-			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te instanceof TileEntityReactorControlRod) {
-				cr = (TileEntityReactorControlRod)te;
+		for(TileEntityReactorControlRod cr : attachedControlRods) {
+			if(cr != null && cr.isConnected()) {
 				waste += cr.getWasteAmount();
 			}
 		}
