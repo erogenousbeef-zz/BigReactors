@@ -793,7 +793,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		}
 		
 		// Run this along the length of the stack, in case of a nonuniform interior
-		ForgeDirection[] dirs = new ForgeDirection[] { ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.EAST, ForgeDirection.NORTH};
+		ForgeDirection[] dirs = new ForgeDirection[] { ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.EAST, ForgeDirection.WEST};
 		heatY += 1;
 		if(heatY >= yCoord) { heatY = this.minFuelRodY; }
 		
