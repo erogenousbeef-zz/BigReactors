@@ -59,10 +59,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	private Set<CoordTriplet> attachedPowerTaps;
 	private Set<CoordTriplet> attachedTickables;
 
-	// TODO: Convert these to sets.
-	private LinkedList<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
-	private LinkedList<CoordTriplet> attachedAccessPorts;
-	private LinkedList<CoordTriplet> attachedControllers;
+	private Set<CoordTriplet> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
+	private Set<CoordTriplet> attachedAccessPorts;
+	private Set<CoordTriplet> attachedControllers;
 
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
@@ -81,10 +80,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<CoordTriplet>();
 		attachedTickables = new HashSet<CoordTriplet>();
-		attachedControlRods = new LinkedList<CoordTriplet>();
-		attachedAccessPorts = new LinkedList<CoordTriplet>();
-		attachedControllers = new LinkedList<CoordTriplet>();
-		
+		attachedControlRods = new HashSet<CoordTriplet>();
+		attachedAccessPorts = new HashSet<CoordTriplet>();
+		attachedControllers = new HashSet<CoordTriplet>();
+
 		updatePlayers = new HashSet<EntityPlayer>();
 		
 		ticksSinceLastUpdate = 0;
@@ -103,21 +102,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	protected void onBlockAdded(IMultiblockPart part) {
 		CoordTriplet coord = part.getWorldLocation();
 		if(part instanceof TileEntityReactorAccessPort) {
-			if(!attachedAccessPorts.contains(coord)) {
-				attachedAccessPorts.add(coord);
-			}
+			attachedAccessPorts.add(coord);
 		}
-		else if(part instanceof TileEntityReactorControlRod) {
-			if(!attachedControlRods.contains(coord)) {
-				attachedControlRods.add(coord);
-			}
+		
+		if(part instanceof TileEntityReactorControlRod) {
+			attachedControlRods.add(coord);
 		}
-		else if(part instanceof TileEntityReactorPowerTap) {
+
+		if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.add(coord);
 		}
-		else if(part instanceof TileEntityReactorPart) {
+
+		if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
-			if(BlockReactorPart.isController(metadata) && !attachedControllers.contains(coord)) {
+			if(BlockReactorPart.isController(metadata)) {
 				attachedControllers.add(coord);
 			}
 		}
@@ -125,33 +123,30 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		if(part instanceof IReactorTickable) {
 			attachedTickables.add(coord);
 		}
-
 	}
 	
 	@Override
 	protected void onBlockRemoved(IMultiblockPart part) {
 		CoordTriplet coord = part.getWorldLocation();
 		if(part instanceof TileEntityReactorAccessPort) {
-			if(attachedAccessPorts.contains(coord)) {
-				attachedAccessPorts.remove(coord);
-			}
+			attachedAccessPorts.remove(coord);
 		}
-		else if(part instanceof TileEntityReactorControlRod) {
+
+		if(part instanceof TileEntityReactorControlRod) {
 			attachedControlRods.remove(coord);
-			if(attachedControlRods.contains(coord)) {
-				attachedControlRods.remove(coord);
-			}
 		}
-		else if(part instanceof TileEntityReactorPowerTap) {
+
+		if(part instanceof TileEntityReactorPowerTap) {
 			attachedPowerTaps.remove(coord);
 		}
-		else if(part instanceof TileEntityReactorPart) {
+
+		if(part instanceof TileEntityReactorPart) {
 			int metadata = ((TileEntityReactorPart)part).getBlockMetadata();
-			if(BlockReactorPart.isController(metadata) && attachedControllers.contains(coord)) {
+			if(BlockReactorPart.isController(metadata)) {
 				attachedControllers.remove(coord);
 			}
 		}
-		
+
 		if(part instanceof IReactorTickable) {
 			attachedTickables.remove(coord);
 		}
@@ -196,9 +191,21 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		// Look for waste and run radiation & heat simulations
 		TileEntityReactorControlRod controlRod;
+		TileEntity te;
 		for(CoordTriplet coord : attachedControlRods) {
-			controlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(controlRod == null) { continue; } // Happens due to chunk unloads
+			
+			te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			if(!(te instanceof TileEntityReactorControlRod)) {
+				// Weirdness?
+				if(te != null) {
+					// Weirdness. Log and ask for info.
+					FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorControlRod. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
+				}
+				continue;
+			}
+			else {
+				controlRod = (TileEntityReactorControlRod)te;
+			}
 
 			if(this.isActive()) {
 				int fuelChange = controlRod.getFuelAmount();
@@ -226,8 +233,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			if(this.wasteEjection == WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
 				int fuelIngotsAvailable = 0;
 				for(CoordTriplet coord : attachedAccessPorts) {
-					TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-					if(port == null) { continue; }
+					te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					if(!(te instanceof TileEntityReactorAccessPort)) {
+						if(te != null) {
+							FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorAccessPort. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
+						}
+						continue;
+					}
+					TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)te;
 
 					ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
 					if(fuelStack != null) {
@@ -277,14 +290,15 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			for(CoordTriplet coord : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
 				
-				TileEntity te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+				te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 				if(te instanceof TileEntityReactorPowerTap) {
 					energyRemaining -= splitEnergy - ((TileEntityReactorPowerTap)te).onProvidePower(splitEnergy);
 				}
-				else {
+				else if (te != null) {
 					// Some kind of weird FMP thing seems to be causing this...
 					FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorPowerTap. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
 				}
+				// Else: Part is null. Can happen on chunk unload.
 			}
 
 			// Next, just hose out whatever we can, if we have any left
@@ -292,13 +306,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				for(CoordTriplet coord : attachedPowerTaps) {
 					if(energyRemaining <= 0) { break; }
 					
-					TileEntity te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+					te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 					if(te instanceof TileEntityReactorPowerTap) {
 						energyRemaining = ((TileEntityReactorPowerTap)te).onProvidePower(energyRemaining);
 					}
-					else {
+					else if (te != null) {
 						FMLLog.warning("Found an instance of %s at %s but was expecting a TileEntityReactorPowerTap. If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
 					}
+					// Else: Part is null. Can happen on chunk unload.
 				}
 			}
 		}
@@ -318,11 +333,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		// Update any connected tickables
 		for(CoordTriplet coord : attachedTickables) {
-			TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+			te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
 			if(te instanceof IReactorTickable) {
 				((IReactorTickable)te).onReactorTick();
 			}
-			else {
+			else if(te != null){
 				FMLLog.warning("Found an instance of %s at %s but was expecting an IReactorTickable (redstone/rednet port). If this error persists, please report the blocks around this coordinate to the issue tracker at github.com/erogenousbeef/bigreactors", te.getClass().toString(), coord.toString());
 			}
 		}
