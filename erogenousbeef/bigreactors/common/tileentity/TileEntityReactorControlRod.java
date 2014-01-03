@@ -531,7 +531,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		// Forgives the first few hundred degrees before ramping up swiftly, then very swiftly after 1000
 		float neutronSplit = 0.1f;
 		if(this.localHeat > 0.0f) {
-			neutronSplit = 0.1f + Math.max(0.0f, Math.min(0.9f, Math.min(0.0f, (float)Math.log(this.localHeat/75.0f)/9.0f) + Math.min(0.0f, (float)Math.log(this.localHeat/300.0f)/5.0f)));
+			neutronSplit = 0.1f + Math.max(0.0f, Math.min(0.9f, Math.max(0.0f, (float)Math.log(this.localHeat/75.0f)/9.0f) + Math.max(0.0f, (float)Math.log(this.localHeat/300.0f)/5.0f)));
 		}
 
 		float fastNeutrons = neutronSplit * rawNeutronsGenerated;
