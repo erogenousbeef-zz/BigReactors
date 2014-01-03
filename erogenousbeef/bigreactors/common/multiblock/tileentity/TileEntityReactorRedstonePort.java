@@ -305,6 +305,8 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
 	public void onReactorTick() {
+		if(!this.isConnected()) { return; }
+
 		ticksSinceLastUpdate++;
 		if(ticksSinceLastUpdate < BigReactors.ticksPerRedstoneUpdate) { return; }
 
