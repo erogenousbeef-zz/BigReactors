@@ -11,7 +11,9 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
@@ -247,7 +249,19 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		// Allow rotors and stuff
 		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { return true; }
 
-		// TODO: Allow iron/gold blocks... how I do this.
+		// Coil windings below here:
+		
+		// Allow vanilla iron and gold blocks
+		if(blockId == Block.blockGold.blockID || blockId == Block.blockIron.blockID) { return true; }
+		
+		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
+		int oreId = OreDictionary.getOreID(new ItemStack(blockId, 1, world.getBlockMetadata(x, y, z)));
+
+		// Not oredicted? Buzz off.
+		if(oreId < 0) { return false; }
+		
+		String oreName = OreDictionary.getOreName(oreId);
+		if(oreName.equals("blockCopper") || oreName.equals("blockIron") || oreName.equals("blockGold")) { return true; }
 		
 		// Everything else, gtfo
 		return false;
