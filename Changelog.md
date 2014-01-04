@@ -4,8 +4,9 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.13A)
+Current Release (0.2.13A2)
 --------------------------------
+- Bugfix: (A2) Fixed a crash that could occur with a double chest split across chunk boundaries next to an access port set to output.
 - Bugfix: Reactors now send radiation west, as well as the other cardinal directions. Silly typo.
 - Bugfix: Fixed a crash that could occur with inventory-polling objects next to access ports (#83), such as AE import/export buses.
 - Bugfix: Fixed the source of the weird "this should not be here" crashes (#81, #82, #77). Turned out there were odd cases with chunk unloading and/or modifying a large reactor that could make certain internal tracking lists inaccurate.
