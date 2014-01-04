@@ -12,11 +12,12 @@ public class InventoryHelper {
 	}
 
 	protected boolean canAdd(ItemStack stack, int slot) {
+		if(inventory == null) { return false; }
 		return inventory.isItemValidForSlot(slot, stack);
 	}
 
 	protected boolean canRemove(ItemStack stack, int slot) {
-		return true;
+		return inventory != null;
 	}
 
 	/**
@@ -34,6 +35,10 @@ public class InventoryHelper {
 		int quantitytoadd = stack.stackSize;
 		ItemStack remaining = stack.copy();
 		int[] candidates = getSlots();
+		
+		if(candidates.length == 0) {
+			return stack;
+		}
 
 		for (int candidateSlot : candidates) {
 			int maxStackSize = Math.min(inventory.getInventoryStackLimit(),
@@ -73,7 +78,9 @@ public class InventoryHelper {
 		}
 	}
 
+	private final static int[] noSlots = new int[0];
 	protected int[] getSlots() {
+		if(inventory == null) { return noSlots; }
 		int[] slots = new int[inventory.getSizeInventory()];
 		for (int i = 0; i < slots.length; i++) {
 			slots[i] = i;
