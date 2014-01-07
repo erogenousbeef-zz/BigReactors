@@ -9,6 +9,7 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
@@ -113,43 +114,44 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 
 	@Override
-	public boolean isGoodForFrame() {
-		return false;
+	public void isGoodForFrame() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - fuel rods may only be placed in the reactor interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return false;
+	public void isGoodForSides() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - fuel rods may only be placed in the reactor interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForTop() {
-		return false;
+	public void isGoodForTop() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - fuel rods may only be placed in the reactor interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
-		return false;
+	public void isGoodForBottom() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - fuel rods may only be placed in the reactor interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
+	public void isGoodForInterior() throws MultiblockValidationException {
 		// Check above and below. Above must be fuel rod or control rod.
 		TileEntity entityAbove = this.worldObj.getBlockTileEntity(xCoord, yCoord+1, zCoord);
-		if(entityAbove != null && (entityAbove instanceof TileEntityFuelRod || entityAbove instanceof TileEntityReactorControlRod)) {
-			return true;
+		if(!(entityAbove instanceof TileEntityFuelRod || entityAbove instanceof TileEntityReactorControlRod)) {
+			throw new MultiblockValidationException(String.format("Fuel rod at %d, %d, %d must be part of a vertical column that reaches the entire height of the reactor, with a control rod on top.", xCoord, yCoord, zCoord));
 		}
-		
+
 		// Below must be fuel rod or the base of the reactor.
-		TileEntity entityBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord+1, zCoord);
+		TileEntity entityBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord-1, zCoord);
 		if(entityBelow instanceof TileEntityFuelRod) {
-			return true;
+			return;
 		}
 		else if(entityBelow instanceof IMultiblockPart) {
-			return ((IMultiblockPart)entityBelow).isGoodForBottom();
+			((IMultiblockPart)entityBelow).isGoodForBottom();
+			return;
 		}
 		
-		return false;
+		throw new MultiblockValidationException(String.format("Fuel rod at %d, %d, %d must be part of a vertical column that reaches the entire height of the reactor, with a control rod on top.", xCoord, yCoord, zCoord));
 	}
 
 	@Override
