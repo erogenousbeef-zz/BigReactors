@@ -6,13 +6,13 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
 import buildcraft.api.tools.IToolWrench;
-import erogenousbeef.core.common.CoordTriplet;
 
 public class StaticUtils {
 
@@ -101,13 +101,21 @@ public class StaticUtils {
                 return true;
         }
 
+        private static final ForgeDirection[] chestDirections = new ForgeDirection[] { ForgeDirection.NORTH,
+        																				ForgeDirection.SOUTH,
+        																				ForgeDirection.EAST,
+        																				ForgeDirection.WEST};
+
 		public static IInventory checkForDoubleChest(World worldObj, IInventory te, int x, int y, int z) {
-			CoordTriplet[] coords = (new CoordTriplet(x, y, z)).getNeighbors();
-			for(CoordTriplet coord : coords) {
-				if(worldObj.getBlockId(coord.x, coord.y, coord.z) == Block.chest.blockID) {
-					return new InventoryLargeChest("Large Chest", te, ((IInventory)worldObj.getBlockTileEntity(coord.x, coord.y, coord.z)));
+			for(ForgeDirection dir : chestDirections) {
+				if(worldObj.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == Block.chest.blockID) {
+					TileEntity otherTe = worldObj.getBlockTileEntity(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+					if(otherTe instanceof IInventory) {
+						return new InventoryLargeChest("Large Chest", te, (IInventory)otherTe);
+					}
 				}
 			}
+
 			// Not a large chest, so just return the single chest.
 			return te;
 		}
