@@ -23,6 +23,7 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity {
 
@@ -36,36 +37,37 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	public boolean canUpdate() { return false; }
 
 	@Override
-	public boolean isGoodForFrame() {
+	public void isGoodForFrame() throws MultiblockValidationException {
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isCasing(metadata)) { return true; }
-		else { return false; }
+		if(BlockReactorPart.isCasing(metadata)) { return; }
+		
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Only casing may be used as part of a reactor's frame", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return true;
+	public void isGoodForSides() throws MultiblockValidationException {
+		// All parts are valid for sides, by default
 	}
 
 	@Override
-	public boolean isGoodForTop() {
+	public void isGoodForTop() throws MultiblockValidationException {
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isCasing(metadata)) {
-			return true;
-		}
-		return false;
+		if(BlockReactorPart.isCasing(metadata)) { return; }
+
+		throw new MultiblockValidationException(String.format("%d, %d, %d - This part may not be placed on a reactor's top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
+	public void isGoodForBottom() throws MultiblockValidationException {
 		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isCasing(metadata)) { return true; }
-		else { return false; }
+		if(BlockReactorPart.isCasing(metadata)) { return; }
+
+		throw new MultiblockValidationException(String.format("%d, %d, %d - This part may not be placed on a reactor's bottom face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
-		return false;
+	public void isGoodForInterior() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - This reactor part may not be placed in the reactor's interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override

@@ -398,16 +398,18 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 	// Static validation helpers
 	// Water, air, and metal blocks
-	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
+	@Override
+	protected void isBlockGoodForInterior(World world, int x, int y, int z) throws MultiblockValidationException {
+		if(world.isAirBlock(x, y, z)) { return; } // Air is OK
+
 		Material material = world.getBlockMaterial(x, y, z);
-		if(material == net.minecraft.block.material.MaterialLiquid.water ||
-			material == net.minecraft.block.material.Material.air) {
-			return true;
+		if(material == net.minecraft.block.material.MaterialLiquid.water) {
+			return;
 		}
 		
 		int blockId = world.getBlockId(x, y, z);
 		if(blockId == Block.blockIron.blockID || blockId == Block.blockGold.blockID || blockId == Block.blockDiamond.blockID) {
-			return true;
+			return;
 		}
 		
 		// Permit TE fluids
@@ -419,12 +421,17 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				if(fluidName.equals("redstone") || fluidName.equals("pyrotheum") ||
 					fluidName.equals("cryotheum") || fluidName.equals("glowstone") ||
 					fluidName.equals("ender")) {
-					return true;
+					return;
 				}
+				throw new MultiblockValidationException(String.format("%d, %d, %d - The fluid %s is not valid for the reactor's interior", x, y, z, fluidName));
+			}
+			else {
+				throw new MultiblockValidationException(String.format("%d, %d, %d - %s is not valid for the reactor's interior", x, y, z, blockClass.getLocalizedName()));
 			}
 		}
-		
-		return false;
+		else {
+			throw new MultiblockValidationException(String.format("%d, %d, %d - Unrecognized block with ID %d, not valid for the reactor's interior", x, y, z, blockId));
+		}
 	}
 	
 	@Override

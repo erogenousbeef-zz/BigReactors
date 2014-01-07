@@ -7,6 +7,7 @@ import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityReactorGlass extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
@@ -19,28 +20,25 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 
 	@Override
-	public boolean isGoodForFrame() {
-		return false;
+	public void isGoodForFrame()  throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Reactor glass may only be used on the exterior faces, not as part of a reactor's frame or interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return true;
+	public void isGoodForSides() throws MultiblockValidationException {
 	}
 
 	@Override
-	public boolean isGoodForTop() {
-		return true;
+	public void isGoodForTop() throws MultiblockValidationException {
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
-		return true;
+	public void isGoodForBottom() throws MultiblockValidationException {
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
-		return false;
+	public void isGoodForInterior() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Reactor glass may only be used on the exterior faces, not as part of a reactor's frame or interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override

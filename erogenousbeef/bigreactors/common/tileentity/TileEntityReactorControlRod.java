@@ -46,6 +46,7 @@ import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityReactorControlRod extends MultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IHeatEntity, IBeefGuiEntity {
 	public final static int maxTotalFluidPerBlock = FluidContainerRegistry.BUCKET_VOLUME * 4;
@@ -1079,30 +1080,32 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 
 	@Override
-	public boolean isGoodForFrame() {
-		return false;
+	public void isGoodForFrame() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return false;
+	public void isGoodForSides() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForTop() {
+	public void isGoodForTop() throws MultiblockValidationException {
 		// Check that the space below us is a fuel rod
 		TileEntity teBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
-		return teBelow instanceof TileEntityFuelRod;
+		if(!(teBelow instanceof TileEntityFuelRod)) {
+			throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face, atop a column of fuel rods", xCoord, yCoord, zCoord));
+		}
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
-		return false;
+	public void isGoodForBottom() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
-		return false;
+	public void isGoodForInterior() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
