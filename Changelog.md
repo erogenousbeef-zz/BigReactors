@@ -4,8 +4,16 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.2.13A2)
+Current Release (0.2.14A)
 --------------------------------
+- Enhancement: The empty-hand right-click validation tool now has more-informative error messages.
+- Bugfix: Fixed a compatibility glitch between BR and Railcraft. Reactors should no longer mysteriously disassemble when BR is used alongside Railcraft.
+- Bugfix: Tinker's Construct's fluid ender was performing no better than water inside a reactor. This has been fixed, it is now as good as TE's.
+- Bugfix: Reactors which span two chunks should no longer throw random NPE crashes or [SEVERE] log warnings randomly when used on MCPC+ with asynchronous chunkloading enabled.
+
+Older Releases
+--------------
+### Release 0.2.13A2
 - Bugfix: (A2) Fixed a crash that could occur with a double chest split across chunk boundaries next to an access port set to output.
 - Bugfix: Reactors now send radiation west, as well as the other cardinal directions. Silly typo.
 - Bugfix: Fixed a crash that could occur with inventory-polling objects next to access ports (#83), such as AE import/export buses.
@@ -13,8 +21,6 @@ Current Release (0.2.13A2)
 - Bugfix: Fixed a client crash that could occur when placing blocks really really fast after breaking them in SSP.
 - Refactor: Changed from lists of coordinates to lists of parts for many operations, internally. This is considerably cheaper, CPU-wise, on a per-tick basis and also considerably more stable.
 
-Older Releases
---------------
 ### Release 0.2.12A
 - Bugfix: Fixed a rare crash when reactors ate the last of their fuel and then tried to create waste
 - Bugfix: Working around a crash that appears to be caused by an interaction with Forge Multipart. Log lines will be spammed to help further debug this issue.
