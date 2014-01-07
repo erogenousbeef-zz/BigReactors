@@ -13,6 +13,7 @@ import net.minecraftforge.common.ForgeDirection;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.bigreactors.client.gui.GuiTurbineController;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
@@ -80,28 +81,29 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 	}
 
 	@Override
-	public boolean isGoodForFrame() {
-		return getMetadata() == BlockTurbinePart.METADATA_HOUSING;
+	public void isGoodForFrame() throws MultiblockValidationException {
+		if(getMetadata() != BlockTurbinePart.METADATA_HOUSING) {
+			throw new MultiblockValidationException(String.format("%d, %d, %d - only turbine housing may be used as part of the turbine's frame", xCoord, yCoord, zCoord));
+		}
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return true;
+	public void isGoodForSides() {
 	}
 
 	@Override
-	public boolean isGoodForTop() {
-		return true;
+	public void isGoodForTop() {
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
-		return true;
+	public void isGoodForBottom() {
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
-		return getMetadata() == BlockTurbinePart.METADATA_HOUSING;
+	public void isGoodForInterior() throws MultiblockValidationException {
+		if(getMetadata() != BlockTurbinePart.METADATA_HOUSING) {
+			throw new MultiblockValidationException(String.format("%d, %d, %d - this part is not valid for the interior of a turbine", xCoord, yCoord, zCoord));
+		}
 	}
 
 	@Override

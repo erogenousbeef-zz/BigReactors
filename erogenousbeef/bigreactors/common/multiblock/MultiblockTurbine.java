@@ -267,22 +267,22 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	}
 	
 	@Override
-	protected boolean isBlockGoodForInterior(World world, int x, int y, int z) {
+	protected void isBlockGoodForInterior(World world, int x, int y, int z) throws MultiblockValidationException {
 		// We only allow air and functional parts in turbines.
-		
+
 		// Air is ok
-		if(world.isAirBlock(x, y, z)) { return true; }
-		
+		if(world.isAirBlock(x, y, z)) { return; }
+
 		int blockId = world.getBlockId(x, y, z);
-		
+
 		// Allow rotors and stuff
-		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { return true; }
+		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { return; }
 
 		// Coil windings below here:
-		if(isBlockPartOfCoil(x, y, z, blockId, world.getBlockMetadata(x,y,z))) { return true; }
-		
+		if(isBlockPartOfCoil(x, y, z, blockId, world.getBlockMetadata(x,y,z))) { return; }
+
 		// Everything else, gtfo
-		return false;
+		throw new MultiblockValidationException(String.format("%d, %d, %d is invalid for a turbine interior. Only rotor parts, metal blocks and empty space are allowed.", x, y, z));
 	}
 
 	@Override
