@@ -50,6 +50,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
@@ -350,6 +351,7 @@ public class BigReactors {
 
 			GameRegistry.registerTileEntity(TileEntityTurbinePart.class,  "BRTurbinePart");
 			GameRegistry.registerTileEntity(TileEntityTurbinePowerTap.class, "BRTurbinePowerTap");
+			GameRegistry.registerTileEntity(TileEntityTurbineCreativeSteamGenerator.class, "BRTurbineCreativeSteamGenerator");
 
 			registeredTileEntities = true;
 		}
@@ -498,14 +500,14 @@ public class BigReactors {
 
 			BRConfig.CONFIGURATION.save();
 		}
-		
+
 		if(BigReactors.blockTurbineRotorPart == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbineRotorPart = new BlockTurbineRotorPart(BRConfig.CONFIGURATION.getBlock("TurbineRotorPart", BigReactors.BLOCK_ID_PREFIX + 11).getInt(), Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockTurbineRotorPart.class, "BRTurbineRotorPart");
 
-			OreDictionary.registerOre("turbineRotorShaft", 	BigReactors.blockTurbineRotorPart.getItemStack("housing"));
-			OreDictionary.registerOre("turbineRotorBlade", 	BigReactors.blockTurbineRotorPart.getItemStack("controller"));
+			OreDictionary.registerOre("turbineRotorShaft", 	BigReactors.blockTurbineRotorPart.getItemStack("rotor"));
+			OreDictionary.registerOre("turbineRotorBlade", 	BigReactors.blockTurbineRotorPart.getItemStack("blade"));
 
 			BRConfig.CONFIGURATION.save();
 		}

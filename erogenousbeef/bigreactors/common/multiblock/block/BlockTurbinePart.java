@@ -9,6 +9,7 @@ import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.core.common.CoordTriplet;
@@ -223,6 +224,9 @@ public class BlockTurbinePart extends BlockContainer {
 	public TileEntity createTileEntity(World world, int metadata) {
 		if(metadata == METADATA_POWERTAP) {
 			return new TileEntityTurbinePowerTap(metadata);
+		}
+		else if(metadata == METADATA_CREATIVE_GENERATOR) {
+			return new TileEntityTurbineCreativeSteamGenerator(metadata);
 		}
 		else {
 			return new TileEntityTurbinePart(metadata);

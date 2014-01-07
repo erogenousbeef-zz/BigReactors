@@ -31,6 +31,7 @@ import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
@@ -44,6 +45,13 @@ import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class MultiblockTurbine extends MultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
 
+	public enum VentStatus {
+		VentOverflow,
+		VentAll,
+		DoNotVent
+	};
+	
+	// UI updates
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
@@ -60,11 +68,31 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	// Persistent game data
 	float energyStored;
 	boolean active;
+	float rotorSpeed;
+	
+	// Player settings
+	VentStatus ventStatus;
 	
 	// Derivable game data
-	int bladeArea; // # of blocks that are blades
+	int bladeSurfaceArea; // # of blocks that are blades
 	int rotorMass; // 10 = 1 standard block-weight
 	int coilSize;  // number of blocks in the coils
+	
+	// Inductor dynamic constants - get from a table on assembly
+	float inductorDragCoefficient = 0.01f; // Keep this small, as it gets multiplied by v^2 and dominates at high speeds. Higher = more drag from the inductor vs. aerodynamic drag = more efficient energy conversion.
+	float inductionEnergyBonus = 1f; // Bonus to energy generation based on construction materials. 1 = plain iron.
+	float inductionEnergyExponentBonus = 0f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
+
+	// TODO: Calculate this on assembly. Better blades should be lighter and have less drag.
+	// Rotor dynamic constants - calculate on assembly
+	float rotorDragCoefficient = 0.1f; // totally arbitrary. Allow upgrades to decrease this. This is the drag of the ROTOR.
+	float bladeDragCoefficient = 0.04f; // From wikipedia, drag of a standard airfoil. This is the drag of the BLADES.
+	// Penalize suboptimal shapes with worse drag (i.e. increased drag without increasing lift)
+	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
+	
+	// Game balance constants
+	final static float bladeLiftCoefficient = 0.75f; // From wikipedia, lift of a standard airfoil 
+	final static float inductionEnergyCoefficient = 1.2f; // Power to raise the induced current by. This makes higher RPMs more efficient.
 	
 	float energyGeneratedLastTick;
 	
@@ -72,7 +100,8 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	private Set<IMultiblockPart> attachedRotorBearings;
 	
 	private Set<TileEntityTurbinePowerTap> attachedPowerTaps;
-	
+	private Set<ITickableMultiblockPart> attachedTickables;
+
 	public MultiblockTurbine(World world) {
 		super(world);
 
@@ -87,11 +116,14 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		attachedControllers = new HashSet<IMultiblockPart>();
 		attachedRotorBearings = new HashSet<IMultiblockPart>();
 		attachedPowerTaps = new HashSet<TileEntityTurbinePowerTap>();
+		attachedTickables = new HashSet<ITickableMultiblockPart>();
 		
 		energyStored = 0f;
 		active = false;
+		ventStatus = VentStatus.VentOverflow;
+		rotorSpeed = 0f;
 		
-		bladeArea = 0;
+		bladeSurfaceArea = 0;
 		rotorMass = 0;
 		coilSize = 0;
 		energyGeneratedLastTick = 0f;
@@ -132,7 +164,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 			outputFluidAmt = outputFluid.amount;
 		}
 		
-		// TODO: Write a handler for this
 		return PacketWrapper.createPacket(BigReactors.CHANNEL,
 				 Packets.MultiblockTurbineFullUpdate,
 				 new Object[] { referenceCoord.x,
@@ -141,7 +172,9 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 								inputFluidID,
 								inputFluidAmt,
 								outputFluidID,
-								outputFluidAmt
+								outputFluidAmt,
+								rotorSpeed,
+								energyGeneratedLastTick
 		});
 	}
 
@@ -155,6 +188,8 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		int inputFluidAmt = data.readInt();
 		int outputFluidID = data.readInt();
 		int outputFluidAmt = data.readInt();
+		rotorSpeed = data.readFloat();
+		energyGeneratedLastTick = data.readFloat();
 		
 		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
 			tanks[TANK_INPUT].setFluid(null);
@@ -171,16 +206,16 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		}
 
 		if(outputFluidID == FLUID_NONE || outputFluidAmt <= 0) {
-			tanks[TANK_INPUT].setFluid(null);
+			tanks[TANK_OUTPUT].setFluid(null);
 		}
 		else {
 			Fluid fluid = FluidRegistry.getFluid(outputFluidID);
 			if(fluid == null) {
 				FMLLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting output tank to empty", outputFluidID);
-				tanks[TANK_INPUT].setFluid(null);
+				tanks[TANK_OUTPUT].setFluid(null);
 			}
 			else {
-				tanks[TANK_INPUT].setFluid(new FluidStack(fluid, outputFluidAmt));
+				tanks[TANK_OUTPUT].setFluid(new FluidStack(fluid, outputFluidAmt));
 			}
 		}
 	}
@@ -189,7 +224,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	 * Send an update to any clients with GUIs open
 	 */
 	protected void sendTickUpdate() {
-		if(this.worldObj.isRemote) { return; }
 		if(this.updatePlayers.size() <= 0) { return; }
 		
 		Packet data = getUpdatePacket();
@@ -220,6 +254,10 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		if(newPart instanceof TileEntityTurbinePowerTap) {
 			attachedPowerTaps.add((TileEntityTurbinePowerTap)newPart);
 		}
+		
+		if(newPart instanceof ITickableMultiblockPart) {
+			attachedTickables.add((ITickableMultiblockPart)newPart);
+		}
 	}
 
 	@Override
@@ -228,6 +266,10 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		
 		if(oldPart instanceof TileEntityTurbinePowerTap) {
 			attachedPowerTaps.remove((TileEntityTurbinePowerTap)oldPart);
+		}
+
+		if(oldPart instanceof ITickableMultiblockPart) {
+			attachedTickables.remove((ITickableMultiblockPart)oldPart);
 		}
 	}
 
@@ -248,7 +290,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	@Override
 	protected void onMachineDisassembled() {
 		rotorMass = 0;
-		bladeArea = 0;
+		bladeSurfaceArea = 0;
 		coilSize = 0;
 	}
 
@@ -258,6 +300,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		if(attachedRotorBearings.size() != 1) {
 			throw new MultiblockValidationException("Turbines require exactly 1 rotor bearing");
 		}
+		
 		
 		// TODO: Validate that the interior has the appropriate configuration - one rotor shaft running the length of the turbine
 		// Rotor blades must emit from the rotor shaft.
@@ -321,17 +364,69 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	
 	@Override
 	protected void onAssimilate(MultiblockControllerBase assimilated) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	protected void onAssimilated(MultiblockControllerBase assimilator) {
-		// TODO Auto-generated method stub
+		attachedControllers.clear();
+		attachedRotorBearings.clear();
+		attachedTickables.clear();
+		attachedPowerTaps.clear();
 	}
 
 	@Override
 	protected boolean updateServer() {
 		energyGeneratedLastTick = 0f;
+		
+		// Generate energy based on steam
+		int steamIn = 0; // mB. Based on water, actually. Probably higher for steam. Measure it.
+		float fluidEnergyDensity = 0.001f;
+
+		if(isActive()) {
+			// TODO: Table lookup?
+			fluidEnergyDensity = 0.001f; // effectively, force-units per mB. (one mB-force or mBf). Stand-in for fluid density.
+
+			// Spin up via steam inputs, convert some steam back into water
+			steamIn = tanks[TANK_INPUT].getFluidAmount();
+			
+			if(ventStatus == VentStatus.DoNotVent) {
+				// Cap steam used to available space, if not venting
+				// TODO: Calculate difference from available space
+				int availableSpace = tanks[TANK_OUTPUT].getCapacity() - tanks[TANK_OUTPUT].getFluidAmount();
+				steamIn = Math.max(steamIn, availableSpace);
+			}
+		}
+		
+		if(steamIn > 0 || rotorSpeed > 0) {
+			// Induction-driven torque pulled out of my ass.
+			float inductionTorque = (float)(Math.pow(rotorSpeed*0.1f, 1.5)*inductorDragCoefficient*coilSize);
+
+			// Aerodynamic drag equation. Thanks, Mr. Euler.
+			float aerodynamicDragTorque = (float)Math.pow(rotorSpeed, 2) * fluidEnergyDensity * bladeDragCoefficient * bladeSurfaceArea / 2f;
+
+			// Frictional drag equation. Basically, a small amount of constant drag based on the size of your rotor.
+			float frictionalDragTorque = rotorDragCoefficient * rotorMass;
+			
+			// Aerodynamic lift equation. Also via Herr Euler.
+			float liftTorque = 2 * (float)Math.pow(steamIn, 2) * fluidEnergyDensity * bladeLiftCoefficient * bladeSurfaceArea;
+
+			// Yay for derivation. We're assuming delta-Time is always 1, as we're always calculating for 1 tick.
+			// TODO: When calculating rotor mass, factor in a division by two to eliminate the constant term.
+			float deltaV = (2 * (liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque)) / rotorMass;
+
+			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEnergyBonus * BigReactors.powerProductionMultiplier;
+			generateEnergy(energyToGenerate);
+
+			rotorSpeed += deltaV;
+			if(rotorSpeed < 0f) { rotorSpeed = 0f; }
+			
+			// And create some water
+			if(steamIn > 0) {
+				Fluid effluent = FluidRegistry.WATER;
+				FluidStack effluentStack = new FluidStack(effluent, steamIn);
+				fill(TANK_OUTPUT, effluentStack, true);
+			}
+		}
 		
 		int energyAvailable = (int)getEnergyStored();
 		int energyRemaining = energyAvailable;
@@ -360,6 +455,16 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 			reduceStoredEnergy((energyAvailable - energyRemaining));
 		}
 		
+		for(ITickableMultiblockPart part : attachedTickables) {
+			part.onMultiblockServerTick();
+		}
+		
+		ticksSinceLastUpdate++;
+		if(ticksSinceLastUpdate >= ticksBetweenUpdates) {
+			sendTickUpdate();
+			ticksSinceLastUpdate = 0;
+		}
+		
 		return false;
 	}
 
@@ -374,6 +479,8 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		data.setCompoundTag("outputTank", tanks[TANK_OUTPUT].writeToNBT(new NBTTagCompound()));
 		data.setBoolean("active", active);
 		data.setFloat("energy", energyStored);
+		data.setInteger("ventStatus", ventStatus.ordinal());
+		data.setFloat("rotorSpeed", rotorSpeed);
 	}
 
 	@Override
@@ -393,33 +500,25 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		if(data.hasKey("energy")) {
 			energyStored = data.getFloat("energy");
 		}
+		
+		if(data.hasKey("ventStatus")) {
+			ventStatus = VentStatus.values()[data.getInteger("ventStatus")];
+		}
+		
+		if(data.hasKey("rotorSpeed")) {
+			rotorSpeed = data.getFloat("rotorSpeed");
+			if(Float.isNaN(rotorSpeed)) { rotorSpeed = 0f; }
+		}
 	}
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
-		data.setCompoundTag("inputTank", tanks[TANK_INPUT].writeToNBT(new NBTTagCompound()));
-		data.setCompoundTag("outputTank", tanks[TANK_OUTPUT].writeToNBT(new NBTTagCompound()));
-		data.setBoolean("active", active);
-		data.setFloat("energy", energyStored);
+		writeToNBT(data);
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
-		if(data.hasKey("inputTank")) {
-			tanks[TANK_INPUT].readFromNBT(data.getCompoundTag("inputTank"));
-		}
-		
-		if(data.hasKey("outputTank")) {
-			tanks[TANK_OUTPUT].readFromNBT(data.getCompoundTag("outputTank"));
-		}
-		
-		if(data.hasKey("active")) {
-			setActive(data.getBoolean("active"));
-		}
-		
-		if(data.hasKey("energy")) {
-			energyStored = data.getFloat("energy");
-		}
+		readFromNBT(data);
 	}
 
 	@Override
@@ -645,7 +744,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		maxInterior.x++; maxInterior.y++; maxInterior.z++;
 		
 		rotorMass = 0;
-		bladeArea = 0;
+		bladeSurfaceArea = 0;
 		coilSize = 0;
 
 		// Loop over interior space. Calculate mass and blade area of rotor and size of coils
@@ -658,7 +757,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 					if(blockId == BigReactors.blockTurbineRotorPart.blockID) {
 						rotorMass += BigReactors.blockTurbineRotorPart.getRotorMass(blockId, metadata);
 						if(BlockTurbineRotorPart.isRotorBlade(metadata)) {
-							bladeArea += 1;
+							bladeSurfaceArea += 1;
 						}
 					}
 					
@@ -669,4 +768,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 			} // end y
 		} // end x loop - looping over interior
 	}
+	
+	public float getRotorSpeed() { return rotorSpeed; }
+	public float getEnergyGeneratedLastTick() { return energyGeneratedLastTick; }
 }
