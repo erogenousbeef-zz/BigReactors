@@ -27,6 +27,7 @@ import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity, IReactorTickable {
@@ -380,28 +381,27 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 	
 	@Override
-	public boolean isGoodForFrame() {
-		return false;
+	public void isGoodForFrame() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not as part of the frame", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return true;
+	public void isGoodForSides() throws MultiblockValidationException {
 	}
 
 	@Override
-	public boolean isGoodForTop() {
-		return false;
+	public void isGoodForTop() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not the top", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
-		return false;
+	public void isGoodForBottom() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not the bottom", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
-		return false;
+	public void isGoodForInterior() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may not be placed in a reactor's interior", xCoord, yCoord, zCoord));
 	}
 
 	@Override

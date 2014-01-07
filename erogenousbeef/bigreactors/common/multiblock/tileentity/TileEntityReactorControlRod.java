@@ -47,6 +47,7 @@ import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityReactorControlRod extends MultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IHeatEntity, IBeefGuiEntity {
 	public final static int maxTotalFluidPerBlock = FluidContainerRegistry.BUCKET_VOLUME * 4;
@@ -954,58 +955,61 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		float neutronPermeability = 0.95f; // How much radiation can pass through (allowing slow neutrons to pass)
 		float neutronHeating = 0.5f; // How much heat to generate per absorbed neutron
 		float neutronModeration = 0.1f; // How many neutrons to moderate (i.e. how many fast neutrons to downconvert)
-		
-		if(material == Material.water) {
-			neutronPermeability = 0.8f;
+
+		if(blockId == Block.blockIron.blockID) {
+			neutronPermeability = 0.5f;
+			neutronModeration = 0.6f;
+		}
+		else if(blockId == Block.blockGold.blockID) {
+			neutronPermeability = 0.6f;
+			neutronModeration = 0.7f;
+			neutronHeating = 0.75f;
+		}
+		else if(blockId == Block.blockDiamond.blockID) {
+			neutronPermeability = 0.7f;
 			neutronModeration = 0.5f;
-		} else if(material != Material.air) {
-			// Check block for data
-			if(blockId == Block.blockIron.blockID) {
-				neutronPermeability = 0.5f;
-				neutronModeration = 0.6f;
-			}
-			else if(blockId == Block.blockGold.blockID) {
-				neutronPermeability = 0.6f;
-				neutronModeration = 0.7f;
-				neutronHeating = 0.75f;
-			}
-			else if(blockId == Block.blockDiamond.blockID) {
-				neutronPermeability = 0.7f;
-				neutronModeration = 0.5f;
-				neutronHeating = 1.0f;
-			}
-			else if(blockId > 0 && blockId < Block.blocksList.length) {
-				Block blockClass = Block.blocksList[blockId];
-				if(blockClass instanceof IFluidBlock) {
-					String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
-					if(fluidName.equals("cryotheum")) {
-						// Effortdynamics
-						neutronHeating = 0.75f;
-						neutronModeration = 0.6f;
-						neutronPermeability = 0.9f;
-					}
-					else if(fluidName.equals("pyrotheum")) {
-						neutronHeating = 0.9f;
-						neutronModeration = 0.2f;
-						neutronPermeability = 0.85f;
-					}
-					else if(fluidName.equals("redstone")) {
-						neutronModeration = 0.75f;
-						neutronPermeability = 0.75f;
-					}
-					else if(fluidName.equals("glowstone")) {
-						neutronModeration = 0.4f;
-						neutronPermeability = 0.8f;
-					}
-					else if(fluidName.equals("ender")) {
-						// It's basically a brick wall
-						neutronModeration = 1.0f;
-						neutronPermeability = 0.0f;
-						neutronHeating = 1.0f;
-					}
+			neutronHeating = 1.0f;
+		}
+		else if(blockId > 0 && blockId < Block.blocksList.length) {
+			Block blockClass = Block.blocksList[blockId];
+			if(blockClass instanceof IFluidBlock) {
+				String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
+				if(fluidName.equals("cryotheum")) {
+					// Effortdynamics
+					neutronHeating = 0.75f;
+					neutronModeration = 0.6f;
+					neutronPermeability = 0.9f;
+				}
+				else if(fluidName.equals("pyrotheum")) {
+					neutronHeating = 0.9f;
+					neutronModeration = 0.2f;
+					neutronPermeability = 0.85f;
+				}
+				else if(fluidName.equals("redstone")) {
+					neutronModeration = 0.75f;
+					neutronPermeability = 0.75f;
+				}
+				else if(fluidName.equals("glowstone")) {
+					neutronModeration = 0.4f;
+					neutronPermeability = 0.8f;
+				}
+				else if(fluidName.equals("ender")) {
+					// It's basically a brick wall
+					neutronModeration = 1.0f;
+					neutronPermeability = 0.0f;
+					neutronHeating = 1.0f;
+				}
+				else if(fluidName.equals("water")) {
+					neutronPermeability = 0.8f;
+					neutronModeration = 0.5f;
 				}
 			}
 		}
+		else if(material == Material.water) {
+			neutronPermeability = 0.8f;
+			neutronModeration = 0.5f;
+		}
+		// Else, treat as air and use default values
 		
 		float neutronsCaptured, neutronsModerated;
 		neutronsCaptured = radiation.getSlowRadiation() * 1f - neutronPermeability;
@@ -1080,30 +1084,32 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 
 	@Override
-	public boolean isGoodForFrame() {
-		return false;
+	public void isGoodForFrame() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForSides() {
-		return false;
+	public void isGoodForSides() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForTop() {
+	public void isGoodForTop() throws MultiblockValidationException {
 		// Check that the space below us is a fuel rod
 		TileEntity teBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
-		return teBelow instanceof TileEntityFuelRod;
+		if(!(teBelow instanceof TileEntityFuelRod)) {
+			throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face, atop a column of fuel rods", xCoord, yCoord, zCoord));
+		}
 	}
 
 	@Override
-	public boolean isGoodForBottom() {
-		return false;
+	public void isGoodForBottom() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
-	public boolean isGoodForInterior() {
-		return false;
+	public void isGoodForInterior() throws MultiblockValidationException {
+		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
 	}
 
 	@Override
