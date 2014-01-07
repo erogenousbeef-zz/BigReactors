@@ -25,8 +25,8 @@ import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
-import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
@@ -57,7 +57,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	private Set<TileEntityReactorPowerTap> attachedPowerTaps;
-	private Set<IReactorTickable> attachedTickables;
+	private Set<ITickableMultiblockPart> attachedTickables;
 
 	private Set<TileEntityReactorControlRod> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
 	private Set<TileEntityReactorAccessPort> attachedAccessPorts;
@@ -79,7 +79,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		fuelConsumedLastTick = 0;
 		wasteEjection = WasteEjectionSetting.kAutomatic;
 		attachedPowerTaps = new HashSet<TileEntityReactorPowerTap>();
-		attachedTickables = new HashSet<IReactorTickable>();
+		attachedTickables = new HashSet<ITickableMultiblockPart>();
 		attachedControlRods = new HashSet<TileEntityReactorControlRod>();
 		attachedAccessPorts = new HashSet<TileEntityReactorAccessPort>();
 		attachedControllers = new HashSet<TileEntityReactorPart>();
@@ -119,8 +119,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 		}
 
-		if(part instanceof IReactorTickable) {
-			attachedTickables.add((IReactorTickable)part);
+		if(part instanceof ITickableMultiblockPart) {
+			attachedTickables.add((ITickableMultiblockPart)part);
 		}
 	}
 	
@@ -145,8 +145,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 		}
 
-		if(part instanceof IReactorTickable) {
-			attachedTickables.remove((IReactorTickable)part);
+		if(part instanceof ITickableMultiblockPart) {
+			attachedTickables.remove((ITickableMultiblockPart)part);
 		}
 	}
 	
@@ -295,9 +295,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		// TODO: Overload/overheat
 
 		// Update any connected tickables
-		for(IReactorTickable tickable : attachedTickables) {
+		for(ITickableMultiblockPart tickable : attachedTickables) {
 			if(tickable == null) { continue; }
-			tickable.onReactorTick();
+			tickable.onMultiblockServerTick();
 		}
 
 		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());

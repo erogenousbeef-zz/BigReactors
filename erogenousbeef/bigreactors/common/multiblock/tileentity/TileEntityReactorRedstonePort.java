@@ -18,9 +18,9 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedstonePort;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort.CircuitType;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
@@ -30,7 +30,7 @@ import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
-		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity, IReactorTickable {
+		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity, ITickableMultiblockPart {
 
 	protected ForgeDirection out;
 	protected CircuitType circuitType;
@@ -305,7 +305,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	 * Updates the redstone block's status, if it's an output network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
-	public void onReactorTick() {
+	public void onMultiblockServerTick() {
 		if(!this.isConnected()) { return; }
 
 		ticksSinceLastUpdate++;

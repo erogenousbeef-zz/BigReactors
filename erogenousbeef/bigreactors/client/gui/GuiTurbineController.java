@@ -94,8 +94,8 @@ public class GuiTurbineController extends BeefGuiBase {
 			toggleActive.displayString = "Activate";
 		}
 		
-		speedString.setLabelText(String.format("Speed: %.1f RPM", 0f)); // TODO
-		energyGeneratedString.setLabelText(String.format("Output: %.0f RF/t", 0f)); // TODO
+		speedString.setLabelText(String.format("Speed: %.1f RPM", turbine.getRotorSpeed())); // TODO
+		energyGeneratedString.setLabelText(String.format("Output: %.0f RF/t", turbine.getEnergyGeneratedLastTick())); // TODO
 	}
 
 	@Override

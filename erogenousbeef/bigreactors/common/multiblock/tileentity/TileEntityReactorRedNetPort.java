@@ -17,14 +17,14 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.interfaces.IReactorTickable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorRedNetPort extends TileEntityReactorPart implements IReactorTickable {
+public class TileEntityReactorRedNetPort extends TileEntityReactorPart implements ITickableMultiblockPart {
 
 	public enum CircuitType {
 		DISABLED,
@@ -269,7 +269,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	 * Updates the connected RedNet network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
-	public void onReactorTick() {
+	public void onMultiblockServerTick() {
 		if(!this.isConnected()) { return; }
 
 		ticksSinceLastUpdate++;
