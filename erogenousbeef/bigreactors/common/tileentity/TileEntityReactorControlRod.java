@@ -954,58 +954,61 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		float neutronPermeability = 0.95f; // How much radiation can pass through (allowing slow neutrons to pass)
 		float neutronHeating = 0.5f; // How much heat to generate per absorbed neutron
 		float neutronModeration = 0.1f; // How many neutrons to moderate (i.e. how many fast neutrons to downconvert)
-		
-		if(material == Material.water) {
-			neutronPermeability = 0.8f;
+
+		if(blockId == Block.blockIron.blockID) {
+			neutronPermeability = 0.5f;
+			neutronModeration = 0.6f;
+		}
+		else if(blockId == Block.blockGold.blockID) {
+			neutronPermeability = 0.6f;
+			neutronModeration = 0.7f;
+			neutronHeating = 0.75f;
+		}
+		else if(blockId == Block.blockDiamond.blockID) {
+			neutronPermeability = 0.7f;
 			neutronModeration = 0.5f;
-		} else if(material != Material.air) {
-			// Check block for data
-			if(blockId == Block.blockIron.blockID) {
-				neutronPermeability = 0.5f;
-				neutronModeration = 0.6f;
-			}
-			else if(blockId == Block.blockGold.blockID) {
-				neutronPermeability = 0.6f;
-				neutronModeration = 0.7f;
-				neutronHeating = 0.75f;
-			}
-			else if(blockId == Block.blockDiamond.blockID) {
-				neutronPermeability = 0.7f;
-				neutronModeration = 0.5f;
-				neutronHeating = 1.0f;
-			}
-			else if(blockId > 0 && blockId < Block.blocksList.length) {
-				Block blockClass = Block.blocksList[blockId];
-				if(blockClass instanceof IFluidBlock) {
-					String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
-					if(fluidName.equals("cryotheum")) {
-						// Effortdynamics
-						neutronHeating = 0.75f;
-						neutronModeration = 0.6f;
-						neutronPermeability = 0.9f;
-					}
-					else if(fluidName.equals("pyrotheum")) {
-						neutronHeating = 0.9f;
-						neutronModeration = 0.2f;
-						neutronPermeability = 0.85f;
-					}
-					else if(fluidName.equals("redstone")) {
-						neutronModeration = 0.75f;
-						neutronPermeability = 0.75f;
-					}
-					else if(fluidName.equals("glowstone")) {
-						neutronModeration = 0.4f;
-						neutronPermeability = 0.8f;
-					}
-					else if(fluidName.equals("ender")) {
-						// It's basically a brick wall
-						neutronModeration = 1.0f;
-						neutronPermeability = 0.0f;
-						neutronHeating = 1.0f;
-					}
+			neutronHeating = 1.0f;
+		}
+		else if(blockId > 0 && blockId < Block.blocksList.length) {
+			Block blockClass = Block.blocksList[blockId];
+			if(blockClass instanceof IFluidBlock) {
+				String fluidName = ((IFluidBlock)blockClass).getFluid().getName();
+				if(fluidName.equals("cryotheum")) {
+					// Effortdynamics
+					neutronHeating = 0.75f;
+					neutronModeration = 0.6f;
+					neutronPermeability = 0.9f;
+				}
+				else if(fluidName.equals("pyrotheum")) {
+					neutronHeating = 0.9f;
+					neutronModeration = 0.2f;
+					neutronPermeability = 0.85f;
+				}
+				else if(fluidName.equals("redstone")) {
+					neutronModeration = 0.75f;
+					neutronPermeability = 0.75f;
+				}
+				else if(fluidName.equals("glowstone")) {
+					neutronModeration = 0.4f;
+					neutronPermeability = 0.8f;
+				}
+				else if(fluidName.equals("ender")) {
+					// It's basically a brick wall
+					neutronModeration = 1.0f;
+					neutronPermeability = 0.0f;
+					neutronHeating = 1.0f;
+				}
+				else if(fluidName.equals("water")) {
+					neutronPermeability = 0.8f;
+					neutronModeration = 0.5f;
 				}
 			}
 		}
+		else if(material == Material.water) {
+			neutronPermeability = 0.8f;
+			neutronModeration = 0.5f;
+		}
+		// Else, treat as air and use default values
 		
 		float neutronsCaptured, neutronsModerated;
 		neutronsCaptured = radiation.getSlowRadiation() * 1f - neutronPermeability;
