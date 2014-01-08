@@ -338,20 +338,17 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected int getMaximumXSize() {
-		// TODO: Configurable
-		return 16;
+		return BigReactors.maximumTurbineSize;
 	}
 
 	@Override
 	protected int getMaximumZSize() {
-		// TODO: Configurable
-		return 16;
+		return BigReactors.maximumTurbineSize;
 	}
 
 	@Override
 	protected int getMaximumYSize() {
-		// TODO: Configurable
-		return 32;
+		return BigReactors.maximumTurbineHeight;
 	}
 	
 	@Override
@@ -385,7 +382,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		float fluidEnergyDensity = 0.001f;
 
 		if(isActive()) {
-			// TODO: Table lookup?
+			// TODO: Lookup fluid parameters from a table
 			fluidEnergyDensity = 0.001f; // effectively, force-units per mB. (one mB-force or mBf). Stand-in for fluid density.
 
 			// Spin up via steam inputs, convert some steam back into water
@@ -473,7 +470,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void updateClient() {
-		// TODO: Keep track of rotor position based on rotor speed. This will be used by a TESR in fancy-graphics mode.
 	}
 
 	@Override
@@ -526,7 +522,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
-		// TODO: Proportionally allocate things like fluids
 		writeToNBT(dataContainer);
 	}
 
