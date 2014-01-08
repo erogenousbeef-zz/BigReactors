@@ -173,6 +173,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 								inputFluidAmt,
 								outputFluidID,
 								outputFluidAmt,
+								energyStored,
 								rotorSpeed,
 								energyGeneratedLastTick
 		});
@@ -188,6 +189,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		int inputFluidAmt = data.readInt();
 		int outputFluidID = data.readInt();
 		int outputFluidAmt = data.readInt();
+		energyStored = data.readFloat();
 		rotorSpeed = data.readFloat();
 		energyGeneratedLastTick = data.readFloat();
 		
@@ -425,6 +427,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 				Fluid effluent = FluidRegistry.WATER;
 				FluidStack effluentStack = new FluidStack(effluent, steamIn);
 				fill(TANK_OUTPUT, effluentStack, true);
+				drain(TANK_INPUT, steamIn, true);
 			}
 		}
 		
