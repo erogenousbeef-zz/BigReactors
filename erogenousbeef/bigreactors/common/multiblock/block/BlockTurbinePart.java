@@ -10,8 +10,11 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineCreativeSteamGenerator;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort.FluidFlow;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
@@ -133,7 +136,9 @@ public class BlockTurbinePart extends BlockContainer {
 						}
 					}
 					else if(metadata == METADATA_FLUIDPORT) {
-						// TODO
+						if(te instanceof TileEntityTurbineFluidPort && ((TileEntityTurbineFluidPort)te).getFlowDirection() == FluidFlow.Out) {
+							subIcon = SUBICON_FLUIDPORT_OUTPUT;
+						}
 					}
 				}
 				else {
@@ -225,6 +230,9 @@ public class BlockTurbinePart extends BlockContainer {
 		if(metadata == METADATA_POWERTAP) {
 			return new TileEntityTurbinePowerTap(metadata);
 		}
+		else if(metadata == METADATA_FLUIDPORT) {
+			return new TileEntityTurbineFluidPort(metadata);
+		}
 		else if(metadata == METADATA_CREATIVE_GENERATOR) {
 			return new TileEntityTurbineCreativeSteamGenerator(metadata);
 		}
@@ -269,6 +277,16 @@ public class BlockTurbinePart extends BlockContainer {
 		}
 		
 		int metadata = world.getBlockMetadata(x, y, z);
+		
+		if(metadata == METADATA_FLUIDPORT && (player.getCurrentEquippedItem() == null || StaticUtils.Inventory.isPlayerHoldingWrench(player))) {
+			TileEntity te = world.getBlockTileEntity(x, y, z);
+			if(te instanceof TileEntityTurbineFluidPort) {
+				TileEntityTurbineFluidPort fluidPort = (TileEntityTurbineFluidPort)te; 
+				FluidFlow flow = fluidPort.getFlowDirection();
+				fluidPort.setFluidFlowDirection(flow == FluidFlow.In ? FluidFlow.Out : FluidFlow.In);
+				return true;
+			}
+		}
 		
 		// Does this machine even have a GUI?
 		if(metadata != METADATA_CONTROLLER) { return false; }
