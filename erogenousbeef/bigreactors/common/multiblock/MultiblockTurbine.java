@@ -589,6 +589,10 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 		return infos;
 	}
+	
+	public FluidTankInfo getTankInfo(int tankIdx) {
+		return tanks[tankIdx].getInfo();
+	}
 
 	// IEnergyHandler
 
