@@ -22,29 +22,49 @@ TODO - 0.3: The Coolant Update
 
 ### Core
 - (DONE) Change BeefCore so client-side machines know when they're assembled, etc.
-- Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
-- Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
+- (DONE FOR TURBINES) Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
+- (DONE FOR TURBINES) Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
+- Corify the calculation & caching of sides, create a "cubic" base multiblock controller and TE that add those methods
 
 ### Radiation refactor number two
-- Change radiation system to be much more lightweight on the CPU
-- Change fuel to be shared throughout the entire machine instead of being located inside the control rod TEs
+- Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
 - Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
-- Add ISBRH for fuel rods and move fuel rendering into there
-- Add radiation reflector to give players more control over radiation
+- Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
+- Fix neutron hardness to actually do something aside from being a straight nutpunch
+- Fix fertilization and expose fertility in UI.
+
+### Heat Refactor number two
+- Fuel Rod heat pool instead of heat in individual fuel rods
+- Heat transfer rate precalculated on reactor assembly, based on surfaces in contact with non-fuel-rod stuff
+- Calculate "effective coolant surface area" based on interior surface area of reactor housing
+- Passively-cooled reactors generate power based on effective coolant surface area
+- Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
+- Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 
 ### Active Coolant Loop
 - Coolant buffer in main reactor controller
 - Coolant I/O interface blocks
-- Reactor no longer generates power from heat directly, but instead converts coolant to superheated coolant
-- Superheated Coolant can be processed directly into power, converts some back into regular coolant
-- Add "thermal turbine" small machine to do above
+- When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
+
+### Multiblock Turbine
+- (DONE) Turbine consumes steam, produces power and water.
+- Tune and optimize turbine torque & drag equations.
+- Turbine glass. Solve the connected-texture problem.
+- Do an art pass.
+- Renderer to show off the turbine blade.
+- Validation of internal turbine & coil shape on assembly.
+- (PARTIAL) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
+- Redstone port.
+- Computer port.
+- Particle effects for venting steam and stuff!
 
 ### Advanced coolant add-ons
-- Coolant manifolds inside reactor allow fuel rod heat to convert coolant
 - Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
 - Different types of coolant with different transference properties
-- Particle effects for venting steam and stuff!
-- Multiblock turbine for converting steam into power at a better rate
+
+### Graphics
+- Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
+- Fix the lighting bug on control rods.
 
 TODO - 0.4: The Fueling Update
 ------------------------------
