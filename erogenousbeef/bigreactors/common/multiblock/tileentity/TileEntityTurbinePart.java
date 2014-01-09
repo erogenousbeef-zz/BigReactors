@@ -112,44 +112,7 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 		CoordTriplet minCoord = controller.getMinimumCoord();
 		
 		// Discover where I am on the reactor
-		outwardsDirection = ForgeDirection.UNKNOWN;
-		partPosition = PartPosition.Unknown;
-
-		int facesMatching = 0;
-		if(maxCoord.x == this.xCoord || minCoord.x == this.xCoord) { facesMatching++; }
-		if(maxCoord.y == this.yCoord || minCoord.y == this.yCoord) { facesMatching++; }
-		if(maxCoord.z == this.zCoord || minCoord.z == this.zCoord) { facesMatching++; }
-		
-		if(facesMatching <= 0) { partPosition = PartPosition.Interior; }
-		else if(facesMatching >= 3) { partPosition = PartPosition.FrameCorner; }
-		else if(facesMatching == 2) { partPosition = PartPosition.Frame; }
-		else {
-			// 1 face matches
-			if(maxCoord.x == this.xCoord) {
-				partPosition = PartPosition.EastFace;
-				outwardsDirection = ForgeDirection.EAST;
-			}
-			else if(minCoord.x == this.xCoord) {
-				partPosition = PartPosition.WestFace;
-				outwardsDirection = ForgeDirection.WEST;
-			}
-			else if(maxCoord.z == this.zCoord) {
-				partPosition = PartPosition.SouthFace;
-				outwardsDirection = ForgeDirection.SOUTH;
-			}
-			else if(minCoord.z == this.zCoord) {
-				partPosition = PartPosition.NorthFace;
-				outwardsDirection = ForgeDirection.NORTH;
-			}
-			else if(maxCoord.y == this.yCoord) {
-				partPosition = PartPosition.TopFace;
-				outwardsDirection = ForgeDirection.UP;
-			}
-			else {
-				partPosition = PartPosition.BottomFace;
-				outwardsDirection = ForgeDirection.DOWN;
-			}
-		}
+		recalculateOutwardsDirection(minCoord, maxCoord);
 		
 		// Re-render this block on the client
 		if(worldObj.isRemote) {
@@ -243,5 +206,46 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 
 	public MultiblockTurbine getTurbine() {
 		return (MultiblockTurbine)getMultiblockController();
+	}
+	
+	public void recalculateOutwardsDirection(CoordTriplet minCoord, CoordTriplet maxCoord) {
+		outwardsDirection = ForgeDirection.UNKNOWN;
+		partPosition = PartPosition.Unknown;
+
+		int facesMatching = 0;
+		if(maxCoord.x == this.xCoord || minCoord.x == this.xCoord) { facesMatching++; }
+		if(maxCoord.y == this.yCoord || minCoord.y == this.yCoord) { facesMatching++; }
+		if(maxCoord.z == this.zCoord || minCoord.z == this.zCoord) { facesMatching++; }
+		
+		if(facesMatching <= 0) { partPosition = PartPosition.Interior; }
+		else if(facesMatching >= 3) { partPosition = PartPosition.FrameCorner; }
+		else if(facesMatching == 2) { partPosition = PartPosition.Frame; }
+		else {
+			// 1 face matches
+			if(maxCoord.x == this.xCoord) {
+				partPosition = PartPosition.EastFace;
+				outwardsDirection = ForgeDirection.EAST;
+			}
+			else if(minCoord.x == this.xCoord) {
+				partPosition = PartPosition.WestFace;
+				outwardsDirection = ForgeDirection.WEST;
+			}
+			else if(maxCoord.z == this.zCoord) {
+				partPosition = PartPosition.SouthFace;
+				outwardsDirection = ForgeDirection.SOUTH;
+			}
+			else if(minCoord.z == this.zCoord) {
+				partPosition = PartPosition.NorthFace;
+				outwardsDirection = ForgeDirection.NORTH;
+			}
+			else if(maxCoord.y == this.yCoord) {
+				partPosition = PartPosition.TopFace;
+				outwardsDirection = ForgeDirection.UP;
+			}
+			else {
+				partPosition = PartPosition.BottomFace;
+				outwardsDirection = ForgeDirection.DOWN;
+			}
+		}
 	}
 }
