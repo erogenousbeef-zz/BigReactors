@@ -38,6 +38,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineP
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
@@ -101,6 +102,14 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 	
 	private Set<TileEntityTurbinePowerTap> attachedPowerTaps;
 	private Set<ITickableMultiblockPart> attachedTickables;
+	
+	// Data caches for validation
+	private Set<CoordTriplet> foundCoils;
+	private Set<CoordTriplet> foundRotors;
+	private Set<CoordTriplet> foundBlades;
+
+	private static final ForgeDirection[] RotorXBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.SOUTH, ForgeDirection.DOWN, ForgeDirection.NORTH };
+	private static final ForgeDirection[] RotorZBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.EAST, ForgeDirection.DOWN, ForgeDirection.WEST };
 
 	public MultiblockTurbine(World world) {
 		super(world);
@@ -127,6 +136,10 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		rotorMass = 0;
 		coilSize = 0;
 		energyGeneratedLastTick = 0f;
+		
+		foundCoils = new HashSet<CoordTriplet>();
+		foundRotors = new HashSet<CoordTriplet>();
+		foundBlades = new HashSet<CoordTriplet>();
 	}
 
 	/**
@@ -303,12 +316,124 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 			throw new MultiblockValidationException("Turbines require exactly 1 rotor bearing");
 		}
 		
+		// Set up validation caches
+		foundBlades.clear();
+		foundRotors.clear();
+		foundCoils.clear();
 		
-		// TODO: Validate that the interior has the appropriate configuration - one rotor shaft running the length of the turbine
-		// Rotor blades must emit from the rotor shaft.
-		// Slice rotor into layers along its length
-		// Layers with non-air-blocks must not occur before the end of the layers with rotor blades
-		return super.isMachineWhole();
+		if(!super.isMachineWhole()) { return false; }
+		
+		// Now do additional validation based on the coils/blades/rotors that were found
+		
+		// Check that we have a rotor that goes all the way up the bearing
+		TileEntityTurbinePart rotorPart = (TileEntityTurbinePart)attachedRotorBearings.iterator().next();
+		
+		// Rotor bearing must calculate outwards dir, as this is normally only calculated in onMachineAssembled().
+		rotorPart.recalculateOutwardsDirection(getMinimumCoord(), getMaximumCoord());
+		
+		// Find out which way the rotor runs. Obv, this is inwards from the bearing.
+		ForgeDirection rotorDir = rotorPart.getOutwardsDir().getOpposite();
+		CoordTriplet rotorCoord = rotorPart.getWorldLocation();
+		
+		CoordTriplet minRotorCoord = getMinimumCoord();
+		CoordTriplet maxRotorCoord = getMaximumCoord();
+		
+		// Constrain min/max rotor coords to where the rotor bearing is and the block opposite it
+		if(rotorDir.offsetX == 0) {
+			minRotorCoord.x = maxRotorCoord.x = rotorCoord.x;
+		}
+		if(rotorDir.offsetY == 0) {
+			minRotorCoord.y = maxRotorCoord.y = rotorCoord.y;
+		}
+		if(rotorDir.offsetZ == 0) {
+			minRotorCoord.z = maxRotorCoord.z = rotorCoord.z;
+		}
+
+		// Figure out where the rotor ends and which directions are normal to the rotor's 4 faces (this is where blades emit from)
+		CoordTriplet endRotorCoord = rotorCoord.equals(minRotorCoord) ? maxRotorCoord : minRotorCoord;
+		endRotorCoord.translate(rotorDir.getOpposite());
+
+		ForgeDirection[] bladeDirections;
+		if(rotorDir.offsetY != 0) { 
+			bladeDirections = StaticUtils.CardinalDirections;
+		}
+		else if(rotorDir.offsetX != 0) {
+			bladeDirections = RotorXBladeDirections;
+		}
+		else {
+			bladeDirections = RotorZBladeDirections;
+		}
+
+		// Move along the length of the rotor, 1 block at a time
+		boolean encounteredCoils = false;
+		while(!foundRotors.isEmpty() && !rotorCoord.equals(endRotorCoord)) {
+			rotorCoord.translate(rotorDir);
+			
+			// Ensure we find a rotor block along the length of the entire rotor
+			if(!foundRotors.remove(rotorCoord)) {
+				throw new MultiblockValidationException(String.format("%s - This block must contain a rotor. The rotor must begin at the bearing and run the entire length of the turbine", rotorCoord));
+			}
+			
+			// Now move out in the 4 rotor normals, looking for blades and coils
+			CoordTriplet checkCoord = rotorCoord.copy();
+			boolean encounteredBlades = false;
+			for(ForgeDirection bladeDir : bladeDirections) {
+				checkCoord.copy(rotorCoord);
+				boolean foundABlade = false;
+				checkCoord.translate(bladeDir);
+				
+				// If we find 1 blade, we can keep moving along the normal to find more blades
+				while(foundBlades.remove(checkCoord)) {
+					// We found a coil already?! NOT ALLOWED.
+					if(encounteredCoils) {
+						throw new MultiblockValidationException(String.format("%s - Rotor blades must be placed closer to the rotor bearing than all other parts inside a turbine", checkCoord));
+					}
+					foundABlade = encounteredBlades = true;
+					checkCoord.translate(bladeDir);
+				}
+
+				// If this block wasn't a blade, check to see if it was a coil
+				if(!foundABlade) {
+					if(foundCoils.remove(checkCoord)) {
+						encounteredCoils = true;
+
+						// We cannot have blades and coils intermix. This prevents intermixing, depending on eval order.
+						if(encounteredBlades) {
+							throw new MultiblockValidationException(String.format("%s - Metal blocks must by placed further from the rotor bearing than all rotor blades", checkCoord));
+						}
+						
+						// Check the two coil spots in the 'corners', which are permitted if they're connected to the main rotor coil somehow
+						CoordTriplet coilCheck = checkCoord.copy();
+						coilCheck.translate(bladeDir.getRotation(rotorDir));
+						foundCoils.remove(coilCheck);
+						coilCheck.copy(checkCoord);
+						coilCheck.translate(bladeDir.getRotation(rotorDir.getOpposite()));
+						foundCoils.remove(coilCheck);
+					}
+					// Else: It must have been air.
+				}
+			}
+		}
+		
+		if(!rotorCoord.equals(endRotorCoord)) {
+			throw new MultiblockValidationException("The rotor shaft must extend the entire length of the turbine interior.");
+		}
+		
+		// Ensure that we encountered all the rotor, blade and coil blocks. If not, there's loose stuff inside the turbine.
+		if(!foundRotors.isEmpty()) {
+			throw new MultiblockValidationException(String.format("Found %d rotor blocks that are not attached to the main rotor. All rotor blocks must be in a column extending the entire length of the turbine, starting from the bearing.", foundRotors.size()));
+		}
+
+		if(!foundBlades.isEmpty()) {
+			throw new MultiblockValidationException(String.format("Found %d rotor blades that are not attached to the rotor. All rotor blades must extend continuously from the rotor's shaft.", foundBlades.size()));
+		}
+		
+		if(!foundCoils.isEmpty()) {
+			throw new MultiblockValidationException(String.format("Found %d metal blocks which were not in a ring around the rotor. All metal blocks must be in rings, or partial rings, around the rotor.", foundCoils.size()));
+		}
+
+		// A-OK!
+		return true;
 	}
 	
 	@Override
@@ -319,12 +444,27 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		if(world.isAirBlock(x, y, z)) { return; }
 
 		int blockId = world.getBlockId(x, y, z);
+		int metadata = world.getBlockMetadata(x,y,z);
 
 		// Allow rotors and stuff
-		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { return; }
+		if(blockId == BigReactors.blockTurbineRotorPart.blockID) { 
+			if(BlockTurbineRotorPart.isRotorBlade(metadata)) {
+				foundBlades.add(new CoordTriplet(x,y,z));
+			}
+			else if(BlockTurbineRotorPart.isRotorShaft(metadata)) {
+				foundRotors.add(new CoordTriplet(x,y,z));
+			}
+			else {
+				throw new MultiblockValidationException("%d, %d, %d - Found an unrecognized turbine rotor part. This is a bug, please report it.");
+			}
+			return;
+		}
 
 		// Coil windings below here:
-		if(isBlockPartOfCoil(x, y, z, blockId, world.getBlockMetadata(x,y,z))) { return; }
+		if(isBlockPartOfCoil(x, y, z, blockId, metadata)) { 
+			foundCoils.add(new CoordTriplet(x,y,z));
+			return;
+		}
 
 		// Everything else, gtfo
 		throw new MultiblockValidationException(String.format("%d, %d, %d is invalid for a turbine interior. Only rotor parts, metal blocks and empty space are allowed.", x, y, z));

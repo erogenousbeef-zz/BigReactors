@@ -52,7 +52,7 @@ TODO - 0.3: The Coolant Update
 - Turbine glass. Solve the connected-texture problem.
 - Do an art pass.
 - Renderer to show off the turbine blade.
-- Validation of internal turbine & coil shape on assembly.
+- (DONE) Validation of internal turbine & coil shape on assembly.
 - (PARTIAL) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - Redstone port.
 - Computer port.

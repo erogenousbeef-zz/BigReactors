@@ -16,6 +16,8 @@ import buildcraft.api.tools.IToolWrench;
 
 public class StaticUtils {
 
+	public static final ForgeDirection[] CardinalDirections = new ForgeDirection[] { ForgeDirection.NORTH, ForgeDirection.EAST, ForgeDirection.SOUTH, ForgeDirection.WEST };
+	
 	public static class Inventory {
 		/**
 		 * Consume a single item from a stack of items
