@@ -205,22 +205,27 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 			return false;
 		}
 
-		// If the player's hands are empty and they rightclick on a multiblock, they get a 
-		// multiblock-debugging message if the machine is not assembled.
-		if(!world.isRemote && player.getCurrentEquippedItem() == null) {
-			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof IMultiblockPart) {
-				MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
-				Exception e = controller.getLastValidationException();
-				if(e != null) {
-					player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage()));
-					return true;
-				}
-			}
-		}
-		
 		int metadata = world.getBlockMetadata(x, y, z);
 		if(!isController(metadata) && !isAccessPort(metadata) && !isRedNetPort(metadata)) {
+			// If the player's hands are empty and they rightclick on a multiblock, they get a 
+			// multiblock-debugging message if the machine is not assembled.
+			if(!world.isRemote && player.getCurrentEquippedItem() == null) {
+				TileEntity te = world.getBlockTileEntity(x, y, z);
+				if(te instanceof IMultiblockPart) {
+					MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
+					if(controller != null) {
+						Exception e = controller.getLastValidationException();
+						if(e != null) {
+							player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage()));
+							return true;
+						}
+					}
+					else {
+						player.sendChatToPlayer(ChatMessageComponent.createFromText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block."));
+						return true;
+					}
+				}
+			}
 			return false;
 		}
 		
