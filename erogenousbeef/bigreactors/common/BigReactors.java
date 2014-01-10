@@ -2,12 +2,11 @@ package erogenousbeef.bigreactors.common;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.texture.TextureObject;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.Icon;
@@ -26,18 +25,13 @@ import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
-import erogenousbeef.bigreactors.common.item.ItemBlockBROre;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
-import erogenousbeef.bigreactors.common.item.ItemBlockSmallMachine;
-import erogenousbeef.bigreactors.common.item.ItemBlockTurbinePart;
-import erogenousbeef.bigreactors.common.item.ItemBlockTurbineRotorPart;
-import erogenousbeef.bigreactors.common.item.ItemBlockYelloriumFuelRod;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockMultiblockGlass;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
-import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorGlass;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
@@ -52,16 +46,15 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
+import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
 import erogenousbeef.bigreactors.world.BRWorldGenerator;
-import erogenousbeef.core.multiblock.MultiblockRegistry;
 
 public class BigReactors {
 
@@ -87,12 +80,13 @@ public class BigReactors {
 	public static Block blockYelloriteOre;
 	public static Block blockYelloriumFuelRod;
 	public static Block blockReactorPart;
-	public static Block blockReactorGlass;
 	public static Block blockReactorControlRod;
 	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
 	
 	public static BlockTurbinePart blockTurbinePart;
 	public static BlockTurbineRotorPart blockTurbineRotorPart;
+
+	public static BlockMultiblockGlass blockMultiblockGlass;
 	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
@@ -292,8 +286,8 @@ public class BigReactors {
 				}
 			}
 			
-			if(blockReactorGlass != null) {
-				ItemStack reactorGlassStack = new ItemStack(BigReactors.blockReactorGlass, 2);
+			if(blockMultiblockGlass != null) {
+				ItemStack reactorGlassStack = blockMultiblockGlass.getItemStack("reactor");
 				
 				if(useExpensiveGlass && (OreDictionary.getOres("glassReinforced").size() > 0 || OreDictionary.getOres("glassHardened").size() > 0)) {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glassReinforced", 'C', "reactorCasing" } ));
@@ -356,7 +350,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityReactorRedstonePort.class,"BRReactorRedstonePort");
 			GameRegistry.registerTileEntity(TileEntityReactorComputerPort.class, "BRReactorComputerPort");
 
-			GameRegistry.registerTileEntity(TileEntityTurbinePart.class,  "BRTurbinePart");
+			GameRegistry.registerTileEntity(TileEntityTurbinePartBase.class,  "BRTurbinePart");
 			GameRegistry.registerTileEntity(TileEntityTurbinePowerTap.class, "BRTurbinePowerTap");
 			GameRegistry.registerTileEntity(TileEntityTurbineFluidPort.class, "BRTurbineFluidPort");
 			GameRegistry.registerTileEntity(TileEntityTurbineCreativeSteamGenerator.class, "BRTurbineCreativeSteamGenerator");
@@ -372,7 +366,7 @@ public class BigReactors {
 		if (blockYelloriteOre == null)
 		{
 			blockYelloriteOre = new BlockBROre(BRConfig.CONFIGURATION.getBlock("YelloriteOre", BigReactors.BLOCK_ID_PREFIX + 0).getInt());
-			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBROre.class, "YelloriteOre");
+			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBigReactors.class, "YelloriteOre");
 			OreDictionary.registerOre("oreYellorite", blockYelloriteOre);
 		}
 
@@ -446,14 +440,14 @@ public class BigReactors {
 		if(BigReactors.blockReactorControlRod == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockReactorControlRod = new BlockReactorControlRod(BRConfig.CONFIGURATION.getBlock("ReactorControlRod", BigReactors.BLOCK_ID_PREFIX + 3).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockReactorControlRod, ItemBlockBigReactors.class, "ReactorControlRod");
+			GameRegistry.registerBlock(BigReactors.blockReactorControlRod, ItemBlock.class, "ReactorControlRod");
 			BRConfig.CONFIGURATION.save();
 		}
 
 		if(BigReactors.blockYelloriumFuelRod == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockYelloriumFuelRod = new BlockFuelRod(BRConfig.CONFIGURATION.getBlock("YelloriumFuelRod", BigReactors.BLOCK_ID_PREFIX + 1).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockYelloriumFuelRod, ItemBlockYelloriumFuelRod.class, "YelloriumFuelRod");
+			GameRegistry.registerBlock(BigReactors.blockYelloriumFuelRod, ItemBlock.class, "YelloriumFuelRod");
 			BRConfig.CONFIGURATION.save();
 		}
 	}
@@ -473,11 +467,14 @@ public class BigReactors {
 			BRConfig.CONFIGURATION.save();
 		}
 		
-		if(BigReactors.blockReactorGlass == null) {
+		if(BigReactors.blockMultiblockGlass == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			BigReactors.blockReactorGlass = new BlockReactorGlass(BRConfig.CONFIGURATION.getBlock("ReactorGlass",  BigReactors.BLOCK_ID_PREFIX + 7).getInt(), Material.glass);
-			GameRegistry.registerBlock(BigReactors.blockReactorGlass, ItemBlockBigReactors.class, "BRReactorGlass");
+			BigReactors.blockMultiblockGlass = new BlockMultiblockGlass(BRConfig.CONFIGURATION.getBlock("ReactorGlass",  BigReactors.BLOCK_ID_PREFIX + 7).getInt(), Material.glass);
+			GameRegistry.registerBlock(BigReactors.blockMultiblockGlass, ItemBlockBigReactors.class, "BRMultiblockGlass");
+			
+			OreDictionary.registerOre("glassReactor", blockMultiblockGlass.getItemStack("reactor"));
+			OreDictionary.registerOre("glassTurbine", blockMultiblockGlass.getItemStack("turbine"));
 			
 			BRConfig.CONFIGURATION.save();
 		}
@@ -486,7 +483,7 @@ public class BigReactors {
 			BRConfig.CONFIGURATION.load();
 			
 			BigReactors.blockReactorRedstonePort = new BlockReactorRedstonePort(BRConfig.CONFIGURATION.getBlock("ReactorRedstonePort",  BigReactors.BLOCK_ID_PREFIX + 9).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlockBigReactors.class, "BRReactorRedstonePort");
+			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlock.class, "BRReactorRedstonePort");
 			OreDictionary.registerOre("reactorRedstonePort", new ItemStack(blockReactorRedstonePort, 1));
 			
 			BRConfig.CONFIGURATION.save();
@@ -497,7 +494,7 @@ public class BigReactors {
 		if(BigReactors.blockTurbinePart == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbinePart = new BlockTurbinePart(BRConfig.CONFIGURATION.getBlock("TurbinePart", BigReactors.BLOCK_ID_PREFIX + 10).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockTurbinePart, ItemBlockTurbinePart.class, "BRTurbinePart");
+			GameRegistry.registerBlock(BigReactors.blockTurbinePart, ItemBlockBigReactors.class, "BRTurbinePart");
 
 			OreDictionary.registerOre("turbineHousing", 	BigReactors.blockTurbinePart.getItemStack("housing"));
 			OreDictionary.registerOre("turbineController", 	BigReactors.blockTurbinePart.getItemStack("controller"));
@@ -512,7 +509,7 @@ public class BigReactors {
 		if(BigReactors.blockTurbineRotorPart == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbineRotorPart = new BlockTurbineRotorPart(BRConfig.CONFIGURATION.getBlock("TurbineRotorPart", BigReactors.BLOCK_ID_PREFIX + 11).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockTurbineRotorPart.class, "BRTurbineRotorPart");
+			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockBigReactors.class, "BRTurbineRotorPart");
 
 			OreDictionary.registerOre("turbineRotorShaft", 	BigReactors.blockTurbineRotorPart.getItemStack("rotor"));
 			OreDictionary.registerOre("turbineRotorBlade", 	BigReactors.blockTurbineRotorPart.getItemStack("blade"));
@@ -526,7 +523,7 @@ public class BigReactors {
 			BRConfig.CONFIGURATION.load();
 
 			BigReactors.blockSmallMachine = new BlockBRSmallMachine(BRConfig.CONFIGURATION.getBlock("SmallMachine", BigReactors.BLOCK_ID_PREFIX + 8).getInt(), Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockSmallMachine.class, "BRSmallMachine");
+			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockBigReactors.class, "BRSmallMachine");
 			
 			OreDictionary.registerOre("brSmallMachineCyaniteProcessor", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getCyaniteReprocessorItemStack());
 			OreDictionary.registerOre("brSmallMachineHeatGenerator", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getHeatGeneratorItemStack());
@@ -558,7 +555,7 @@ public class BigReactors {
 			BlockBRGenericFluid liqY = new BlockBRGenericFluid(fluidYelloriumID, BigReactors.fluidYellorium, "yellorium");
 			BigReactors.fluidYelloriumStill = liqY;
 			
-			GameRegistry.registerBlock(BigReactors.fluidYelloriumStill, ItemBlockBigReactors.class, BigReactors.fluidYelloriumStill.getUnlocalizedName());
+			GameRegistry.registerBlock(BigReactors.fluidYelloriumStill, ItemBlock.class, BigReactors.fluidYelloriumStill.getUnlocalizedName());
 
 			fluidYelloriumBucketItem = (new ItemBRBucket(BRConfig.CONFIGURATION.getItem("BucketYellorium", BigReactors.ITEM_ID_PREFIX + 1).getInt(), liqY.blockID)).setUnlocalizedName("bucket.yellorium").setMaxStackSize(1).setContainerItem(Item.bucketEmpty);
 			
@@ -586,7 +583,7 @@ public class BigReactors {
 
 			BlockBRGenericFluid liqDY = new BlockBRGenericFluid(fluidCyaniteID, fluidCyanite, "cyanite");
 			BigReactors.fluidCyaniteStill = liqDY;
-			GameRegistry.registerBlock(BigReactors.fluidCyaniteStill, ItemBlockBigReactors.class, BigReactors.fluidCyaniteStill.getUnlocalizedName());
+			GameRegistry.registerBlock(BigReactors.fluidCyaniteStill, ItemBlock.class, BigReactors.fluidCyaniteStill.getUnlocalizedName());
 			
 			fluidCyaniteBucketItem = (new ItemBRBucket(BRConfig.CONFIGURATION.getItem("BucketCyanite", BigReactors.ITEM_ID_PREFIX + 2).getInt(), liqDY.blockID)).setUnlocalizedName("bucket.cyanite").setMaxStackSize(1).setContainerItem(Item.bucketEmpty);
 			

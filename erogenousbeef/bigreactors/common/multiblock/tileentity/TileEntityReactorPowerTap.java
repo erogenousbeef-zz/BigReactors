@@ -1,7 +1,5 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import java.util.ArrayList;
-
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
