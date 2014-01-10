@@ -48,8 +48,8 @@ TODO - 0.3: The Coolant Update
 
 ### Multiblock Turbine
 - (DONE) Turbine consumes steam, produces power and water.
-- Tune and optimize turbine torque & drag equations.
-- Turbine glass. Solve the connected-texture problem.
+- Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
+- (DONE) Turbine glass. Solve the connected-texture problem.
 - Do an art pass.
 - Renderer to show off the turbine blade.
 - (DONE) Validation of internal turbine & coil shape on assembly.
@@ -63,7 +63,7 @@ TODO - 0.3: The Coolant Update
 - Different types of coolant with different transference properties
 
 ### Graphics
-- Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
+- (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - Fix the lighting bug on control rods.
 
 TODO - 0.4: The Fueling Update

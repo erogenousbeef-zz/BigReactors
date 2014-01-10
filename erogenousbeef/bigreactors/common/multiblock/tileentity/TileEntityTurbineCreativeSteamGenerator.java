@@ -6,8 +6,7 @@ import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 
-public class TileEntityTurbineCreativeSteamGenerator extends
-		TileEntityTurbinePart implements ITickableMultiblockPart {
+public class TileEntityTurbineCreativeSteamGenerator extends TileEntityTurbinePartStandard implements ITickableMultiblockPart {
 
 	public TileEntityTurbineCreativeSteamGenerator() {
 		super();

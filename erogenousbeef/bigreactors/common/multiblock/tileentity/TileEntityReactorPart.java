@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;

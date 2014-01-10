@@ -1,14 +1,14 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 
-public class TileEntityTurbineFluidPort extends TileEntityTurbinePart implements IFluidHandler {
+public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard implements IFluidHandler {
 
 	public enum FluidFlow {
 		In,

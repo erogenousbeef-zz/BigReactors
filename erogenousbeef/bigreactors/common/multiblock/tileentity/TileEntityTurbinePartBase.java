@@ -3,17 +3,12 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraftforge.common.ForgeDirection;
-import erogenousbeef.core.common.CoordTriplet;
-import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
-import erogenousbeef.core.multiblock.MultiblockValidationException;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiTurbineController;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
@@ -22,8 +17,11 @@ import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetwork
 import erogenousbeef.bigreactors.gui.container.ContainerSlotless;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 
-public class TileEntityTurbinePart extends MultiblockTileEntityBase implements IMultiblockGuiHandler, IMultiblockNetworkHandler {
+public abstract class TileEntityTurbinePartBase extends MultiblockTileEntityBase implements IMultiblockGuiHandler, IMultiblockNetworkHandler {
 
 	public enum PartPosition {
 		Unknown,
@@ -43,18 +41,18 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 	
 	protected int _metadata;
 	
-	public TileEntityTurbinePart() {
+	public TileEntityTurbinePartBase() {
 		partPosition = PartPosition.Unknown;
 		outwardsDirection = ForgeDirection.UNKNOWN;
 		_metadata = -1;
 	}
 	
-	public TileEntityTurbinePart(int metadata) {
+	public TileEntityTurbinePartBase(int metadata) {
 		this();
 		_metadata = metadata;
 	}
 
-	private int getMetadata() {
+	protected int getMetadata() {
 		if(_metadata < 0) {
 			_metadata = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
 		}
@@ -78,32 +76,6 @@ public class TileEntityTurbinePart extends MultiblockTileEntityBase implements I
 	@Override
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() {
 		return MultiblockTurbine.class;
-	}
-
-	@Override
-	public void isGoodForFrame() throws MultiblockValidationException {
-		if(getMetadata() != BlockTurbinePart.METADATA_HOUSING) {
-			throw new MultiblockValidationException(String.format("%d, %d, %d - only turbine housing may be used as part of the turbine's frame", xCoord, yCoord, zCoord));
-		}
-	}
-
-	@Override
-	public void isGoodForSides() {
-	}
-
-	@Override
-	public void isGoodForTop() {
-	}
-
-	@Override
-	public void isGoodForBottom() {
-	}
-
-	@Override
-	public void isGoodForInterior() throws MultiblockValidationException {
-		if(getMetadata() != BlockTurbinePart.METADATA_HOUSING) {
-			throw new MultiblockValidationException(String.format("%d, %d, %d - this part is not valid for the interior of a turbine", xCoord, yCoord, zCoord));
-		}
 	}
 
 	@Override

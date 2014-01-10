@@ -3,10 +3,6 @@ package erogenousbeef.bigreactors.common.tileentity;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -16,11 +12,11 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.IFluidTank;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiHeatGenerator;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.container.ContainerSlotless;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;

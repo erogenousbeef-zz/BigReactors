@@ -1,22 +1,17 @@
 package erogenousbeef.bigreactors.client.gui;
 
-import cpw.mods.fml.common.FMLLog;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.inventory.Container;
+import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
-import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressArrow;
-import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.inventory.Container;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ForgeDirection;
 
 public class GuiHeatGenerator extends BeefGuiSmallMachineBase {
 

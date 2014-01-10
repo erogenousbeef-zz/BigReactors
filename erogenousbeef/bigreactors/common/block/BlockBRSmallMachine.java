@@ -2,8 +2,6 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
-import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -28,6 +26,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
+import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;

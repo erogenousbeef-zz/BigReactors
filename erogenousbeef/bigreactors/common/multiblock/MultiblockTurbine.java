@@ -5,12 +5,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import cofh.api.energy.IEnergyHandler;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -24,16 +18,17 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.oredict.OreDictionary;
+import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
-import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -258,7 +253,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	@Override
 	protected void onBlockAdded(IMultiblockPart newPart) {
-		if(newPart instanceof TileEntityTurbinePart) {
+		if(newPart instanceof TileEntityTurbinePartBase) {
 			CoordTriplet coord = newPart.getWorldLocation();
 			int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
 			if(metadata == BlockTurbinePart.METADATA_BEARING) {
@@ -326,7 +321,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		// Now do additional validation based on the coils/blades/rotors that were found
 		
 		// Check that we have a rotor that goes all the way up the bearing
-		TileEntityTurbinePart rotorPart = (TileEntityTurbinePart)attachedRotorBearings.iterator().next();
+		TileEntityTurbinePartBase rotorPart = (TileEntityTurbinePartBase)attachedRotorBearings.iterator().next();
 		
 		// Rotor bearing must calculate outwards dir, as this is normally only calculated in onMachineAssembled().
 		rotorPart.recalculateOutwardsDirection(getMinimumCoord(), getMaximumCoord());
