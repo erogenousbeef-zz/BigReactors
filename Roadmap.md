@@ -26,20 +26,25 @@ TODO - 0.3: The Coolant Update
 - (DONE FOR TURBINES) Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
 - Corify the calculation & caching of sides, create a "cubic" base multiblock controller and TE that add those methods
 
+### Fuel refactor
+- (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
+- (DONE) Add way to track when fuel was last updated, send world updates as necessary to transmit fuel data
+- When orphaning fuel rod blocks, give them an appropriate amount of fuel and reduce our internal fuel amount
+- (DONE) Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
+
 ### Radiation refactor number two
-- Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
 - Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
-- Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
 - Fix neutron hardness to actually do something aside from being a straight nutpunch
 - Fix fertilization and expose fertility in UI.
 
 ### Heat Refactor number two
-- Fuel Rod heat pool instead of heat in individual fuel rods
+- (PARTIAL) Fuel Rod heat pool instead of heat in individual fuel rods
 - Heat transfer rate precalculated on reactor assembly, based on surfaces in contact with non-fuel-rod stuff
 - Calculate "effective coolant surface area" based on interior surface area of reactor housing
 - Passively-cooled reactors generate power based on effective coolant surface area
 - Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
+- Fix RedNet port's outputTemperature
 
 ### Active Coolant Loop
 - Coolant buffer in main reactor controller
@@ -58,13 +63,17 @@ TODO - 0.3: The Coolant Update
 - Computer port.
 - Particle effects for venting steam and stuff!
 
-### Advanced coolant add-ons
+### Advanced coolant add-ons (post-0.3.0)
 - Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
 - Different types of coolant with different transference properties
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - Fix the lighting bug on control rods.
+
+### Items
+- Add nuggets for the 4 types of ingots
+- Add blocks for the 4 types of ingots
 
 TODO - 0.4: The Fueling Update
 ------------------------------
