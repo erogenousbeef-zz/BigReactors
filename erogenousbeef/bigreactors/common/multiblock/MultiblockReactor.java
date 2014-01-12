@@ -36,6 +36,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorA
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
+import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -142,6 +143,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		if(part instanceof ITickableMultiblockPart) {
 			attachedTickables.add((ITickableMultiblockPart)part);
+		}
+		
+		if(worldObj.isRemote && part instanceof TileEntityFuelRod) {
+			TileEntityFuelRod fuelRod = (TileEntityFuelRod)part;
+			worldObj.markBlockForRenderUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
 		}
 	}
 	
@@ -280,6 +286,10 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			tickable.onMultiblockServerTick();
 		}
 
+		if(fuelContainer.shouldSendFuelingUpdate()) {
+			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		}
+		
 		return (oldHeat != this.getReactorHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
@@ -477,6 +487,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		data.setFloat("energy", this.energyStored);
 		data.setFloat("heat", this.reactorHeat);
 		data.setBoolean("isActive", this.isActive());
+		data.setFloat("fuelHeat", fuelHeat);
+		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -494,7 +506,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		
 		if(data.hasKey("heat")) {
-			this.reactorHeat = data.getFloat("heat");
+			setReactorHeat(data.getFloat("heat"));
+		}
+		
+		if(data.hasKey("fuelHeat")) {
+			setFuelHeat(data.getFloat("fuelHeat"));
+		}
+		
+		if(data.hasKey("fuelContainer")) {
+			fuelContainer.readFromNBT(data.getCompoundTag("fuel"));
+			onFuelStatusChanged();
 		}
 	}
 
@@ -754,8 +775,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			return;
 		}
 		
-		FMLLog.info("trying to refuel with %d free space and %d ingots to eject", freeFuelSpace, wasteIngotsToEject);
-		
 		tryEjectWaste(freeFuelSpace, wasteIngotsToEject * AmountPerIngot);
 	}
 	
@@ -846,10 +865,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		fuelContainer.setCapacity(numFuelRods * FuelCapacityPerFuelRod);
 		fuelContainer.clampContentsToCapacity();
 		
-		FMLLog.info("on assembly, fuel container has %d units inside and a capacity of %d units", fuelContainer.getTotalAmount(), fuelContainer.getCapacity());
-		
-		// Force an update of the client's multiblock information
-		worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		if(worldObj.isRemote) {
+			// Make sure our fuel rods re-render
+			this.onFuelStatusChanged();
+		}
+		else {
+			// Force an update of the client's multiblock information
+			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		}
 	}
 
 	@Override
@@ -1026,5 +1049,20 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	public int getCapacity() {
 		return getMaxFuelAmountPerColumn() * this.getFuelColumnCount();
+	}
+	
+	// Client-only
+	protected void onFuelStatusChanged() {
+		if(worldObj.isRemote) {
+			// On the client, re-render all the fuel rod blocks when the fuel status changes
+			int maxY = getMaximumCoord().y;
+			int minY = getMinimumCoord().y;
+			
+			for(TileEntityReactorControlRod controlRod : attachedControlRods) {
+				for(int y = minY; y <= maxY; y++) {
+					worldObj.markBlockForRenderUpdate(controlRod.xCoord, y, controlRod.zCoord);
+				}
+			}
+		}
 	}
 }

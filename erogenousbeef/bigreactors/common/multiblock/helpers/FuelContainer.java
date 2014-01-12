@@ -22,10 +22,65 @@ public class FuelContainer {
 	private FluidStack[] fluids;
 	private int capacity;
 	
+	private int ticksSinceLastUpdate;
+	private static final int minimumTicksBetweenUpdates = 60;
+	private static final int minimumDevianceForUpdate = 50; // at least 50mB difference before we send a fueling update to the client
+
+	int[] fluidLevelAtLastUpdate;
+
+	private static final int NumberOfFluids = 2;
+	private static final int FORCE_UPDATE = -1000;
+	
 	public FuelContainer() {
-		fluids = new FluidStack[2];
+		fluids = new FluidStack[NumberOfFluids];
+		fluidLevelAtLastUpdate = new int[NumberOfFluids];
+
+		for(int i = 0; i < NumberOfFluids; i++) {
+			fluids[i] = null;
+			fluidLevelAtLastUpdate[i] = FORCE_UPDATE;
+		}
+
 		capacity = 1000;
 	}
+	
+	public boolean shouldSendFuelingUpdate() {
+		ticksSinceLastUpdate++;
+		if(minimumTicksBetweenUpdates < ticksSinceLastUpdate) {
+			int dev = 0;
+			boolean shouldUpdate = false;
+			for(int i = 0; i < NumberOfFluids && !shouldUpdate; i++) {
+				
+				FMLLog.info("checking for fluid %d", i);
+				if(fluids[i] == null && fluidLevelAtLastUpdate[i] > 0) {
+					shouldUpdate = true;
+				}
+				else if(fluids[i] != null) {
+					if(fluidLevelAtLastUpdate[i] == FORCE_UPDATE) {
+						shouldUpdate = true;
+					}
+					else {
+						int tmp = Math.abs(fluids[i].amount - fluidLevelAtLastUpdate[i]);
+						dev += tmp;
+					}
+				}
+				// else, both levels are zero, no-op
+				
+				if(dev >= minimumDevianceForUpdate) {
+					shouldUpdate = true;
+				}
+			}
+			
+			if(shouldUpdate) {
+				resetLastSeenFluidLevels();
+			}
+			
+			ticksSinceLastUpdate = 0;
+			return shouldUpdate;
+		}
+		
+		return false;
+	}
+	
 	
 	public static boolean isAcceptedFuel(Fluid fuelType) {
 		return BRRegistry.getDataForFuel(fuelType) != null;
@@ -151,16 +206,20 @@ public class FuelContainer {
 	public void readFromNBT(NBTTagCompound data) {
 		if(data.hasKey("fuel")) {
 			fluids[FUEL] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("fuel"));
+			fluidLevelAtLastUpdate[FUEL] = fluids[FUEL].amount;
 		}
 		else {
 			fluids[FUEL] = null;			
+			fluidLevelAtLastUpdate[FUEL] = 0;
 		}
 		
 		if(data.hasKey("waste")) {
 			fluids[WASTE] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("waste"));
+			fluidLevelAtLastUpdate[WASTE] = fluids[WASTE].amount;
 		}
 		else {
 			fluids[WASTE] = null;
+			fluidLevelAtLastUpdate[WASTE] = 0;
 		}
 		
 		if(data.hasKey("capacity")) {
@@ -300,5 +359,16 @@ public class FuelContainer {
 			}
 		}
 		// Else: nothing to do, no need to clamp
+	}
+	
+	private void resetLastSeenFluidLevels() {
+		for(int i = 0; i < NumberOfFluids; i++) {
+			if(fluids[i] == null) {
+				fluidLevelAtLastUpdate[i] = 0;
+			}
+			else {
+				fluidLevelAtLastUpdate[i] = fluids[i].amount;
+			}
+		}
 	}
 }

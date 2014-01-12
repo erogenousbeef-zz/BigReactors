@@ -184,12 +184,6 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 	    				}
     	    		}
         		}
-        		else {
-        			FMLLog.info("not rendering - nothing inside");
-        		}
-        	}
-        	else {
-        		FMLLog.info("not rendering - not connected");
         	}
         }
         
