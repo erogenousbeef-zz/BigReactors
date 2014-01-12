@@ -60,7 +60,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 
 		switch(circuitType) {
 		case outputTemperature:
-			return checkVariable((int)reactor.getHeat());
+			return checkVariable((int)reactor.getReactorHeat());
 		case outputFuelMix:
 			return checkVariable((int)(reactor.getFuelRichness()*100));
 		case outputFuelAmount:
@@ -483,7 +483,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	@Override
 	public float getHeat() {
 		if(!this.isConnected()) { return 0f; }
-		return ((MultiblockReactor)getMultiblockController()).getHeat();
+		return ((MultiblockReactor)getMultiblockController()).getReactorHeat();
 	}
 
 	@Override

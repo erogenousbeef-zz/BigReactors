@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
@@ -22,9 +25,12 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
+import erogenousbeef.bigreactors.api.IReactorFuel;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.helpers.FuelContainer;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -39,11 +45,16 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 
 public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
+	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
+	public static final int FuelCapacityPerFuelRod = 4000; // 4 ingots per rod
+	
 	// Game stuff
 	protected boolean active;
-	private float latentHeat;
+	private float reactorHeat;
+	private float fuelHeat;
 	private WasteEjectionSetting wasteEjection;
 	private float energyStored;
+	protected FuelContainer fuelContainer;
 
 	// UI stuff
 	private float energyGeneratedLastTick;
@@ -72,7 +83,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		// Game stuff
 		active = false;
-		latentHeat = 0f;
+		reactorHeat = 0f;
+		fuelHeat = 0f;
 		energyStored = 0f;
 		energyGeneratedLastTick = 0f;
 		fuelConsumedLastTick = 0;
@@ -86,6 +98,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		updatePlayers = new HashSet<EntityPlayer>();
 		
 		ticksSinceLastUpdate = 0;
+		fuelContainer = new FuelContainer();
 	}
 	
 	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
@@ -104,7 +117,16 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		
 		if(part instanceof TileEntityReactorControlRod) {
-			attachedControlRods.add((TileEntityReactorControlRod)part);
+			TileEntityReactorControlRod controlRod = (TileEntityReactorControlRod)part; 
+			attachedControlRods.add(controlRod);
+			
+			// TODO: Remove once 0.2 backwards compatiblity is no longer needed
+			if(controlRod.getCachedFuel() != null) {
+				fuelContainer.addFuel(controlRod.getCachedFuel());
+				
+				// Make sure we re-save the control rod, so we don't repeatedly load up with fuel
+				worldObj.markTileEntityChunkModified(controlRod.xCoord, controlRod.yCoord, controlRod.zCoord, controlRod);
+			}
 		}
 
 		if(part instanceof TileEntityReactorPowerTap) {
@@ -169,19 +191,15 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	// Update loop. Only called when the machine is assembled.
 	@Override
 	public boolean updateServer() {
-		if(Float.isNaN(this.getHeat())) {
-			this.setHeat(0.0f);
+		if(Float.isNaN(this.getReactorHeat())) {
+			this.setReactorHeat(0.0f);
 		}
 		
-		float oldHeat = this.getHeat();
+		float oldHeat = this.getReactorHeat();
 		float oldEnergy = this.getEnergyStored();
 		energyGeneratedLastTick = 0f;
 		fuelConsumedLastTick = 0;
 
-		// How much waste do we have?
-		int wasteAmt = 0;
-		int freeFuelSpace = 0;
-		
 		float newHeat = 0f;
 		IRadiationPulse radiationResult;
 
@@ -190,71 +208,34 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			if(controlRod == null || !controlRod.isConnected()) { continue; }
 			
 			if(this.isActive()) {
-				int fuelChange = controlRod.getFuelAmount();
+				int fuelChange = 0; // TODO FIXME during radiation refactor
 				radiationResult = controlRod.radiate();
-				fuelChange -= controlRod.getFuelAmount();
 				if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
 
 				this.generateEnergy(radiationResult.getPowerProduced());
 			}
 			
-			HeatPulse heatPulse = controlRod.onRadiateHeat(getHeat());
+			HeatPulse heatPulse = controlRod.onRadiateHeat(getReactorHeat());
 			if(heatPulse != null) {
-				this.addLatentHeat(heatPulse.heatChange);
+				this.addReactorHeat(heatPulse.heatChange);
 			}
-			
-			wasteAmt += controlRod.getWasteAmount();
-			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getTotalContainedAmount();
 		}
 		
 		// If we can, poop out waste and inject new fuel.
-		// TODO: Change so control rods are individually considered for fueling instead
-		// of doing it in aggregate.
-		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
-			// Auto/Replace: Discover amount of available fuel and peg wasteAmt to that.
-			if(this.wasteEjection == WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
-				int fuelIngotsAvailable = 0;
-				for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-					if(port == null || !port.isConnected()) { continue; }
-
-					ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
-					if(fuelStack != null) {
-						fuelIngotsAvailable += fuelStack.stackSize;
-					}
-				}
-
-				if(wasteAmt/1000 > fuelIngotsAvailable) {
-					wasteAmt = fuelIngotsAvailable * 1000;
-				}
-				
-				// Consider any space made by distributable waste to be free space.
-				freeFuelSpace += wasteAmt;
-			} else if(this.wasteEjection == WasteEjectionSetting.kManual) {
-				// Manual just means to suppress waste injection, not ignore incoming fuel. Sooo..
-				wasteAmt = 0;
-			}
-			else {
-				// Automatic - consider waste to be spare space for fuel
-				freeFuelSpace += wasteAmt;
-			}
-			
-			if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
-				tryEjectWaste(freeFuelSpace, wasteAmt);
-			}
-		}
+		refuelAndEjectWaste();
 
 		// leak 1% of heat to the environment per tick
 		// TODO: Better equation.
-		if(latentHeat > 0.0f) {
-			float latentHeatLoss = Math.max(0.05f, this.latentHeat * 0.01f);
-			if(this.latentHeat < latentHeatLoss) { latentHeatLoss = latentHeat; }
-			this.addLatentHeat(-1 * latentHeatLoss);
+		if(reactorHeat > 0.0f) {
+			float latentHeatLoss = Math.max(0.05f, this.reactorHeat * 0.01f);
+			if(this.reactorHeat < latentHeatLoss) { latentHeatLoss = reactorHeat; }
+			this.addReactorHeat(-1 * latentHeatLoss);
 
 			// Generate power based on the amount of heat lost
 			this.generateEnergy(latentHeatLoss * BigReactors.powerPerHeat);
 		}
 		
-		if(latentHeat < 0.0f) { setHeat(0.0f); }
+		if(reactorHeat < 0.0f) { setReactorHeat(0.0f); }
 		
 		// Distribute available power
 		int energyAvailable = (int)getEnergyStored();
@@ -299,7 +280,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			tickable.onMultiblockServerTick();
 		}
 
-		return (oldHeat != this.getHeat() || oldEnergy != this.getEnergyStored());
+		return (oldHeat != this.getReactorHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
 	public void setStoredEnergy(float oldEnergy) {
@@ -348,16 +329,6 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		this.addStoredEnergy(-1f * energy);
 	}
 	
-	protected void addLatentHeat(float newCasingHeat) {
-		if(Float.isNaN(newCasingHeat)) {
-			return;
-		}
-
-		latentHeat += newCasingHeat;
-		// Clamp to zero to prevent floating point issues
-		if(-0.00001f < latentHeat && latentHeat < 0.00001f) { latentHeat = 0.0f; }
-	}
-
 	public boolean isActive() {
 		return this.active;
 	}
@@ -378,19 +349,43 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 	}
 
-	public float getHeat() {
-		return latentHeat;
+	protected void addReactorHeat(float newCasingHeat) {
+		if(Float.isNaN(newCasingHeat)) {
+			return;
+		}
+
+		reactorHeat += newCasingHeat;
+		// Clamp to zero to prevent floating point issues
+		if(-0.00001f < reactorHeat && reactorHeat < 0.00001f) { reactorHeat = 0.0f; }
 	}
 	
-	public void setHeat(float newHeat) {
+	public float getReactorHeat() {
+		return reactorHeat;
+	}
+	
+	public void setReactorHeat(float newHeat) {
 		if(Float.isNaN(newHeat)) {
-			latentHeat = 0.0f;
+			reactorHeat = 0.0f;
 		}
 		else {
-			latentHeat = newHeat;
+			reactorHeat = newHeat;
 		}
 	}
 
+	protected void addFuelHeat(float additionalHeat) {
+		if(Float.isNaN(additionalHeat)) { return; }
+		
+		fuelHeat += additionalHeat;
+		if(-0.00001f < fuelHeat & fuelHeat < 0.00001f) { fuelHeat = 0f; }
+	}
+	
+	public float getFuelHeat() { return fuelHeat; }
+	
+	public void setFuelHeat(float newFuelHeat) {
+		if(Float.isNaN(newFuelHeat)) { fuelHeat = 0f; }
+		else { fuelHeat = newFuelHeat; }
+	}
+	
 	public int getFuelColumnCount() {
 		return attachedControlRods.size();
 	}
@@ -436,9 +431,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		data.setBoolean("reactorActive", this.active);
-		data.setFloat("heat", this.latentHeat);
+		data.setFloat("heat", this.reactorHeat);
+		data.setFloat("fuelHeat", fuelHeat);
 		data.setFloat("storedEnergy", this.energyStored);
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
+		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -448,7 +445,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		
 		if(data.hasKey("heat")) {
-			setHeat(Math.max(getHeat(), data.getFloat("heat")));
+			setReactorHeat(Math.max(getReactorHeat(), data.getFloat("heat")));
 		}
 		
 		if(data.hasKey("storedEnergy")) {
@@ -457,6 +454,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		
 		if(data.hasKey("wasteEjection")) {
 			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection")];
+		}
+		
+		if(data.hasKey("fuelHeat")) {
+			setFuelHeat(data.getFloat("fuelHeat"));
+		}
+		
+		if(data.hasKey("fuelContainer")) {
+			fuelContainer.readFromNBT(data.getCompoundTag("fuelContainer"));
 		}
 	}
 
@@ -470,7 +475,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	public void formatDescriptionPacket(NBTTagCompound data) {
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 		data.setFloat("energy", this.energyStored);
-		data.setFloat("heat", this.latentHeat);
+		data.setFloat("heat", this.reactorHeat);
 		data.setBoolean("isActive", this.isActive());
 	}
 
@@ -489,21 +494,68 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 		
 		if(data.hasKey("heat")) {
-			this.latentHeat = data.getFloat("heat");
+			this.reactorHeat = data.getFloat("heat");
 		}
 	}
 
 	protected Packet getUpdatePacket() {
+		Fluid fuelType, wasteType;
+		fuelType = fuelContainer.getFuelType();
+		wasteType = fuelContainer.getWasteType();
+		
+		int fuelTypeID, wasteTypeID;
+		fuelTypeID = fuelType == null ? -1 : fuelType.getID();
+		wasteTypeID = wasteType == null ? -1 : wasteType.getID();
+		
 		return PacketWrapper.createPacket(BigReactors.CHANNEL,
 				 Packets.ReactorControllerFullUpdate,
 				 new Object[] { referenceCoord.x,
 								referenceCoord.y,
 								referenceCoord.z,
 								this.active,
-								this.latentHeat,
+								this.reactorHeat,
 								energyStored,
 								this.energyGeneratedLastTick,
-								this.fuelConsumedLastTick});
+								this.fuelConsumedLastTick,
+								this.fuelHeat,
+								fuelTypeID,
+								fuelContainer.getFuelAmount(),
+								wasteTypeID,
+								fuelContainer.getWasteAmount()});
+	}
+	
+	public void receiveReactorUpdate(DataInputStream data) throws IOException {
+		boolean active = data.readBoolean();
+		float heat = data.readFloat();
+		float storedEnergy = data.readFloat();
+		float energyGeneratedLastTick = data.readFloat();
+		int fuelConsumedLastTick = data.readInt();
+		float fuelHeat = data.readFloat();
+		int fuelTypeID = data.readInt();
+		int fuelAmt = data.readInt();
+		int wasteTypeID = data.readInt();
+		int wasteAmt = data.readInt();
+
+		setActive(active);
+		setReactorHeat(heat);
+		setStoredEnergy(storedEnergy);
+		setEnergyGeneratedLastTick(energyGeneratedLastTick);
+		setFuelConsumedLastTick(fuelConsumedLastTick);
+		setFuelHeat(fuelHeat);
+		
+		if(fuelTypeID == -1) {
+			fuelContainer.emptyFuel();
+		}
+		else {
+			fuelContainer.setFuel(new FluidStack(FluidRegistry.getFluid(fuelTypeID), fuelAmt));
+		}
+		
+		if(wasteTypeID == -1) {
+			fuelContainer.emptyWaste();
+		}
+		else {
+			fuelContainer.setWaste(new FluidStack(FluidRegistry.getFluid(wasteTypeID), wasteAmt));
+		}
 	}
 	
 	/**
@@ -530,9 +582,18 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		}
 	}
 	
-	private void tryDistributeWaste(TileEntityReactorAccessPort port, ItemStack wasteToDistribute, boolean distributeToInputs) {
+	/**
+	 * Attempt to distribute a stack of waste to a given access port, sensitive to the amount of waste already in it.
+	 * @param port The port to which we're distributing waste.
+	 * @param wasteToDistribute The stack of waste to distribute. Will be modified during the operation and may be returned with stack size 0.
+	 * @param distributeToInputs Should we try to send waste to input ports?
+	 * @return The number of waste items distributed, i.e. the differential in stack size for wasteToDistribute.
+	 */
+	private int tryDistributeWaste(TileEntityReactorAccessPort port, ItemStack wasteToDistribute, boolean distributeToInputs) {
 		ItemStack wasteStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
 		CoordTriplet coord = port.getWorldLocation();
+		int initialWasteAmount = wasteToDistribute.stackSize;
+
 		int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
 
 		if(metadata == BlockReactorPart.ACCESSPORT_OUTLET || (distributeToInputs || attachedAccessPorts.size() < 2)) {
@@ -564,6 +625,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			
 			port.onWasteReceived();
 		}
+		
+		return initialWasteAmount - wasteToDistribute.stackSize;
 	}
 
 	@Override
@@ -585,8 +648,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		MultiblockReactor otherReactor = (MultiblockReactor)otherMachine;
 
 		// TODO FIXME: Only change heat based on relative sizes
-		if(otherReactor.latentHeat > this.latentHeat) { latentHeat = otherReactor.latentHeat; }
+		if(otherReactor.reactorHeat > this.reactorHeat) { reactorHeat = otherReactor.reactorHeat; }
+		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); } 
 		this.addStoredEnergy(otherReactor.getEnergyStored());
+		
+		fuelContainer.merge(otherReactor.fuelContainer);
 	}
 	
 	@Override
@@ -596,6 +662,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	
 	@Override
 	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
+		// TODO: Don't write fluid data to orphans.
 		this.writeToNBT(dataContainer);
 	}
 
@@ -649,18 +716,47 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	public void ejectWaste() {
-		int wasteAmt = 0;
-		int freeFuelSpace = 0;
-		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
-			if(controlRod == null || !controlRod.isConnected()) { continue; }
+		int wasteAmt = fuelContainer.getWasteAmount();
+		int freeFuelSpace = fuelContainer.getCapacity() - fuelContainer.getTotalAmount();
+		
+		tryEjectWaste(freeFuelSpace, wasteAmt);
+	}
 
-			wasteAmt += controlRod.getWasteAmount();
-			freeFuelSpace += controlRod.getSizeOfFuelTank() - controlRod.getFuelAmount();
+	protected void refuelAndEjectWaste() {
+		int freeFuelSpace = fuelContainer.getCapacity() - fuelContainer.getTotalAmount();
+		int wasteIngotsToEject = fuelContainer.getWasteAmount() / AmountPerIngot;
+
+		// Discover how much waste we actually should eject depending on the user's preferences
+		if(wasteEjection == WasteEjectionSetting.kManual) {
+			// Manual means we wait for the user to hit a button
+			wasteIngotsToEject = 0;
+		}
+		else if(wasteEjection == WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
+			// Find out how many ingots we can replace
+			int fuelIngotsAvailable = 0;
+			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+				if(port == null || !port.isConnected()) { continue; }
+
+				ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
+				if(fuelStack != null) {
+					fuelIngotsAvailable += fuelStack.stackSize;
+				}
+			}
+			
+			// Cap amount of waste we'll eject to amount of fuel available
+			wasteIngotsToEject = Math.min(wasteIngotsToEject, fuelIngotsAvailable);
 		}
 		
-		if(freeFuelSpace >= 1000 || wasteAmt >= 1000) {
-			tryEjectWaste(freeFuelSpace, wasteAmt);
+		freeFuelSpace += wasteIngotsToEject * AmountPerIngot;
+		
+		// Unable to refuel and unable to eject waste
+		if(freeFuelSpace < AmountPerIngot && wasteIngotsToEject < 1) {
+			return;
 		}
+		
+		FMLLog.info("trying to refuel with %d free space and %d ingots to eject", freeFuelSpace, wasteIngotsToEject);
+		
+		tryEjectWaste(freeFuelSpace, wasteIngotsToEject * AmountPerIngot);
 	}
 	
 	/**
@@ -669,17 +765,19 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	 * @param wasteAmt Amount of waste to eject.
 	 */
 	protected void tryEjectWaste(int fuelAmt, int wasteAmt) {
-		if(fuelAmt < 1000 && wasteAmt < 1000) { return; }
+		if(fuelAmt < AmountPerIngot && wasteAmt < AmountPerIngot) { return; }
 
 		ItemStack wasteToDistribute = null;
-		if(wasteAmt >= 1000) {
+		if(wasteAmt >= AmountPerIngot) {
 			// TODO: Make this query the existing fuel type for the right type of waste to create
 			wasteToDistribute = OreDictionary.getOres("ingotCyanite").get(0).copy();
-			wasteToDistribute.stackSize = wasteAmt/1000;
+			wasteToDistribute.stackSize = wasteAmt/AmountPerIngot;
 		}
 
-		int fuelIngotsToConsume = fuelAmt / 1000;
+		int fuelIngotsToConsume = fuelAmt / AmountPerIngot;
 		int fuelIngotsConsumed = 0;
+		
+		int wasteIngotsDistributed = 0;
 		
 		// Distribute waste, slurp in ingots.
 		for(TileEntityReactorAccessPort port : attachedAccessPorts) {
@@ -706,12 +804,11 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			}
 
 			if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {
-				tryDistributeWaste(port, wasteToDistribute, false);
+				wasteIngotsDistributed += tryDistributeWaste(port, wasteToDistribute, false);
 			}
 		}
 		
-		// If we have waste leftover and we have multiple ports, go back over them for the
-		// outlets.
+		// If we have waste leftover and we have multiple ports, distribute again so we hit the input ports.
 		if(wasteToDistribute != null && wasteToDistribute.stackSize > 0 && attachedAccessPorts.size() > 1) {
 			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 				if(wasteToDistribute == null || wasteToDistribute.stackSize <= 0) {
@@ -720,43 +817,37 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 				if(port == null || !port.isConnected()) { continue; }
 
-				tryDistributeWaste(port, wasteToDistribute, true);
+				wasteIngotsDistributed += tryDistributeWaste(port, wasteToDistribute, true);
 			}
 		}
 		
-		// Okay... let's modify the fuel rods now
-		if((wasteToDistribute != null && wasteToDistribute.stackSize != wasteAmt / 1000) || fuelIngotsConsumed > 0) {
-			int fuelToDistribute = fuelIngotsConsumed * 1000;
-			int wasteToConsume = 0;
-			if(wasteToDistribute != null) {
-				wasteToConsume = ((wasteAmt/1000) - wasteToDistribute.stackSize) * 1000;
-			}
-			
-			for(TileEntityReactorControlRod controlRod : attachedControlRods) {
-				if(wasteToConsume <= 0 && fuelToDistribute <= 0) { break; }
-				if(controlRod == null || !controlRod.isConnected()) { continue; }
-				
-				if(wasteToConsume > 0 && controlRod.getWasteAmount() > 0) {
-					int amtDrained = controlRod.removeWaste(new FluidStack(controlRod.getWasteType(), wasteToConsume), wasteToConsume, true);
-					wasteToConsume -= amtDrained;
-				}
-				
-				if(fuelToDistribute > 0) {
-					if(controlRod.getFuelType() == null) {
-						// TODO: Discover fuel type
-						FluidStack fuel = new FluidStack(BigReactors.fluidYellorium, fuelToDistribute);
-						fuelToDistribute -= controlRod.addFuel(fuel, fuelToDistribute, true);
-					}
-					else {
-						fuelToDistribute -= controlRod.addFuel(new FluidStack(controlRod.getFuelType(), fuelToDistribute), fuelToDistribute, true);
-					}
-				}
-			}
+		// Okay... let's modify the fuel container now
+		if(fuelIngotsConsumed > 0) {
+			// TODO: Discover fuel type
+			fuelContainer.addFuel(new FluidStack(BigReactors.fluidYellorium, fuelIngotsConsumed * AmountPerIngot));
 		}
+		
+		if(wasteIngotsDistributed > 0) {
+			fuelContainer.drainWaste(wasteIngotsDistributed * AmountPerIngot);
+		}
+		
+		// TODO: Track fuel updates and send them periodically to the client
 	} // End fuel/waste autotransfer		
 
 	@Override
 	protected void onMachineAssembled() {
+		// Recalculate size of fuel/waste tank via fuel rods
+		CoordTriplet minCoord, maxCoord;
+		minCoord = getMinimumCoord();
+		maxCoord = getMaximumCoord();
+		
+		int reactorHeight = maxCoord.y - minCoord.y - 1; 
+		int numFuelRods = this.attachedControlRods.size() * reactorHeight;
+		fuelContainer.setCapacity(numFuelRods * FuelCapacityPerFuelRod);
+		fuelContainer.clampContentsToCapacity();
+		
+		FMLLog.info("on assembly, fuel container has %d units inside and a capacity of %d units", fuelContainer.getTotalAmount(), fuelContainer.getCapacity());
+		
 		// Force an update of the client's multiblock information
 		worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 	}
@@ -823,14 +914,8 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	 */
 	public float getFuelRichness() {
 		int amtFuel, amtWaste;
-		amtFuel = amtWaste = 0;
-
-		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
-			if(controlRod == null || !controlRod.isConnected()) { continue; } // Happens due to chunk unloads
-		
-			amtFuel += controlRod.getFuelAmount();
-			amtWaste += controlRod.getWasteAmount();
-		}
+		amtFuel = fuelContainer.getFuelAmount();
+		amtWaste = fuelContainer.getWasteAmount();
 
 		if(amtFuel + amtWaste <= 0f) { return 0f; }
 		else { return (float)amtFuel / (float)(amtFuel+amtWaste); }
@@ -911,29 +996,15 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			return 0;
 		}
 		
-		int fuel = 0;
-		for(TileEntityReactorControlRod cr : attachedControlRods) {
-			if(cr != null && cr.isConnected()) {
-				fuel += cr.getFuelAmount();
-			}
-		}
-		
-		return fuel;
+		return fuelContainer.getFuelAmount();
 	}
-	
+
 	public int getWasteAmount() {
 		if(this.assemblyState != AssemblyState.Assembled) {
 			return 0;
 		}
 
-		int waste = 0;
-		for(TileEntityReactorControlRod cr : attachedControlRods) {
-			if(cr != null && cr.isConnected()) {
-				waste += cr.getWasteAmount();
-			}
-		}
-		
-		return waste;
+		return fuelContainer.getWasteAmount();
 	}
 
 	public int getEnergyStoredPercentage() {
