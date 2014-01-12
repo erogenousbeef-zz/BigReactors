@@ -1006,6 +1006,14 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		return fuelContainer.getWasteAmount();
 	}
+	
+	public Fluid getFuelType() {
+		return fuelContainer.getFuelType();
+	}
+	
+	public Fluid getWasteType() {
+		return fuelContainer.getWasteType();
+	}
 
 	public int getEnergyStoredPercentage() {
 		return (int)(this.energyStored / (float)this.maxEnergyStored * 100f);

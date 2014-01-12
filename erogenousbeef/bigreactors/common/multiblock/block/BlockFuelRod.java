@@ -14,6 +14,8 @@ import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 
 public class BlockFuelRod extends BlockContainer {
 
+	public static int renderId;
+
 	@SideOnly(Side.CLIENT)
 	private Icon iconFuelRodSide;
 	@SideOnly(Side.CLIENT)
@@ -27,6 +29,11 @@ public class BlockFuelRod extends BlockContainer {
 		this.setCreativeTab(BigReactors.TAB);
 		this.setUnlocalizedName("yelloriumFuelRod");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "yelloriumFuelRod");
+	}
+
+	@Override
+	public int getRenderType() {
+		return renderId;
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -60,7 +67,7 @@ public class BlockFuelRod extends BlockContainer {
 	public TileEntity createNewTileEntity(World world) {
 		return null;
 	}
-	
+
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
 		return new TileEntityFuelRod();

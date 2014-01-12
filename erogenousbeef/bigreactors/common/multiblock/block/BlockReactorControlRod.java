@@ -15,8 +15,6 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorC
 
 public class BlockReactorControlRod extends BlockContainer {
 
-	public static int renderId;
-	
 	protected Icon topIcon;
 	
 	public BlockReactorControlRod(int id, Material material) {
@@ -28,11 +26,6 @@ public class BlockReactorControlRod extends BlockContainer {
 		this.setCreativeTab(BigReactors.TAB);
 	}
 
-	@Override
-	public int getRenderType() {
-		return renderId;
-	}
-	
 	@Override
 	public TileEntity createNewTileEntity(World world) {
 		return null;
