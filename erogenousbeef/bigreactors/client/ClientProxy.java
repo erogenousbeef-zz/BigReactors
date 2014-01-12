@@ -7,9 +7,10 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.client.renderer.SimpleRendererControlRod;
+import erogenousbeef.bigreactors.client.renderer.SimpleRendererFuelRod;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.CommonProxy;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
 import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
@@ -28,9 +29,9 @@ public class ClientProxy extends CommonProxy {
 
 		TickRegistry.registerTickHandler(new MultiblockClientTickHandler(), Side.CLIENT);
 		
-		BlockReactorControlRod.renderId = RenderingRegistry.getNextAvailableRenderId();
-		ISimpleBlockRenderingHandler controlRodISBRH = new SimpleRendererControlRod();
-		RenderingRegistry.registerBlockHandler(BigReactors.blockReactorControlRod.getRenderType(), controlRodISBRH);
+		BlockFuelRod.renderId = RenderingRegistry.getNextAvailableRenderId();
+		ISimpleBlockRenderingHandler fuelRodISBRH = new SimpleRendererFuelRod();
+		RenderingRegistry.registerBlockHandler(BlockFuelRod.renderId, fuelRodISBRH);
 	}
 			
 	@Override
