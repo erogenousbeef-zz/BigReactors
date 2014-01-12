@@ -104,7 +104,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(heatBar);
 		registerControl(fuelMixBar);
 		
-		averagedHeat.setAll(reactor.getHeat());
+		averagedHeat.setAll(reactor.getReactorHeat());
 		averagedRfOutput.setAll(reactor.getEnergyGeneratedLastTick());
 		averagedFuelConsumption.setAll(reactor.getFuelConsumedLastTick());
 	}
@@ -148,7 +148,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		// Grab averaged values
 		averagedRfOutput.add(reactor.getEnergyGeneratedLastTick());
-		averagedHeat.add(reactor.getHeat());
+		averagedHeat.add(reactor.getReactorHeat());
 		averagedFuelConsumption.add(reactor.getFuelConsumedLastTick());
 		
 		float averagedOutput = averagedRfOutput.average();

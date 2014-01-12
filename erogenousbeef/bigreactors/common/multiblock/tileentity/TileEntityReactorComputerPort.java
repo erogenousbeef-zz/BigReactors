@@ -77,28 +77,16 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			return new Object[] { reactor.isActive() };
 		case getTemperature:
 			if(arguments.length <= 0) {
-				return new Object[] { (int)reactor.getHeat() };
+				return new Object[] { (int)reactor.getReactorHeat() };
 			}
 			else {
 				controlRod = getControlRodFromArguments(reactor, arguments, 0);
 				return new Object[] { (int)controlRod.getHeat() };
 			}
 		case getFuelAmount:
-			if(arguments.length <= 0) {
-				return new Object[] { (int)reactor.getFuelAmount() };
-			}
-			else {
-				controlRod = getControlRodFromArguments(reactor, arguments, 0);
-				return new Object[] { (int)controlRod.getFuelAmount() };
-			}
+			return new Object[] { (int)reactor.getFuelAmount() };
 		case getWasteAmount:
-			if(arguments.length <= 0) {
-				return new Object[] { (int)reactor.getWasteAmount() };
-			}
-			else {
-				controlRod = getControlRodFromArguments(reactor, arguments, 0);
-				return new Object[] { (int)controlRod.getWasteAmount() };
-			}
+			return new Object[] { (int)reactor.getWasteAmount() };
 		case getFuelAmountMax:
 			return new Object[] { reactor.getMaxFuelAmountPerColumn() * reactor.getFuelColumnCount() };
 		case getControlRodFuelAmountMax:

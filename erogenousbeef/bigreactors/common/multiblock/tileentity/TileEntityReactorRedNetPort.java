@@ -161,39 +161,15 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 				return (int)Math.floor(((TileEntityReactorControlRod)te).getHeat());
 			}
 			else {
-				return (int)Math.floor(getReactorController().getHeat());
+				return (int)Math.floor(getReactorController().getReactorHeat());
 			}
 		case outputFuelMix:
-			te = getMappedTileEntity(channel);
-			if(te instanceof TileEntityReactorControlRod) {
-				TileEntityReactorControlRod cr = (TileEntityReactorControlRod)te;
-				if(cr.getTotalContainedAmount() <= 0) { return 0; }
-				else { 
-					return (int)Math.floor(((float)cr.getFuelAmount() / (float)cr.getTotalContainedAmount())*100.0f);
-				}
-			}
-			else {
-				clearChannel(channel);
-				return 0;
-			}
+			MultiblockReactor controller = getReactorController();
+			return (int)Math.floor(((float)controller.getFuelAmount() / (float)controller.getCapacity())*100.0f);
 		case outputFuelAmount:
-			te = getMappedTileEntity(channel);
-			if(te instanceof TileEntityReactorControlRod) {
-				return ((TileEntityReactorControlRod)te).getFuelAmount();
-			}
-			else {
-				clearChannel(channel);
-				return 0;
-			}
+			return getReactorController().getFuelAmount();
 		case outputWasteAmount:
-			te = getMappedTileEntity(channel);
-			if(te instanceof TileEntityReactorControlRod) {
-				return ((TileEntityReactorControlRod)te).getWasteAmount();
-			}
-			else {
-				clearChannel(channel);
-				return 0;
-			}
+			return getReactorController().getWasteAmount();
 		case outputEnergyAmount:
 			int energyStored, energyTotal;
 			MultiblockReactor reactor = this.getReactorController();
@@ -325,9 +301,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		
 		CircuitType circuitType = channelCircuitTypes[channel]; 
 		if(circuitType == CircuitType.outputTemperature ||
-				circuitType == CircuitType.outputFuelMix ||
-				circuitType == CircuitType.outputFuelAmount ||
-				circuitType == CircuitType.outputWasteAmount ||
 				circuitType == CircuitType.inputSetControlRod) {
 			if(te instanceof TileEntityReactorControlRod) {
 				coordMappings[channel] = ((TileEntityReactorControlRod) te).getWorldLocation();
@@ -527,24 +500,15 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		switch(circuitType) {
 			case inputSetControlRod:
 			case outputTemperature:
-			case outputFuelMix:
-			case outputFuelAmount:
-			case outputWasteAmount:
 				return true;
 			default:
 				return false;
 		}
 	}
-	
+
+	// TODO: REMOVEME?
 	public static boolean circuitTypeRequiresSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
-		switch(circuitType) {
-			case outputFuelMix:
-			case outputFuelAmount:
-			case outputWasteAmount:
-				return true;
-			default:
-				return false;
-		}
+		return false;
 	}
 	
 	public static boolean canBeToggledBetweenPulseAndNormal(CircuitType circuitType) {

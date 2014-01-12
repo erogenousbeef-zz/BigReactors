@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -166,7 +167,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 
 	///// Network communication - IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) {
+	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
 		if(!this.isConnected()) {
 			return;
 		}
@@ -174,10 +175,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Client->Server packets
 		
 		if(packetType == Packets.MultiblockControllerButton) {
-			Class decodeAs[] = { String.class, Boolean.class };
-			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
-			String buttonName = (String) decodedData[0];
-			boolean newValue = (Boolean) decodedData[1];
+			String buttonName = data.readUTF();
+			boolean newValue = data.readBoolean();
 			
 			if(buttonName.equals("activate")) {
 				getReactorController().setActive(newValue);
@@ -194,21 +193,8 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 		/// Server->Client packets
 		
 		if(packetType == Packets.ReactorControllerFullUpdate) {
-			Class decodeAs[] = { Boolean.class, Float.class, Float.class, Float.class, Integer.class};
-			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
-			boolean active = (Boolean) decodedData[0];
-			float heat = (Float) decodedData[1];
-			float storedEnergy = (Float) decodedData[2];
-			float energyGeneratedLastTick = (Float) decodedData[3];
-			int fuelConsumedLastTick = (Integer) decodedData[4];
-
-			MultiblockReactor reactor = getReactorController();
-			reactor.setActive(active);
-			reactor.setHeat(heat);
-			reactor.setStoredEnergy(storedEnergy);
-			reactor.setEnergyGeneratedLastTick(energyGeneratedLastTick);
-			reactor.setFuelConsumedLastTick(fuelConsumedLastTick);
-		}		
+			getReactorController().receiveReactorUpdate(data);
+		}
 	}
 
 	@Override
@@ -340,7 +326,7 @@ public class TileEntityReactorPart extends MultiblockTileEntityBase implements I
 	@Override
 	public float getHeat() {
 		if(!this.isConnected()) { return 0f; }
-		return getReactorController().getHeat();
+		return getReactorController().getReactorHeat();
 	}
 
 	@Override

@@ -130,10 +130,11 @@ public class SimpleRendererControlRod implements ISimpleBlockRenderingHandler {
         	return rendered;
         }
 
-    	Fluid rodFuel = controlRod.getFuelType();
-    	Fluid rodWaste = controlRod.getWasteType();
+    	//Fluid rodFuel = controlRod.getFuelType();
+    	//Fluid rodWaste = controlRod.getWasteType();
     	rodHeight = controlRod.getColumnHeight();
 
+    	/*
     	if(rodFuel != null && rodWaste != null) {
     		iconSide = BigReactors.fluidFuelColumn.getFlowingIcon();
     		iconBottom = BigReactors.fluidFuelColumn.getStillIcon();
@@ -170,7 +171,7 @@ public class SimpleRendererControlRod implements ISimpleBlockRenderingHandler {
     		float pctFilled = (float)controlRod.getWasteAmount() / (float)controlRod.getSizeOfFuelTank();
         	renderOffset = lerp(FLUID_RENDER_OFFSET_MIN, FLUID_RENDER_OFFSET_MAX, pctFilled);
     	}
-    	else if(controlRod.getControlRodInsertion() > 0) {
+    	else*/ if(controlRod.getControlRodInsertion() > 0) {
         	rodHeight = (float)controlRod.getColumnHeight() * ((float)controlRod.getControlRodInsertion() / 100f);
     		iconSide = Block.obsidian.getIcon(2, 0);	// TODO: My own icons?
     		iconBottom = Block.obsidian.getIcon(0, 0);

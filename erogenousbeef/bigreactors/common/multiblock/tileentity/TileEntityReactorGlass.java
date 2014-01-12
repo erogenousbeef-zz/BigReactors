@@ -74,7 +74,7 @@ public class TileEntityReactorGlass extends MultiblockTileEntityBase implements 
 	@Override
 	public float getHeat() {
 		if(!this.isConnected()) { return 0f; }
-		return ((MultiblockReactor)getMultiblockController()).getHeat();
+		return ((MultiblockReactor)getMultiblockController()).getReactorHeat();
 	}
 
 	@Override

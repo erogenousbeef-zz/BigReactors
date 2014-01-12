@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -211,11 +212,9 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	// IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) {
+	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
 		if(packetType == Packets.AccessPortButton) {
-			Class[] decodeAs = { Byte.class };
-			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
-			byte newMetadata = (Byte)decodedData[0];
+			byte newMetadata = data.readByte();
 			
 			if(newMetadata == BlockReactorPart.ACCESSPORT_INLET || newMetadata == BlockReactorPart.ACCESSPORT_OUTLET) {
 				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, newMetadata, 2);

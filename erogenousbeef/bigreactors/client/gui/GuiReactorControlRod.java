@@ -20,8 +20,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	
 	BeefGuiLabel titleString;
 	BeefGuiLabel heatString;
-	BeefGuiLabel fuelString;
-	BeefGuiLabel wasteString;
 	BeefGuiLabel rodStatus;
 	BeefGuiLabel rodNameLabel;
 
@@ -71,12 +69,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		heatString = new BeefGuiLabel(this, "Heat: ??? C", leftX, topY);
 		topY += heatString.getHeight() + 8;
 		
-		fuelString = new BeefGuiLabel(this, "Fuel: ???? (??%)", leftX, topY);
-		topY += fuelString.getHeight() + 8;
-
-		wasteString = new BeefGuiLabel(this, "Waste: ???? (??%)", leftX, topY);
-		topY += wasteString.getHeight() + 8;
-
 		rodStatus = new BeefGuiLabel(this, "Control Rod: ???", leftX, topY);
 		
 		int btnLeftX = leftX + rodStatus.getWidth() + 16;
@@ -88,8 +80,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		
 		registerControl(titleString);
 		registerControl(heatString);
-		registerControl(fuelString);
-		registerControl(wasteString);
 		registerControl(rodStatus);
 		registerControl(rodNameLabel);
 		
@@ -111,8 +101,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		super.updateScreen();
 		
 		heatString.setLabelText(String.format("Heat: %2.2f C", entity.getHeat()));
-		fuelString.setLabelText(String.format("Fuel: %d (%2.1f%%)", entity.getFuelAmount(), ((float)entity.getFuelAmount() / (float)entity.getTotalContainedAmount())*100f));
-		wasteString.setLabelText(String.format("Waste: %d (%2.1f%%)", entity.getWasteAmount(), ((float)entity.getWasteAmount() / (float)entity.getTotalContainedAmount())*100f));
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
 		if(entity.isAssembled()) {
 			rodInsertBtn.enabled = true;
