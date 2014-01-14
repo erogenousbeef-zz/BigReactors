@@ -100,7 +100,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	public void updateScreen() {
 		super.updateScreen();
 		
-		heatString.setLabelText(String.format("Heat: %2.2f C", entity.getHeat()));
+		heatString.setLabelText(String.format("Heat: FIXME")); //%2.2f C", entity.getHeat()));
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
 		if(entity.isAssembled()) {
 			rodInsertBtn.enabled = true;

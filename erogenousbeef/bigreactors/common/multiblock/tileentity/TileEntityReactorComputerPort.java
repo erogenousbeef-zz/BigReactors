@@ -81,7 +81,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			}
 			else {
 				controlRod = getControlRodFromArguments(reactor, arguments, 0);
-				return new Object[] { (int)controlRod.getHeat() };
+				return new Object[] { 0 }; // TODO FIXME (int)controlRod.getHeat() };
 			}
 		case getFuelAmount:
 			return new Object[] { (int)reactor.getFuelAmount() };

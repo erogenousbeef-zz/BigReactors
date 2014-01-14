@@ -221,10 +221,12 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 				this.generateEnergy(radiationResult.getPowerProduced());
 			}
 			
-			HeatPulse heatPulse = controlRod.onRadiateHeat(getReactorHeat());
+			//HeatPulse heatPulse = controlRod.onRadiateHeat(getReactorHeat());
+			/*
 			if(heatPulse != null) {
 				this.addReactorHeat(heatPulse.heatChange);
 			}
+			*/
 		}
 		
 		// If we can, poop out waste and inject new fuel.

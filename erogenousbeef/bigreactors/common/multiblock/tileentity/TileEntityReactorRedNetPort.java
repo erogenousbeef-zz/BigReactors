@@ -158,7 +158,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		case outputTemperature:
 			te = getMappedTileEntity(channel);
 			if(te instanceof TileEntityReactorControlRod) {
-				return (int)Math.floor(((TileEntityReactorControlRod)te).getHeat());
+				return 0; // TODO FIXME (int)Math.floor(((TileEntityReactorControlRod)te).getHeat());
 			}
 			else {
 				return (int)Math.floor(getReactorController().getReactorHeat());
