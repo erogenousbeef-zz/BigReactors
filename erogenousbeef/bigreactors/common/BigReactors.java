@@ -292,13 +292,13 @@ public class BigReactors {
 				ItemStack reactorGlassStack = blockMultiblockGlass.getItemStack("reactor");
 				
 				if(useExpensiveGlass && (OreDictionary.getOres("glassReinforced").size() > 0 || OreDictionary.getOres("glassHardened").size() > 0)) {
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glassReinforced", 'C', "reactorCasing" } ));
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glassHardened", 'C', "reactorCasing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] {"GCG", 'G', "glassReinforced", 'C', "reactorCasing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] {"GCG", 'G', "glassHardened", 'C', "reactorCasing" } ));
 				}
 				else {
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', Block.glass, 'C', "reactorCasing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', Block.glass, 'C', "reactorCasing" } ));
 					if(OreDictionary.getOres("glass").size() > 0) {
-						GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "   ", "GCG", "   ", 'G', "glass", 'C', "reactorCasing" } ));
+						GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "reactorCasing" } ));
 					}
 				}
 			}
