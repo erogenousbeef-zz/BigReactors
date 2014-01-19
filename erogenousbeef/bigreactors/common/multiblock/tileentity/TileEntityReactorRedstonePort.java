@@ -492,27 +492,6 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		return IHeatEntity.conductivityIron;
 	}
 
-	@Override
-	public float onAbsorbHeat(IHeatEntity source, HeatPulse pulse, int faces, int contactArea) {
-		float deltaTemp = source.getHeat() - getHeat();
-		// If the source is cooler than the reactor, then do nothing
-		if(deltaTemp <= 0.0f) {
-			return 0.0f;
-		}
-
-		float heatToAbsorb = deltaTemp * getThermalConductivity() * (1.0f/(float)faces) * contactArea;
-
-		pulse.heatChange += heatToAbsorb;
-
-		return heatToAbsorb;
-	}
-
-	@Override
-	public HeatPulse onRadiateHeat(float ambientHeat) {
-		// Ignore, glass doesn't re-radiate heat
-		return null;
-	}
-
 	// IBeefGuiEntity
 	@SideOnly(Side.CLIENT)
 	@Override
