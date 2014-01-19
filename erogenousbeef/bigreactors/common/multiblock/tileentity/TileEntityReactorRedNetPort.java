@@ -54,7 +54,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	IRedNetNetworkContainer redNetwork;
 	IConnectableRedNet redNetConnectable;
 
-	ForgeDirection out;
 	int ticksSinceLastUpdate;
 	
 	public TileEntityReactorRedNetPort() {
@@ -75,7 +74,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		redNetwork = null;
 		redNetConnectable = null;
 
-		out = ForgeDirection.UNKNOWN;
 		ticksSinceLastUpdate = 0;
 	}
 	
@@ -86,7 +84,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 
 		if(this.worldObj.isRemote) { return; } 
 		
-		checkOutwardDirection();
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 	
@@ -96,7 +93,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 
 		if(this.worldObj.isRemote) { return; } 
 		
-		checkOutwardDirection();
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 
@@ -251,6 +247,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		ticksSinceLastUpdate++;
 		if(ticksSinceLastUpdate < BigReactors.ticksPerRedstoneUpdate) { return; }
 
+		ForgeDirection out = getOutwardsDir();
+		
 		if(redNetwork != null) {
 				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ);
 		}
@@ -258,6 +256,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		if(redNetConnectable != null) {
 			redNetConnectable.onInputsChanged(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), getOutputValues());
 		}
+
 		ticksSinceLastUpdate = 0;
 	}
 
@@ -415,40 +414,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 	
 	// Helpers
-	/**
-	 * Discover which direction is normal to the multiblock face.
-	 */
-	protected void checkOutwardDirection() {
-		MultiblockControllerBase controller = this.getMultiblockController();
-		CoordTriplet minCoord = controller.getMinimumCoord();
-		CoordTriplet maxCoord = controller.getMaximumCoord();
-		
-		if(this.xCoord == minCoord.x) {
-			out = ForgeDirection.WEST;
-		}
-		else if(this.xCoord == maxCoord.x){
-			out = ForgeDirection.EAST;
-		}
-		else if(this.zCoord == minCoord.z) {
-			out = ForgeDirection.NORTH;
-		}
-		else if(this.zCoord == maxCoord.z) {
-			out = ForgeDirection.SOUTH;
-		}
-		else if(this.yCoord == minCoord.y) {
-			// Just in case I end up making omnidirectional taps.
-			out = ForgeDirection.DOWN;
-		}
-		else if(this.yCoord == maxCoord.y){
-			// Just in case I end up making omnidirectional taps.
-			out = ForgeDirection.UP;
-		}
-		else {
-			// WTF BRO
-			out = ForgeDirection.UNKNOWN;
-		}
-	}
-
 	protected void encodeSettings(NBTTagCompound destination) {
 		NBTTagList tagArray = new NBTTagList();
 		
@@ -474,6 +439,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	 * @param z
 	 */
 	protected void checkForConnections(World world, int x, int y, int z) {
+		ForgeDirection out = getOutwardsDir();
+
 		if(out == ForgeDirection.UNKNOWN) {
 			redNetwork = null;
 			redNetConnectable = null;

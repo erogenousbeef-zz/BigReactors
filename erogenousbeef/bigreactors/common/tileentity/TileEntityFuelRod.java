@@ -17,8 +17,10 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.IMultiblockPartRectangular;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
+public class TileEntityFuelRod extends RectangularMultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
 	// Y-value of the control rod, if this Fuel Rod is attached to one
 	protected int controlRodY;
@@ -123,8 +125,8 @@ public class TileEntityFuelRod extends MultiblockTileEntityBase implements IRadi
 		if(entityBelow instanceof TileEntityFuelRod) {
 			return;
 		}
-		else if(entityBelow instanceof IMultiblockPart) {
-			((IMultiblockPart)entityBelow).isGoodForBottom();
+		else if(entityBelow instanceof IMultiblockPartRectangular) {
+			((IMultiblockPartRectangular)entityBelow).isGoodForBottom();
 			return;
 		}
 		

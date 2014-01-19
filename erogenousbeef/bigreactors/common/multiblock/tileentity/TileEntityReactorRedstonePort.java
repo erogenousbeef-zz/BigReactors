@@ -28,11 +28,11 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
+public class TileEntityReactorRedstonePort extends RectangularMultiblockTileEntityBase
 		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity, ITickableMultiblockPart {
 
-	protected ForgeDirection out;
 	protected CircuitType circuitType;
 	protected int outputLevel;
 	protected boolean activeOnPulse;
@@ -46,7 +46,6 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	public TileEntityReactorRedstonePort() {
 		super();
 		
-		out = ForgeDirection.UNKNOWN;
 		circuitType = circuitType.DISABLED;
 		isExternallyPowered = false;
 		ticksSinceLastUpdate = 0;
@@ -114,6 +113,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		if(!this.isConnected()) { return; }
 
 		if(this.isInput()) {
+			ForgeDirection out = getOutwardsDir();
 			boolean nowPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out, neighborBlockID);
 
 			if(this.isExternallyPowered != nowPowered) {
@@ -213,6 +213,7 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 		// Do updates
 		if(this.isInput()) {
 			// Update inputs so we don't pulse/change automatically
+			ForgeDirection out = getOutwardsDir();
 			this.isExternallyPowered = isReceivingRedstonePowerFrom(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out);
 			if(!this.isInputActiveOnPulse()) {
 				onRedstoneInputUpdated();
@@ -229,15 +230,6 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 			// Propagate the new settings
 			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public ForgeDirection getOutwardsDirection() {
-		if(out == ForgeDirection.UNKNOWN) {
-			recalculateOutDirection();
-		}
-
-		return out;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -405,13 +397,14 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	}
 
 	@Override
-	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
-		recalculateOutDirection();
+	public void onMachineAssembled(MultiblockControllerBase controller) {
+		super.onMachineAssembled(controller);
 		this.sendRedstoneUpdate();
 	}
 
 	@Override
 	public void onMachineBroken() {
+		super.onMachineBroken();
 		this.sendRedstoneUpdate();
 	}
 
@@ -423,45 +416,6 @@ public class TileEntityReactorRedstonePort extends MultiblockTileEntityBase
 	@Override
 	public void onMachineDeactivated() {
 		this.sendRedstoneUpdate();
-	}
-
-	@Override
-	public void onAttached(MultiblockControllerBase newController) {
-		super.onAttached(newController);
-		
-		recalculateOutDirection();
-	}
-
-	// This doesn't work right on the client...
-	private void recalculateOutDirection() {
-		MultiblockControllerBase controller = this.getMultiblockController();
-		CoordTriplet minCoord = controller.getMinimumCoord();
-		CoordTriplet maxCoord = controller.getMaximumCoord();
-
-		if(this.xCoord == minCoord.x) {
-			out = ForgeDirection.WEST;
-		}
-		else if(this.xCoord == maxCoord.x){
-			out = ForgeDirection.EAST;
-		}
-		else if(this.zCoord == minCoord.z) {
-			out = ForgeDirection.NORTH;
-		}
-		else if(this.zCoord == maxCoord.z) {
-			out = ForgeDirection.SOUTH;
-		}
-		else if(this.yCoord == minCoord.y) {
-			// Just in case I end up making omnidirectional taps.
-			out = ForgeDirection.DOWN;
-		}
-		else if(this.yCoord == maxCoord.y){
-			// Just in case I end up making omnidirectional taps.
-			out = ForgeDirection.UP;
-		}
-		else {
-			// WTF BRO
-			out = ForgeDirection.UNKNOWN;
-		}
 	}
 
 	// IRadiationModerator

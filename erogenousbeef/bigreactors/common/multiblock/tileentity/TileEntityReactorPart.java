@@ -26,8 +26,9 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorPart extends MultiblockTileEntityBase implements IRadiationModerator, IMultiblockPart, IHeatEntity, IMultiblockGuiHandler, IMultiblockNetworkHandler {
+public class TileEntityReactorPart extends RectangularMultiblockTileEntityBase implements IRadiationModerator, IHeatEntity, IMultiblockGuiHandler, IMultiblockNetworkHandler {
 
 	public TileEntityReactorPart() {
 		super();

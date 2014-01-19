@@ -38,8 +38,9 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockTurbine extends MultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
+public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
 
 	public enum VentStatus {
 		VentOverflow,
@@ -306,7 +307,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 
 	// Validation code
 	@Override
-	protected boolean isMachineWhole() throws MultiblockValidationException {
+	protected void isMachineWhole() throws MultiblockValidationException {
 		if(attachedRotorBearings.size() != 1) {
 			throw new MultiblockValidationException("Turbines require exactly 1 rotor bearing");
 		}
@@ -316,7 +317,7 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		foundRotors.clear();
 		foundCoils.clear();
 		
-		if(!super.isMachineWhole()) { return false; }
+		super.isMachineWhole();
 		
 		// Now do additional validation based on the coils/blades/rotors that were found
 		
@@ -428,7 +429,6 @@ public class MultiblockTurbine extends MultiblockControllerBase implements IEner
 		}
 
 		// A-OK!
-		return true;
 	}
 	
 	@Override
