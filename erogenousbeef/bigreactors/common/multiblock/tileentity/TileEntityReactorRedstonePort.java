@@ -6,6 +6,7 @@ import java.io.IOException;
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -30,8 +31,8 @@ import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorRedstonePort extends RectangularMultiblockTileEntityBase
-		implements IRadiationModerator, IHeatEntity, IBeefGuiEntity, ITickableMultiblockPart {
+public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
+		implements ITickableMultiblockPart {
 
 	protected CircuitType circuitType;
 	protected int outputLevel;
@@ -365,14 +366,6 @@ public class TileEntityReactorRedstonePort extends RectangularMultiblockTileEnti
 	}
 	
 	@Override
-	public MultiblockControllerBase createNewMultiblock() {
-		return new MultiblockReactor(this.worldObj);
-	}
-
-	@Override
-	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
-	
-	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not as part of the frame", xCoord, yCoord, zCoord));
 	}
@@ -418,59 +411,18 @@ public class TileEntityReactorRedstonePort extends RectangularMultiblockTileEnti
 		this.sendRedstoneUpdate();
 	}
 
-	// IRadiationModerator
-	@Override
-	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		float freePower = radiation.getSlowRadiation() * 0.25f;
-		
-		// Convert 25% of incident radiation to power, for balance reasons.
-		radiation.addPower(freePower);
-		
-		// Slow radiation is all lost now
-		radiation.setSlowRadiation(0);
-		
-		// And zero out the TTL so evaluation force-stops
-		radiation.setTimeToLive(0);
-	}
-
-	// IHeatEntity
-	@Override
-	public float getHeat() {
-		if(!this.isConnected()) { return 0f; }
-		return ((MultiblockReactor)getMultiblockController()).getReactorHeat();
-	}
-
-	@Override
-	public float getThermalConductivity() {
-		// Using iron so there's no disadvantage to reactor glass.
-		return IHeatEntity.conductivityIron;
-	}
-
 	// IBeefGuiEntity
 	@SideOnly(Side.CLIENT)
 	@Override
-	public GuiScreen getGUI(EntityPlayer player) {
+	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		return new GuiReactorRedstonePort(new ContainerBasic(), this);
 	}
 
 	@Override
-	public Container getContainer(EntityPlayer player) {
+	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		return new ContainerBasic();
 	}
 
-	@Override
-	public void beginUpdatingPlayer(EntityPlayer player) {
-	}
-
-	@Override
-	public void stopUpdatingPlayer(EntityPlayer player) {
-	}
-
-	@Override
-	public void onReceiveGuiButtonPress(String buttonName,
-			DataInputStream dataStream) throws IOException {
-	}
-	
 	public static boolean isAlwaysActiveOnPulse(CircuitType circuitType) {
 		return circuitType == CircuitType.inputEjectWaste;
 	}
