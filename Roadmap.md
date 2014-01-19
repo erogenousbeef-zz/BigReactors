@@ -23,8 +23,8 @@ TODO - 0.3: The Coolant Update
 ### Core
 - (DONE) Change BeefCore so client-side machines know when they're assembled, etc.
 - (DONE FOR TURBINES) Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
-- (DONE FOR TURBINES) Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
-- Corify the calculation & caching of sides, create a "cubic" base multiblock controller and TE that add those methods
+- (DONE) Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
+- (DONE) Corify the calculation & caching of sides, create a "cubic" base multiblock controller and TE that add those methods
 
 ### Fuel refactor
 - (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
@@ -38,10 +38,10 @@ TODO - 0.3: The Coolant Update
 - Fix fertilization and expose fertility in UI.
 
 ### Heat Refactor number two
-- (PARTIAL) Fuel Rod heat pool instead of heat in individual fuel rods
-- Heat transfer rate precalculated on reactor assembly, based on surfaces in contact with non-fuel-rod stuff
-- Calculate "effective coolant surface area" based on interior surface area of reactor housing
-- Passively-cooled reactors generate power based on effective coolant surface area
+- (DONE) Fuel Rod heat pool instead of heat in individual fuel rods
+- (DONE) Heat transfer rate precalculated on reactor assembly, based on surfaces in contact with non-fuel-rod stuff
+- (DONE) Calculate "effective coolant surface area" based on interior surface area of reactor housing
+- (DONE) Passively-cooled reactors generate power based on effective coolant surface area
 - Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Fix RedNet port's outputTemperature
