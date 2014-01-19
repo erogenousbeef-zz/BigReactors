@@ -108,21 +108,24 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
         {
         	TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
         	if(port.isRedstoneActive()) {
-                ForgeDirection out = port.getOutwardsDirection();
-                double particleX, particleY, particleZ;
-                particleY = y + 0.45D + par5Random.nextFloat() * 0.1D;
-
-                if(out.offsetX > 0)
-                	particleX = x + par5Random.nextFloat() * 0.1D + 1.1D;
-                else
-                	particleX = x + 0.45D + par5Random.nextFloat() * 0.1D;
+                ForgeDirection out = port.getOutwardsDir();
                 
-                if(out.offsetZ > 0)
-                	particleZ = z + par5Random.nextFloat() * 0.1D + 1.1D;
-                else
-                	particleZ = z + 0.45D + par5Random.nextFloat() * 0.1D;
+                if(out != ForgeDirection.UNKNOWN) {
+                    double particleX, particleY, particleZ;
+                    particleY = y + 0.45D + par5Random.nextFloat() * 0.1D;
 
-                world.spawnParticle("reddust", particleX, particleY, particleZ, 0.0D, par5Random.nextFloat() * 0.1D, 0.0D);
+                    if(out.offsetX > 0)
+                    	particleX = x + par5Random.nextFloat() * 0.1D + 1.1D;
+                    else
+                    	particleX = x + 0.45D + par5Random.nextFloat() * 0.1D;
+                    
+                    if(out.offsetZ > 0)
+                    	particleZ = z + par5Random.nextFloat() * 0.1D + 1.1D;
+                    else
+                    	particleZ = z + 0.45D + par5Random.nextFloat() * 0.1D;
+
+                    world.spawnParticle("reddust", particleX, particleY, particleZ, 0.0D, par5Random.nextFloat() * 0.1D, 0.0D);
+                }
         	}
         }
     }

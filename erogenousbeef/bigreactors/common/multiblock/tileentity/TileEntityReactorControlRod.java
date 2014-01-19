@@ -48,8 +48,9 @@ import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorControlRod extends MultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IBeefGuiEntity {
+public class TileEntityReactorControlRod extends RectangularMultiblockTileEntityBase implements IRadiationSource, IRadiationModerator, IBeefGuiEntity {
 	public final static int maxTotalFluidPerBlock = FluidContainerRegistry.BUCKET_VOLUME * 4;
 	public final static short maxInsertion = 100;
 	public final static short minInsertion = 0;

@@ -8,8 +8,9 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorGlass extends MultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
+public class TileEntityReactorGlass extends RectangularMultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
 
 	@Override
 	public MultiblockControllerBase createNewMultiblock() {

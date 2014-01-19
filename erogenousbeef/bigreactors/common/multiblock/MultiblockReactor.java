@@ -45,8 +45,9 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockReactor extends MultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
+public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4000; // 4 ingots per rod
 	
@@ -195,7 +196,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	}
 	
 	@Override
-	protected boolean isMachineWhole() throws MultiblockValidationException {
+	protected void isMachineWhole() throws MultiblockValidationException {
 		// Ensure that there is at least one controller and control rod attached.
 		if(attachedControlRods.size() < 1) {
 			throw new MultiblockValidationException("Not enough control rods. Reactors require at least 1.");
@@ -205,9 +206,9 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 			throw new MultiblockValidationException("Not enough controllers. Reactors require at least 1.");
 		}
 		
-		return super.isMachineWhole();
+		super.isMachineWhole();
 	}
-	
+
 	@Override
 	public void updateClient() {}
 	
