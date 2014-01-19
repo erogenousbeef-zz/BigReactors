@@ -33,11 +33,11 @@ import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FuelContainer;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -163,8 +163,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			attachedTickables.add((ITickableMultiblockPart)part);
 		}
 		
-		if(worldObj.isRemote && part instanceof TileEntityFuelRod) {
-			TileEntityFuelRod fuelRod = (TileEntityFuelRod)part;
+		if(worldObj.isRemote && part instanceof TileEntityReactorFuelRod) {
+			TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)part;
 			worldObj.markBlockForRenderUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
 		}
 	}
@@ -910,8 +910,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
 			for(int fuelY = minFuelRodY; fuelY <= maxFuelRodY; fuelY++) {
 				te = worldObj.getBlockTileEntity(controlRod.xCoord, fuelY, controlRod.zCoord);
-				if(te instanceof TileEntityFuelRod) {
-					fuelToReactorHeatTransferCoefficient += ((TileEntityFuelRod)te).getHeatTransferRate();
+				if(te instanceof TileEntityReactorFuelRod) {
+					fuelToReactorHeatTransferCoefficient += ((TileEntityReactorFuelRod)te).getHeatTransferRate();
 				}
 			}
 		}

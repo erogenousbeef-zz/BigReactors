@@ -15,7 +15,7 @@ import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 
 public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 
@@ -89,8 +89,8 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         // Render internal bits, if we can
         TileEntity te;
         te = world.getBlockTileEntity(x, y, z);
-        if(te instanceof TileEntityFuelRod) {
-        	TileEntityFuelRod fuelRod = (TileEntityFuelRod)te;
+        if(te instanceof TileEntityReactorFuelRod) {
+        	TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)te;
         	if(fuelRod.isConnected()) {
         		MultiblockReactor reactor = (MultiblockReactor)fuelRod.getMultiblockController();
         		int fuelAmount = reactor.getFuelAmount();

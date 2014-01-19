@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 
 public class BlockFuelRod extends BlockContainer {
 
@@ -70,6 +70,6 @@ public class BlockFuelRod extends BlockContainer {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		return new TileEntityFuelRod();
+		return new TileEntityReactorFuelRod();
 	}
 }

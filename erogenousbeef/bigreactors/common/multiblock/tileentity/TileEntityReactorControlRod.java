@@ -40,7 +40,6 @@ import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.RadiationPulse;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityFuelRod;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorControlRod;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -500,51 +499,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	*/
 	
 	// Helpers
-	private void onControlRodAssembled() {
-		if(this.worldObj.isRemote) { return; }
-
-		this.isAssembled = true;
-		
-		// Look for at least one fuel rod beneath us
-		minFuelRodY = this.yCoord - 1;
-		int blocksChecked = 0;
-		while(blocksChecked <= BigReactors.maximumReactorHeight - 2) {
-			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, minFuelRodY, zCoord);
-			if(te != null && te instanceof TileEntityFuelRod) {
-				((TileEntityFuelRod)te).onAssemble(this);
-			}
-			else {
-				break;
-			}
-			
-			blocksChecked++;
-			minFuelRodY--;
-		}
-		
-		minFuelRodY++;
-
-		sendControlRodUpdate();
-	}
-
-	private void onControlRodDisassembled() {
-		if(this.worldObj.isRemote) { return; }
-		if(!this.isAssembled) { return; }
-
-		// Notify all fuel rods beneath us that we're disassembling
-		if(!this.worldObj.isRemote) {
-			TileEntity te;
-			for(int dy = this.yCoord - 1; dy >= this.minFuelRodY; dy--) {
-				te = this.worldObj.getBlockTileEntity(xCoord, yCoord, zCoord);
-				if(te != null && te instanceof TileEntityFuelRod) {
-					((TileEntityFuelRod)te).onDisassemble();
-				}
-			}
-		}
-		
-		this.isAssembled = false;
-		sendControlRodUpdate();
-	}
-	
 	private void modulateRadiationByMaterialAndBlock(RadiationPulse radiation,
 			Material material, int blockId) {
 		// This data is for air
@@ -662,7 +616,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	public void isGoodForTop() throws MultiblockValidationException {
 		// Check that the space below us is a fuel rod
 		TileEntity teBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
-		if(!(teBelow instanceof TileEntityFuelRod)) {
+		if(!(teBelow instanceof TileEntityReactorFuelRod)) {
 			throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face, atop a column of fuel rods", xCoord, yCoord, zCoord));
 		}
 	}
@@ -675,16 +629,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	@Override
 	public void isGoodForInterior() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
-	}
-
-	@Override
-	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
-		this.onControlRodAssembled();
-	}
-
-	@Override
-	public void onMachineBroken() {
-		this.onControlRodDisassembled();
 	}
 
 	@Override

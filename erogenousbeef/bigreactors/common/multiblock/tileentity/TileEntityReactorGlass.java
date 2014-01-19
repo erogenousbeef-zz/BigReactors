@@ -10,15 +10,7 @@ import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorGlass extends RectangularMultiblockTileEntityBase implements IRadiationModerator, IHeatEntity {
-
-	@Override
-	public MultiblockControllerBase createNewMultiblock() {
-		return new MultiblockReactor(this.worldObj);
-	}
-	
-	@Override
-	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
+public class TileEntityReactorGlass extends TileEntityReactorPartBase {
 
 	@Override
 	public void isGoodForFrame()  throws MultiblockValidationException {
@@ -43,23 +35,8 @@ public class TileEntityReactorGlass extends RectangularMultiblockTileEntityBase 
 	}
 
 	@Override
-	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
-	}
-
-	@Override
-	public void onMachineBroken() {
-	}
-
-	@Override
-	public void onMachineActivated() {
-	}
-
-	@Override
-	public void onMachineDeactivated() {
-	}
-
-	@Override
 	public void receiveRadiationPulse(IRadiationPulse radiation) {
+		// TODO FIXME
 		float freePower = radiation.getSlowRadiation() * 0.25f;
 		
 		// Convert 25% of incident radiation to power, for balance reasons.
@@ -73,14 +50,10 @@ public class TileEntityReactorGlass extends RectangularMultiblockTileEntityBase 
 	}
 
 	@Override
-	public float getHeat() {
-		if(!this.isConnected()) { return 0f; }
-		return ((MultiblockReactor)getMultiblockController()).getReactorHeat();
+	public void onMachineActivated() {
 	}
 
 	@Override
-	public float getThermalConductivity() {
-		// Using iron so there's no disadvantage to reactor glass.
-		return IHeatEntity.conductivityIron;
+	public void onMachineDeactivated() {
 	}
 }

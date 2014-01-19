@@ -28,16 +28,11 @@ import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorPart extends RectangularMultiblockTileEntityBase implements IRadiationModerator, IHeatEntity, IMultiblockGuiHandler, IMultiblockNetworkHandler {
+public class TileEntityReactorPart extends TileEntityReactorPartBase {
 
 	public TileEntityReactorPart() {
 		super();
 	}
-
-	public MultiblockReactor getReactorController() { return (MultiblockReactor)this.getMultiblockController(); }
-	
-	@Override
-	public boolean canUpdate() { return false; }
 
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
@@ -75,6 +70,8 @@ public class TileEntityReactorPart extends RectangularMultiblockTileEntityBase i
 
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
+		super.onMachineAssembled(multiblockController);
+
 		if(this.worldObj.isRemote) { return; }
 		if(multiblockController == null) {
 			throw new IllegalArgumentException("Being assembled into a null controller. This should never happen. Please report this stacktrace to http://github.com/ErogenousBeef/BigReactors/");
@@ -103,6 +100,8 @@ public class TileEntityReactorPart extends RectangularMultiblockTileEntityBase i
 
 	@Override
 	public void onMachineBroken() {
+		super.onMachineBroken();
+
 		if(this.worldObj.isRemote) { return; }
 		
 		int metadata = this.getBlockMetadata();
@@ -135,77 +134,6 @@ public class TileEntityReactorPart extends RectangularMultiblockTileEntityBase i
 		}
 	}
 
-	// Networking
-
-	@Override
-	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
-		super.encodeDescriptionPacket(packetData);
-	}
-	
-	@Override
-	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
-		super.decodeDescriptionPacket(packetData);
-	}
-
-	// NBT - Save/Load
-	/**
-	 * Reads a tile entity from NBT.
-	 */
-	@Override
-	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
-	{
-		super.readFromNBT(par1NBTTagCompound);
-	}
-
-	/**
-	 * Writes a tile entity to NBT.
-	 */
-	@Override
-	public void writeToNBT(NBTTagCompound par1NBTTagCompound)
-	{
-		super.writeToNBT(par1NBTTagCompound);
-	}
-
-	///// Network communication - IMultiblockNetworkHandler
-	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
-		if(!this.isConnected()) {
-			return;
-		}
-
-		/// Client->Server packets
-		
-		if(packetType == Packets.MultiblockControllerButton) {
-			String buttonName = data.readUTF();
-			boolean newValue = data.readBoolean();
-			
-			if(buttonName.equals("activate")) {
-				getReactorController().setActive(newValue);
-			}
-			else if(buttonName.equals("ejectWaste")) {
-				getReactorController().ejectWaste();
-			}
-		}
-		
-		if(packetType == Packets.ReactorWasteEjectionSettingUpdate) {
-			getReactorController().changeWasteEjection();
-		}
-		
-		/// Server->Client packets
-		
-		if(packetType == Packets.ReactorControllerFullUpdate) {
-			getReactorController().receiveReactorUpdate(data);
-		}
-	}
-
-	@Override
-	public MultiblockControllerBase createNewMultiblock() {
-		return new MultiblockReactor(this.worldObj);
-	}
-	
-	@Override
-	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
-	
 	private void setCasingMetadataBasedOnWorldPosition() {
 		MultiblockControllerBase controller = this.getMultiblockController();
 		assert(controller != null);
@@ -307,31 +235,4 @@ public class TileEntityReactorPart extends RectangularMultiblockTileEntityBase i
 		}
 		return true;
     }
-
-	// IRadiationModerator
-	@Override
-	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		float freePower = radiation.getSlowRadiation() * 0.25f;
-		
-		// Convert 25% of incident radiation to power, for balance reasons.
-		radiation.addPower(freePower);
-		
-		// Slow radiation is all lost now
-		radiation.setSlowRadiation(0);
-		
-		// And zero out the TTL so evaluation force-stops
-		radiation.setTimeToLive(0);
-	}
-	
-	// IHeatEntity
-	@Override
-	public float getHeat() {
-		if(!this.isConnected()) { return 0f; }
-		return getReactorController().getReactorHeat();
-	}
-
-	@Override
-	public float getThermalConductivity() {
-		return IHeatEntity.conductivityIron;
-	}
 }
