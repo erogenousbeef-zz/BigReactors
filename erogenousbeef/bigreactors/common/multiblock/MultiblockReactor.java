@@ -24,6 +24,7 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.HeatPulse;
+import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.common.BRRegistry;
@@ -49,13 +50,19 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4000; // 4 ingots per rod
 	
-	// Game stuff
+	private static final float passiveCoolingGenerationPenalty = 0.2f; // only 20% of heat turns into power when passively cooled!
+	
+	// Game stuff - stored
 	protected boolean active;
 	private float reactorHeat;
 	private float fuelHeat;
 	private WasteEjectionSetting wasteEjection;
 	private float energyStored;
 	protected FuelContainer fuelContainer;
+
+	// Game stuff - derived at runtime
+	protected float fuelToReactorHeatTransferCoefficient;
+	protected float reactorToCoolantSystemHeatTransferCoefficient;
 
 	// UI stuff
 	private float energyGeneratedLastTick;
@@ -67,6 +74,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		kManual, 					// Manual, only on button press
 	}
 	
+	// Lists of connected parts
 	private Set<TileEntityReactorPowerTap> attachedPowerTaps;
 	private Set<ITickableMultiblockPart> attachedTickables;
 
@@ -74,6 +82,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	private Set<TileEntityReactorAccessPort> attachedAccessPorts;
 	private Set<TileEntityReactorPart> attachedControllers;
 
+	// Updates
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
@@ -87,9 +96,17 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		reactorHeat = 0f;
 		fuelHeat = 0f;
 		energyStored = 0f;
+		wasteEjection = WasteEjectionSetting.kAutomatic;
+
+		// Derived stats
+		fuelToReactorHeatTransferCoefficient = 0f;
+		reactorToCoolantSystemHeatTransferCoefficient = 0f;
+		
+		// UI and stats
 		energyGeneratedLastTick = 0f;
 		fuelConsumedLastTick = 0;
-		wasteEjection = WasteEjectionSetting.kAutomatic;
+		
+		
 		attachedPowerTaps = new HashSet<TileEntityReactorPowerTap>();
 		attachedTickables = new HashSet<ITickableMultiblockPart>();
 		attachedControlRods = new HashSet<TileEntityReactorControlRod>();
@@ -232,18 +249,33 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		// If we can, poop out waste and inject new fuel.
 		refuelAndEjectWaste();
 
-		// leak 1% of heat to the environment per tick
-		// TODO: Better equation.
-		if(reactorHeat > 0.0f) {
-			float latentHeatLoss = Math.max(0.05f, this.reactorHeat * 0.01f);
-			if(this.reactorHeat < latentHeatLoss) { latentHeatLoss = reactorHeat; }
-			this.addReactorHeat(-1 * latentHeatLoss);
-
-			// Generate power based on the amount of heat lost
-			this.generateEnergy(latentHeatLoss * BigReactors.powerPerHeat);
+		// Heat Transfer: Fuel Pool <> Reactor Environment
+		float tempDiff = fuelHeat - reactorHeat;
+		if(Math.abs(tempDiff) > 0.00001f) {
+			// Note: Transfer is now bidirectional, unlike 0.2
+			float tempTransfer = tempDiff * fuelToReactorHeatTransferCoefficient;
+			fuelHeat -= tempTransfer;
+			reactorHeat += tempTransfer;
 		}
 		
-		if(reactorHeat < 0.0f) { setReactorHeat(0.0f); }
+		// leak 1% of heat to the environment per tick
+		// TODO: Better equation.
+		tempDiff = reactorHeat - getCoolantTemperature();
+		if(tempDiff > 0.00001f) {
+			float tempTransfer = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
+			this.addReactorHeat(-1f * tempTransfer);
+
+			if(isPassivelyCooled()) {
+				this.generateEnergy(tempTransfer * BigReactors.powerPerHeat * passiveCoolingGenerationPenalty);
+			}
+			else {
+				// TODO: Active coolant system
+			}
+		}
+		
+		// Prevent cryogenics
+		if(reactorHeat < 0f) { setReactorHeat(0f); }
+		if(fuelHeat < 0f) { setFuelHeat(0f); }
 		
 		// Distribute available power
 		int energyAvailable = (int)getEnergyStored();
@@ -797,7 +829,7 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 
 		int fuelIngotsToConsume = fuelAmt / AmountPerIngot;
 		int fuelIngotsConsumed = 0;
-		
+
 		int wasteIngotsDistributed = 0;
 		
 		// Distribute waste, slurp in ingots.
@@ -866,6 +898,32 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 		int numFuelRods = this.attachedControlRods.size() * reactorHeight;
 		fuelContainer.setCapacity(numFuelRods * FuelCapacityPerFuelRod);
 		fuelContainer.clampContentsToCapacity();
+
+		// Calculate derived stats
+		
+		// Calculate heat transfer based on fuel rod environment
+		int maxFuelRodY = maxCoord.y - 1;
+		int minFuelRodY = minCoord.y + 1;
+		TileEntity te;
+		fuelToReactorHeatTransferCoefficient = 0f;
+		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
+			for(int fuelY = minFuelRodY; fuelY <= maxFuelRodY; fuelY++) {
+				te = worldObj.getBlockTileEntity(controlRod.xCoord, fuelY, controlRod.zCoord);
+				if(te instanceof TileEntityFuelRod) {
+					fuelToReactorHeatTransferCoefficient += ((TileEntityFuelRod)te).getHeatTransferRate();
+				}
+			}
+		}
+		
+		// Calculate heat transfer to coolant system based on reactor interior surface area.
+		// This is pretty simple to start with - surface area of the rectangular prism defining the interior.
+		int xSize = maxCoord.x - minCoord.x - 1;
+		int ySize = maxCoord.y - minCoord.y - 1;
+		int zSize = maxCoord.z - minCoord.z - 1;
+		
+		int surfaceArea = 2 * (xSize * ySize + xSize * zSize + ySize * zSize);
+		
+		reactorToCoolantSystemHeatTransferCoefficient = IHeatEntity.conductivityIron * surfaceArea; // TODO: Balance me
 		
 		if(worldObj.isRemote) {
 			// Make sure our fuel rods re-render
@@ -1051,6 +1109,15 @@ public class MultiblockReactor extends MultiblockControllerBase implements IEner
 	@Override
 	public int getCapacity() {
 		return getMaxFuelAmountPerColumn() * this.getFuelColumnCount();
+	}
+	
+	// Coolant subsystem
+	protected float getCoolantTemperature() {
+		return IHeatEntity.ambientHeat;
+	}
+	
+	protected boolean isPassivelyCooled() {
+		return true;
 	}
 	
 	// Client-only

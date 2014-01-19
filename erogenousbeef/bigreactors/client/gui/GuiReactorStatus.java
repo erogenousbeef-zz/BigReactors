@@ -32,6 +32,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiLabel fuelRodsString;
 	private BeefGuiLabel energyGeneratedString;
 	private BeefGuiLabel fuelConsumedString;
+	private BeefGuiLabel fuelHeatString;
+
 	private BeefGuiPowerBar powerBar;
 	private BeefGuiHeatBar heatBar;
 	private BeefGuiFuelMixBar fuelMixBar;
@@ -90,6 +92,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 		fuelConsumedString = new BeefGuiLabel(this, "Fuel Consumed: -- updating --", leftX, topY);
 		topY += fuelConsumedString.getHeight() + 4;
 		
+		fuelHeatString = new BeefGuiLabel(this, "Fuel Heat: -- updating --", leftX, topY);
+		topY += fuelHeatString.getHeight() + 4;
+		
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.reactor);
 		heatBar = new BeefGuiHeatBar(this, guiLeft + 130, guiTop + 22, this.part);
 		fuelMixBar = new BeefGuiFuelMixBar(this, guiLeft + 108, guiTop + 22, this.reactor);
@@ -100,6 +105,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(fuelRodsString);
 		registerControl(energyGeneratedString);
 		registerControl(fuelConsumedString);
+		registerControl(fuelHeatString);
 		registerControl(powerBar);
 		registerControl(heatBar);
 		registerControl(fuelMixBar);
@@ -174,6 +180,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		else {
 			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.0f mB/t", averagedFuelConsumption.average()));
 		}
+		
+		fuelHeatString.setLabelText(String.format("Fuel Heat: %1.1f C", reactor.getFuelHeat()));
 	}
 	
 	@Override

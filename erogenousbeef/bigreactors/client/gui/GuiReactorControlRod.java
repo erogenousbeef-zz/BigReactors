@@ -9,10 +9,12 @@ import org.lwjgl.input.Keyboard;
 
 import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class GuiReactorControlRod extends BeefGuiBase {
 
@@ -66,10 +68,10 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		setNameBtn.enabled = false;
 		topY += 28;
 		
-		heatString = new BeefGuiLabel(this, "Heat: ??? C", leftX, topY);
+		heatString = new BeefGuiLabel(this, "Heat", leftX, topY);
 		topY += heatString.getHeight() + 8;
 		
-		rodStatus = new BeefGuiLabel(this, "Control Rod: ???", leftX, topY);
+		rodStatus = new BeefGuiLabel(this, "Control Rods:", leftX, topY);
 		
 		int btnLeftX = leftX + rodStatus.getWidth() + 16;
 		rodRetractBtn = new GuiButton(0, btnLeftX, topY - 6, 20, 20, "-");
@@ -88,6 +90,8 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		buttonList.add(rodRetractBtn);
 		buttonList.add(rodInsertBtn);
 		buttonList.add(setNameBtn);
+		
+		updateStrings();
 	}
 	
 	@Override
@@ -99,8 +103,19 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		
-		heatString.setLabelText(String.format("Heat: FIXME")); //%2.2f C", entity.getHeat()));
+		updateStrings();
+	}
+	
+	protected void updateStrings() {
+		MultiblockControllerBase controller = entity.getMultiblockController();
+		if(controller instanceof MultiblockReactor) {
+			MultiblockReactor reactor = (MultiblockReactor)controller;
+			heatString.setLabelText(String.format("Heat: %1.1f C", reactor.getFuelHeat()));
+		}
+		else {
+			heatString.setLabelText(String.format("Heat: Unknown"));
+		}
+
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
 		if(entity.isAssembled()) {
 			rodInsertBtn.enabled = true;
