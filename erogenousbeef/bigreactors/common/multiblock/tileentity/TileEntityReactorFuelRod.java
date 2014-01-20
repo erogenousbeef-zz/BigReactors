@@ -1,23 +1,17 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
-import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.api.RadiationData;
+import erogenousbeef.bigreactors.api.RadiationPacket;
 import erogenousbeef.bigreactors.utils.StaticUtils;
-import erogenousbeef.core.multiblock.IMultiblockPart;
-import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.IMultiblockPartRectangular;
-import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
 public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implements IRadiationModerator, IHeatEntity {
 
@@ -27,15 +21,7 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 	
 	// IRadiationModerator
 	@Override
-	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		/*
-		if(this.isAssembled) {
-			TileEntity te = this.worldObj.getBlockTileEntity(xCoord, controlRodY, zCoord);
-			if(te != null && te instanceof IRadiationModerator) {
-				((IRadiationModerator)te).receiveRadiationPulse(radiation);
-			}
-		}
-		*/
+	public void moderateRadiation(RadiationData data, RadiationPacket radiation) {
 	}
 
 	// IHeatEntity

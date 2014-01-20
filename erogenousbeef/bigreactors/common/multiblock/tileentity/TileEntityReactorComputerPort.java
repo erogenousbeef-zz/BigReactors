@@ -17,7 +17,6 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		getFuelAmount,  		// Optional Arg: fuel rod index
 		getWasteAmount, 		// Optional Arg: fuel rod index
 		getFuelAmountMax,		// No arguments
-		getControlRodFuelAmountMax, // No arguments
 		getControlRodName,		// Required Arg: fuel rod index
 		getNumberOfControlRods,	// No arguments
 		getControlRodLevel, 	// Required Arg: control rod index
@@ -88,9 +87,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		case getWasteAmount:
 			return new Object[] { (int)reactor.getWasteAmount() };
 		case getFuelAmountMax:
-			return new Object[] { reactor.getMaxFuelAmountPerColumn() * reactor.getFuelColumnCount() };
-		case getControlRodFuelAmountMax:
-			return new Object[] { (int)reactor.getMaxFuelAmountPerColumn() };
+			return new Object[] { reactor.getCapacity() };
 		case getControlRodName:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");

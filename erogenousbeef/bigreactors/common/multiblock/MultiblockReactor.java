@@ -23,19 +23,15 @@ import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import erogenousbeef.bigreactors.api.HeatPulse;
 import erogenousbeef.bigreactors.api.IHeatEntity;
-import erogenousbeef.bigreactors.api.IRadiationPulse;
-import erogenousbeef.bigreactors.api.IReactorFuel;
-import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FuelContainer;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.net.PacketWrapper;
@@ -225,28 +221,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		fuelConsumedLastTick = 0;
 
 		float newHeat = 0f;
-		IRadiationPulse radiationResult;
 
-		// Look for waste and run radiation & heat simulations
-		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
-			if(controlRod == null || !controlRod.isConnected()) { continue; }
-			
-			if(this.isActive()) {
-				int fuelChange = 0; // TODO FIXME during radiation refactor
-				radiationResult = controlRod.radiate();
-				if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
+		// TODO: FIXME FIXME FIXME!
+		int fuelChange = 0; // TODO FIXME during radiation refactor
+		//radiationResult = controlRod.radiate();
+		if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
+		//this.generateEnergy(radiationResult.getPowerProduced());
 
-				this.generateEnergy(radiationResult.getPowerProduced());
-			}
-			
-			//HeatPulse heatPulse = controlRod.onRadiateHeat(getReactorHeat());
-			/*
-			if(heatPulse != null) {
-				this.addReactorHeat(heatPulse.heatChange);
-			}
-			*/
-		}
-		
 		// If we can, poop out waste and inject new fuel.
 		refuelAndEjectWaste();
 
@@ -1103,13 +1084,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return (int)(this.energyStored / (float)this.maxEnergyStored * 100f);
 	}
 
-	public int getMaxFuelAmountPerColumn() {
-		return (this.getMaximumCoord().y - this.getMinimumCoord().y - 1) * TileEntityReactorControlRod.maxTotalFluidPerBlock;
-	}
-
 	@Override
 	public int getCapacity() {
-		return getMaxFuelAmountPerColumn() * this.getFuelColumnCount();
+		return fuelContainer.getCapacity();
 	}
 	
 	// Coolant subsystem

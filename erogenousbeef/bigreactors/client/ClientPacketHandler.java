@@ -153,9 +153,8 @@ public class ClientPacketHandler implements IPacketHandler {
 				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
 				if(te != null && te instanceof TileEntityReactorControlRod) {
 					boolean isAssembled = data.readBoolean();
-					int minFuelRodY = data.readInt();
 					short controlRodInsertion = data.readShort();
-					((TileEntityReactorControlRod)te).onControlRodUpdate(isAssembled, minFuelRodY, controlRodInsertion);
+					((TileEntityReactorControlRod)te).onControlRodUpdate(isAssembled, controlRodInsertion);
 				}
 			} catch(IOException e) {
 				e.printStackTrace();
