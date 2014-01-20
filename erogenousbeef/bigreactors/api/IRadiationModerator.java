@@ -1,5 +1,5 @@
 package erogenousbeef.bigreactors.api;
 
 public interface IRadiationModerator {
-	public void receiveRadiationPulse(IRadiationPulse radiation);
+	public void moderateRadiation(RadiationData returnData, RadiationPacket radiation);
 }

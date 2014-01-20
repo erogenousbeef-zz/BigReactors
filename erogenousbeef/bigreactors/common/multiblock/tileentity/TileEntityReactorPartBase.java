@@ -3,14 +3,13 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import net.minecraft.entity.player.InventoryPlayer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
-import net.minecraft.entity.player.InventoryPlayer;
-
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.api.IRadiationPulse;
+import erogenousbeef.bigreactors.api.RadiationData;
+import erogenousbeef.bigreactors.api.RadiationPacket;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
@@ -99,16 +98,8 @@ public abstract class TileEntityReactorPartBase extends
 
 	// IRadiationModerator
 	@Override
-	public void receiveRadiationPulse(IRadiationPulse radiation) {
-		float freePower = radiation.getSlowRadiation() * 0.25f;
-		
-		// Convert 25% of incident radiation to power, for balance reasons.
-		radiation.addPower(freePower);
-		
-		// Slow radiation is all lost now
-		radiation.setSlowRadiation(0);
-		
-		// And zero out the TTL so evaluation force-stops
-		radiation.setTimeToLive(0);
+	public void moderateRadiation(RadiationData data, RadiationPacket radiation) {
+		// Discard all remaining radiation, sorry bucko
+		radiation.intensity = 0f;
 	}
 }

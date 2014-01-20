@@ -29,8 +29,8 @@ TODO - 0.3: The Coolant Update
 ### Fuel refactor
 - (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
 - (DONE) Add way to track when fuel was last updated, send world updates as necessary to transmit fuel data
-- When orphaning fuel rod blocks, give them an appropriate amount of fuel and reduce our internal fuel amount
 - (DONE) Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
+- When orphaning fuel rod blocks, give them an appropriate amount of fuel and reduce our internal fuel amount
 
 ### Radiation refactor number two
 - Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
@@ -42,11 +42,11 @@ TODO - 0.3: The Coolant Update
 - (DONE) Heat transfer rate precalculated on reactor assembly, based on surfaces in contact with non-fuel-rod stuff
 - (DONE) Calculate "effective coolant surface area" based on interior surface area of reactor housing
 - (DONE) Passively-cooled reactors generate power based on effective coolant surface area
-- Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Fix RedNet port's outputTemperature
 
 ### Active Coolant Loop
+- Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
 - Coolant buffer in main reactor controller
 - Coolant I/O interface blocks
 - When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.

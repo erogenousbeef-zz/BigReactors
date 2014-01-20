@@ -1,35 +1,21 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import net.minecraft.block.Block;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.api.HeatPulse;
-import erogenousbeef.bigreactors.api.IHeatEntity;
-import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.api.IRadiationPulse;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedstonePort;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort.CircuitType;
-import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
-import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.MultiblockTileEntityBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
-import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
 public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		implements ITickableMultiblockPart {
