@@ -34,8 +34,8 @@ TODO - 0.3: The Coolant Update
 
 ### Radiation refactor number two
 - Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
-- Fix neutron hardness to actually do something aside from being a straight nutpunch
-- Fix fertilization and expose fertility in UI.
+- (DONE?) Fix neutron hardness to actually do something aside from being a straight nutpunch
+- (PARTIAL) Fix fertilization and expose fertility in UI.
 
 ### Heat Refactor number two
 - (DONE) Fuel Rod heat pool instead of heat in individual fuel rods
