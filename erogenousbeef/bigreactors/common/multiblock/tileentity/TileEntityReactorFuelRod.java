@@ -9,6 +9,8 @@ import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.IMultiblockPartRectangular;
@@ -22,8 +24,59 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 	// IRadiationModerator
 	@Override
 	public void moderateRadiation(RadiationData data, RadiationPacket radiation) {
+		if(!isConnected()) { return; }
+
+		// Grab control rod insertion and reactor heat
+		MultiblockReactor reactor = getReactorController();
+		float heat = reactor.getFuelHeat();
+		
+		int maxY = reactor.getMaximumCoord().y;
+		TileEntity te = worldObj.getBlockTileEntity(xCoord, maxY, zCoord);
+		if(!(te instanceof TileEntityReactorControlRod)) {
+			return;
+		}
+
+		// Scale control rod insertion 0..1
+		float controlRodInsertion = Math.min(1f, Math.max(0f, ((float)((TileEntityReactorControlRod)te).getControlRodInsertion())/100f));
+		
+		// Fuel absorptiveness is determined by control rod + a heat modifier.
+		// Starts at 1 and decays towards 0.05, reaching 0.6 at 1000 and just under 0.2 at 2000. Inflection point at about 500-600.
+		// Harder radiation makes absorption more difficult.
+		float baseAbsorption = (float)(1.0 - (0.95 * Math.exp(-10 * Math.exp(-0.0022 * heat)))) * (1f - (radiation.hardness / getFuelHardnessDivisor()));
+
+		// Some fuels are better at absorbing radiation than others
+		float scaledAbsorption = Math.min(1f, baseAbsorption * getFuelAbsorptionCoefficient());
+		scaledAbsorption += (1f - scaledAbsorption) * controlRodInsertion * 0.5f; // Absorb up to 50% better with control rods inserted.
+		
+		float radiationAbsorbed = scaledAbsorption * radiation.intensity;
+		
+		float fuelModerationFactor = getFuelModerationFactor();
+		fuelModerationFactor += fuelModerationFactor * controlRodInsertion + controlRodInsertion; // Full insertion doubles the moderation factor of the fuel as well as adding its own level
+		
+		radiation.intensity = Math.max(0f, radiation.intensity - radiationAbsorbed);
+		radiation.hardness /= fuelModerationFactor;
+		
+		// Being irradiated both heats up the fuel and also enhances its fertility
+		data.fuelHeatChange += scaledAbsorption * RadiationHelper.heatPerRadiationUnit;
+		data.fuelAbsorbedRadiation += scaledAbsorption;
 	}
 
+	// 1, upwards. How well does this fuel moderate, but not stop, radiation? Anything under 1.5 is "poor", 2-2.5 is "good", above 4 is "excellent".
+	private float getFuelModerationFactor() {
+		return 1.5f;
+	}
+
+	// 0..1. How well does this fuel absorb radiation?
+	private float getFuelAbsorptionCoefficient() {
+		// TODO: Lookup type of fuel and get data from there
+		return 0.5f;
+	}
+	
+	// Goes up from 1. How tolerant is this fuel of hard radiation?
+	private float getFuelHardnessDivisor() {
+		return 1.0f;
+	}
+	
 	// IHeatEntity
 	@Override
 	public float getThermalConductivity() {
