@@ -23,12 +23,8 @@ public class RadiationHelper {
 
 	// Game Balance Values
 	// TODO: Make these configurable
-	private static final float fuelPerRadiationUnit = 0.001f; // fuel units per fission event
-	private static final float heatPerRadiationUnit = 0.1f; // C per fission event
-	private static final float powerPerNeutron = 10f; // RF units per fission event
-	private static final float wasteNeutronPenalty = 0.01f;
-	private static final float incidentNeutronFuelRate = 0.25f;
-	private static final float incidentRadiationDecayRate = 0.5f;
+	public static final float fuelPerRadiationUnit = 0.001f; // fuel units used per fission event
+	public static final float heatPerRadiationUnit = 0.1f; // C generated per fission event
 
 	private float fertility;
 	
@@ -67,7 +63,7 @@ public class RadiationHelper {
 		float radHardness = 0.2f + (float)(0.8 * heatPenaltyBase);
 		
 		// Calculate based on propagation-to-self
-		data.fuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertility(); // Not a typo. Fuel usage is thus penalized at high heats.
+		data.fuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier(); // Not a typo. Fuel usage is thus penalized at high heats.
 		data.fuelHeatChange = heatPerRadiationUnit * effectiveRadIntensity;
 		data.environmentHeatChange = 0f;
 
@@ -90,6 +86,9 @@ public class RadiationHelper {
 				performIrradiation(world, data, radPacket, currentCoord.x, currentCoord.y, currentCoord.z);
 			}
 		}
+		
+		this.fertility += data.fuelAbsorbedRadiation;
+		data.fuelAbsorbedRadiation = 0f;
 		
 		return data;
 	}
@@ -206,11 +205,18 @@ public class RadiationHelper {
 		float radiationAbsorbed = radiation.intensity * absorption * (1f - radiation.hardness);
 		radiation.intensity = Math.max(0f, radiation.intensity - radiationAbsorbed);
 		radiation.hardness /= moderation;
-		data.environmentHeatChange += heatEfficiency * radiationAbsorbed;
+		data.environmentHeatChange += heatEfficiency * radiationAbsorbed * heatPerRadiationUnit;
 	}
 	
 	// Data Access
 	public float getFertility() { return fertility; }
+
+	public float getFertilityModifier() {
+		if(fertility <= 1f) { return 1f; }
+		else {
+			return (float)(Math.log10(fertility) + 1);
+		}
+	}
 
 	public void setFertility(float newFertility) {
 		if(Float.isNaN(newFertility) || Float.isInfinite(newFertility)) {
@@ -227,7 +233,7 @@ public class RadiationHelper {
 	// Save/Load
 	public void readFromNBT(NBTTagCompound data) {
 		if(data.hasKey("fertility")) {
-			fertility = data.getFloat("fertility");
+			setFertility(data.getFloat("fertility"));
 		}
 	}
 	
