@@ -363,15 +363,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(act == this.active) { return; }
 		this.active = act;
 		
-		TileEntity te = null; 
-		IMultiblockPart part = null;
-		for(CoordTriplet coord : connectedBlocks) {
-			te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-			if(te instanceof IMultiblockPart) {
-				part = (IMultiblockPart)te;
-				if(this.active) { part.onMachineActivated(); }
-				else { part.onMachineDeactivated(); }
-			}
+		for(IMultiblockPart part : connectedParts) {
+			if(this.active) { part.onMachineActivated(); }
+			else { part.onMachineDeactivated(); }
 		}
 	}
 
@@ -544,11 +538,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		fuelTypeID = fuelType == null ? -1 : fuelType.getID();
 		wasteTypeID = wasteType == null ? -1 : wasteType.getID();
 		
+		CoordTriplet coord = getReferenceCoord();
+
 		return PacketWrapper.createPacket(BigReactors.CHANNEL,
 				 Packets.ReactorControllerFullUpdate,
-				 new Object[] { referenceCoord.x,
-								referenceCoord.y,
-								referenceCoord.z,
+				 new Object[] { coord.x,
+								coord.y,
+								coord.z,
 								this.active,
 								this.reactorHeat,
 								energyStored,
@@ -678,7 +674,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	@Override
 	protected void onAssimilate(MultiblockControllerBase otherMachine) {
 		if(!(otherMachine instanceof MultiblockReactor)) {
-			FMLLog.warning("[%s] Reactor @ %s is attempting to assimilate a non-Reactor machine! That machine's data will be lost!", worldObj.isRemote?"CLIENT":"SERVER", referenceCoord);
+			FMLLog.warning("[%s] Reactor @ %s is attempting to assimilate a non-Reactor machine! That machine's data will be lost!", worldObj.isRemote?"CLIENT":"SERVER", getReferenceCoord());
 			return;
 		}
 		
@@ -733,11 +729,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			
 			if(!this.worldObj.isRemote) {
 				if(this.updatePlayers.size() > 0) {
+					CoordTriplet coord = getReferenceCoord();
 					Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL,
 							 Packets.ReactorWasteEjectionSettingUpdate,
-							 new Object[] { referenceCoord.x,
-											referenceCoord.y,
-											referenceCoord.z,
+							 new Object[] { coord.x,
+											coord.y,
+											coord.z,
 											this.wasteEjection.ordinal() });
 					
 					for(EntityPlayer player : updatePlayers) {
@@ -913,6 +910,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		else {
 			// Force an update of the client's multiblock information
+			Coord referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
 	}

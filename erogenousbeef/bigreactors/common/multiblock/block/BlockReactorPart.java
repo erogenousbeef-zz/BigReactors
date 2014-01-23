@@ -208,25 +208,6 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		}
 
 		ItemStack currentEquippedItem = player.getCurrentEquippedItem();
-		if(!world.isRemote && currentEquippedItem != null && currentEquippedItem.isItemEqual(new ItemStack(Item.arrow, 1))) {
-			FMLLog.warning("Attempting to set reactor at %d, %d, %d to debug mode...", x, y, z);
-			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof IMultiblockPart) {
-				MultiblockControllerBase c = ((IMultiblockPart)te).getMultiblockController();
-				if(c == null) {
-					player.sendChatToPlayer(ChatMessageComponent.createFromText("Block is not connected to a reactor. Guess you didn't catch this one early enough, chief."));
-				}
-				else {
-					c.setDebugMode(true);
-					player.sendChatToPlayer(ChatMessageComponent.createFromText("This reactor is now in debug mode and will logspam when blocks are disconnected. Don't let this chunk unload, or you're going to see a lot of nasty spam."));
-				}
-			}
-			else {
-				player.sendChatToPlayer(ChatMessageComponent.createFromText("This block is not a reactor part, somehow. This is a very strange error and you should never see it."));
-			}
-			return true;
-		}
-		
 		int metadata = world.getBlockMetadata(x, y, z);
 		if(!isController(metadata) && !isAccessPort(metadata) && !isRedNetPort(metadata)) {
 			// If the player's hands are empty and they rightclick on a multiblock, they get a 
