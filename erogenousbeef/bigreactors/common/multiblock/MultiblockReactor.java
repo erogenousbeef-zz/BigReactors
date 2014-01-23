@@ -303,6 +303,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 
 		if(fuelContainer.shouldSendFuelingUpdate()) {
+			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
 		
@@ -910,7 +911,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		else {
 			// Force an update of the client's multiblock information
-			Coord referenceCoord = getReferenceCoord();
+			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
 	}
