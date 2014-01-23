@@ -13,7 +13,7 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
-import erogenousbeef.core.multiblock.rectangular.IMultiblockPartRectangular;
+import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
 public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implements IRadiationModerator, IHeatEntity {
 
@@ -117,8 +117,8 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		if(entityBelow instanceof TileEntityReactorFuelRod) {
 			return;
 		}
-		else if(entityBelow instanceof IMultiblockPartRectangular) {
-			((IMultiblockPartRectangular)entityBelow).isGoodForBottom();
+		else if(entityBelow instanceof RectangularMultiblockTileEntityBase) {
+			((RectangularMultiblockTileEntityBase)entityBelow).isGoodForBottom();
 			return;
 		}
 		

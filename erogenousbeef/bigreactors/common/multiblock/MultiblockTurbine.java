@@ -172,7 +172,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			outputFluidID = outputFluid.getFluid().getID();
 			outputFluidAmt = outputFluid.amount;
 		}
-		
+
+		CoordTriplet referenceCoord = getReferenceCoord();
 		return PacketWrapper.createPacket(BigReactors.CHANNEL,
 				 Packets.MultiblockTurbineFullUpdate,
 				 new Object[] { referenceCoord.x,
@@ -817,17 +818,12 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public void setActive(boolean newValue) {
 		if(newValue != active) {
 			this.active = newValue;
-			TileEntity te = null; 
-			IMultiblockPart part = null;
-			for(CoordTriplet coord : connectedBlocks) {
-				te = this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
-				if(te instanceof IMultiblockPart) {
-					part = (IMultiblockPart)te;
-					if(this.active) { part.onMachineActivated(); }
-					else { part.onMachineDeactivated(); }
-				}
+			for(IMultiblockPart part : connectedParts) {
+				if(this.active) { part.onMachineActivated(); }
+				else { part.onMachineDeactivated(); }
 			}
 			
+			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
 	}
