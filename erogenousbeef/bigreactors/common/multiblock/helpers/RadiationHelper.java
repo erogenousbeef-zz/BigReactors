@@ -39,6 +39,7 @@ public class RadiationHelper {
 
 		// Determine radiation amount & intensity, heat amount, determine fuel usage
 		RadiationData data = new RadiationData();
+		data.fuelAbsorbedRadiation = 0f;
 
 		// Base value for heat penalties. 0-1, caps at about 3000C;
 		double heatPenaltyBase = Math.exp(-15*Math.exp(-0.0025*fuelHeat));
@@ -76,7 +77,7 @@ public class RadiationHelper {
 
 		// Propagate radiation to others
 		CoordTriplet originCoord = new CoordTriplet(source.xCoord, sourceY, source.zCoord);
-		CoordTriplet currentCoord = originCoord.copy();
+		CoordTriplet currentCoord = new CoordTriplet(0, 0, 0);
 		
 		effectiveRadIntensity *= 0.25f; // We're going to do this four times, no need to repeat
 		RadiationPacket radPacket = new RadiationPacket();
@@ -85,17 +86,18 @@ public class RadiationHelper {
 			radPacket.hardness = radHardness;
 			radPacket.intensity = effectiveRadIntensity;
 			int ttl = 4;
+			currentCoord.copy(originCoord);
 
-			currentCoord.translate(dir);
-			
 			while(ttl > 0 && radPacket.intensity > 0.0001f) {
 				ttl--;
+				currentCoord.translate(dir);
 				performIrradiation(world, data, radPacket, currentCoord.x, currentCoord.y, currentCoord.z);
 			}
 		}
-		
+
 		// Apply changes
-		this.fertility += data.fuelAbsorbedRadiation;
+		FMLLog.info("addding %f absorbed radiation to fuel", data.fuelAbsorbedRadiation);
+		fertility += data.fuelAbsorbedRadiation;
 		data.fuelAbsorbedRadiation = 0f;
 		
 		// Inform fuelContainer
@@ -103,6 +105,11 @@ public class RadiationHelper {
 		data.fuelUsage = rawFuelUsage;
 		
 		return data;
+	}
+	
+	public void tick() {
+		// Fertility decay, at least 0.1 rad/t, otherwise halve it every 10 ticks
+		fertility = Math.max(0f, fertility - Math.max(0.1f, fertility/20f));
 	}
 	
 	private void performIrradiation(World world, RadiationData data, RadiationPacket radiation, int x, int y, int z) {

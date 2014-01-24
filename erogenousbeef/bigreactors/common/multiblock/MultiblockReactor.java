@@ -258,6 +258,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			fuelConsumedLastTick += radData.fuelUsage;
 		}
 
+		// Allow radiation to decay even when reactor is off.
+		radiationHelper.tick();
+
 		// If we can, poop out waste and inject new fuel.
 		refuelAndEjectWaste();
 
@@ -1133,6 +1136,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	@Override
 	public int getCapacity() {
 		return fuelContainer.getCapacity();
+	}
+	
+	public float getFuelFertility() {
+		return radiationHelper.getFertilityModifier();
 	}
 	
 	// Coolant subsystem
