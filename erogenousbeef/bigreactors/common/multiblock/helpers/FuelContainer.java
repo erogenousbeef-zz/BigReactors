@@ -55,7 +55,6 @@ public class FuelContainer {
 			boolean shouldUpdate = false;
 			for(int i = 0; i < NumberOfFluids && !shouldUpdate; i++) {
 				
-				FMLLog.info("checking for fluid %d", i);
 				if(fluids[i] == null && fluidLevelAtLastUpdate[i] > 0) {
 					shouldUpdate = true;
 				}

@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
+import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
@@ -45,24 +46,29 @@ public class RadiationHelper {
 		// Raw amount - what's actually in the tanks
 		// Effective amount - how 
 		int baseFuelAmount = fuelContainer.getFuelAmount() + fuelContainer.getWasteAmount() / 100;
-		float rawRadIntensity = (float)baseFuelAmount * 0.001f;
+		float fuelReactivity = fuelContainer.getFuelReactivity();
 		
 		// Intensity = how strong the radiation is, hardness = how energetic the radiation is (penetration)
-		// Intensity is a function of fuel amount, with a slight bonus for higher-end amounts of fuel.
-		// Aside from fuel consumption, everything else is scaled up slightly, providing a bonus to high concentrations of fuel.
-		// The scaling factor is dependent on the size of each fuel rod, thus providing an incentive for taller reactors, as well as wider.
-		float scaledRadIntensity = (float) Math.pow((rawRadIntensity/numControlRods), fuelContainer.getFuelReactivity()) * numControlRods;
+		float rawRadIntensity = (float)baseFuelAmount * 0.001f;
 		
-		// We cut the raw intensity by control rod insertion, straight off percentagewise.
-		scaledRadIntensity = scaledRadIntensity * (float)source.getControlRodInsertion() / 100f;
+		// Scale up the "effective" intensity of radiation, to provide an incentive for bigger reactors in general.
+		float scaledRadIntensity = (float) Math.pow((rawRadIntensity), fuelReactivity);
+
+		// Scale up a second time based on scaled amount in each fuel rod. Provides an incentive for making reactors that aren't just pancakes.
+		scaledRadIntensity = (float) Math.pow((scaledRadIntensity/numControlRods), fuelReactivity) * numControlRods;
+
+		// Apply control rod moderation of radiation to the quantity of produced radiation. 100% insertion = 100% reduction.
+		float controlRodModifier = (float)(100-source.getControlRodInsertion()) / 100f;
+		scaledRadIntensity = scaledRadIntensity * controlRodModifier;
+		rawRadIntensity = rawRadIntensity * controlRodModifier;
 
 		// Now nerf actual radiation production based on heat. TODO: Necessary? Balance this.
 		float effectiveRadIntensity = scaledRadIntensity * (1f + (float)(-0.95f*Math.exp(-10f*Math.exp(-0.0012f*fuelHeat))));
-		
+
 		// Radiation hardness starts at 20% and asymptotically approaches 100% as heat rises.
 		// This will make radiation harder and harder to capture.
 		float radHardness = 0.2f + (float)(0.8 * heatPenaltyBase);
-		
+
 		// Calculate based on propagation-to-self
 		float rawFuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier(); // Not a typo. Fuel usage is thus penalized at high heats.
 		data.fuelHeatChange = heatPerRadiationUnit * effectiveRadIntensity;

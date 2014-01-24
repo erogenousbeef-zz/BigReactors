@@ -238,21 +238,25 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		float newHeat = 0f;
 
-		// Select a control rod to radiate from. Reset the iterator and select a new Y-level if needed.
-		if(!currentFuelRod.hasNext()) {
-			currentFuelRod = attachedControlRods.iterator();
-			fuelY++;
-			if(fuelY >= getMaximumCoord().y) {
-				fuelY = getMinimumCoord().y + 1;
+		if(isActive()) {
+			// Select a control rod to radiate from. Reset the iterator and select a new Y-level if needed.
+			if(!currentFuelRod.hasNext()) {
+				currentFuelRod = attachedControlRods.iterator();
+				fuelY++;
+				if(fuelY >= getMaximumCoord().y) {
+					fuelY = getMinimumCoord().y + 1;
+				}
 			}
-		}
 
-		TileEntityReactorControlRod sourceControlRod = currentFuelRod.next();
-		
-		RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, sourceControlRod, fuelY, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
-		this.addFuelHeat(radData.fuelHeatChange);
-		this.addReactorHeat(radData.environmentHeatChange);
-		fuelConsumedLastTick += radData.fuelUsage;
+			// Radiate from that control rod
+			TileEntityReactorControlRod sourceControlRod = currentFuelRod.next();
+			RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, sourceControlRod, fuelY, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
+
+			// Assimilate results of radiation
+			addFuelHeat(radData.fuelHeatChange);
+			addReactorHeat(radData.environmentHeatChange);
+			fuelConsumedLastTick += radData.fuelUsage;
+		}
 
 		// If we can, poop out waste and inject new fuel.
 		refuelAndEjectWaste();
