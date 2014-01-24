@@ -88,6 +88,8 @@ TODO - 0.4: The Fueling Update
 - Add fluid fuel interfaces & magma crucible recipes for TE to fluidize fuel
 - Add "fluidizer" small machine - consumes power, outputs fluid fuel
 - Add "fluidic reprocessor" small machine - reprocesses fluid wastes into fluid fuels
+- Figure out how to do fuels/wastes with mixed composition?
+- "Moxie" ingots/fluids.
 
 TODO - 0.5: The Reprocessing Update
 -----------------------------------

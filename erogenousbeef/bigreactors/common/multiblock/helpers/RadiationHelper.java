@@ -32,7 +32,7 @@ public class RadiationHelper {
 		fertility = 1f;
 	}
 
-	public RadiationData radiate(World world, FuelContainer fuelContainer, TileEntityReactorControlRod source, int sourceY, float fuelHeat, float environmentHeat) {
+	public RadiationData radiate(World world, FuelContainer fuelContainer, TileEntityReactorControlRod source, int sourceY, float fuelHeat, float environmentHeat, int numControlRods) {
 		// No fuel? No radiation!
 		if(fuelContainer.getFuelAmount() <= 0) { return null; }
 
@@ -50,7 +50,8 @@ public class RadiationHelper {
 		// Intensity = how strong the radiation is, hardness = how energetic the radiation is (penetration)
 		// Intensity is a function of fuel amount, with a slight bonus for higher-end amounts of fuel.
 		// Aside from fuel consumption, everything else is scaled up slightly, providing a bonus to high concentrations of fuel.
-		float scaledRadIntensity = (float) Math.pow((rawRadIntensity), 1.1f);
+		// The scaling factor is dependent on the size of each fuel rod, thus providing an incentive for taller reactors, as well as wider.
+		float scaledRadIntensity = (float) Math.pow((rawRadIntensity/numControlRods), fuelContainer.getFuelReactivity()) * numControlRods;
 		
 		// We cut the raw intensity by control rod insertion, straight off percentagewise.
 		scaledRadIntensity = scaledRadIntensity * (float)source.getControlRodInsertion() / 100f;
@@ -63,7 +64,7 @@ public class RadiationHelper {
 		float radHardness = 0.2f + (float)(0.8 * heatPenaltyBase);
 		
 		// Calculate based on propagation-to-self
-		data.fuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier(); // Not a typo. Fuel usage is thus penalized at high heats.
+		float rawFuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier(); // Not a typo. Fuel usage is thus penalized at high heats.
 		data.fuelHeatChange = heatPerRadiationUnit * effectiveRadIntensity;
 		data.environmentHeatChange = 0f;
 
@@ -87,8 +88,13 @@ public class RadiationHelper {
 			}
 		}
 		
+		// Apply changes
 		this.fertility += data.fuelAbsorbedRadiation;
 		data.fuelAbsorbedRadiation = 0f;
+		
+		// Inform fuelContainer
+		fuelContainer.onRadiationUsesFuel(rawFuelUsage);
+		data.fuelUsage = rawFuelUsage;
 		
 		return data;
 	}
@@ -237,8 +243,13 @@ public class RadiationHelper {
 		}
 	}
 	
-	public void writeToNBT(NBTTagCompound data) {
+	public NBTTagCompound writeToNBT(NBTTagCompound data) {
 		data.setFloat("fertility", fertility);
+		return data;
+	}
+	
+	public void merge(RadiationHelper other) {
+		fertility = Math.max(fertility, other.fertility);
 	}
 
 }
