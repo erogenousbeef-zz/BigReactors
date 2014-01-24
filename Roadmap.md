@@ -31,6 +31,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add way to track when fuel was last updated, send world updates as necessary to transmit fuel data
 - (DONE) Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
 - When orphaning fuel rod blocks, give them an appropriate amount of fuel and reduce our internal fuel amount
+- Figure out why fuel containers get corrupted when breaking reactors
 
 ### Radiation refactor number two
 - (DONE) Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
@@ -46,7 +47,7 @@ TODO - 0.3: The Coolant Update
 - Fix RedNet port's outputTemperature
 
 ### Active Coolant Loop
-- Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
+- (DONE) Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
 - Coolant buffer in main reactor controller
 - Coolant I/O interface blocks
 - When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
@@ -70,6 +71,10 @@ TODO - 0.3: The Coolant Update
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - Fix the lighting bug on control rods.
+
+### User Interface
+- Fix Control Rod GUI
+- Fix & improve Reactor Controller GUI. Add graphical indicators for fuel heat, fuel fertility.
 
 ### Items
 - Add nuggets for the 4 types of ingots
