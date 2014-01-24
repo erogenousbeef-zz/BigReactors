@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common.multiblock;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import net.minecraft.block.Block;
@@ -24,10 +25,12 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.IHeatEntity;
+import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FuelContainer;
+import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -47,7 +50,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4000; // 4 ingots per rod
 	
-	private static final float passiveCoolingGenerationPenalty = 0.2f; // only 20% of heat turns into power when passively cooled!
+	private static final float passiveCoolingPowerEfficiency = 0.2f; // only 20% of heat turns into power when passively cooled!
 	
 	// Game stuff - stored
 	protected boolean active;
@@ -56,14 +59,18 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	private WasteEjectionSetting wasteEjection;
 	private float energyStored;
 	protected FuelContainer fuelContainer;
+	protected RadiationHelper radiationHelper;
 
 	// Game stuff - derived at runtime
 	protected float fuelToReactorHeatTransferCoefficient;
 	protected float reactorToCoolantSystemHeatTransferCoefficient;
+	
+	protected int fuelY;
+	protected Iterator<TileEntityReactorControlRod> currentFuelRod;
 
 	// UI stuff
 	private float energyGeneratedLastTick;
-	private int fuelConsumedLastTick;
+	private float fuelConsumedLastTick;
 	
 	public enum WasteEjectionSetting {
 		kAutomatic,					// Full auto, always remove waste
@@ -101,7 +108,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		// UI and stats
 		energyGeneratedLastTick = 0f;
-		fuelConsumedLastTick = 0;
+		fuelConsumedLastTick = 0f;
 		
 		
 		attachedPowerTaps = new HashSet<TileEntityReactorPowerTap>();
@@ -109,11 +116,16 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		attachedControlRods = new HashSet<TileEntityReactorControlRod>();
 		attachedAccessPorts = new HashSet<TileEntityReactorAccessPort>();
 		attachedControllers = new HashSet<TileEntityReactorPart>();
+		
+		currentFuelRod = null;
 
 		updatePlayers = new HashSet<EntityPlayer>();
 		
 		ticksSinceLastUpdate = 0;
 		fuelContainer = new FuelContainer();
+		radiationHelper = new RadiationHelper();
+		
+		fuelY = 0;
 	}
 	
 	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
@@ -142,6 +154,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				// Make sure we re-save the control rod, so we don't repeatedly load up with fuel
 				worldObj.markTileEntityChunkModified(controlRod.xCoord, controlRod.yCoord, controlRod.zCoord, controlRod);
 			}
+			
+			// Reset iterator
+			currentFuelRod = attachedControlRods.iterator();
 		}
 
 		if(part instanceof TileEntityReactorPowerTap) {
@@ -173,6 +188,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		if(part instanceof TileEntityReactorControlRod) {
 			attachedControlRods.remove((TileEntityReactorControlRod)part);
+			currentFuelRod = attachedControlRods.iterator();
 		}
 
 		if(part instanceof TileEntityReactorPowerTap) {
@@ -218,15 +234,25 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		float oldHeat = this.getReactorHeat();
 		float oldEnergy = this.getEnergyStored();
 		energyGeneratedLastTick = 0f;
-		fuelConsumedLastTick = 0;
+		fuelConsumedLastTick = 0f;
 
 		float newHeat = 0f;
 
-		// TODO: FIXME FIXME FIXME!
-		int fuelChange = 0; // TODO FIXME during radiation refactor
-		//radiationResult = controlRod.radiate();
-		if(fuelChange > 0) { fuelConsumedLastTick += fuelChange; }
-		//this.generateEnergy(radiationResult.getPowerProduced());
+		// Select a control rod to radiate from. Reset the iterator and select a new Y-level if needed.
+		if(!currentFuelRod.hasNext()) {
+			currentFuelRod = attachedControlRods.iterator();
+			fuelY++;
+			if(fuelY >= getMaximumCoord().y) {
+				fuelY = getMinimumCoord().y + 1;
+			}
+		}
+
+		TileEntityReactorControlRod sourceControlRod = currentFuelRod.next();
+		
+		RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, sourceControlRod, fuelY, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
+		this.addFuelHeat(radData.fuelHeatChange);
+		this.addReactorHeat(radData.environmentHeatChange);
+		fuelConsumedLastTick += radData.fuelUsage;
 
 		// If we can, poop out waste and inject new fuel.
 		refuelAndEjectWaste();
@@ -239,16 +265,15 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			fuelHeat -= tempTransfer;
 			reactorHeat += tempTransfer;
 		}
-		
-		// leak 1% of heat to the environment per tick
-		// TODO: Better equation.
+
+		// If we have a temperature differential between environment and coolant system, move heat between them.
 		tempDiff = reactorHeat - getCoolantTemperature();
 		if(tempDiff > 0.00001f) {
 			float tempTransfer = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
-			this.addReactorHeat(-1f * tempTransfer);
+			addReactorHeat(-1f * tempTransfer);
 
 			if(isPassivelyCooled()) {
-				this.generateEnergy(tempTransfer * BigReactors.powerPerHeat * passiveCoolingGenerationPenalty);
+				generateEnergy(tempTransfer * BigReactors.powerPerHeat * passiveCoolingPowerEfficiency);
 			}
 			else {
 				// TODO: Active coolant system
@@ -457,6 +482,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		data.setFloat("storedEnergy", this.energyStored);
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
+		data.setCompoundTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -484,6 +510,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(data.hasKey("fuelContainer")) {
 			fuelContainer.readFromNBT(data.getCompoundTag("fuelContainer"));
 		}
+		
+		if(data.hasKey("radiation")) {
+			radiationHelper.readFromNBT(data.getCompoundTag("radiation"));
+		}
 	}
 
 	@Override
@@ -500,6 +530,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		data.setBoolean("isActive", this.isActive());
 		data.setFloat("fuelHeat", fuelHeat);
 		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
+		data.setCompoundTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -528,6 +559,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			fuelContainer.readFromNBT(data.getCompoundTag("fuel"));
 			onFuelStatusChanged();
 		}
+		
+		if(data.hasKey("radiation")) {
+			radiationHelper.readFromNBT(data.getCompoundTag("radiation"));
+		}
 	}
 
 	protected Packet getUpdatePacket() {
@@ -555,7 +590,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 								fuelTypeID,
 								fuelContainer.getFuelAmount(),
 								wasteTypeID,
-								fuelContainer.getWasteAmount()});
+								fuelContainer.getWasteAmount(),
+								radiationHelper.getFertility()});
 	}
 	
 	public void receiveReactorUpdate(DataInputStream data) throws IOException {
@@ -563,12 +599,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		float heat = data.readFloat();
 		float storedEnergy = data.readFloat();
 		float energyGeneratedLastTick = data.readFloat();
-		int fuelConsumedLastTick = data.readInt();
+		float fuelConsumedLastTick = data.readFloat();
 		float fuelHeat = data.readFloat();
 		int fuelTypeID = data.readInt();
 		int fuelAmt = data.readInt();
 		int wasteTypeID = data.readInt();
 		int wasteAmt = data.readInt();
+		float fertility = data.readFloat();
 
 		setActive(active);
 		setReactorHeat(heat);
@@ -576,6 +613,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		setEnergyGeneratedLastTick(energyGeneratedLastTick);
 		setFuelConsumedLastTick(fuelConsumedLastTick);
 		setFuelHeat(fuelHeat);
+		
+		radiationHelper.setFertility(fertility);
 		
 		if(fuelTypeID == -1) {
 			fuelContainer.emptyFuel();
@@ -670,6 +709,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		this.attachedAccessPorts.clear();
 		this.attachedControllers.clear();
 		this.attachedControlRods.clear();
+		currentFuelRod = null;
 	}
 	
 	@Override
@@ -682,11 +722,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		MultiblockReactor otherReactor = (MultiblockReactor)otherMachine;
 
 		// TODO FIXME: Only change heat based on relative sizes
-		if(otherReactor.reactorHeat > this.reactorHeat) { reactorHeat = otherReactor.reactorHeat; }
-		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); } 
-		this.addStoredEnergy(otherReactor.getEnergyStored());
+		if(otherReactor.reactorHeat > this.reactorHeat) { setReactorHeat(otherReactor.reactorHeat); }
+		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); }
+		if(otherReactor.getEnergyStored() > this.getEnergyStored()) { this.setStoredEnergy(otherReactor.getEnergyStored()); }
 		
 		fuelContainer.merge(otherReactor.fuelContainer);
+		radiationHelper.merge(otherReactor.radiationHelper);
 	}
 	
 	@Override
@@ -863,8 +904,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(wasteIngotsDistributed > 0) {
 			fuelContainer.drainWaste(wasteIngotsDistributed * AmountPerIngot);
 		}
-		
-		// TODO: Track fuel updates and send them periodically to the client
 	} // End fuel/waste autotransfer		
 
 	@Override
@@ -894,6 +933,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				}
 			}
 		}
+		
+		// Pick a random fuel rod Y as a starting point
+		fuelY = (int)(Math.random() * (maxFuelRodY - minFuelRodY)) + minFuelRodY;
+		currentFuelRod = attachedControlRods.iterator();
 		
 		// Calculate heat transfer to coolant system based on reactor interior surface area.
 		// This is pretty simple to start with - surface area of the rectangular prism defining the interior.
@@ -961,15 +1004,15 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	/**
 	 * Used to update the UI
 	 */
-	public void setFuelConsumedLastTick(int fuelConsumed) {
-		this.fuelConsumedLastTick = fuelConsumed;
+	public void setFuelConsumedLastTick(float fuelConsumed) {
+		fuelConsumedLastTick = fuelConsumed;
 	}
 	
 	/**
 	 * UI Helper
 	 */
-	public int getFuelConsumedLastTick() {
-		return this.fuelConsumedLastTick;
+	public float getFuelConsumedLastTick() {
+		return fuelConsumedLastTick;
 	}
 
 	/**

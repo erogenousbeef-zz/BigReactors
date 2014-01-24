@@ -29,8 +29,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	public final static short maxInsertion = 100;
 	public final static short minInsertion = 0;
 
-	protected boolean isAssembled = false;
-
 	// Radiation
 	protected short controlRodInsertion; // 0 = retracted fully, 100 = inserted fully
 	
@@ -43,8 +41,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	public TileEntityReactorControlRod() {
 		super();
 	
-		isAssembled = false;
-
 		controlRodInsertion = minInsertion;
 		
 		name = "";
@@ -53,10 +49,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	}
 	
 	// Data accessors
-	public boolean isAssembled() {
-		return isAssembled;
-	}
-	
 	public short getControlRodInsertion() {
 		return this.controlRodInsertion;
 	}
@@ -65,7 +57,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	
 	public void setControlRodInsertion(short newInsertion) {
 		if(newInsertion > maxInsertion || newInsertion < minInsertion || newInsertion == controlRodInsertion) { return; }
-		if(!this.isAssembled) { return; }
+		if(!isConnected()) { return; }
 
 		this.controlRodInsertion = (short)Math.max(Math.min(newInsertion, maxInsertion), minInsertion);
 		this.sendControlRodUpdate();
@@ -80,10 +72,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		super.readFromNBT(data);
 		this.readLocalDataFromNBT(data);
 		
-		if(data.hasKey("name")) {
-			this.name = data.getString("name");
-		}
-		
 		if(data.hasKey("fuelFluidStack")) {
 			this.cachedFuel = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("fuelFluidStack"));
 		}
@@ -93,10 +81,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	public void writeToNBT(NBTTagCompound data) {
 		super.writeToNBT(data);
 		this.writeLocalDataToNBT(data);
-		
-		if(!this.name.isEmpty()) {
-			data.setString("name", this.name);
-		}
 	}
 
 	// Player updates via IBeefGuiEntity
@@ -135,14 +119,13 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		if(this.worldObj == null || this.worldObj.isRemote) { return; }
 
 		Packet p = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ControlRodUpdate,
-				new Object[] { xCoord, yCoord, zCoord, isAssembled, controlRodInsertion });
+				new Object[] { xCoord, yCoord, zCoord, controlRodInsertion });
 		
 		PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, p);
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void onControlRodUpdate(boolean isAssembled, short controlRodInsertion) {
-		this.isAssembled = isAssembled;
+	public void onControlRodUpdate(short controlRodInsertion) {
 		this.controlRodInsertion = controlRodInsertion;
 	}
 
@@ -150,10 +133,21 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		if(data.hasKey("controlRodInsertion")) {
 			this.controlRodInsertion = data.getShort("controlRodInsertion");
 		}
+		
+		if(data.hasKey("name")) {
+			this.name = data.getString("name");
+		}
+		else {
+			this.name = "";
+		}
 	}
 	
 	private void writeLocalDataToNBT(NBTTagCompound data) {
 		data.setShort("controlRodInsertion", controlRodInsertion);
+		
+		if(!this.name.isEmpty()) {
+			data.setString("name", this.name);
+		}
 	}
 	
 	// MultiblockTileEntityBase
@@ -207,8 +201,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		super.encodeDescriptionPacket(packet);
 		NBTTagCompound localData = new NBTTagCompound();
 		this.writeLocalDataToNBT(localData);
-		localData.setBoolean("isAssembled", this.isAssembled);
-		localData.setString("name", this.name);
 		packet.setCompoundTag("reactorControlRod", localData);
 	}
 	
@@ -219,14 +211,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		if(packet.hasKey("reactorControlRod")) {
 			NBTTagCompound localData = packet.getCompoundTag("reactorControlRod");
 			this.readLocalDataFromNBT(localData);
-			
-			if(localData.hasKey("isAssembled")) {
-				this.isAssembled = localData.getBoolean("isAssembled");
-			}
-			
-			if(localData.hasKey("name")) {
-				this.name = localData.getString("name");
-			}
 			
 			if(this.worldObj != null) {
 				this.worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);

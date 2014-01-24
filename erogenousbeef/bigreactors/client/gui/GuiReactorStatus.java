@@ -50,7 +50,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		this.averagedHeat = new FloatAverager(30);
 		this.averagedRfOutput = new FloatAverager(30); // About 1.5 seconds
-		this.averagedFuelConsumption = new FloatAverager(60); // About 3 seconds
+		this.averagedFuelConsumption = new FloatAverager(30);
 	}
 	
 	// Add controls, etc.

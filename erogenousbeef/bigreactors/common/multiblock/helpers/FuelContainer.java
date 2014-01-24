@@ -1,7 +1,9 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
 import cpw.mods.fml.common.FMLLog;
+import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.common.BigReactors;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
@@ -31,6 +33,8 @@ public class FuelContainer {
 	private static final int NumberOfFluids = 2;
 	private static final int FORCE_UPDATE = -1000;
 	
+	private float radiationFuelUsage;
+	
 	public FuelContainer() {
 		fluids = new FluidStack[NumberOfFluids];
 		fluidLevelAtLastUpdate = new int[NumberOfFluids];
@@ -41,6 +45,7 @@ public class FuelContainer {
 		}
 
 		capacity = 1000;
+		radiationFuelUsage = 0f;
 	}
 	
 	public boolean shouldSendFuelingUpdate() {
@@ -153,6 +158,16 @@ public class FuelContainer {
 		return addFluidToStack(WASTE, incoming);
 	}
 	
+	private void addWaste(int wasteAmt) {
+		if(this.getWasteType() == null) {
+			FMLLog.warning("System is using addWaste(int) when there's no waste present, defaulting to cyanite");
+			addFluidToStack(WASTE, new FluidStack(BigReactors.fluidCyanite, wasteAmt));
+		}
+		else {
+			addFluidToStack(WASTE, wasteAmt);
+		}
+	}
+	
 	public int drainFuel(int amount) {
 		return drainFluidFromStack(FUEL, amount);
 	}
@@ -200,6 +215,7 @@ public class FuelContainer {
 		}
 		
 		destination.setInteger("capacity", capacity);
+		destination.setFloat("fuelUsage", radiationFuelUsage);
 		return destination;
 	}
 	
@@ -228,6 +244,13 @@ public class FuelContainer {
 		else {
 			setCapacity(1000);
 		}
+		
+		if(data.hasKey("fuelUsage")) {
+			radiationFuelUsage = data.getFloat("fuelUsage");
+		}
+		else {
+			radiationFuelUsage = 0f;
+		}
 	}
 	
 	public void emptyFuel() {
@@ -247,6 +270,7 @@ public class FuelContainer {
 	}
 	
 	public void merge(FuelContainer other) {
+		radiationFuelUsage = Math.max(radiationFuelUsage, other.radiationFuelUsage);
 		capacity += other.capacity;
 		for(int i = 0; i < fluids.length; i++) {
 			if(other.fluids[i] != null ){
@@ -268,6 +292,51 @@ public class FuelContainer {
 		
 		clampContentsToCapacity();
 	}
+	
+	public void onRadiationUsesFuel(float fuelUsed) {
+		if(Float.isInfinite(fuelUsed) || Float.isNaN(fuelUsed)) { return; }
+		
+		radiationFuelUsage += fuelUsed;
+		
+		if(radiationFuelUsage < 1f) {
+			return;
+		}
+
+		int fuelToConvert = Math.min(getFuelAmount(), (int)radiationFuelUsage);
+
+		if(fuelToConvert <= 0) { return; }
+		
+		radiationFuelUsage = Math.max(0f, radiationFuelUsage - fuelToConvert);
+
+		Fluid fuelType = getFuelType();
+		if(fuelType != null) {
+			this.drainFuel(fuelToConvert);
+			
+			if(getWasteType() != null) {
+				// If there's already waste, just keep on producing the same type.
+				// TODO: Allow fuel miscegenation?
+				this.addWaste(fuelToConvert);
+			}
+			else {
+				// Create waste type from registry
+				IReactorFuel fuelData = BRRegistry.getDataForFuel(fuelType);
+				Fluid wasteFluid = null;
+				if(fuelData != null) {
+					wasteFluid = fuelData.getProductFluid();
+				}
+				
+				if(wasteFluid == null) {
+					FMLLog.warning("Unable to locate waste for fuel type " + fuelType.getName() + "; using cyanite instead");
+					wasteFluid = BigReactors.fluidCyanite;
+				}
+				
+				this.addWaste(new FluidStack(wasteFluid, fuelToConvert));
+			}
+		}
+		else {
+			FMLLog.warning("Attempting to use %d fuel and there's no fuel in the tank", fuelToConvert);
+		}
+	}
 
 	////// PRIVATE HELPERS //////
 	
@@ -275,6 +344,18 @@ public class FuelContainer {
 		if(idx < 0 || idx >= fluids.length) { return false; }
 		else if(fluids[idx] == null) { return true; }
 		return fluids[idx].isFluidEqual(incoming);
+	}
+	
+	private int addFluidToStack(int idx, int fluidAmount) {
+		if(fluids[idx].getFluid() == null) {
+			throw new IllegalArgumentException("Cannot add fluid with only an integer when tank is empty!");
+		}
+		
+		int amtToAdd = Math.min(fluidAmount, getCapacity() - getTotalAmount());
+		
+		fluids[idx].amount += amtToAdd;
+		return Math.max(0, fluidAmount - amtToAdd);
+		
 	}
 	
 	private FluidStack addFluidToStack(int idx, FluidStack incoming) {
@@ -286,7 +367,6 @@ public class FuelContainer {
 			return incoming;
 		}
 		else if(amtToAdd >= incoming.amount) {
-			fluids[idx] = incoming;
 			if(fluids[idx] == null) {
 				fluids[idx] = incoming;
 			}
@@ -370,5 +450,10 @@ public class FuelContainer {
 				fluidLevelAtLastUpdate[i] = fluids[i].amount;
 			}
 		}
+	}
+
+	public float getFuelReactivity() {
+		// TODO: Fetch this from the fuel itself
+		return 1.1f;
 	}
 }

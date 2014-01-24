@@ -117,7 +117,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		}
 
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
-		if(entity.isAssembled()) {
+		if(entity.isConnected()) {
 			rodInsertBtn.enabled = true;
 			rodRetractBtn.enabled = true;
 		}
