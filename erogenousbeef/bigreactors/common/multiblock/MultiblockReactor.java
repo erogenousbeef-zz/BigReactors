@@ -66,7 +66,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	protected float reactorToCoolantSystemHeatTransferCoefficient;
 	
 	protected int fuelY;
-	protected Iterator<TileEntityReactorControlRod> currentFuelRod;
+	protected Iterator<TileEntityReactorFuelRod> currentFuelRod;
 
 	// UI stuff
 	private float energyGeneratedLastTick;
@@ -85,6 +85,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	private Set<TileEntityReactorControlRod> attachedControlRods; 	// Highest internal Y-coordinate in the fuel column
 	private Set<TileEntityReactorAccessPort> attachedAccessPorts;
 	private Set<TileEntityReactorPart> attachedControllers;
+	
+	private Set<TileEntityReactorFuelRod> attachedFuelRods;
 
 	// Updates
 	private Set<EntityPlayer> updatePlayers;
@@ -116,6 +118,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		attachedControlRods = new HashSet<TileEntityReactorControlRod>();
 		attachedAccessPorts = new HashSet<TileEntityReactorAccessPort>();
 		attachedControllers = new HashSet<TileEntityReactorPart>();
+		attachedFuelRods = new HashSet<TileEntityReactorFuelRod>();
 		
 		currentFuelRod = null;
 
@@ -154,9 +157,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				// Make sure we re-save the control rod, so we don't repeatedly load up with fuel
 				worldObj.markTileEntityChunkModified(controlRod.xCoord, controlRod.yCoord, controlRod.zCoord, controlRod);
 			}
-			
-			// Reset iterator
-			currentFuelRod = attachedControlRods.iterator();
 		}
 
 		if(part instanceof TileEntityReactorPowerTap) {
@@ -174,9 +174,16 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			attachedTickables.add((ITickableMultiblockPart)part);
 		}
 		
-		if(worldObj.isRemote && part instanceof TileEntityReactorFuelRod) {
+		if(part instanceof TileEntityReactorFuelRod) {
 			TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)part;
-			worldObj.markBlockForRenderUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
+			attachedFuelRods.add(fuelRod);
+
+			// Reset iterator
+			currentFuelRod = attachedFuelRods.iterator();
+
+			if(worldObj.isRemote) {
+				worldObj.markBlockForRenderUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
+			}
 		}
 	}
 	
@@ -188,7 +195,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		if(part instanceof TileEntityReactorControlRod) {
 			attachedControlRods.remove((TileEntityReactorControlRod)part);
-			currentFuelRod = attachedControlRods.iterator();
 		}
 
 		if(part instanceof TileEntityReactorPowerTap) {
@@ -204,6 +210,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		if(part instanceof ITickableMultiblockPart) {
 			attachedTickables.remove((ITickableMultiblockPart)part);
+		}
+		
+		if(part instanceof TileEntityReactorFuelRod) {
+			attachedFuelRods.remove(part);
+			currentFuelRod = attachedFuelRods.iterator();
 		}
 	}
 	
@@ -241,7 +252,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(isActive()) {
 			// Select a control rod to radiate from. Reset the iterator and select a new Y-level if needed.
 			if(!currentFuelRod.hasNext()) {
-				currentFuelRod = attachedControlRods.iterator();
+				currentFuelRod = attachedFuelRods.iterator();
 				fuelY++;
 				if(fuelY >= getMaximumCoord().y) {
 					fuelY = getMinimumCoord().y + 1;
@@ -249,8 +260,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			}
 
 			// Radiate from that control rod
-			TileEntityReactorControlRod sourceControlRod = currentFuelRod.next();
-			RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, sourceControlRod, fuelY, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
+			TileEntityReactorFuelRod source  = currentFuelRod.next();
+			TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
+			RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
 
 			// Assimilate results of radiation
 			addFuelHeat(radData.fuelHeatChange);
@@ -259,7 +271,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 
 		// Allow radiation to decay even when reactor is off.
-		radiationHelper.tick();
+		radiationHelper.tick(isActive());
 
 		// If we can, poop out waste and inject new fuel.
 		refuelAndEjectWaste();
@@ -920,30 +932,24 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		minCoord = getMinimumCoord();
 		maxCoord = getMaximumCoord();
 		
-		int reactorHeight = maxCoord.y - minCoord.y - 1; 
-		int numFuelRods = this.attachedControlRods.size() * reactorHeight;
-		fuelContainer.setCapacity(numFuelRods * FuelCapacityPerFuelRod);
+		FMLLog.info("[%s] onMachineAssembled, %d fuel rods, resizing to %d", worldObj.isRemote?"CLIENT":"SERVER", attachedFuelRods.size(), attachedFuelRods.size() * FuelCapacityPerFuelRod);
+		
+		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
 		fuelContainer.clampContentsToCapacity();
 
 		// Calculate derived stats
 		
 		// Calculate heat transfer based on fuel rod environment
-		int maxFuelRodY = maxCoord.y - 1;
-		int minFuelRodY = minCoord.y + 1;
-		TileEntity te;
 		fuelToReactorHeatTransferCoefficient = 0f;
-		for(TileEntityReactorControlRod controlRod : attachedControlRods) {
-			for(int fuelY = minFuelRodY; fuelY <= maxFuelRodY; fuelY++) {
-				te = worldObj.getBlockTileEntity(controlRod.xCoord, fuelY, controlRod.zCoord);
-				if(te instanceof TileEntityReactorFuelRod) {
-					fuelToReactorHeatTransferCoefficient += ((TileEntityReactorFuelRod)te).getHeatTransferRate();
-				}
-			}
+		for(TileEntityReactorFuelRod fuelRod : attachedFuelRods) {
+			fuelToReactorHeatTransferCoefficient += fuelRod.getHeatTransferRate();
 		}
 		
 		// Pick a random fuel rod Y as a starting point
+		int maxFuelRodY = maxCoord.y - 1;
+		int minFuelRodY = minCoord.y + 1;
 		fuelY = (int)(Math.random() * (maxFuelRodY - minFuelRodY)) + minFuelRodY;
-		currentFuelRod = attachedControlRods.iterator();
+		currentFuelRod = attachedFuelRods.iterator();
 		
 		// Calculate heat transfer to coolant system based on reactor interior surface area.
 		// This is pretty simple to start with - surface area of the rectangular prism defining the interior.
@@ -1164,5 +1170,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				}
 			}
 		}
+	}
+	
+	public void debugOutput() {
+		String clientOrServer = worldObj.isRemote?"CLIENT":"SERVER";
+		FMLLog.info("[%s] Multiblock reactor %s - %d connected parts", clientOrServer, hashCode(), connectedParts.size());
+		FMLLog.info("[%s] Fuel tank size %d for %d fuel blocks in %d columns", clientOrServer, fuelContainer.getCapacity(), attachedFuelRods.size(), attachedControlRods.size());
+		FMLLog.info("[%s] Fuel tank contains %d total fluid; %d fuel, %d waste", clientOrServer, fuelContainer.getTotalAmount(), fuelContainer.getFuelAmount(), fuelContainer.getWasteAmount());
 	}
 }

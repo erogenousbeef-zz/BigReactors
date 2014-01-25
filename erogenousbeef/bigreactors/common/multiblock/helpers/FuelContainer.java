@@ -213,7 +213,6 @@ public class FuelContainer {
 			destination.setCompoundTag("waste", fluids[WASTE].writeToNBT(new NBTTagCompound()));
 		}
 		
-		destination.setInteger("capacity", capacity);
 		destination.setFloat("fuelUsage", radiationFuelUsage);
 		return destination;
 	}
@@ -235,13 +234,6 @@ public class FuelContainer {
 		else {
 			fluids[WASTE] = null;
 			fluidLevelAtLastUpdate[WASTE] = 0;
-		}
-		
-		if(data.hasKey("capacity")) {
-			capacity = data.getInteger("capacity");
-		}
-		else {
-			setCapacity(1000);
 		}
 		
 		if(data.hasKey("fuelUsage")) {
@@ -270,6 +262,7 @@ public class FuelContainer {
 	
 	public void merge(FuelContainer other) {
 		radiationFuelUsage = Math.max(radiationFuelUsage, other.radiationFuelUsage);
+		
 		capacity += other.capacity;
 		for(int i = 0; i < fluids.length; i++) {
 			if(other.fluids[i] != null ){

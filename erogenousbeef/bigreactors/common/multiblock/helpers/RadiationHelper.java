@@ -5,6 +5,7 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.block.Block;
@@ -33,7 +34,7 @@ public class RadiationHelper {
 		fertility = 1f;
 	}
 
-	public RadiationData radiate(World world, FuelContainer fuelContainer, TileEntityReactorControlRod source, int sourceY, float fuelHeat, float environmentHeat, int numControlRods) {
+	public RadiationData radiate(World world, FuelContainer fuelContainer, TileEntityReactorFuelRod source, TileEntityReactorControlRod controlRod, float fuelHeat, float environmentHeat, int numControlRods) {
 		// No fuel? No radiation!
 		if(fuelContainer.getFuelAmount() <= 0) { return null; }
 
@@ -59,7 +60,7 @@ public class RadiationHelper {
 		scaledRadIntensity = (float) Math.pow((scaledRadIntensity/numControlRods), fuelReactivity) * numControlRods;
 
 		// Apply control rod moderation of radiation to the quantity of produced radiation. 100% insertion = 100% reduction.
-		float controlRodModifier = (float)(100-source.getControlRodInsertion()) / 100f;
+		float controlRodModifier = (float)(100-controlRod.getControlRodInsertion()) / 100f;
 		scaledRadIntensity = scaledRadIntensity * controlRodModifier;
 		rawRadIntensity = rawRadIntensity * controlRodModifier;
 
@@ -76,7 +77,7 @@ public class RadiationHelper {
 		data.environmentHeatChange = 0f;
 
 		// Propagate radiation to others
-		CoordTriplet originCoord = new CoordTriplet(source.xCoord, sourceY, source.zCoord);
+		CoordTriplet originCoord = source.getWorldLocation();
 		CoordTriplet currentCoord = new CoordTriplet(0, 0, 0);
 		
 		effectiveRadIntensity *= 0.25f; // We're going to do this four times, no need to repeat
@@ -96,7 +97,6 @@ public class RadiationHelper {
 		}
 
 		// Apply changes
-		FMLLog.info("addding %f absorbed radiation to fuel", data.fuelAbsorbedRadiation);
 		fertility += data.fuelAbsorbedRadiation;
 		data.fuelAbsorbedRadiation = 0f;
 		
@@ -107,9 +107,12 @@ public class RadiationHelper {
 		return data;
 	}
 	
-	public void tick() {
+	public void tick(boolean active) {
+		float denominator = 20f;
+		if(!active) { denominator *= 20f; } // Slower decay when off
+		
 		// Fertility decay, at least 0.1 rad/t, otherwise halve it every 10 ticks
-		fertility = Math.max(0f, fertility - Math.max(0.1f, fertility/20f));
+		fertility = Math.max(0f, fertility - Math.max(0.1f, fertility/denominator));
 	}
 	
 	private void performIrradiation(World world, RadiationData data, RadiationPacket radiation, int x, int y, int z) {
