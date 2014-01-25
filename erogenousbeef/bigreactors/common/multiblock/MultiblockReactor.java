@@ -744,7 +744,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(otherReactor.reactorHeat > this.reactorHeat) { setReactorHeat(otherReactor.reactorHeat); }
 		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); }
 		if(otherReactor.getEnergyStored() > this.getEnergyStored()) { this.setStoredEnergy(otherReactor.getEnergyStored()); }
-		
+
 		fuelContainer.merge(otherReactor.fuelContainer);
 		radiationHelper.merge(otherReactor.radiationHelper);
 	}
@@ -756,8 +756,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	
 	@Override
 	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
-		// TODO: Don't write fluid data to orphans.
-		this.writeToNBT(dataContainer);
 	}
 
 	public float getEnergyStored() {
@@ -935,7 +933,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		FMLLog.info("[%s] onMachineAssembled, %d fuel rods, resizing to %d", worldObj.isRemote?"CLIENT":"SERVER", attachedFuelRods.size(), attachedFuelRods.size() * FuelCapacityPerFuelRod);
 		
 		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
-		fuelContainer.clampContentsToCapacity();
 
 		// Calculate derived stats
 		
@@ -1112,18 +1109,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	}
 
 	public int getFuelAmount() {
-		if(this.assemblyState != AssemblyState.Assembled) {
-			return 0;
-		}
-		
 		return fuelContainer.getFuelAmount();
 	}
 
 	public int getWasteAmount() {
-		if(this.assemblyState != AssemblyState.Assembled) {
-			return 0;
-		}
-
 		return fuelContainer.getWasteAmount();
 	}
 	
@@ -1141,6 +1130,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public int getCapacity() {
+		if(worldObj.isRemote && assemblyState != AssemblyState.Assembled) {
+			// Estimate capacity
+			return attachedFuelRods.size() * FuelCapacityPerFuelRod;
+		}
+
 		return fuelContainer.getCapacity();
 	}
 	
@@ -1161,13 +1155,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	protected void onFuelStatusChanged() {
 		if(worldObj.isRemote) {
 			// On the client, re-render all the fuel rod blocks when the fuel status changes
-			int maxY = getMaximumCoord().y;
-			int minY = getMinimumCoord().y;
-			
-			for(TileEntityReactorControlRod controlRod : attachedControlRods) {
-				for(int y = minY; y <= maxY; y++) {
-					worldObj.markBlockForRenderUpdate(controlRod.xCoord, y, controlRod.zCoord);
-				}
+			for(TileEntityReactorFuelRod fuelRod : attachedFuelRods) {
+				worldObj.markBlockForUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
 			}
 		}
 	}
