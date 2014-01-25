@@ -109,7 +109,7 @@ public class RadiationHelper {
 	
 	public void tick(boolean active) {
 		float denominator = 20f;
-		if(!active) { denominator *= 20f; } // Slower decay when off
+		if(!active) { denominator *= 200f; } // Much slower decay when off
 		
 		// Fertility decay, at least 0.1 rad/t, otherwise halve it every 10 ticks
 		fertility = Math.max(0f, fertility - Math.max(0.1f, fertility/denominator));

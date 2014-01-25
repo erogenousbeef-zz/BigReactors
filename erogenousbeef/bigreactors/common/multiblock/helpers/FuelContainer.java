@@ -63,8 +63,7 @@ public class FuelContainer {
 						shouldUpdate = true;
 					}
 					else {
-						int tmp = Math.abs(fluids[i].amount - fluidLevelAtLastUpdate[i]);
-						dev += tmp;
+						dev += Math.abs(fluids[i].amount - fluidLevelAtLastUpdate[i]);
 					}
 				}
 				// else, both levels are zero, no-op
@@ -222,25 +221,14 @@ public class FuelContainer {
 			fluids[FUEL] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("fuel"));
 			fluidLevelAtLastUpdate[FUEL] = fluids[FUEL].amount;
 		}
-		else {
-			fluids[FUEL] = null;			
-			fluidLevelAtLastUpdate[FUEL] = 0;
-		}
 		
 		if(data.hasKey("waste")) {
 			fluids[WASTE] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("waste"));
 			fluidLevelAtLastUpdate[WASTE] = fluids[WASTE].amount;
 		}
-		else {
-			fluids[WASTE] = null;
-			fluidLevelAtLastUpdate[WASTE] = 0;
-		}
 		
 		if(data.hasKey("fuelUsage")) {
 			radiationFuelUsage = data.getFloat("fuelUsage");
-		}
-		else {
-			radiationFuelUsage = 0f;
 		}
 	}
 	
@@ -281,8 +269,6 @@ public class FuelContainer {
 				}
 			}
 		}
-		
-		clampContentsToCapacity();
 	}
 	
 	public void onRadiationUsesFuel(float fuelUsed) {
