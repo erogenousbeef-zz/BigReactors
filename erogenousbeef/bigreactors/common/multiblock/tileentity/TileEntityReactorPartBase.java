@@ -21,7 +21,6 @@ public abstract class TileEntityReactorPartBase extends
 		RectangularMultiblockTileEntityBase implements IMultiblockNetworkHandler, IMultiblockGuiHandler, IHeatEntity, IRadiationModerator {
 
 	public TileEntityReactorPartBase() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public MultiblockReactor getReactorController() { return (MultiblockReactor)this.getMultiblockController(); }
