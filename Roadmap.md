@@ -30,13 +30,11 @@ TODO - 0.3: The Coolant Update
 - (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
 - (DONE) Add way to track when fuel was last updated, send world updates as necessary to transmit fuel data
 - (DONE) Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
-- When orphaning fuel rod blocks, give them an appropriate amount of fuel and reduce our internal fuel amount
-- Figure out why fuel containers get corrupted when breaking reactors
 
 ### Radiation refactor number two
 - (DONE) Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
 - (DONE) Fix neutron hardness to actually do something aside from being a straight nutpunch
-- (PARTIAL/NO UI YET) Fix fertilization and expose fertility in UI.
+- (DONE) Fix fertilization and expose fertility in UI.
 
 ### Heat Refactor number two
 - (DONE) Fuel Rod heat pool instead of heat in individual fuel rods
@@ -70,7 +68,7 @@ TODO - 0.3: The Coolant Update
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
-- Fix the lighting bug on control rods.
+- (DONE) Fix the lighting bug on control rods.
 
 ### User Interface
 - Fix Control Rod GUI
