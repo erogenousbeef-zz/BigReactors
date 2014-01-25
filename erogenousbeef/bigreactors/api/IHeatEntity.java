@@ -2,9 +2,6 @@ package erogenousbeef.bigreactors.api;
 
 public interface IHeatEntity {
 	public static final float ambientHeat = 20.0f; // Normal ambient temperature
-	public static final float powerPerHeat = 10f;  // RF power units per C radiated
-												   // Note that this is controlled via a BigReactors config setting
-												   // For all internal calculations!
 	
 	/**
 	 * Returns the amount of heat in the entity, in celsius.

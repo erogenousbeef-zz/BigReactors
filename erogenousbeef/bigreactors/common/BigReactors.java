@@ -137,7 +137,6 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	
 	// Game Balance values
-	public static final float powerPerHeat = IHeatEntity.powerPerHeat; // RF units per C dissipated
 	
 	protected static Icon iconSteamStill;
 	protected static Icon iconSteamFlowing;

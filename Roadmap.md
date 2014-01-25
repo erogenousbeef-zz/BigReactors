@@ -73,6 +73,7 @@ TODO - 0.3: The Coolant Update
 ### User Interface
 - Fix Control Rod GUI
 - Fix & improve Reactor Controller GUI. Add graphical indicators for fuel heat, fuel fertility.
+- Add "dump fuel" button to access port GUI
 
 ### Items
 - Add nuggets for the 4 types of ingots
