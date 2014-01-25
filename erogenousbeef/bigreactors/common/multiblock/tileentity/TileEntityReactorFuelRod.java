@@ -57,7 +57,7 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		radiation.hardness /= fuelModerationFactor;
 		
 		// Being irradiated both heats up the fuel and also enhances its fertility
-		data.fuelHeatChange += scaledAbsorption * RadiationHelper.heatPerRadiationUnit;
+		data.fuelRfChange += scaledAbsorption * RadiationHelper.rfPerRadiationUnit;
 		data.fuelAbsorbedRadiation += scaledAbsorption;
 	}
 

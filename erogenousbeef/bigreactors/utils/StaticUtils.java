@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.utils;
 
+import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -190,6 +191,33 @@ public class StaticUtils {
 		{
 			modifier = Math.min(1f, Math.max(0f, modifier));
 		    return from + modifier * (to - from);
+		}
+		
+		/**
+		 * Calculate the volume of the cube defined by two coordinates.
+		 * @param minimum Minimum coordinate.
+		 * @param maximum Maximum coordinate.
+		 * @return The cube's volume, in blocks.
+		 */
+		public static int Volume(CoordTriplet minimum, CoordTriplet maximum) {
+			if(minimum == null || maximum == null) { return 0; }
+
+			int xsize = Math.abs(maximum.x - minimum.x) + 1;
+			int ysize = Math.abs(maximum.y - minimum.y) + 1;
+			int zsize = Math.abs(maximum.z - minimum.z) + 1;
+			return xsize * ysize * zsize;
+		}
+	}
+	
+	public static class Energy {
+		public static float RFPerCentigradePerUnitVolume = 10f;
+
+		public static float getRFFromVolumeAndTemp(int volume, float temperature) {
+			return temperature * (float)volume * RFPerCentigradePerUnitVolume;
+		}
+		
+		public static float getTempFromVolumeAndRF(int volume, float rf) {
+			return rf / ((float)volume * RFPerCentigradePerUnitVolume);
 		}
 	}
 }

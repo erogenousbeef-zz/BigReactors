@@ -48,7 +48,7 @@ import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockController
 
 public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
-	public static final int FuelCapacityPerFuelRod = 4000; // 4 ingots per rod
+	public static final int FuelCapacityPerFuelRod = 4 * AmountPerIngot; // 4 ingots per rod
 	
 	private static final float passiveCoolingPowerEfficiency = 0.2f; // only 20% of heat turns into power when passively cooled!
 	
@@ -65,8 +65,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	protected float fuelToReactorHeatTransferCoefficient;
 	protected float reactorToCoolantSystemHeatTransferCoefficient;
 	
-	protected int fuelY;
 	protected Iterator<TileEntityReactorFuelRod> currentFuelRod;
+	int reactorVolume;
 
 	// UI stuff
 	private float energyGeneratedLastTick;
@@ -128,7 +128,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		fuelContainer = new FuelContainer();
 		radiationHelper = new RadiationHelper();
 		
-		fuelY = 0;
+		reactorVolume = 0;
 	}
 	
 	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
@@ -248,15 +248,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		fuelConsumedLastTick = 0f;
 
 		float newHeat = 0f;
-
+		
 		if(isActive()) {
 			// Select a control rod to radiate from. Reset the iterator and select a new Y-level if needed.
 			if(!currentFuelRod.hasNext()) {
 				currentFuelRod = attachedFuelRods.iterator();
-				fuelY++;
-				if(fuelY >= getMaximumCoord().y) {
-					fuelY = getMinimumCoord().y + 1;
-				}
 			}
 
 			// Radiate from that control rod
@@ -265,8 +261,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
 
 			// Assimilate results of radiation
-			addFuelHeat(radData.fuelHeatChange);
-			addReactorHeat(radData.environmentHeatChange);
+			addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
+			addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
 			fuelConsumedLastTick += radData.fuelUsage;
 		}
 
@@ -278,11 +274,14 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// Heat Transfer: Fuel Pool <> Reactor Environment
 		float tempDiff = fuelHeat - reactorHeat;
-		if(Math.abs(tempDiff) > 0.00001f) {
-			// Note: Transfer is now bidirectional, unlike 0.2
+		if(tempDiff > 0.00001f) {
 			float tempTransfer = tempDiff * fuelToReactorHeatTransferCoefficient;
 			fuelHeat -= tempTransfer;
-			reactorHeat += tempTransfer;
+
+			// Now see how much the reactor's temp has increased
+			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat());
+			reactorRf += StaticUtils.Energy.getRFFromVolumeAndTemp(attachedFuelRods.size(), tempTransfer);
+			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorRf));
 		}
 
 		// If we have a temperature differential between environment and coolant system, move heat between them.
@@ -290,9 +289,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(tempDiff > 0.00001f) {
 			float tempTransfer = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
 			addReactorHeat(-1f * tempTransfer);
+			float rfTransferred = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), tempTransfer); 
 
 			if(isPassivelyCooled()) {
-				generateEnergy(tempTransfer * BigReactors.powerPerHeat * passiveCoolingPowerEfficiency);
+				generateEnergy(rfTransferred * passiveCoolingPowerEfficiency);
 			}
 			else {
 				// TODO: Active coolant system
@@ -961,7 +961,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		// Pick a random fuel rod Y as a starting point
 		int maxFuelRodY = maxCoord.y - 1;
 		int minFuelRodY = minCoord.y + 1;
-		fuelY = (int)(Math.random() * (maxFuelRodY - minFuelRodY)) + minFuelRodY;
 		currentFuelRod = attachedFuelRods.iterator();
 		
 		// Calculate heat transfer to coolant system based on reactor interior surface area.
@@ -983,6 +982,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
+		
+		calculateReactorVolume();
 	}
 
 	@Override
@@ -1154,6 +1155,24 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return true;
 	}
 	
+	protected int getReactorVolume() {
+		return reactorVolume;
+	}
+	
+	protected void calculateReactorVolume() {
+		CoordTriplet minInteriorCoord = getMinimumCoord();
+		minInteriorCoord.x += 1;
+		minInteriorCoord.y += 1;
+		minInteriorCoord.z += 1;
+		
+		CoordTriplet maxInteriorCoord = getMaximumCoord();
+		maxInteriorCoord.x -= 1;
+		maxInteriorCoord.y -= 1;
+		maxInteriorCoord.z -= 1;
+		
+		reactorVolume = StaticUtils.ExtraMath.Volume(minInteriorCoord, maxInteriorCoord);
+	}
+
 	// Client-only
 	protected void onFuelStatusChanged() {
 		if(worldObj.isRemote) {

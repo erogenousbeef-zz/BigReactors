@@ -25,8 +25,9 @@ public class RadiationHelper {
 
 	// Game Balance Values
 	// TODO: Make these configurable
-	public static final float fuelPerRadiationUnit = 0.001f; // fuel units used per fission event
-	public static final float heatPerRadiationUnit = 0.1f; // C generated per fission event
+	public static final float fuelPerRadiationUnit = 0.00001f; // fuel units used per fission event
+	public static final float rfPerRadiationUnit = 10f; // RF generated per fission event
+	public static final float fissionEventsPerFuelUnit = 0.01f; // 1 fission event per 100 mB
 
 	private float fertility;
 	
@@ -42,16 +43,16 @@ public class RadiationHelper {
 		RadiationData data = new RadiationData();
 		data.fuelAbsorbedRadiation = 0f;
 
-		// Base value for heat penalties. 0-1, caps at about 3000C;
-		double heatPenaltyBase = Math.exp(-15*Math.exp(-0.0025*fuelHeat));
+		// Base value for radiation production penalties. 0-1, caps at about 3000C;
+		double radiationPenaltyBase = Math.exp(-15*Math.exp(-0.0025*fuelHeat));
 
 		// Raw amount - what's actually in the tanks
 		// Effective amount - how 
-		int baseFuelAmount = fuelContainer.getFuelAmount() + fuelContainer.getWasteAmount() / 100;
+		int baseFuelAmount = fuelContainer.getFuelAmount() + (fuelContainer.getWasteAmount() / 100);
 		float fuelReactivity = fuelContainer.getFuelReactivity();
 		
 		// Intensity = how strong the radiation is, hardness = how energetic the radiation is (penetration)
-		float rawRadIntensity = (float)baseFuelAmount * 0.001f;
+		float rawRadIntensity = (float)baseFuelAmount * fissionEventsPerFuelUnit;
 		
 		// Scale up the "effective" intensity of radiation, to provide an incentive for bigger reactors in general.
 		float scaledRadIntensity = (float) Math.pow((rawRadIntensity), fuelReactivity);
@@ -69,12 +70,12 @@ public class RadiationHelper {
 
 		// Radiation hardness starts at 20% and asymptotically approaches 100% as heat rises.
 		// This will make radiation harder and harder to capture.
-		float radHardness = 0.2f + (float)(0.8 * heatPenaltyBase);
+		float radHardness = 0.2f + (float)(0.8 * radiationPenaltyBase);
 
 		// Calculate based on propagation-to-self
 		float rawFuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier(); // Not a typo. Fuel usage is thus penalized at high heats.
-		data.fuelHeatChange = heatPerRadiationUnit * effectiveRadIntensity;
-		data.environmentHeatChange = 0f;
+		data.fuelRfChange = rfPerRadiationUnit * effectiveRadIntensity;
+		data.environmentRfChange = 0f;
 
 		// Propagate radiation to others
 		CoordTriplet originCoord = source.getWorldLocation();
@@ -227,7 +228,7 @@ public class RadiationHelper {
 		float radiationAbsorbed = radiation.intensity * absorption * (1f - radiation.hardness);
 		radiation.intensity = Math.max(0f, radiation.intensity - radiationAbsorbed);
 		radiation.hardness /= moderation;
-		data.environmentHeatChange += heatEfficiency * radiationAbsorbed * heatPerRadiationUnit;
+		data.environmentRfChange += heatEfficiency * radiationAbsorbed * rfPerRadiationUnit;
 	}
 	
 	// Data Access
