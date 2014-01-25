@@ -275,21 +275,24 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		// Heat Transfer: Fuel Pool <> Reactor Environment
 		float tempDiff = fuelHeat - reactorHeat;
 		if(tempDiff > 0.00001f) {
-			float tempTransfer = tempDiff * fuelToReactorHeatTransferCoefficient;
-			fuelHeat -= tempTransfer;
+			float rfTransferred = tempDiff * fuelToReactorHeatTransferCoefficient;
+			float fuelRf = StaticUtils.Energy.getRFFromVolumeAndTemp(attachedFuelRods.size(), fuelHeat);
+			fuelRf -= rfTransferred;
+			setFuelHeat(StaticUtils.Energy.getTempFromVolumeAndRF(attachedFuelRods.size(), fuelRf));
 
 			// Now see how much the reactor's temp has increased
 			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat());
-			reactorRf += StaticUtils.Energy.getRFFromVolumeAndTemp(attachedFuelRods.size(), tempTransfer);
+			reactorRf += rfTransferred;
 			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorRf));
 		}
 
 		// If we have a temperature differential between environment and coolant system, move heat between them.
 		tempDiff = reactorHeat - getCoolantTemperature();
 		if(tempDiff > 0.00001f) {
-			float tempTransfer = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
-			addReactorHeat(-1f * tempTransfer);
-			float rfTransferred = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), tempTransfer); 
+			float rfTransferred = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
+			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), reactorHeat);
+			reactorRf -= rfTransferred;
+			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorRf));
 
 			if(isPassivelyCooled()) {
 				generateEnergy(rfTransferred * passiveCoolingPowerEfficiency);
