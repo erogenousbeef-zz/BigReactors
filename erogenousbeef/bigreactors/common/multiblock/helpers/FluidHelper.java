@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -30,6 +31,7 @@ public abstract class FluidHelper {
 	}
 
 	public abstract int getNumberOfFluidTanks();
+	protected abstract String[] getNBTTankNames();
 	
 	public boolean shouldSendFuelingUpdate() {
 		ticksSinceLastUpdate++;
@@ -118,7 +120,40 @@ public abstract class FluidHelper {
 		return amt;
 	}
 	
+	protected NBTTagCompound writeToNBT(NBTTagCompound destination) {
+		String[] tankNames = getNBTTankNames();
+		
+		if(tankNames.length != fluids.length) { throw new IllegalArgumentException("getNBTTankNames must return the same number of strings as there are fluid stacks"); }
+
+		FluidStack stack;
+		for(int i = 0; i < tankNames.length; i++) {
+			stack = fluids[i];
+			if(stack != null) {
+				destination.setCompoundTag(tankNames[i], stack.writeToNBT(new NBTTagCompound()));
+			}
+		}
+		
+		return destination;
+	}
+	
+	protected void readFromNBT(NBTTagCompound data) {
+		String[] tankNames = getNBTTankNames();
+		
+		if(tankNames.length != fluids.length) { throw new IllegalArgumentException("getNBTTankNames must return the same number of strings as there are fluid stacks"); }
+
+		for(int i = 0; i < tankNames.length; i++) {
+			if(data.hasKey(tankNames[i])) {
+				fluids[i] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag(tankNames[i]));
+				fluidLevelAtLastUpdate[i] = fluids[i].amount;
+			}
+		}
+	}
+	
 	////// FLUID HELPERS //////
+	protected void setFluid(int idx, FluidStack newFluid) {
+		fluids[idx] = newFluid;
+	}
+	
 	protected int getFluidAmount(int idx) {
 		if(fluids[idx] == null) { return 0; }
 		else { return fluids[idx].amount; }
@@ -215,7 +250,7 @@ public abstract class FluidHelper {
 			int diff = getTotalAmount() - capacity;
 			
 			// Reduce stuff in the tanks. Start with waste, to be nice to players.
-			for(int i = numberOfFluids; i >= 0 && diff > 0; i--) {
+			for(int i = fluids.length - 1; i >= 0 && diff > 0; i--) {
 				if(fluids[i] != null) {
 					if(diff > fluids[i].amount) {
 						diff -= fluids[i].amount;

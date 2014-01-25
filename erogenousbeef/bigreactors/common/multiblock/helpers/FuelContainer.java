@@ -20,6 +20,8 @@ public class FuelContainer extends FluidHelper {
 	private static final int FUEL = 0;
 	private static final int WASTE = 1;
 	
+	private static final String[] tankNames = { "fuel", "waste" };
+	
 	private float radiationFuelUsage;
 	
 	public FuelContainer() {
@@ -116,28 +118,14 @@ public class FuelContainer extends FluidHelper {
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
-		if(fluids[FUEL] != null) {
-			destination.setCompoundTag("fuel", fluids[FUEL].writeToNBT(new NBTTagCompound()));
-		}
-		
-		if(fluids[WASTE] != null) {
-			destination.setCompoundTag("waste", fluids[WASTE].writeToNBT(new NBTTagCompound()));
-		}
+		super.writeToNBT(destination);
 		
 		destination.setFloat("fuelUsage", radiationFuelUsage);
 		return destination;
 	}
 	
 	public void readFromNBT(NBTTagCompound data) {
-		if(data.hasKey("fuel")) {
-			fluids[FUEL] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("fuel"));
-			fluidLevelAtLastUpdate[FUEL] = fluids[FUEL].amount;
-		}
-		
-		if(data.hasKey("waste")) {
-			fluids[WASTE] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("waste"));
-			fluidLevelAtLastUpdate[WASTE] = fluids[WASTE].amount;
-		}
+		super.readFromNBT(data);
 		
 		if(data.hasKey("fuelUsage")) {
 			radiationFuelUsage = data.getFloat("fuelUsage");
@@ -145,19 +133,19 @@ public class FuelContainer extends FluidHelper {
 	}
 	
 	public void emptyFuel() {
-		fluids[FUEL] = null;
+		setFluid(FUEL, null);
 	}
 	
 	public void emptyWaste() {
-		fluids[WASTE] = null;
+		setFluid(WASTE, null);
 	}
 	
 	public void setFuel(FluidStack newFuel) {
-		fluids[FUEL] = newFuel;
+		setFluid(FUEL, newFuel);
 	}
 	
 	public void setWaste(FluidStack newWaste) {
-		fluids[WASTE] = newWaste;
+		setFluid(WASTE, newWaste);
 	}
 	
 	public void merge(FuelContainer other) {
@@ -214,5 +202,15 @@ public class FuelContainer extends FluidHelper {
 	public float getFuelReactivity() {
 		// TODO: Fetch this from the fuel itself
 		return 1.1f;
+	}
+
+	@Override
+	public int getNumberOfFluidTanks() {
+		return 2;
+	}
+
+	@Override
+	protected String[] getNBTTankNames() {
+		return tankNames;
 	}
 }
