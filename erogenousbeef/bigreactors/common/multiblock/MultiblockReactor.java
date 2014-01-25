@@ -925,12 +925,28 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 	@Override
 	protected void onMachineAssembled() {
+		recalculateDerivedValues();
+	}
+
+	@Override
+	protected void onMachineRestored() {
+		recalculateDerivedValues();
+	}
+
+	@Override
+	protected void onMachinePaused() {
+	}
+
+	@Override
+	protected void onMachineDisassembled() {
+		this.active = false;
+	}
+
+	private void recalculateDerivedValues() {
 		// Recalculate size of fuel/waste tank via fuel rods
 		CoordTriplet minCoord, maxCoord;
 		minCoord = getMinimumCoord();
 		maxCoord = getMaximumCoord();
-		
-		FMLLog.info("[%s] onMachineAssembled, %d fuel rods, resizing to %d", worldObj.isRemote?"CLIENT":"SERVER", attachedFuelRods.size(), attachedFuelRods.size() * FuelCapacityPerFuelRod);
 		
 		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
 
@@ -967,19 +983,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
-	}
-
-	@Override
-	protected void onMachineRestored() {
-	}
-
-	@Override
-	protected void onMachinePaused() {
-	}
-
-	@Override
-	protected void onMachineDisassembled() {
-		this.active = false;
 	}
 
 	@Override
