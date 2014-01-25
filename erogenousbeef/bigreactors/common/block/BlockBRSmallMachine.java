@@ -61,15 +61,28 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 	
 	public Icon getIconFromTileEntity(TileEntity te, int metadata, int side) {
+		if(metadata < 0) { return blockIcon; }
+
 		if(te instanceof TileEntityBeefBase)
 		{
 			if(side == ((TileEntityBeefBase)te).getFacingDirection().ordinal()) {
 				if(te instanceof TileEntityPoweredInventory) {
 					if(((TileEntityPoweredInventory)te).isActive()) {
-						return _activeIcons[metadata];
+						if(metadata >= _activeIcons.length) {
+							return blockIcon;
+						}
+						else {
+							return _activeIcons[metadata];
+						}
 					}
 				}
-				return _icons[metadata];
+				
+				if(metadata >= _icons.length) {
+					return blockIcon;
+				}
+				else {
+					return _icons[metadata];
+				}
 			}
 		}
 		
