@@ -18,16 +18,16 @@ public interface IHeatEntity {
 	 */
 	public float getThermalConductivity();
 	
-	// Centigrade to transfer per tick per degree centigrade of difference on a single exposed face (1x1)
-	public static final float conductivityAir = 0.005f;
-	public static final float conductivityRubber = 0.001f;
-	public static final float conductivityWater = 0.01f;
-	public static final float conductivityStone = 0.015f;
-	public static final float conductivityGlass = 0.03f;
-	public static final float conductivityIron = 0.06f; // Stainless steel, really.
-	public static final float conductivityCopper = 0.1f;
-	public static final float conductivityGold = 0.2f;
-	public static final float conductivityEmerald = 0.25f;
-	public static final float conductivityDiamond = 0.3f;
-	public static final float conductivityGraphene = 0.5f;
+	// RF to transfer per tick per degree centigrade of difference on a single exposed face (1x1)
+	public static final float conductivityAir = 0.05f;
+	public static final float conductivityRubber = 0.01f;
+	public static final float conductivityWater = 0.1f;
+	public static final float conductivityStone = 0.15f;
+	public static final float conductivityGlass = 0.3f;
+	public static final float conductivityIron = 0.6f; // Stainless steel, really.
+	public static final float conductivityCopper = 1f;
+	public static final float conductivityGold = 2f;
+	public static final float conductivityEmerald = 2.5f;
+	public static final float conductivityDiamond = 3f;
+	public static final float conductivityGraphene = 5f;
 }
