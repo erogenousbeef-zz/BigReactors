@@ -29,6 +29,7 @@ import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FuelContainer;
 import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
@@ -60,6 +61,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	private float energyStored;
 	protected FuelContainer fuelContainer;
 	protected RadiationHelper radiationHelper;
+	protected CoolantContainer coolantContainer;
 
 	// Game stuff - derived at runtime
 	protected float fuelToReactorHeatTransferCoefficient;
@@ -127,6 +129,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		ticksSinceLastUpdate = 0;
 		fuelContainer = new FuelContainer();
 		radiationHelper = new RadiationHelper();
+		coolantContainer = new CoolantContainer();
 		
 		reactorVolume = 0;
 	}
@@ -291,17 +294,18 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(tempDiff > 0.00001f) {
 			float rfTransferred = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
 			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), reactorHeat);
-			reactorRf -= rfTransferred;
-			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorRf));
 
 			if(isPassivelyCooled()) {
 				generateEnergy(rfTransferred * passiveCoolingPowerEfficiency);
 			}
 			else {
-				// TODO: Active coolant system
+				rfTransferred -= coolantContainer.onAbsorbHeat(rfTransferred);
 			}
+
+			reactorRf -= rfTransferred;
+			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorRf));
 		}
-		
+
 		// Prevent cryogenics
 		if(reactorHeat < 0f) { setReactorHeat(0f); }
 		if(fuelHeat < 0f) { setFuelHeat(0f); }
@@ -349,7 +353,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			tickable.onMultiblockServerTick();
 		}
 
-		if(fuelContainer.shouldSendFuelingUpdate()) {
+		if(fuelContainer.shouldSendFuelingUpdate() || coolantContainer.shouldSendFuelingUpdate()) {
 			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		}
@@ -505,6 +509,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
 		data.setCompoundTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
+		data.setCompoundTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -536,6 +541,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(data.hasKey("radiation")) {
 			radiationHelper.readFromNBT(data.getCompoundTag("radiation"));
 		}
+		
+		if(data.hasKey("coolantContainer")) {
+			coolantContainer.readFromNBT(data.getCompoundTag("coolantContainer"));
+		}
 	}
 
 	@Override
@@ -553,6 +562,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		data.setFloat("fuelHeat", fuelHeat);
 		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
 		data.setCompoundTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
+		data.setCompoundTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -578,23 +588,31 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(data.hasKey("fuelContainer")) {
-			fuelContainer.readFromNBT(data.getCompoundTag("fuel"));
+			fuelContainer.readFromNBT(data.getCompoundTag("fuelContainer"));
 			onFuelStatusChanged();
 		}
-		
+
 		if(data.hasKey("radiation")) {
 			radiationHelper.readFromNBT(data.getCompoundTag("radiation"));
+		}
+		
+		if(data.hasKey("coolantContainer")) {
+			coolantContainer.readFromNBT(data.getCompoundTag("coolantContainer"));
 		}
 	}
 
 	protected Packet getUpdatePacket() {
-		Fluid fuelType, wasteType;
+		Fluid fuelType, wasteType, coolantType, vaporType;
 		fuelType = fuelContainer.getFuelType();
 		wasteType = fuelContainer.getWasteType();
+		coolantType = coolantContainer.getCoolantType();
+		vaporType = coolantContainer.getVaporType();
 		
-		int fuelTypeID, wasteTypeID;
+		int fuelTypeID, wasteTypeID, coolantTypeID, vaporTypeID;
 		fuelTypeID = fuelType == null ? -1 : fuelType.getID();
 		wasteTypeID = wasteType == null ? -1 : wasteType.getID();
+		coolantTypeID = coolantType == null ? -1 : coolantType.getID();
+		vaporTypeID = vaporType == null ? -1 : vaporType.getID();
 		
 		CoordTriplet coord = getReferenceCoord();
 
@@ -613,7 +631,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 								fuelContainer.getFuelAmount(),
 								wasteTypeID,
 								fuelContainer.getWasteAmount(),
-								radiationHelper.getFertility()});
+								radiationHelper.getFertility(),
+								coolantTypeID,
+								coolantContainer.getCoolantAmount(),
+								vaporTypeID,
+								coolantContainer.getVaporAmount()});
 	}
 	
 	public void receiveReactorUpdate(DataInputStream data) throws IOException {
@@ -628,6 +650,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		int wasteTypeID = data.readInt();
 		int wasteAmt = data.readInt();
 		float fertility = data.readFloat();
+		int coolantTypeID = data.readInt();
+		int coolantAmt = data.readInt();
+		int vaporTypeID = data.readInt();
+		int vaporAmt = data.readInt();
 
 		setActive(active);
 		setReactorHeat(heat);
@@ -650,6 +676,20 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		else {
 			fuelContainer.setWaste(new FluidStack(FluidRegistry.getFluid(wasteTypeID), wasteAmt));
+		}
+		
+		if(coolantTypeID == -1) {
+			coolantContainer.emptyCoolant();
+		}
+		else {
+			coolantContainer.setCoolant(new FluidStack(FluidRegistry.getFluid(coolantTypeID), coolantAmt));
+		}
+		
+		if(vaporTypeID == -1) {
+			coolantContainer.emptyVapor();
+		}
+		else {
+			coolantContainer.setVapor(new FluidStack(FluidRegistry.getFluid(vaporTypeID), vaporAmt));
 		}
 	}
 	
@@ -746,10 +786,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		// TODO FIXME: Only change heat based on relative sizes
 		if(otherReactor.reactorHeat > this.reactorHeat) { setReactorHeat(otherReactor.reactorHeat); }
 		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); }
+
 		if(otherReactor.getEnergyStored() > this.getEnergyStored()) { this.setStoredEnergy(otherReactor.getEnergyStored()); }
 
 		fuelContainer.merge(otherReactor.fuelContainer);
 		radiationHelper.merge(otherReactor.radiationHelper);
+		coolantContainer.merge(otherReactor.coolantContainer);
 	}
 	
 	@Override
@@ -953,6 +995,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
 
+		// TODO: Make this nonzero once fluid ports are tracked
+		coolantContainer.setCapacity(0);
+
 		// Calculate derived stats
 		
 		// Calculate heat transfer based on fuel rod environment
@@ -975,7 +1020,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		int surfaceArea = 2 * (xSize * ySize + xSize * zSize + ySize * zSize);
 		
 		reactorToCoolantSystemHeatTransferCoefficient = IHeatEntity.conductivityIron * surfaceArea; // TODO: Balance me
-		
+
 		if(worldObj.isRemote) {
 			// Make sure our fuel rods re-render
 			this.onFuelStatusChanged();
@@ -1151,11 +1196,17 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	
 	// Coolant subsystem
 	protected float getCoolantTemperature() {
-		return IHeatEntity.ambientHeat;
+		if(isPassivelyCooled()) {
+			return IHeatEntity.ambientHeat;
+		}
+		else {
+			return coolantContainer.getCoolantTemperature(getReactorHeat());
+		}
 	}
 	
 	protected boolean isPassivelyCooled() {
-		return true;
+		if(!isActive() || coolantContainer == null || coolantContainer.getCapacity() <= 0) { return true; }
+		else { return false; }
 	}
 	
 	protected int getReactorVolume() {
@@ -1191,5 +1242,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		FMLLog.info("[%s] Multiblock reactor %s - %d connected parts", clientOrServer, hashCode(), connectedParts.size());
 		FMLLog.info("[%s] Fuel tank size %d for %d fuel blocks in %d columns", clientOrServer, fuelContainer.getCapacity(), attachedFuelRods.size(), attachedControlRods.size());
 		FMLLog.info("[%s] Fuel tank contains %d total fluid; %d fuel, %d waste", clientOrServer, fuelContainer.getTotalAmount(), fuelContainer.getFuelAmount(), fuelContainer.getWasteAmount());
+		FMLLog.info("[%s] Coolant tank size %d", clientOrServer, coolantContainer.getCapacity());
+		Fluid coolantType = coolantContainer.getCoolantType();
+		Fluid vaporType = coolantContainer.getVaporType();
+		
+		FMLLog.info("[%s] Coolant tank has %d units of %s, vapor tank has %d units of %s", clientOrServer, coolantContainer.getCoolantAmount(), coolantType == null?"NONE":coolantType.getName(), coolantContainer.getVaporAmount(), vaporType == null?"NONE":vaporType.getName());
 	}
 }

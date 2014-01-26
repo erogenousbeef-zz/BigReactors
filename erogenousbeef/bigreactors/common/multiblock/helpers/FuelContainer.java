@@ -25,7 +25,7 @@ public class FuelContainer extends FluidHelper {
 	private float radiationFuelUsage;
 	
 	public FuelContainer() {
-		super();
+		super(false);
 		radiationFuelUsage = 0f;
 	}
 	
