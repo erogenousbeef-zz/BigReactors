@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
+import cpw.mods.fml.common.FMLLog;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -182,11 +183,11 @@ public abstract class FluidHelper {
 	}
 	
 	protected int addFluidToStack(int idx, int fluidAmount) {
-		if(fluids[idx].getFluid() == null) {
+		if(fluids[idx] == null || fluids[idx].getFluid() == null) {
 			throw new IllegalArgumentException("Cannot add fluid with only an integer when tank is empty!");
 		}
 		
-		int amtToAdd = Math.min(fluidAmount, getCapacity() - getRemainingSpaceForFluid(idx));
+		int amtToAdd = Math.min(fluidAmount, getRemainingSpaceForFluid(idx));
 		
 		fluids[idx].amount += amtToAdd;
 		return amtToAdd;
@@ -283,15 +284,18 @@ public abstract class FluidHelper {
 	public int fill(int idx, FluidStack incoming, boolean doFill) {
 		if(incoming == null || idx < 0 || idx >= fluids.length) { return 0; }
 		
-		if(!canAddToStack(idx, incoming)) { return 0; }
+		if(!canAddToStack(idx, incoming)) {
+			return 0;
+		}
 		
-		int amtToAdd = Math.min(incoming.amount, getCapacity() - getRemainingSpaceForFluid(idx));
+		int amtToAdd = Math.min(incoming.amount, getRemainingSpaceForFluid(idx));
 
 		if(amtToAdd <= 0) { 
 			return 0;
 		}
 
 		if(!doFill) { return amtToAdd; }
+		
 
 		if(fluids[idx] == null) {
 			fluids[idx] = incoming.copy();

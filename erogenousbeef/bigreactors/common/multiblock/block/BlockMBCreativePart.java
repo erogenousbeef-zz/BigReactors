@@ -112,14 +112,17 @@ public class BlockMBCreativePart extends BlockContainer {
 
 		ItemStack currentEquippedItem = player.getCurrentEquippedItem();
 		
-		if(currentEquippedItem == null || StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
-			// Use wrench to change inlet/outlet state
-			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof TileEntityReactorCoolantPort) {
-				TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorCreativeCoolantPort) {
+			TileEntityReactorCreativeCoolantPort cp = (TileEntityReactorCreativeCoolantPort)te;
+			if(currentEquippedItem == null || StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
+				// Use wrench to change inlet/outlet state
 				cp.setInlet(!cp.isInlet());
-				return true;
 			}
+			else {
+				cp.forceAddWater();
+			}
+			return true;
 		}
 		
 		return false;
