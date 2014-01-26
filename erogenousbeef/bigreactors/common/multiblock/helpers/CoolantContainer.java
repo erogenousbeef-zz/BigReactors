@@ -35,10 +35,6 @@ public class CoolantContainer extends FluidHelper {
 		return fluid.getID() == FluidRegistry.WATER.getID();
 	}
 
-	public boolean canAddCoolant(FluidStack incoming) {
-		return canAddToStack(COLD, incoming);
-	}
-	
 	public int addCoolant(FluidStack incoming) {
 		if(incoming == null) { return 0; }
 		return fill(COLD, incoming, true);
@@ -46,18 +42,6 @@ public class CoolantContainer extends FluidHelper {
 	
 	public int drainCoolant(int amount) {
 		return drainFluidFromStack(COLD, amount);
-	}
-	
-	public int drainCoolant(Fluid coolant, int amount) {
-		return drainFluidFromStack(COLD, coolant, amount);
-	}
-
-	public int drainVapor(int amount) {
-		return drainFluidFromStack(HOT, amount);
-	}
-	
-	public int drainVapor(Fluid vapor, int amount) {
-		return drainFluidFromStack(HOT, vapor, amount);
 	}
 	
 	public Fluid getCoolantType() {
@@ -73,7 +57,7 @@ public class CoolantContainer extends FluidHelper {
 	}
 	
 	public int getVaporAmount() {
-		return getFluidAmount(COLD);
+		return getFluidAmount(HOT);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
@@ -121,7 +105,7 @@ public class CoolantContainer extends FluidHelper {
 	 * @return RF remaining after absorption.
 	 */
 	public float onAbsorbHeat(float rfAbsorbed) {
-		if(getFluidAmount(COLD) <= 0) { return rfAbsorbed; }
+		if(getFluidAmount(COLD) <= 0 || rfAbsorbed <= 0) { return rfAbsorbed; }
 
 		Fluid coolantType = getCoolantType();
 		int coolantAmt = getFluidAmount(COLD);
@@ -136,7 +120,7 @@ public class CoolantContainer extends FluidHelper {
 		
 		// We don't do partial vaporization. Just return all the heat.
 		if(mbVaporized < 1) { return rfAbsorbed; }
-		
+
 		// Make sure we either have an empty vapor chamber or the vapor types match
 		Fluid newVaporType = getVaporizedCoolantFluid(coolantType);
 		if(newVaporType == null) {
@@ -153,13 +137,13 @@ public class CoolantContainer extends FluidHelper {
 		// Vaporize! -- POINT OF NO RETURN
 		this.drainCoolant(mbVaporized);
 		
-		if(existingVaporType == null) {
+		if(existingVaporType != null) {
 			addFluidToStack(HOT, mbVaporized);
 		}
 		else {
 			fill(HOT, new FluidStack(newVaporType, mbVaporized), true);
 		}
-
+		
 		// Calculate how much we actually absorbed via vaporization
 		float energyConsumed = (float)mbVaporized * heatOfVaporization;
 		
