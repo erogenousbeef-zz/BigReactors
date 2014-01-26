@@ -127,6 +127,17 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 						return _icons[CASING_METADATA_BASE];
 					}
 				}
+				else {
+					if(side == 0 || side == 1) {
+						return _icons[CASING_METADATA_BASE];
+					}
+					else if(cp.isInlet()) {
+						return _icons[metadata];
+					}
+					else {
+						return _subIcons[SUBICON_COOLANT_OUTLET];
+					}
+				}
 			}
 		}
 		
@@ -302,6 +313,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 					if(te instanceof TileEntityReactorCoolantPort) {
 						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
 						cp.setInlet(!cp.isInlet());
+						player.sendChatToPlayer(ChatMessageComponent.createFromText("Swapping coolant port direction"));
 						return true;
 					}
 				}

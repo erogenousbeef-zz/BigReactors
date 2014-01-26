@@ -63,7 +63,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	// IFluidHandler
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
-		if(!isConnected() || from != getOutwardsDir().getOpposite()) { return 0; }
+		if(!isConnected() || from != getOutwardsDir()) { return 0; }
 		
 		if(!inlet) { return 0; }
 
@@ -74,7 +74,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	@Override
 	public FluidStack drain(ForgeDirection from, FluidStack resource,
 			boolean doDrain) {
-		if(!isConnected() || from != getOutwardsDir().getOpposite()) { return null; }
+		if(!isConnected() || from != getOutwardsDir()) { return null; }
 
 		CoolantContainer cc = getReactorController().getCoolantContainer();
 		return cc.drain(getConnectedTank(), resource, doDrain);
@@ -82,14 +82,14 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 
 	@Override
 	public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
-		if(!isConnected() || from != getOutwardsDir().getOpposite()) { return null; }
+		if(!isConnected() || from != getOutwardsDir()) { return null; }
 		CoolantContainer cc = getReactorController().getCoolantContainer();
 		return cc.drain(getConnectedTank(), maxDrain, doDrain);
 	}
 
 	@Override
 	public boolean canFill(ForgeDirection from, Fluid fluid) {
-		if(!isConnected() || from != getOutwardsDir().getOpposite()) { return false; }
+		if(!isConnected() || from != getOutwardsDir()) { return false; }
 
 		if(!inlet) { return false; } // Prevent pipes from filling up the output tank inadvertently
 
@@ -99,7 +99,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 
 	@Override
 	public boolean canDrain(ForgeDirection from, Fluid fluid) {
-		if(!isConnected() || from != getOutwardsDir().getOpposite()) { return false; }
+		if(!isConnected() || from != getOutwardsDir()) { return false; }
 		CoolantContainer cc = getReactorController().getCoolantContainer();
 		return cc.canDrain(getConnectedTank(), fluid);
 	}
@@ -108,7 +108,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	
 	@Override
 	public FluidTankInfo[] getTankInfo(ForgeDirection from) {
-		if(!isConnected() || from != getOutwardsDir().getOpposite()) { return emptyTankArray; }
+		if(!isConnected() || from != getOutwardsDir()) { return emptyTankArray; }
 
 		CoolantContainer cc = getReactorController().getCoolantContainer();
 		return cc.getTankInfo(getConnectedTank());
