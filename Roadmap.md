@@ -25,6 +25,7 @@ TODO - 0.3: The Coolant Update
 - (DONE FOR TURBINES) Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
 - (DONE) Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
 - (DONE) Corify the calculation & caching of sides, create a "cubic" base multiblock controller and TE that add those methods
+- Add BeefLogger which parents to the FML logger. Makes logs easier to read.
 
 ### Fuel refactor
 - (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
@@ -49,6 +50,8 @@ TODO - 0.3: The Coolant Update
 - (DONE) Coolant buffer in main reactor controller
 - (DONE) Coolant I/O interface blocks
 - (DONE) When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
+- Add transfer rate modifier per fluid, which gives each fluid its own rate of uptake penalty.
+- Add Computercraft methods to monitor the coolant system
 
 ### Multiblock Turbine
 - (DONE) Turbine consumes steam, produces power and water.
@@ -69,10 +72,12 @@ TODO - 0.3: The Coolant Update
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - (DONE) Fix the lighting bug on control rods.
+- Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
 
 ### User Interface
 - Fix Control Rod GUI
 - Fix & improve Reactor Controller GUI. Add graphical indicators for fuel heat, fuel fertility.
+- Add graphical bars for coolant and vapor.
 - Add "dump fuel" button to access port GUI
 - Add turbine stuff to German and Chinese localization files
 
