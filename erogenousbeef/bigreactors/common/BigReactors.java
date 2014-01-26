@@ -30,12 +30,14 @@ import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockMBCreativePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMultiblockGlass;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
@@ -45,12 +47,13 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartStandard;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityReactorCreativeCoolantPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
@@ -81,7 +84,7 @@ public class BigReactors {
 	
 	public static Block blockYelloriteOre;
 	public static Block blockYelloriumFuelRod;
-	public static Block blockReactorPart;
+	public static BlockReactorPart blockReactorPart;
 	public static Block blockReactorControlRod;
 	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
 	
@@ -89,6 +92,7 @@ public class BigReactors {
 	public static BlockTurbineRotorPart blockTurbineRotorPart;
 
 	public static BlockMultiblockGlass blockMultiblockGlass;
+	public static BlockMBCreativePart blockMultiblockCreativePart;
 	
 	public static Block blockRadiothermalGen;
 	public static Block blockSmallMachine;
@@ -264,25 +268,25 @@ public class BigReactors {
 			
 			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
 			if(blockReactorPart != null) {
-				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack(); 
+				ItemStack reactorPartStack = BigReactors.blockReactorPart.getReactorControllerItemStack(); 
 				
 				if(registerYelloriumAsUranium)
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotUranium", 'C', "reactorCasing", 'R', Item.redstone }));
 				else
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotYellorium", 'C', "reactorCasing", 'R', Item.redstone }));
-				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack();
+				reactorPartStack = BigReactors.blockReactorPart.getReactorPowerTapItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
 
-				reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getAccessPortItemStack();
+				reactorPartStack = BigReactors.blockReactorPart.getAccessPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
 
 				if(Loader.isModLoaded("MineFactoryReloaded")) {
-					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack();
+					reactorPartStack = BigReactors.blockReactorPart.getRedNetPortItemStack();
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', Item.ingotGold }));
 				}
 				
 				if(Loader.isModLoaded("ComputerCraft")) {
-					reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getComputerPortItemStack();
+					reactorPartStack = BigReactors.blockReactorPart.getComputerPortItemStack();
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold, 'P', "reactorRedstonePort" }));
 				}
 			}
@@ -350,6 +354,8 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
 			GameRegistry.registerTileEntity(TileEntityReactorRedstonePort.class,"BRReactorRedstonePort");
 			GameRegistry.registerTileEntity(TileEntityReactorComputerPort.class, "BRReactorComputerPort");
+			GameRegistry.registerTileEntity(TileEntityReactorCoolantPort.class, "BRReactorCoolantPort");
+			GameRegistry.registerTileEntity(TileEntityReactorCreativeCoolantPort.class, "BRReactorCreativeCoolantPort");
 
 			GameRegistry.registerTileEntity(TileEntityTurbinePartStandard.class,  "BRTurbinePart");
 			GameRegistry.registerTileEntity(TileEntityTurbinePowerTap.class, "BRTurbinePowerTap");
@@ -461,11 +467,12 @@ public class BigReactors {
 			BigReactors.blockReactorPart = new BlockReactorPart(BRConfig.CONFIGURATION.getBlock("ReactorPart", BigReactors.BLOCK_ID_PREFIX + 2).getInt(), Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockReactorPart, ItemBlockReactorPart.class, "BRReactorPart");
 
-			OreDictionary.registerOre("reactorCasing", 		((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack());
-			OreDictionary.registerOre("reactorController", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorControllerItemStack());
-			OreDictionary.registerOre("reactorPowerTap", 	((BlockReactorPart) BigReactors.blockReactorPart).getReactorPowerTapItemStack());
-			OreDictionary.registerOre("reactorRedNetPort", 	((BlockReactorPart) BigReactors.blockReactorPart).getRedNetPortItemStack());
-			OreDictionary.registerOre("reactorComputerPort", ((BlockReactorPart) BigReactors.blockReactorPart).getComputerPortItemStack());
+			OreDictionary.registerOre("reactorCasing", 		 BigReactors.blockReactorPart.getReactorCasingItemStack());
+			OreDictionary.registerOre("reactorController", 	 BigReactors.blockReactorPart.getReactorControllerItemStack());
+			OreDictionary.registerOre("reactorPowerTap", 	 BigReactors.blockReactorPart.getReactorPowerTapItemStack());
+			OreDictionary.registerOre("reactorRedNetPort", 	 BigReactors.blockReactorPart.getRedNetPortItemStack());
+			OreDictionary.registerOre("reactorComputerPort", BigReactors.blockReactorPart.getComputerPortItemStack());
+			OreDictionary.registerOre("reactorCoolantPort",  BigReactors.blockReactorPart.getCoolantPortItemStack());
 			BRConfig.CONFIGURATION.save();
 		}
 		
@@ -503,7 +510,6 @@ public class BigReactors {
 			OreDictionary.registerOre("turbinePowerTap", 	BigReactors.blockTurbinePart.getItemStack("powerTap"));
 			OreDictionary.registerOre("turbineFluidPort", 	BigReactors.blockTurbinePart.getItemStack("fluidPort"));
 			OreDictionary.registerOre("turbineBearing", 	BigReactors.blockTurbinePart.getItemStack("bearing"));
-			OreDictionary.registerOre("turbineCreativeSteamGenerator", 	BigReactors.blockTurbinePart.getItemStack("creativeSteamGenerator"));
 
 			BRConfig.CONFIGURATION.save();
 		}
@@ -532,6 +538,18 @@ public class BigReactors {
 			
 			BRConfig.CONFIGURATION.save();
 		}
+	}
+	
+	public static void registerCreativeParts(int id, boolean require) {
+		BRConfig.CONFIGURATION.load();
+		
+		boolean regCreativeParts = BRConfig.CONFIGURATION.get("General", "registerCreativeMultiblockParts", true, "If true, creative parts for reactors, turbines and other multiblocks will be registered.").getBoolean(true);
+		if(regCreativeParts && BigReactors.blockMultiblockCreativePart == null) {
+			BigReactors.blockMultiblockCreativePart = new BlockMBCreativePart(BRConfig.CONFIGURATION.getBlock("MultiblockCreativePart", BigReactors.BLOCK_ID_PREFIX + 12).getInt(), Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockMultiblockCreativePart, ItemBlockBigReactors.class, "BRMultiblockCreativePart");
+		}
+		
+		BRConfig.CONFIGURATION.save();
 	}
 	
 	public static void registerFluids(int id, boolean require) {

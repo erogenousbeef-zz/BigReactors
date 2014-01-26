@@ -44,6 +44,9 @@ public class ItemBlockReactorPart extends ItemBlock {
 		else if (BlockReactorPart.isComputerPort(damage)) {
 			metadata = 5;
 		}
+		else if (BlockReactorPart.isCoolantPort(damage)) {
+			metadata = 6;
+		}
 
 		return BigReactors.blockReactorPart.getUnlocalizedName() + "." + metadata;
 	}

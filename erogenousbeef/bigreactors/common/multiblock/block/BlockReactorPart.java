@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.Icon;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
@@ -26,9 +27,12 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityReactorCreativeCoolantPort;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
@@ -51,6 +55,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public static final int ACCESSPORT_OUTLET = 12;
 	public static final int REDNETPORT = 13;
 	public static final int COMPUTERPORT = 14;
+	public static final int COOLANTPORT = 15;
 	
 	private static String[] _subBlocks = new String[] { "casingDefault",
 														"casingCorner",
@@ -66,10 +71,19 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 														"accessInlet",
 														"accessOutlet",
 														"redNetPort",
-														"computerPort" };
+														"computerPort",
+														"coolantPort" };
 
+	protected static final int SUBICON_COOLANT_OUTLET = 0;
+	
+	private static String[] _subIconNames = new String[] {
+		"coolantPort.outlet"
+	};
+	
 	private Icon[] _icons = new Icon[_subBlocks.length];
 	private Icon[] _redNetPortConfigIcons = new Icon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
+	
+	private Icon[] _subIcons = new Icon[_subIconNames.length];
 	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
 	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
@@ -77,6 +91,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET && metadata < REDNETPORT; }
 	public static boolean isRedNetPort(int metadata) { return metadata == REDNETPORT; }
 	public static boolean isComputerPort(int metadata) { return metadata == COMPUTERPORT; }
+	public static boolean isCoolantPort(int metadata) { return metadata == COOLANTPORT; }
 	
 	public BlockReactorPart(int id, Material material) {
 		super(id, material);
@@ -88,6 +103,37 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		setCreativeTab(BigReactors.TAB);
 	}
 
+	@Override
+    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+		// TODO: Put all icon selection in here
+		int metadata = blockAccess.getBlockMetadata(x,y,z);
+
+		if(isCoolantPort(metadata)) {
+			TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+
+			if(te instanceof TileEntityReactorCoolantPort) {
+				TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
+				
+				if(cp.isConnected() && cp.getReactorController().isAssembled()) {
+					if(cp.getOutwardsDir().ordinal() == side) {
+						if(cp.isInlet()) {
+							return _icons[metadata];
+						}
+						else {
+							return _subIcons[SUBICON_COOLANT_OUTLET];
+						}
+					}
+					else {
+						return _icons[CASING_METADATA_BASE];
+					}
+				}
+			}
+		}
+		
+		return getIcon(side, metadata);
+	}
+	
+	
 	@Override
 	public Icon getIcon(int side, int metadata)
 	{
@@ -133,6 +179,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 					return _icons[CASING_METADATA_BASE];
 				}
 				else {
+					metadata = Math.max(0, Math.min(15, metadata));
 					return _icons[metadata];
 				}
 		}
@@ -146,6 +193,10 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		
 		for(int i = 0; i < _subBlocks.length; ++i) {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
+		}
+		
+		for(int i = 0; i < _subIconNames.length; ++i) {
+			_subIcons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subIconNames[i]);
 		}
 		
 		// We do this to skip DISABLED
@@ -184,6 +235,9 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		else if(isComputerPort(metadata)) {
 			return new TileEntityReactorComputerPort();
 		}
+		else if(isCoolantPort(metadata)) {
+			return new TileEntityReactorCoolantPort();
+		}
 		else {
 			return new TileEntityReactorPart();
 		}
@@ -218,26 +272,36 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 					r.debugOutput();
 				}
 			}
-			
 		}
 		
 		int metadata = world.getBlockMetadata(x, y, z);
 		if(!isController(metadata) && !isAccessPort(metadata) && !isRedNetPort(metadata)) {
 			// If the player's hands are empty and they rightclick on a multiblock, they get a 
 			// multiblock-debugging message if the machine is not assembled.
-			if(!world.isRemote && currentEquippedItem == null) {
-				TileEntity te = world.getBlockTileEntity(x, y, z);
-				if(te instanceof IMultiblockPart) {
-					MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
-					if(controller != null) {
-						Exception e = controller.getLastValidationException();
-						if(e != null) {
-							player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage()));
+			if(!world.isRemote) {
+				if(currentEquippedItem == null) {
+					TileEntity te = world.getBlockTileEntity(x, y, z);
+					if(te instanceof IMultiblockPart) {
+						MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
+						if(controller != null) {
+							Exception e = controller.getLastValidationException();
+							if(e != null) {
+								player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage()));
+								return true;
+							}
+						}
+						else {
+							player.sendChatToPlayer(ChatMessageComponent.createFromText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block."));
 							return true;
 						}
 					}
-					else {
-						player.sendChatToPlayer(ChatMessageComponent.createFromText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block."));
+				}
+				else if(StaticUtils.Inventory.isPlayerHoldingWrench(player) && isCoolantPort(metadata)) {
+					// Use wrench to change inlet/outlet state
+					TileEntity te = world.getBlockTileEntity(x, y, z);
+					if(te instanceof TileEntityReactorCoolantPort) {
+						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
+						cp.setInlet(!cp.isInlet());
 						return true;
 					}
 				}
@@ -289,6 +353,9 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		else if(isComputerPort(metadata)) {
 			return COMPUTERPORT;
 		}
+		else if(isCoolantPort(metadata)) {
+			return COOLANTPORT;
+		}
 		else {
 			return CASING_METADATA_BASE;
 		}
@@ -318,15 +385,20 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		return new ItemStack(this.blockID, 1, COMPUTERPORT);
 	}
 	
+	public ItemStack getCoolantPortItemStack() {
+		return new ItemStack(this.blockID, 1, COOLANTPORT);
+	}
+	
 	@Override
 	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
-		par3List.add(this.getReactorCasingItemStack());
-		par3List.add(this.getReactorControllerItemStack());
-		par3List.add(this.getReactorPowerTapItemStack());
-		par3List.add(this.getAccessPortItemStack());
-		par3List.add(this.getRedNetPortItemStack());
-		par3List.add(this.getComputerPortItemStack());
+		par3List.add(getReactorCasingItemStack());
+		par3List.add(getReactorControllerItemStack());
+		par3List.add(getReactorPowerTapItemStack());
+		par3List.add(getAccessPortItemStack());
+		par3List.add(getRedNetPortItemStack());
+		par3List.add(getComputerPortItemStack());
+		par3List.add(getCoolantPortItemStack());
 	}
 	
 	@Override

@@ -9,8 +9,8 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class CoolantContainer extends FluidHelper {
 
-	private static final int HOT = 0;
-	private static final int COLD = 1;
+	public static final int HOT = 0;
+	public static final int COLD = 1;
 
 	private static final String[] tankNames = { "hot", "cold" };
 	
@@ -39,9 +39,9 @@ public class CoolantContainer extends FluidHelper {
 		return canAddToStack(COLD, incoming);
 	}
 	
-	public FluidStack addCoolant(FluidStack incoming) {
-		if(incoming == null) { return null; }
-		return addFluidToStack(COLD, incoming);
+	public int addCoolant(FluidStack incoming) {
+		if(incoming == null) { return 0; }
+		return fill(COLD, incoming, true);
 	}
 	
 	public int drainCoolant(int amount) {
@@ -154,10 +154,10 @@ public class CoolantContainer extends FluidHelper {
 		this.drainCoolant(mbVaporized);
 		
 		if(existingVaporType == null) {
-			this.addFluidToStack(HOT, mbVaporized);
+			addFluidToStack(HOT, mbVaporized);
 		}
 		else {
-			this.addFluidToStack(HOT, new FluidStack(newVaporType, mbVaporized));
+			fill(HOT, new FluidStack(newVaporType, mbVaporized), true);
 		}
 
 		// Calculate how much we actually absorbed via vaporization
@@ -189,5 +189,17 @@ public class CoolantContainer extends FluidHelper {
 		if(fluid == null) { throw new IllegalArgumentException("Cannot pass a null fluid to getVaporizedCoolantFluid"); } // just in case
 
 		return BigReactors.fluidSteam;
+	}
+
+	@Override
+	protected boolean isFluidValidForStack(int stackIdx, Fluid fluid) {
+		switch(stackIdx) {
+		case COLD:
+			return isAcceptedCoolant(fluid);
+		case HOT:
+			return true;
+		default:
+			return false;
+		}
 	}
 }

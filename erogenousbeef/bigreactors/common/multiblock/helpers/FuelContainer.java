@@ -66,30 +66,32 @@ public class FuelContainer extends FluidHelper {
 	
 	/**
 	 * Add some fuel to the current pile, if possible.
-	 * @return An ItemStack containing the remaining un-accepted fuel, or null if the stack was completely used.
+	 * @param incoming A FluidStack representing the fluid to fill, and the maximum amount to add to the tank.
+	 * @return The amount of fuel actually added
 	 */
-	public FluidStack addFuel(FluidStack incoming) {
-		if(incoming == null) { return null; }
-		return addFluidToStack(FUEL, incoming);
+	public int addFuel(FluidStack incoming) {
+		if(incoming == null) { return 0; }
+		return fill(FUEL, incoming, true);
 	}
 	
 	/**
 	 * Add some waste to the current pile, if possible.
-	 * @return An ItemStack containing the remaining un-accepted waste, or null if the stack was completely used.
+	 * @param incoming A FluidStack representing the fluid to fill, and the maximum amount to add to the tank.
+	 * @return The amount of waste actually added
 	 */
-	public FluidStack addWaste(FluidStack incoming) {
-		if(incoming == null) { return null; }
+	public int addWaste(FluidStack incoming) {
+		if(incoming == null) { return 0; }
 		
-		return addFluidToStack(WASTE, incoming);
+		return fill(WASTE, incoming, true);
 	}
 	
-	private void addWaste(int wasteAmt) {
+	private int addWaste(int wasteAmt) {
 		if(this.getWasteType() == null) {
 			FMLLog.warning("System is using addWaste(int) when there's no waste present, defaulting to cyanite");
-			addFluidToStack(WASTE, new FluidStack(BigReactors.fluidCyanite, wasteAmt));
+			return fill(WASTE, new FluidStack(BigReactors.fluidCyanite, wasteAmt), true);
 		}
 		else {
-			addFluidToStack(WASTE, wasteAmt);
+			return addFluidToStack(WASTE, wasteAmt);
 		}
 	}
 	
@@ -212,5 +214,17 @@ public class FuelContainer extends FluidHelper {
 	@Override
 	protected String[] getNBTTankNames() {
 		return tankNames;
+	}
+
+	@Override
+	protected boolean isFluidValidForStack(int stackIdx, Fluid fluid) {
+		switch(stackIdx) {
+			case FUEL:
+				return isAcceptedFuel(fluid);
+			case WASTE:
+				return isAcceptedWaste(fluid);
+			default:
+				return false;
+		}
 	}
 }
