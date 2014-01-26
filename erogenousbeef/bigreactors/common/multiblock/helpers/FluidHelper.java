@@ -18,7 +18,12 @@ public abstract class FluidHelper {
 	private static final int FORCE_UPDATE = -1000;
 	private int numberOfFluids;
 	
-	public FluidHelper() {
+	private boolean separateChambers;
+	
+	/**
+	 * @param separate True if capacity is applied to each fluid separately, false if they should be treated like a single tank with multiple fluids inside.
+	 */
+	public FluidHelper(boolean separate) {
 		fluids = new FluidStack[numberOfFluids];
 		fluidLevelAtLastUpdate = new int[numberOfFluids];
 
@@ -28,6 +33,7 @@ public abstract class FluidHelper {
 		}
 		
 		capacity = 0;
+		separateChambers = separate;
 	}
 
 	public abstract int getNumberOfFluidTanks();
@@ -101,16 +107,8 @@ public abstract class FluidHelper {
 		}
 	}
 	
-	public boolean isFull() {
-		return getTotalAmount() >= getCapacity();
-	}
-	
-	public boolean isEmpty() {
-		return getTotalAmount() <= 0;
-	}
-	
 	/**
-	 * @return Total amount of stuff contained, fuel + waste.
+	 * @return Total amount of stuff contained, across all fluid tanks
 	 */
 	public int getTotalAmount() {
 		int amt = 0;
@@ -176,17 +174,16 @@ public abstract class FluidHelper {
 			throw new IllegalArgumentException("Cannot add fluid with only an integer when tank is empty!");
 		}
 		
-		int amtToAdd = Math.min(fluidAmount, getCapacity() - getTotalAmount());
+		int amtToAdd = Math.min(fluidAmount, getCapacity() - getRemainingSpaceForFluid(idx));
 		
 		fluids[idx].amount += amtToAdd;
 		return Math.max(0, fluidAmount - amtToAdd);
-		
 	}
 	
 	protected FluidStack addFluidToStack(int idx, FluidStack incoming) {
 		if(!canAddToStack(idx, incoming)) { return incoming; }
 
-		int amtToAdd = Math.min(incoming.amount, getCapacity() - getTotalAmount());
+		int amtToAdd = Math.min(incoming.amount, getCapacity() - getRemainingSpaceForFluid(idx));
 
 		if(amtToAdd <= 0) { 
 			return incoming;
@@ -246,24 +243,34 @@ public abstract class FluidHelper {
 	}
 	
 	protected void clampContentsToCapacity() {
-		if(getTotalAmount() > capacity) {
-			int diff = getTotalAmount() - capacity;
-			
-			// Reduce stuff in the tanks. Start with waste, to be nice to players.
-			for(int i = fluids.length - 1; i >= 0 && diff > 0; i--) {
+		if(separateChambers) {
+			// Clamp each tank to capacity
+			for(int i = 0; i < fluids.length; i++) {
 				if(fluids[i] != null) {
-					if(diff > fluids[i].amount) {
-						diff -= fluids[i].amount;
-						fluids[i] = null;
-					}
-					else {
-						fluids[i].amount -= diff;
-						diff = 0;
-					}
+					fluids[i].amount = Math.min(getCapacity(), fluids[i].amount);
 				}
 			}
 		}
-		// Else: nothing to do, no need to clamp
+		else {
+			if(getTotalAmount() > capacity) {
+				int diff = getTotalAmount() - capacity;
+				
+				// Reduce stuff in the tanks. Start with waste, to be nice to players.
+				for(int i = fluids.length - 1; i >= 0 && diff > 0; i--) {
+					if(fluids[i] != null) {
+						if(diff > fluids[i].amount) {
+							diff -= fluids[i].amount;
+							fluids[i] = null;
+						}
+						else {
+							fluids[i].amount -= diff;
+							diff = 0;
+						}
+					}
+				}
+			}
+			// Else: nothing to do, no need to clamp
+		}
 	}
 	
 	protected void resetLastSeenFluidLevels() {
@@ -275,5 +282,17 @@ public abstract class FluidHelper {
 				fluidLevelAtLastUpdate[i] = fluids[i].amount;
 			}
 		}
+	}
+	
+	protected int getRemainingSpaceForFluid(int idx) {
+		int containedFluidAmt;
+		if(separateChambers) {
+			containedFluidAmt = getFluidAmount(idx);
+		}
+		else {
+			containedFluidAmt = getTotalAmount();
+		}
+
+		return getCapacity() - containedFluidAmt;
 	}
 }
