@@ -46,9 +46,9 @@ TODO - 0.3: The Coolant Update
 
 ### Active Coolant Loop
 - (DONE) Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
-- Coolant buffer in main reactor controller
-- Coolant I/O interface blocks
-- When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
+- (DONE) Coolant buffer in main reactor controller
+- (DONE) Coolant I/O interface blocks
+- (DONE) When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
 
 ### Multiblock Turbine
 - (DONE) Turbine consumes steam, produces power and water.
@@ -74,6 +74,7 @@ TODO - 0.3: The Coolant Update
 - Fix Control Rod GUI
 - Fix & improve Reactor Controller GUI. Add graphical indicators for fuel heat, fuel fertility.
 - Add "dump fuel" button to access port GUI
+- Add turbine stuff to German and Chinese localization files
 
 ### Items
 - Add nuggets for the 4 types of ingots

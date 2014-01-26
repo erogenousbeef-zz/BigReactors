@@ -1,8 +1,10 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 
 public abstract class FluidHelper {
 
@@ -24,6 +26,8 @@ public abstract class FluidHelper {
 	 * @param separate True if capacity is applied to each fluid separately, false if they should be treated like a single tank with multiple fluids inside.
 	 */
 	public FluidHelper(boolean separate) {
+		numberOfFluids = getNumberOfFluidTanks();
+		
 		fluids = new FluidStack[numberOfFluids];
 		fluidLevelAtLastUpdate = new int[numberOfFluids];
 
@@ -163,9 +167,17 @@ public abstract class FluidHelper {
 		else { return fluids[idx].getFluid(); }
 	}
 	
+	protected abstract boolean isFluidValidForStack(int stackIdx, Fluid fluid);
+	
+	protected boolean canAddToStack(int idx, Fluid incoming) {
+		if(idx < 0 || idx >= fluids.length || incoming == null) { return false; }
+		else if(fluids[idx] == null) { return isFluidValidForStack(idx, incoming); }
+		return fluids[idx].getFluid().getID() == incoming.getID();
+	}
+	
 	protected boolean canAddToStack(int idx, FluidStack incoming) {
-		if(idx < 0 || idx >= fluids.length) { return false; }
-		else if(fluids[idx] == null) { return true; }
+		if(idx < 0 || idx >= fluids.length || incoming == null) { return false; }
+		else if(fluids[idx] == null) {return isFluidValidForStack(idx, incoming.getFluid()); }
 		return fluids[idx].isFluidEqual(incoming);
 	}
 	
@@ -177,36 +189,7 @@ public abstract class FluidHelper {
 		int amtToAdd = Math.min(fluidAmount, getCapacity() - getRemainingSpaceForFluid(idx));
 		
 		fluids[idx].amount += amtToAdd;
-		return Math.max(0, fluidAmount - amtToAdd);
-	}
-	
-	protected FluidStack addFluidToStack(int idx, FluidStack incoming) {
-		if(!canAddToStack(idx, incoming)) { return incoming; }
-
-		int amtToAdd = Math.min(incoming.amount, getCapacity() - getRemainingSpaceForFluid(idx));
-
-		if(amtToAdd <= 0) { 
-			return incoming;
-		}
-		else if(amtToAdd >= incoming.amount) {
-			if(fluids[idx] == null) {
-				fluids[idx] = incoming;
-			}
-			else {
-				fluids[idx].amount += incoming.amount;
-			}
-			return null;
-		}
-		else {
-			if(fluids[idx] == null) {
-				fluids[idx] = incoming.copy();
-				fluids[idx].amount = 0;
-			}
-
-			fluids[idx].amount += amtToAdd;
-			incoming.amount -= amtToAdd;
-			return incoming;
-		}
+		return amtToAdd;
 	}
 	
 	/**
@@ -294,5 +277,87 @@ public abstract class FluidHelper {
 		}
 
 		return getCapacity() - containedFluidAmt;
+	}
+	
+	// IFluidHandler analogue
+	public int fill(int idx, FluidStack incoming, boolean doFill) {
+		if(incoming == null || idx < 0 || idx >= fluids.length) { return 0; }
+		
+		if(!canAddToStack(idx, incoming)) { return 0; }
+		
+		int amtToAdd = Math.min(incoming.amount, getCapacity() - getRemainingSpaceForFluid(idx));
+
+		if(amtToAdd <= 0) { 
+			return 0;
+		}
+
+		if(!doFill) { return amtToAdd; }
+
+		if(fluids[idx] == null) {
+			fluids[idx] = incoming.copy();
+			fluids[idx].amount = amtToAdd;
+		}
+		else {
+			fluids[idx].amount += amtToAdd;
+		}
+
+		return amtToAdd;
+	}
+	
+	public FluidStack drain(int idx, FluidStack resource,
+			boolean doDrain) {
+		if(resource == null || resource.amount <= 0 || idx < 0 || idx >= fluids.length) { return null; }
+		
+		Fluid existingFluid = getFluidType(idx);
+		if(existingFluid == null || existingFluid.getID() != resource.getFluid().getID()) { return null; }
+		
+		FluidStack drained = resource.copy();
+		if(!doDrain) {
+			drained.amount = Math.max(resource.amount, getFluidAmount(idx));
+		}
+		else {
+			drained.amount = drainFluidFromStack(idx, resource.amount);
+		}
+
+		return drained;
+	}
+
+	public FluidStack drain(int idx, int maxDrain, boolean doDrain) {
+		if(maxDrain <= 0 || idx < 0 || idx >= fluids.length) { return null; }
+		
+		if(getFluidType(idx) == null) { return null; }
+		
+		FluidStack drained = new FluidStack(getFluidType(idx), 0);
+
+		if(!doDrain) {
+			drained.amount = Math.max(getFluidAmount(idx), maxDrain);
+		}
+		else {
+			drained.amount = drainFluidFromStack(idx, maxDrain);
+		}
+
+		return drained;
+	}
+	
+	public boolean canFill(int idx, Fluid fluid) {
+		return canAddToStack(idx, fluid);
+	}
+	
+	public boolean canDrain(int idx, Fluid fluid) {
+		if(fluid == null || idx < 0 || idx >= fluids.length) { return false; }
+
+		if(fluids[idx] == null) { return false; }
+		
+		return fluids[idx].getFluid().getID() == fluid.getID();
+	}
+	
+	private static FluidTankInfo[] emptyTankArray = new FluidTankInfo[0];
+	
+	public FluidTankInfo[] getTankInfo(int idx) {
+		if(idx < 0 || idx >= fluids.length) { return emptyTankArray; }
+		
+		FluidTankInfo[] info = new FluidTankInfo[1];
+		info[0] = new FluidTankInfo(fluids[idx] == null ? null : fluids[idx].copy(), getCapacity());
+		return info;
 	}
 }

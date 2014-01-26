@@ -35,6 +35,7 @@ import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
@@ -89,6 +90,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	private Set<TileEntityReactorPart> attachedControllers;
 	
 	private Set<TileEntityReactorFuelRod> attachedFuelRods;
+	private Set<TileEntityReactorCoolantPort> attachedCoolantPorts;
 
 	// Updates
 	private Set<EntityPlayer> updatePlayers;
@@ -121,6 +123,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		attachedAccessPorts = new HashSet<TileEntityReactorAccessPort>();
 		attachedControllers = new HashSet<TileEntityReactorPart>();
 		attachedFuelRods = new HashSet<TileEntityReactorFuelRod>();
+		attachedCoolantPorts = new HashSet<TileEntityReactorCoolantPort>();
 		
 		currentFuelRod = null;
 
@@ -188,6 +191,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				worldObj.markBlockForRenderUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
 			}
 		}
+		
+		if(part instanceof TileEntityReactorCoolantPort) {
+			FMLLog.info("attached coolant port at %s", part.getWorldLocation());
+			attachedCoolantPorts.add((TileEntityReactorCoolantPort) part);
+		}
 	}
 	
 	@Override
@@ -218,6 +226,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(part instanceof TileEntityReactorFuelRod) {
 			attachedFuelRods.remove(part);
 			currentFuelRod = attachedFuelRods.iterator();
+		}
+		
+		if(part instanceof TileEntityReactorCoolantPort) {
+			attachedCoolantPorts.remove((TileEntityReactorCoolantPort)part);
 		}
 	}
 	
@@ -966,7 +978,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(wasteIngotsDistributed > 0) {
 			fuelContainer.drainWaste(wasteIngotsDistributed * AmountPerIngot);
 		}
-	} // End fuel/waste autotransfer		
+	} // End fuel/waste autotransfer
 
 	@Override
 	protected void onMachineAssembled() {
@@ -995,8 +1007,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
 
-		// TODO: Make this nonzero once fluid ports are tracked
-		coolantContainer.setCapacity(0);
+		FMLLog.info("attached coolant ports: %d", attachedCoolantPorts.size());
+		if(attachedCoolantPorts.size() > 0) {
+			coolantContainer.setCapacity(5000);
+		}
+		else {
+			coolantContainer.setCapacity(0);
+		}
 
 		// Calculate derived stats
 		
@@ -1195,6 +1212,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	}
 	
 	// Coolant subsystem
+	public CoolantContainer getCoolantContainer() {
+		return coolantContainer;
+	}
+	
 	protected float getCoolantTemperature() {
 		if(isPassivelyCooled()) {
 			return IHeatEntity.ambientHeat;
@@ -1205,7 +1226,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	}
 	
 	protected boolean isPassivelyCooled() {
-		if(!isActive() || coolantContainer == null || coolantContainer.getCapacity() <= 0) { return true; }
+		if(coolantContainer == null || coolantContainer.getCapacity() <= 0) { return true; }
 		else { return false; }
 	}
 	

@@ -22,9 +22,9 @@ import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort.FluidFlow;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartStandard;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
@@ -40,14 +40,12 @@ public class BlockTurbinePart extends BlockContainer {
 	public static final int METADATA_POWERTAP = 2;
 	public static final int METADATA_FLUIDPORT = 3;
 	public static final int METADATA_BEARING = 4;
-	public static final int METADATA_CREATIVE_GENERATOR = 5;
 	
 	private static final String[] _subBlocks = new String[] { "housing",
 														"controller",
 														"powerTap",
 														"fluidPort",
-														"bearing",
-														"creativeSteamGenerator" };
+														"bearing" };
 
 	// Additional non-metadata-based icons
 	private static final int SUBICON_NONE = -1;
@@ -216,6 +214,7 @@ public class BlockTurbinePart extends BlockContainer {
 
 	@Override
 	public Icon getIcon(int side, int metadata) {
+		metadata = Math.max(0, Math.min(metadata, _subBlocks.length-1));
 		return _icons[metadata];
 	}
 
@@ -232,9 +231,6 @@ public class BlockTurbinePart extends BlockContainer {
 		}
 		else if(metadata == METADATA_FLUIDPORT) {
 			return new TileEntityTurbineFluidPort(metadata);
-		}
-		else if(metadata == METADATA_CREATIVE_GENERATOR) {
-			return new TileEntityTurbineCreativeSteamGenerator(metadata);
 		}
 		else {
 			return new TileEntityTurbinePartStandard(metadata);

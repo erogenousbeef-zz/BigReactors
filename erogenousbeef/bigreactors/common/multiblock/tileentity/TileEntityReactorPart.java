@@ -6,6 +6,7 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
 import erogenousbeef.core.common.CoordTriplet;
@@ -67,17 +68,19 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 			this.onAttached(multiblockController);
 		}
 		
-		int metadata = this.getBlockMetadata();
-		if(BlockReactorPart.isCasing(metadata)) {
-			this.setCasingMetadataBasedOnWorldPosition();
-		}
-		else if(BlockReactorPart.isController(metadata)) {
-			// This is called during world loading as well, so controllers can start active.
-			if(!this.getReactorController().isActive()) {
-				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);				
+		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+			int metadata = this.getBlockMetadata();
+			if(BlockReactorPart.isCasing(metadata)) {
+				this.setCasingMetadataBasedOnWorldPosition();
 			}
-			else {
-				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);				
+			else if(BlockReactorPart.isController(metadata)) {
+				// This is called during world loading as well, so controllers can start active.
+				if(!this.getReactorController().isActive()) {
+					this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);				
+				}
+				else {
+					this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);				
+				}
 			}
 		}
 	}
@@ -88,12 +91,14 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 
 		if(this.worldObj.isRemote) { return; }
 		
-		int metadata = this.getBlockMetadata();
-		if(BlockReactorPart.isCasing(metadata)) {
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
-		}
-		else if(BlockReactorPart.isController(metadata)) {
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_METADATA_BASE, 2);
+		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+			int metadata = this.getBlockMetadata();
+			if(BlockReactorPart.isCasing(metadata)) {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
+			}
+			else if(BlockReactorPart.isController(metadata)) {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_METADATA_BASE, 2);
+			}
 		}
 	}
 
@@ -101,20 +106,23 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 	public void onMachineActivated() {
 		if(this.worldObj.isRemote) { return; }
 		
-		int metadata = this.getBlockMetadata();
-		if(BlockReactorPart.isController(metadata)) {
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);
+		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+			int metadata = this.getBlockMetadata();
+			if(BlockReactorPart.isController(metadata)) {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);
+			}
 		}
-		
 	}
 
 	@Override
 	public void onMachineDeactivated() {
 		if(this.worldObj.isRemote) { return; }
 
-		int metadata = this.getBlockMetadata();
-		if(BlockReactorPart.isController(metadata)) {
-			this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);
+		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+			int metadata = this.getBlockMetadata();
+			if(BlockReactorPart.isController(metadata)) {
+				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);
+			}
 		}
 	}
 
