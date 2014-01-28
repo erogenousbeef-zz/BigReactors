@@ -203,7 +203,7 @@ public class FuelContainer extends FluidHelper {
 
 	public float getFuelReactivity() {
 		// TODO: Fetch this from the fuel itself
-		return 1.1f;
+		return 1.05f;
 	}
 
 	@Override
