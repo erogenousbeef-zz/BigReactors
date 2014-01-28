@@ -52,7 +52,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4 * AmountPerIngot; // 4 ingots per rod
 	
-	private static final float passiveCoolingPowerEfficiency = 0.2f; // only 20% of heat turns into power when passively cooled!
+	private static final float passiveCoolingPowerEfficiency = 0.5f; // 50% power penalty, so this comes out as about 1/3 a basic water-cooled reactor
+	private static final float passiveCoolingTransferEfficiency = 0.2f; // 20% of available heat transferred per tick when passively cooled
+	private static final float reactorHeatLossConductivity = 0.001f; // circa 1RF per tick per external surface block
 	
 	// Game stuff - stored
 	protected boolean active;
@@ -67,6 +69,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	// Game stuff - derived at runtime
 	protected float fuelToReactorHeatTransferCoefficient;
 	protected float reactorToCoolantSystemHeatTransferCoefficient;
+	protected float reactorHeatLossCoefficient;
 	
 	protected Iterator<TileEntityReactorFuelRod> currentFuelRod;
 	int reactorVolume;
@@ -111,6 +114,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		// Derived stats
 		fuelToReactorHeatTransferCoefficient = 0f;
 		reactorToCoolantSystemHeatTransferCoefficient = 0f;
+		reactorHeatLossCoefficient = 0f;
 		
 		// UI and stats
 		energyGeneratedLastTick = 0f;
@@ -302,12 +306,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 
 		// If we have a temperature differential between environment and coolant system, move heat between them.
-		tempDiff = reactorHeat - getCoolantTemperature();
+		tempDiff = getReactorHeat() - getCoolantTemperature();
 		if(tempDiff > 0.00001f) {
 			float rfTransferred = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
-			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), reactorHeat);
+			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat());
 
 			if(isPassivelyCooled()) {
+				rfTransferred *= passiveCoolingTransferEfficiency;
 				generateEnergy(rfTransferred * passiveCoolingPowerEfficiency);
 			}
 			else {
@@ -318,6 +323,14 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorRf));
 		}
 
+		// Do passive heat loss - this is always versus external environment
+		tempDiff = getReactorHeat() - getPassiveCoolantTemperature();
+		if(tempDiff > 0.00001f) {
+			float rfLost = tempDiff * reactorHeatLossCoefficient;
+			float reactorNewRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat()) - rfLost;
+			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorNewRf));
+		}
+		
 		// Prevent cryogenics
 		if(reactorHeat < 0f) { setReactorHeat(0f); }
 		if(fuelHeat < 0f) { setFuelHeat(0f); }
@@ -1038,6 +1051,15 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		reactorToCoolantSystemHeatTransferCoefficient = IHeatEntity.conductivityIron * surfaceArea; // TODO: Balance me
 
+		// Calculate passive heat loss.
+		// Get external surface area
+		xSize += 2;
+		ySize += 2;
+		zSize += 3;
+		
+		surfaceArea = 2 * (xSize * ySize + xSize * zSize + ySize * zSize);
+		reactorHeatLossCoefficient = reactorHeatLossConductivity * surfaceArea;
+		
 		if(worldObj.isRemote) {
 			// Make sure our fuel rods re-render
 			this.onFuelStatusChanged();
@@ -1216,9 +1238,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return coolantContainer;
 	}
 	
+	protected float getPassiveCoolantTemperature() {
+		return IHeatEntity.ambientHeat;
+	}
+
 	protected float getCoolantTemperature() {
 		if(isPassivelyCooled()) {
-			return IHeatEntity.ambientHeat;
+			return getPassiveCoolantTemperature();
 		}
 		else {
 			return coolantContainer.getCoolantTemperature(getReactorHeat());
