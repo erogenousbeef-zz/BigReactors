@@ -12,6 +12,7 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiFuelMixBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiHeatBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
+import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.FloatAverager;
@@ -19,7 +20,6 @@ import erogenousbeef.core.common.CoordTriplet;
 
 public class GuiReactorStatus extends BeefGuiBase {
 
-	private GuiButton _toggleReactorOn;
 	private GuiButton _reactorWastePolicy;
 	private GuiButton _ejectWaste;
 	
@@ -43,8 +43,13 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private FloatAverager averagedRfOutput;
 	private FloatAverager averagedFuelConsumption;
 	
+	private GuiIconButton onButton;
+	private GuiIconButton offButton;
+	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
+		
+		ySize = 186;
 		
 		this.part = tileEntityReactorPart;
 		this.reactor = part.getReactorController();
@@ -62,11 +67,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 		int xCenter = guiLeft + this.xSize / 2;
 		int yCenter = this.ySize / 2;
 		
-		_toggleReactorOn = new GuiButton(1, xCenter - (this.xSize/2) + 4, yCenter + (this.height/2) - 24, 70, 20, getReactorToggleText() );
 		_reactorWastePolicy = new GuiButton(2, xCenter - (this.xSize/2) + 4, yCenter + (this.height / 2) - 46, 114, 20, getReactorWastePolicyText(reactor.getWasteEjection()));
 		_ejectWaste = new GuiButton(3, xCenter - (this.xSize/2) + 122, yCenter + (this.height / 2) - 46, 50, 20, "Eject");
 
-		this.buttonList.add(_toggleReactorOn);
 		this.buttonList.add(_reactorWastePolicy);
 		this.buttonList.add(_ejectWaste);
 
@@ -103,6 +106,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		heatBar = new BeefGuiHeatBar(this, guiLeft + 130, guiTop + 22, this.part);
 		fuelMixBar = new BeefGuiFuelMixBar(this, guiLeft + 108, guiTop + 22, this.reactor);
 
+		// TODO: onButton = new GuiIconButton(0, guiLeft + 4, guiTop + 160, 18, 18,  )
+		
 		registerControl(titleString);
 		registerControl(statusString);
 		registerControl(heatString);
@@ -140,8 +145,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		
-		_toggleReactorOn.displayString = getReactorToggleText();
 		
 		if(reactor.isActive()) {
 			statusString.setLabelText("Status: Online");
@@ -206,15 +209,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 			// Boolean value is ignored here.
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "ejectWaste", false }));
-		}
-	}
-	
-	private String getReactorToggleText() {
-		if(reactor.isActive()) {
-			return "Shutdown";
-		}
-		else {
-			return "Activate";
 		}
 	}
 }
