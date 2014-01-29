@@ -8,15 +8,25 @@ import net.minecraft.util.Icon;
 
 import org.lwjgl.opengl.GL11;
 
-public class GuiIconButton extends GuiButton {
+import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
+
+public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 
 	protected Icon icon;
+	
+	protected String[] tooltip;
 	
 	public GuiIconButton(int buttonId, int x, int y, int width, int height, Icon icon) {
 		super(buttonId, x, y, width, height, "");
 		this.icon = icon;
+		tooltip = null;
 	}
 
+	public GuiIconButton(int buttonId, int x, int y, int width, int height, Icon icon, String[] tooltip) {
+		this(buttonId, x, y, width, height, icon);
+		this.tooltip = tooltip;
+	}
+	
 	public void setIcon(Icon icon) {
 		this.icon = icon;
 	}
@@ -47,4 +57,19 @@ public class GuiIconButton extends GuiButton {
             }
         }
     }
+
+	@Override
+	public boolean isMouseOver(int mouseX, int mouseY) {
+		if(mouseX < xPosition || mouseX > xPosition+width || mouseY < yPosition || mouseY > yPosition+height) { return false; }
+		return true;
+	}
+
+	public void setTooltip(String[] tooltip) {
+		this.tooltip = tooltip;  
+	}
+	
+	@Override
+	public String[] getTooltip() {
+		return tooltip;
+	}
 }
