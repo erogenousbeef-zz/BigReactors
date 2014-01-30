@@ -12,10 +12,17 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.CommonProxy;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
+import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
+	public BeefGuiIconManager GuiIcons;
+
+	public ClientProxy() {
+		GuiIcons = new BeefGuiIconManager();
+	}
+	
 	@Override
 	public void preInit()
 	{
@@ -38,10 +45,11 @@ public class ClientProxy extends CommonProxy {
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
 	public void registerIcons(TextureStitchEvent.Pre event) {
-		if(event.map.textureType == 0) {
+		if(event.map.textureType == BeefIconManager.TERRAIN_TEXTURE) {
 			BigReactors.registerNonBlockFluidIcons(event.map);
+			GuiIcons.registerIcons(event.map);
 		}
-		// else if(event.map.textureType == 1) { registerNonItemIcons() }
+		// else if(event.map.textureType == BeefIconManager.ITEM_TEXTURE) { }
 	}
 	
 	@Override
