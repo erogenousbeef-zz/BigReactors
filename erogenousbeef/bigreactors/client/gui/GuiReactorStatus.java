@@ -167,6 +167,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		averagedHeat.setAll(reactor.getReactorHeat());
 		averagedRfOutput.setAll(reactor.getEnergyGeneratedLastTick());
 		averagedFuelConsumption.setAll(reactor.getFuelConsumedLastTick());
+		
+		updateIcons();
 	}
 
 	@Override
