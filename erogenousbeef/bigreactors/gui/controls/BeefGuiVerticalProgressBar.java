@@ -51,6 +51,8 @@ public abstract class BeefGuiVerticalProgressBar extends BeefGuiControlBase {
 	
 	@Override
 	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
+		if(!this.visible) { return; }
+
 		// Draw the background
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		renderEngine.bindTexture(controlResource);

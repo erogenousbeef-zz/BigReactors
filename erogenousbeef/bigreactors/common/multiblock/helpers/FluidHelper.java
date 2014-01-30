@@ -358,10 +358,24 @@ public abstract class FluidHelper {
 	private static FluidTankInfo[] emptyTankArray = new FluidTankInfo[0];
 	
 	public FluidTankInfo[] getTankInfo(int idx) {
-		if(idx < 0 || idx >= fluids.length) { return emptyTankArray; }
+		if(idx >= fluids.length) { return emptyTankArray; }
 		
-		FluidTankInfo[] info = new FluidTankInfo[1];
-		info[0] = new FluidTankInfo(fluids[idx] == null ? null : fluids[idx].copy(), getCapacity());
+		FluidTankInfo[] info;
+
+		if(idx < 0) {
+			// All tanks
+			info = new FluidTankInfo[fluids.length];
+			for(int i = 0; i < fluids.length; i++) {
+				info[i] = new FluidTankInfo(fluids[i] == null ? null : fluids[i].copy(), getCapacity());
+			}
+			
+			return info;
+		}
+		else {
+			info = new FluidTankInfo[1];
+			info[0] = new FluidTankInfo(fluids[idx] == null ? null : fluids[idx].copy(), getCapacity());
+		}
+
 		return info;
 	}
 }

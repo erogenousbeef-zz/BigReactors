@@ -18,6 +18,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
@@ -27,6 +28,7 @@ import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
@@ -48,9 +50,12 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo {
+public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo, IMultipleFluidHandler {
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4 * AmountPerIngot; // 4 ingots per rod
+	
+	public static final int FLUID_SUPERHEATED = CoolantContainer.HOT;
+	public static final int FLUID_COOLANT = CoolantContainer.COLD;
 	
 	private static final float passiveCoolingPowerEfficiency = 0.5f; // 50% power penalty, so this comes out as about 1/3 a basic water-cooled reactor
 	private static final float passiveCoolingTransferEfficiency = 0.2f; // 20% of available heat transferred per tick when passively cooled
@@ -483,7 +488,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		else { fuelHeat = newFuelHeat; }
 	}
 	
-	public int getFuelColumnCount() {
+	public int getFuelRodCount() {
 		return attachedControlRods.size();
 	}
 
@@ -832,21 +837,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return energyStored;
 	}
 
-	/**
-	 * Increment the waste ejection setting by 1 value.
-	 */
-	public void changeWasteEjection() {
-		WasteEjectionSetting[] settings = WasteEjectionSetting.values();
-		int newIdx = this.wasteEjection.ordinal() + 1;
-		if(newIdx >= settings.length) {
-			newIdx = 0;
-		}
-		
-		WasteEjectionSetting newSetting = settings[newIdx];
-		
-		setWasteEjection(newSetting);
-	}
-	
 	/**
 	 * Directly set the waste ejection setting. Will dispatch network updates
 	 * from server to interested clients.
@@ -1251,7 +1241,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 	}
 	
-	protected boolean isPassivelyCooled() {
+	public boolean isPassivelyCooled() {
 		if(coolantContainer == null || coolantContainer.getCapacity() <= 0) { return true; }
 		else { return false; }
 	}
@@ -1294,5 +1284,15 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		Fluid vaporType = coolantContainer.getVaporType();
 		
 		FMLLog.info("[%s] Coolant tank has %d units of %s, vapor tank has %d units of %s", clientOrServer, coolantContainer.getCoolantAmount(), coolantType == null?"NONE":coolantType.getName(), coolantContainer.getVaporAmount(), vaporType == null?"NONE":vaporType.getName());
+	}
+
+	
+	private static final FluidTankInfo[] emptyTankInfo = new FluidTankInfo[0];
+	
+	@Override
+	public FluidTankInfo[] getTankInfo() {
+		if(isPassivelyCooled()) { return emptyTankInfo; }
+		
+		return coolantContainer.getTankInfo(-1);
 	}
 }

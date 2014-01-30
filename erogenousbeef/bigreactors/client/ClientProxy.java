@@ -17,7 +17,7 @@ import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
-	public BeefGuiIconManager GuiIcons;
+	public static BeefGuiIconManager GuiIcons;
 
 	public ClientProxy() {
 		GuiIcons = new BeefGuiIconManager();

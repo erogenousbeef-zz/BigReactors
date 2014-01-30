@@ -42,7 +42,9 @@ public class BeefGuiIcon extends BeefGuiControlBase implements IBeefTooltipContr
 	@Override
 	public void drawBackground(TextureManager renderEngine, int mouseX,
 			int mouseY) {
+		if(!visible) { return; }
 		if(icon == null) { return; }
+		
 
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         renderEngine.bindTexture(TextureMap.locationBlocksTexture);

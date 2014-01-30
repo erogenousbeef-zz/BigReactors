@@ -14,6 +14,8 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 	protected int relativeX, relativeY; // GUI-relative X/Y (for foregrounds)
 	protected int width, height;
 	
+	public boolean visible;
+	
 	// We use absolute coords to match other Minecraft controls.
 	protected BeefGuiControlBase(BeefGuiBase container, int absoluteX, int absoluteY, int width, int height) {
 		this.guiContainer = container;
@@ -23,6 +25,7 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 		this.relativeY = absoluteY - container.getGuiTop();
 		this.height = height;
 		this.width = width;
+		visible = true;
 	}
 
 	/**
@@ -100,4 +103,5 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
         tessellator.draw();
     }
 	
+    public boolean isVisible() { return visible; }
 }
