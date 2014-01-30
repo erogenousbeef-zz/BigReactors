@@ -4,12 +4,16 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.client.ClientProxy;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFuelMixBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiHeatBar;
+import erogenousbeef.bigreactors.gui.controls.BeefGuiIcon;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
@@ -17,34 +21,46 @@ import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.FloatAverager;
 import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.bigreactors.gui.GuiConstants;
 
 public class GuiReactorStatus extends BeefGuiBase {
 
-	private GuiButton _reactorWastePolicy;
-	private GuiButton _ejectWaste;
+	private GuiIconButton btnReactorOn;
+	private GuiIconButton btnReactorOff;
+	private GuiIconButton btnWasteAutoEject;
+	private GuiIconButton btnWasteReplaceOnly;
+	private GuiIconButton btnWasteManual;
+	
+	private GuiIconButton btnWasteEject;
 	
 	private TileEntityReactorPart part;
 	private MultiblockReactor reactor;
 	
 	private BeefGuiLabel titleString;
 	private BeefGuiLabel statusString;
+	
+	private BeefGuiIcon  heatIcon;
 	private BeefGuiLabel heatString;
-	private BeefGuiLabel fuelRodsString;
-	private BeefGuiLabel energyGeneratedString;
+	private BeefGuiIcon outputIcon;
+	private BeefGuiLabel outputString;
+	private BeefGuiIcon fuelConsumedIcon;
 	private BeefGuiLabel fuelConsumedString;
-	private BeefGuiLabel fuelHeatString;
-	private BeefGuiLabel fuelFertilityString;
+	private BeefGuiIcon reactivityIcon;
+	private BeefGuiLabel reactivityString;
 
 	private BeefGuiPowerBar powerBar;
-	private BeefGuiHeatBar heatBar;
+	private BeefGuiHeatBar coreHeatBar;
+	private BeefGuiHeatBar caseHeatBar;
 	private BeefGuiFuelMixBar fuelMixBar;
+	
+	private BeefGuiIcon coolantIcon;
+	private BeefGuiFluidBar coolantBar;
+	private BeefGuiIcon hotFluidIcon;
+	private BeefGuiFluidBar hotFluidBar;
 	
 	private FloatAverager averagedHeat;
 	private FloatAverager averagedRfOutput;
 	private FloatAverager averagedFuelConsumption;
-	
-	private GuiIconButton onButton;
-	private GuiIconButton offButton;
 	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
@@ -67,74 +83,90 @@ public class GuiReactorStatus extends BeefGuiBase {
 		int xCenter = guiLeft + this.xSize / 2;
 		int yCenter = this.ySize / 2;
 		
-		_reactorWastePolicy = new GuiButton(2, xCenter - (this.xSize/2) + 4, yCenter + (this.height / 2) - 46, 114, 20, getReactorWastePolicyText(reactor.getWasteEjection()));
-		_ejectWaste = new GuiButton(3, xCenter - (this.xSize/2) + 122, yCenter + (this.height / 2) - 46, 50, 20, "Eject");
+		btnReactorOn = new GuiIconButton(0, guiLeft + 4, 190, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"));
+		btnReactorOff = new GuiIconButton(1, guiLeft + 22, 190, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
+		
+		btnReactorOn.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Activate Reactor" });
+		btnReactorOff.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Reactor", "Residual heat will still", "generate power/consume coolant,", "until the reactor cools." });
+		
+		btnWasteAutoEject = new GuiIconButton(2, guiLeft + 4, 170, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject_off"));
+		btnWasteReplaceOnly = new GuiIconButton(3, guiLeft + 22, 170, 18, 18, ClientProxy.GuiIcons.getIcon("wasteReplace_off"));
+		btnWasteManual = new GuiIconButton(4, guiLeft + 40, 170, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
+		btnWasteEject = new GuiIconButton(5, guiLeft + 80, 170, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
 
-		this.buttonList.add(_reactorWastePolicy);
-		this.buttonList.add(_ejectWaste);
+		btnWasteEject.drawButton = false;
 
+		btnWasteAutoEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Auto-Eject Waste", "Waste in the core will be ejected", "as soon as possible" });
+		btnWasteReplaceOnly.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Replace Waste", "Waste in the core will be ejected", "only when it can be replaced", "with fresh fuel" });
+		btnWasteManual.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Do Not Auto-Eject Waste", GuiConstants.VIOLET_TEXT + "Waste must be manually ejected.", "", "Ejection can be done from this", "screen, or via rednet,", "redstone or computer port signals."});
+		btnWasteEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Eject Waste Now", "Ejects waste from the core", "into access ports.", "Each 1000mB waste = 1 ingot"});
+		
+		registerControl(btnReactorOn);
+		registerControl(btnReactorOff);
+		registerControl(btnWasteAutoEject);
+		registerControl(btnWasteReplaceOnly);
+		registerControl(btnWasteManual);
+		registerControl(btnWasteEject);
+		
 		int leftX = guiLeft + 4;
 		int topY = guiTop + 4;
 		
 		titleString = new BeefGuiLabel(this, "Reactor Control", leftX, topY);
 		topY += titleString.getHeight() + 4;
 		
-		statusString = new BeefGuiLabel(this, "Status: -- updating --", leftX, topY);
+		heatIcon = new BeefGuiIcon(this, leftX - 2, topY, ClientProxy.GuiIcons.getIcon("temperature"), new String[] { GuiConstants.LITECYAN_TEXT + "Core Temperature", "", "Temperature inside the reactor core.", "Higher temperatures increase fuel burnup." });
+		heatString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
+		topY += heatIcon.getHeight() + 5;
+		
+		outputIcon = new BeefGuiIcon(this, leftX + 1, topY);
+		outputString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
+		topY += outputIcon.getHeight() + 5;
+		
+		fuelConsumedIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("fuelUsageRate"), new String[] { GuiConstants.LITECYAN_TEXT + "Fuel Burnup Rate", "", "The rate at which fuel is", "fissioned into waste in the core."});
+		fuelConsumedString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
+		topY += fuelConsumedIcon.getHeight() + 5;
+
+		reactivityIcon = new BeefGuiIcon(this, leftX, topY, ClientProxy.GuiIcons.getIcon("reactivity"), new String[] { GuiConstants.LITECYAN_TEXT + "Fuel Reactivity", "", "How heavily irradiated the core is.", "Higher levels of radiation", "reduce fuel burnup."});
+		reactivityString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
+		topY += reactivityIcon.getHeight() + 6;
+
+		statusString = new BeefGuiLabel(this, "", leftX+1, topY);
 		topY += statusString.getHeight() + 4;
 		
-		heatString = new BeefGuiLabel(this, "Heat: -- updating --", leftX, topY);
-		topY += heatString.getHeight() + 4;
-		
-		fuelRodsString = new BeefGuiLabel(this, "Fuel Rods: -- updating --", leftX, topY);
-		topY += fuelRodsString.getHeight() + 4;
-
-		// Now move topY down so we're below the various status bars
-		topY = guiTop + 88;
-		energyGeneratedString = new BeefGuiLabel(this, "Power Output: -- updating --", leftX, topY);
-		topY += energyGeneratedString.getHeight() + 4;
-		
-		fuelConsumedString = new BeefGuiLabel(this, "Fuel Consumed: -- updating --", leftX, topY);
-		topY += fuelConsumedString.getHeight() + 4;
-		
-		fuelHeatString = new BeefGuiLabel(this, "Fuel Heat: -- updating --", leftX, topY);
-		topY += fuelHeatString.getHeight() + 4;
-		
-		fuelFertilityString = new BeefGuiLabel(this, "Fertility: -- updating --", leftX, topY);
-		topY += fuelFertilityString.getHeight() + 4;
 		
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.reactor);
-		heatBar = new BeefGuiHeatBar(this, guiLeft + 130, guiTop + 22, this.part);
-		fuelMixBar = new BeefGuiFuelMixBar(this, guiLeft + 108, guiTop + 22, this.reactor);
+		coreHeatBar = new BeefGuiHeatBar(this, guiLeft + 130, guiTop + 22, GuiConstants.LITECYAN_TEXT + "Core Heat", new String[] { "Heat of the reactor's fuel.", "High heat raises fuel usage.", "", "Core heat is transferred to", "the casing. Transfer rate", "is based on the design of", "the reactor's interior."});
+		caseHeatBar = new BeefGuiHeatBar(this, guiLeft + 108, guiTop + 22, GuiConstants.LITECYAN_TEXT + "Casing Heat", new String[] { "Heat of the reactor's casing.", "High heat raises energy output", "and coolant conversion."});
+		fuelMixBar = new BeefGuiFuelMixBar(this, guiLeft + 86, guiTop + 22, this.reactor);
 
-		// TODO: onButton = new GuiIconButton(0, guiLeft + 4, guiTop + 160, 18, 18,  )
+		coolantIcon = new BeefGuiIcon(this, guiLeft + 132, guiTop + 91, ClientProxy.GuiIcons.getIcon("coolantIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Coolant Fluid Tank", "", "Casing heat will superheat", "coolant in this tank." });
+		coolantBar = new BeefGuiFluidBar(this, guiLeft + 131, guiTop + 108, this.reactor, MultiblockReactor.FLUID_COOLANT);
+		
+		hotFluidIcon = new BeefGuiIcon(this, guiLeft + 154, guiTop + 91, ClientProxy.GuiIcons.getIcon("hotFluidOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Hot Fluid Tank", "", "Superheated coolant", "will pump into this tank,", "and must be piped out", "via coolant ports" });
+		hotFluidBar = new BeefGuiFluidBar(this, guiLeft + 153, guiTop + 108, this.reactor, MultiblockReactor.FLUID_SUPERHEATED);
 		
 		registerControl(titleString);
 		registerControl(statusString);
+		registerControl(heatIcon);
 		registerControl(heatString);
-		registerControl(fuelRodsString);
-		registerControl(energyGeneratedString);
+		registerControl(outputIcon);
+		registerControl(outputString);
+		registerControl(fuelConsumedIcon);
 		registerControl(fuelConsumedString);
-		registerControl(fuelHeatString);
-		registerControl(fuelFertilityString);
+		registerControl(reactivityIcon);
+		registerControl(reactivityString);
 		registerControl(powerBar);
-		registerControl(heatBar);
+		registerControl(coreHeatBar);
+		registerControl(caseHeatBar);
 		registerControl(fuelMixBar);
+		registerControl(coolantBar);
+		registerControl(hotFluidBar);
+		registerControl(coolantIcon);
+		registerControl(hotFluidIcon);
 		
 		averagedHeat.setAll(reactor.getReactorHeat());
 		averagedRfOutput.setAll(reactor.getEnergyGeneratedLastTick());
 		averagedFuelConsumption.setAll(reactor.getFuelConsumedLastTick());
-	}
-
-	private String getReactorWastePolicyText(WasteEjectionSetting setting) {
-		switch(setting) {
-		case kAutomatic:
-			return "Waste: Auto-Eject";
-		case kAutomaticOnlyIfCanReplace:
-			return "Waste: Auto-Replace";
-		case kManual:
-		default:
-			return "Waste: Manual";
-		}
 	}
 
 	@Override
@@ -146,69 +178,154 @@ public class GuiReactorStatus extends BeefGuiBase {
 	public void updateScreen() {
 		super.updateScreen();
 		
+		updateIcons();
+		
 		if(reactor.isActive()) {
-			statusString.setLabelText("Status: Online");
+			statusString.setLabelText("Status: " + GuiConstants.DARKGREEN_TEXT + "Online");
 		}
 		else {
-			statusString.setLabelText("Status: Offline");
+			statusString.setLabelText("Status: " + GuiConstants.DARKRED_TEXT + "Offline");
 		}
-		
-		fuelRodsString.setLabelText("Fuel Rods: " + Integer.toString(reactor.getFuelColumnCount()));
-		
-		MultiblockReactor.WasteEjectionSetting wasteSetting = reactor.getWasteEjection();
-		_reactorWastePolicy.displayString = getReactorWastePolicyText(wasteSetting);
-		
-		_ejectWaste.enabled = (wasteSetting == MultiblockReactor.WasteEjectionSetting.kManual);
 		
 		// Grab averaged values
 		averagedRfOutput.add(reactor.getEnergyGeneratedLastTick());
-		averagedHeat.add(reactor.getReactorHeat());
+		averagedHeat.add(reactor.getFuelHeat());
 		averagedFuelConsumption.add(reactor.getFuelConsumedLastTick());
 		
 		float averagedOutput = averagedRfOutput.average();
 		if(averagedOutput >= 100f) {
-			energyGeneratedString.setLabelText(String.format("Power Output: %1.0f RF/t", averagedRfOutput.average()));			
+			outputString.setLabelText(String.format("%1.0f RF/t", averagedRfOutput.average()));			
 		}
 		else {
-			energyGeneratedString.setLabelText(String.format("Power Output: %1.1f RF/t", averagedRfOutput.average()));			
+			outputString.setLabelText(String.format("%1.1f RF/t", averagedRfOutput.average()));			
 		}
 
-		heatString.setLabelText("Heat: " + Integer.toString((int)averagedHeat.average()) + " C");
+		heatString.setLabelText(Integer.toString((int)averagedHeat.average()) + " C");
+		coreHeatBar.setHeat(reactor.getFuelHeat());
+		caseHeatBar.setHeat(reactor.getReactorHeat());
 		
 		float averagedConsumption = averagedFuelConsumption.average();
 		if(averagedConsumption < 0.1f) {
-			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.3f mB/t", averagedFuelConsumption.average()));
+			fuelConsumedString.setLabelText(String.format("%1.3f mB/t", averagedFuelConsumption.average()));
 		}
 		else if(averagedConsumption < 1f) {
-			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.2f mB/t", averagedFuelConsumption.average()));
+			fuelConsumedString.setLabelText(String.format("%1.2f mB/t", averagedFuelConsumption.average()));
 		}
 		else if(averagedConsumption < 10f) {
-			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.1f mB/t", averagedFuelConsumption.average()));
+			fuelConsumedString.setLabelText(String.format("%1.1f mB/t", averagedFuelConsumption.average()));
 		}
 		else {
-			fuelConsumedString.setLabelText(String.format("Fuel Usage: %1.0f mB/t", averagedFuelConsumption.average()));
+			fuelConsumedString.setLabelText(String.format("%1.0f mB/t", averagedFuelConsumption.average()));
 		}
 		
-		fuelHeatString.setLabelText(String.format("Fuel Heat: %1.1f C", reactor.getFuelHeat()));
-		fuelFertilityString.setLabelText(String.format("Fuel Fertility: %2.0f%%", reactor.getFuelFertility() * 100f));
+		reactivityString.setLabelText(String.format("%2.0f%%", reactor.getFuelFertility() * 100f));
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		CoordTriplet saveDelegate = reactor.getReferenceCoord();
-		if(button.id == 1) {
-			boolean newValue = !reactor.isActive();
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", newValue }));
+		if(button.id == 0) {
+			if(!reactor.isActive()) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", true }));
+			}
+		}
+		else if(button.id == 1) {
+			if(reactor.isActive()) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", false }));
+				
+			}
 		}
 		else if(button.id == 2) {
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z } ));
+			if(reactor.getWasteEjection() != WasteEjectionSetting.kAutomatic) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, WasteEjectionSetting.kAutomatic.ordinal() } ));
+			}
 		}
 		else if(button.id == 3) {
+			if(reactor.getWasteEjection() != WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, WasteEjectionSetting.kAutomaticOnlyIfCanReplace.ordinal() } ));
+			}
+		}
+		else if(button.id == 4) {
+			if(reactor.getWasteEjection() != WasteEjectionSetting.kManual) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, WasteEjectionSetting.kManual.ordinal() } ));
+			}
+		}
+		else if(button.id == 5) {
 			// Boolean value is ignored here.
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "ejectWaste", false }));
 		}
 	}
+	
+	protected void updateIcons() {
+		if(reactor.isActive()) {
+			btnReactorOn.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.ON_ON));
+			btnReactorOff.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
+		}
+		else {
+			btnReactorOn.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.ON_OFF));
+			btnReactorOff.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_ON));
+		}
+		
+		if(reactor.isPassivelyCooled()) {
+			outputIcon.setIcon(ClientProxy.GuiIcons.getIcon("energyOutput"));
+			outputIcon.setTooltip(passivelyCooledTooltip);
+			
+			coolantIcon.visible = false;
+			coolantBar.visible = false;
+			hotFluidIcon.visible = false;
+			hotFluidBar.visible = false;
+		}
+		else {
+			outputIcon.setIcon(ClientProxy.GuiIcons.getIcon("hotFluidOut"));
+			outputIcon.setTooltip(activelyCooledTooltip);
+			
+			coolantIcon.visible = true;
+			coolantBar.visible = true;
+			hotFluidIcon.visible = true;
+			hotFluidBar.visible = true;
+		}
+
+		btnWasteEject.drawButton = false;
+		
+		switch(reactor.getWasteEjection()) {
+		case kAutomatic:
+			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_ON));
+			btnWasteReplaceOnly.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_REPLACE_OFF));
+			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
+			break;
+		case kManual:
+			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_OFF));
+			btnWasteReplaceOnly.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_REPLACE_OFF));
+			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_ON));
+			btnWasteEject.drawButton = true;
+			break;
+		default:
+			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_OFF));
+			btnWasteReplaceOnly.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_REPLACE_ON));
+			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
+			break;
+		}
+	}
+	
+	private static final String[] passivelyCooledTooltip = new String[] {
+		GuiConstants.LITECYAN_TEXT + "Energy Output",
+		"",
+		"This reactor is passively cooled",
+		"and generates energy directly from",
+		"the heat of its core."
+	};
+	
+	private static final String[] activelyCooledTooltip = new String[] {
+		GuiConstants.LITECYAN_TEXT + "Hot Fluid Output",
+		"",
+		"This reactor is actively cooled",
+		"by a fluid, such as water, which",
+		"is superheated by the core."
+	};
 }

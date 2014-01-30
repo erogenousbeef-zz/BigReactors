@@ -99,7 +99,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 		}
 
 		for(IBeefTooltipControl tc: controlsWithTooltips) {
-			if(tc.isMouseOver(mouseX, mouseY)) {
+			if(tc.isVisible() && tc.isMouseOver(mouseX, mouseY)) {
 				String[] tooltip = tc.getTooltip();
 				if(tooltip != null) {
 					// This prevents weird rendering issues with NEI

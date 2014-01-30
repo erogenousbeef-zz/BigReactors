@@ -71,7 +71,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		case getEnergyStored:
 			return new Object[] { (int)reactor.getEnergyStored() };
 		case getNumberOfControlRods:
-			return new Object[] { (int)reactor.getFuelColumnCount() };
+			return new Object[] { (int)reactor.getFuelRodCount() };
 		case getActive:
 			return new Object[] { reactor.isActive() };
 		case getTemperature:
@@ -176,7 +176,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		
 		int rodIndex = (int)Math.round((Double)arguments[index]);
 		
-		if(index < 0 || index >= reactor.getFuelColumnCount()) {
+		if(index < 0 || index >= reactor.getFuelRodCount()) {
 			throw new IndexOutOfBoundsException(String.format("Invalid argument %d, control rod index is out of bounds", index));
 		}
 		

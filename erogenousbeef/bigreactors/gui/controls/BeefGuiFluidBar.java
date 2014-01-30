@@ -50,6 +50,8 @@ public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
 	
 	@Override
 	public String[] getTooltip() {
+		if(!visible) { return null; }
+
 		FluidTankInfo[] tanks = this._entity.getTankInfo();
 		if(tanks != null && tankIdx < tanks.length) {
 			FluidStack tankFluid = tanks[tankIdx].fluid;

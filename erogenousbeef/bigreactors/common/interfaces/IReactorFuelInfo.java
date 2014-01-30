@@ -21,4 +21,9 @@ public interface IReactorFuelInfo {
 	 * @return An integer representing the maximum amount of fuel + waste, combined, the entity can contain.
 	 */
 	int getCapacity();
+	
+	/**
+	 * @return The number of fuel rods in this entity
+	 */
+	int getFuelRodCount();
 }

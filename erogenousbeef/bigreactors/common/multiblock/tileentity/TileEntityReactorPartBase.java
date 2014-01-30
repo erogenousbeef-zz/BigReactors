@@ -11,6 +11,7 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.net.Packets;
@@ -58,7 +59,8 @@ public abstract class TileEntityReactorPartBase extends
 		}
 		
 		if(packetType == Packets.ReactorWasteEjectionSettingUpdate) {
-			getReactorController().changeWasteEjection();
+			int newSetting = data.readInt();
+			getReactorController().setWasteEjection(WasteEjectionSetting.values()[newSetting]);
 		}
 		
 		/// Server->Client packets
@@ -87,7 +89,7 @@ public abstract class TileEntityReactorPartBase extends
 	@Override
 	public float getHeat() {
 		if(!this.isConnected()) { return 0f; }
-		return getReactorController().getReactorHeat();
+		return getReactorController().getFuelHeat();
 	}
 
 	@Override

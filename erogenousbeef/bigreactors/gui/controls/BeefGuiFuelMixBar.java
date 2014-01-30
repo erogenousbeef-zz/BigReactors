@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
+import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiFuelMixBar extends BeefGuiVerticalProgressBar implements
@@ -78,17 +79,35 @@ public class BeefGuiFuelMixBar extends BeefGuiVerticalProgressBar implements
 	@Override
 	public String[] getTooltip() {
 		float fullness = getProgress() * 100f;
-		float richness;
+		float depletion;
+		String fuelString, wasteString;
+		fuelString = wasteString = "Empty";
+
 		if(entity.getFuelAmount() + entity.getWasteAmount() == 0) {
-			richness = 0f;
+			depletion = 0f;
 		}
 		else {
-			richness = ((float)entity.getFuelAmount() / (float)(entity.getFuelAmount() + entity.getWasteAmount())) * 100f;
+			depletion = ((float)entity.getWasteAmount() / (float)(entity.getFuelAmount() + entity.getWasteAmount())) * 100f;
+			
+			if(entity.getFuelAmount() > 0) {
+				fuelString = Integer.toString(entity.getFuelAmount()) + " mB";
+			}
+
+			if(entity.getWasteAmount() > 0) {
+				wasteString = Integer.toString(entity.getWasteAmount()) + " mB";
+				
+			}
 		}
 		return new String[] {
-				"Reactor Fuel Rods",
+				GuiConstants.LITECYAN_TEXT + "Core Fuel Status",
 				String.format(" %2.1f%% full", fullness),
-				String.format(" %2.1f%% enriched", richness)
+				String.format(" %2.1f%% depleted", depletion),
+				"",
+				String.format("Fuel Rods: %d", entity.getFuelRodCount()),
+				String.format("Max Capacity: %d mB", entity.getCapacity()),
+				String.format("Fuel: %s", fuelString),
+				String.format("Waste: %s", wasteString),
+				String.format("Total: %d mB", entity.getFuelAmount() + entity.getWasteAmount())
 		};
 	}
 

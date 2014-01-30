@@ -16,8 +16,14 @@ public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 	
 	protected String[] tooltip;
 	
-	public GuiIconButton(int buttonId, int x, int y, int width, int height, Icon icon) {
+	public GuiIconButton(int buttonId, int x, int y, int width, int height) {
 		super(buttonId, x, y, width, height, "");
+		icon = null;
+		tooltip = null;
+	}
+
+	public GuiIconButton(int buttonId, int x, int y, int width, int height, Icon icon) {
+		this(buttonId, x, y, width, height);
 		this.icon = icon;
 		tooltip = null;
 	}
@@ -70,6 +76,16 @@ public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 	
 	@Override
 	public String[] getTooltip() {
-		return tooltip;
+		if(this.drawButton) {
+			return tooltip;
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public boolean isVisible() {
+		return drawButton;
 	}
 }
