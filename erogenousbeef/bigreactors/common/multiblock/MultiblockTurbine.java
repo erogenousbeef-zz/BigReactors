@@ -58,6 +58,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public static final int TANK_OUTPUT = 1;
 	public static final int NUM_TANKS = 2;
 	public static final int FLUID_NONE = -1;
+	public static final int TANK_SIZE = 2000;
 	private FluidTank[] tanks;
 	
 	static final float maxEnergyStored = 1000000f; // 1 MegaRF
@@ -69,6 +70,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	// Player settings
 	VentStatus ventStatus;
+	int maxIntakeRate;
 	
 	// Derivable game data
 	int bladeSurfaceArea; // # of blocks that are blades
@@ -80,7 +82,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	float inductionEnergyBonus = 1f; // Bonus to energy generation based on construction materials. 1 = plain iron.
 	float inductionEnergyExponentBonus = 0f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
 
-	// TODO: Calculate this on assembly. Better blades should be lighter and have less drag.
 	// Rotor dynamic constants - calculate on assembly
 	float rotorDragCoefficient = 0.1f; // totally arbitrary. Allow upgrades to decrease this. This is the drag of the ROTOR.
 	float bladeDragCoefficient = 0.04f; // From wikipedia, drag of a standard airfoil. This is the drag of the BLADES.
@@ -116,7 +117,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		tanks = new FluidTank[NUM_TANKS];
 		for(int i = 0; i < NUM_TANKS; i++)
-			tanks[i] = new FluidTank(1000);
+			tanks[i] = new FluidTank(TANK_SIZE);
 		
 		attachedControllers = new HashSet<IMultiblockPart>();
 		attachedRotorBearings = new HashSet<IMultiblockPart>();
@@ -127,6 +128,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		active = false;
 		ventStatus = VentStatus.VentOverflow;
 		rotorSpeed = 0f;
+		maxIntakeRate = TANK_SIZE;
 		
 		bladeSurfaceArea = 0;
 		rotorMass = 0;
@@ -185,7 +187,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 								outputFluidAmt,
 								energyStored,
 								rotorSpeed,
-								energyGeneratedLastTick
+								energyGeneratedLastTick,
+								maxIntakeRate
 		});
 	}
 
@@ -202,6 +205,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		energyStored = data.readFloat();
 		rotorSpeed = data.readFloat();
 		energyGeneratedLastTick = data.readFloat();
+		maxIntakeRate = data.readInt();
 		
 		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
 			tanks[TANK_INPUT].setFluid(null);
@@ -245,6 +249,38 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 	}
 
+	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+		// Client->Server Packets
+		if(packetType == Packets.MultiblockControllerButton) {
+			Class decodeAs[] = { String.class, Boolean.class };
+			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
+			String buttonName = (String) decodedData[0];
+			boolean newValue = (Boolean) decodedData[1];
+			
+			if(buttonName.equals("activate")) {
+				setActive(newValue);
+			}
+		}
+
+		if(packetType == Packets.MultiblockTurbineGovernorUpdate) {
+			setMaxIntakeRate(data.readInt());
+		}
+		
+		if(packetType == Packets.MultiblockTurbineVentUpdate) {
+			int idx = data.readInt();
+			if(idx >= 0 && idx < VentStatus.values().length) {
+				ventStatus = VentStatus.values()[idx];
+			}
+		}
+
+		// Server->Client Packets
+		if(packetType == Packets.MultiblockTurbineFullUpdate) {
+			onReceiveUpdatePacket(data);
+		}
+		
+		// Bidirectional packets
+	}
+	
 	// MultiblockControllerBase overrides
 
 	@Override
@@ -521,8 +557,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			// TODO: Lookup fluid parameters from a table
 			fluidEnergyDensity = 0.001f; // effectively, force-units per mB. (one mB-force or mBf). Stand-in for fluid density.
 
-			// Spin up via steam inputs, convert some steam back into water
-			steamIn = tanks[TANK_INPUT].getFluidAmount();
+			// Spin up via steam inputs, convert some steam back into water.
+			// Use at most the user-configured max, or the amount in the tank, whichever is less.
+			steamIn = Math.min(maxIntakeRate, tanks[TANK_INPUT].getFluidAmount());
 			
 			if(ventStatus == VentStatus.DoNotVent) {
 				// Cap steam used to available space, if not venting
@@ -616,6 +653,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		data.setFloat("energy", energyStored);
 		data.setInteger("ventStatus", ventStatus.ordinal());
 		data.setFloat("rotorSpeed", rotorSpeed);
+		data.setInteger("maxIntakeRate", maxIntakeRate);
 	}
 
 	@Override
@@ -629,11 +667,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(data.hasKey("active")) {
-			active = data.getBoolean("active");
+			setActive(data.getBoolean("active"));
 		}
 		
 		if(data.hasKey("energy")) {
-			energyStored = data.getFloat("energy");
+			setEnergyStored(data.getFloat("energy"));
 		}
 		
 		if(data.hasKey("ventStatus")) {
@@ -642,7 +680,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		if(data.hasKey("rotorSpeed")) {
 			rotorSpeed = data.getFloat("rotorSpeed");
-			if(Float.isNaN(rotorSpeed)) { rotorSpeed = 0f; }
+			if(Float.isNaN(rotorSpeed) || Float.isInfinite(rotorSpeed)) { rotorSpeed = 0f; }
+		}
+		
+		if(data.hasKey("maxIntakeRate")) {
+			maxIntakeRate = data.getInteger("maxIntakeRate");
 		}
 	}
 
@@ -658,7 +700,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
-		writeToNBT(dataContainer);
 	}
 
 	// Nondirectional FluidHandler implementation, similar to IFluidHandler
@@ -758,6 +799,12 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public int getMaxEnergyStored(ForgeDirection from) {
 		return (int)maxEnergyStored;
 	}
+
+	private void setEnergyStored(float newEnergy) {
+		if(Float.isInfinite(newEnergy) || Float.isNaN(newEnergy)) { return; }
+
+		energyStored = Math.max(0f, Math.min(maxEnergyStored, newEnergy));
+	}
 	
 	// Energy Helpers
 	public float getEnergyStored() {
@@ -825,9 +872,26 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			
 			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+			
+			if(worldObj.isRemote) {
+				// Force controllers to re-render on client
+				for(IMultiblockPart part : attachedControllers) {
+					worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
+				}
+			}
 		}
 	}
 
+	// Governor
+	public int getMaxIntakeRate() { return maxIntakeRate; }
+
+	public void setMaxIntakeRate(int newRate) {
+		maxIntakeRate = Math.min(TANK_SIZE, Math.max(0, newRate));
+	}
+	
+	// for GUI use
+	public int getMaxIntakeRateMax() { return TANK_SIZE; }
+	
 	// ISlotlessUpdater
 	@Override
 	public void beginUpdatingPlayer(EntityPlayer playerToUpdate) {
