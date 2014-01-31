@@ -22,6 +22,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int WASTE_REPLACE_ON = 15;
 	public static final int WASTE_EJECT = 16;
 	public static final int REACTIVITY = 17;
+	public static final int ENERGY_STORED = 18;
+	public static final int RPM = 19;
 	
 	public BeefGuiIconManager() {
 		super();
@@ -44,6 +46,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"wasteReplace_on",
 				"wasteEject",
 				"reactivity",
+				"energyStored",
+				"rpm"
 		};
 	}
 	
