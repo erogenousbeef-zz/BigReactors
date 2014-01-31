@@ -904,4 +904,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	public float getRotorSpeed() { return rotorSpeed; }
 	public float getEnergyGeneratedLastTick() { return energyGeneratedLastTick; }
+
+	public float getMaxRotorSpeed() {
+		return 2000f;
+	}
 }
