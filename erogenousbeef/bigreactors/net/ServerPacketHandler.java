@@ -30,6 +30,9 @@ public class ServerPacketHandler implements IPacketHandler {
 		case Packets.MultiblockControllerButton:
 		case Packets.AccessPortButton:
 		case Packets.ReactorWasteEjectionSettingUpdate:
+		case Packets.MultiblockTurbineFullUpdate:
+		case Packets.MultiblockTurbineGovernorUpdate:
+		case Packets.MultiblockTurbineVentUpdate:
 			try {
 				x = data.readInt();
 				y = data.readInt();

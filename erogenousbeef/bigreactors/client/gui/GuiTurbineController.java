@@ -9,12 +9,14 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
+import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiIcon;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiRpmBar;
+import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
@@ -43,7 +45,12 @@ public class GuiTurbineController extends BeefGuiBase {
 	private BeefGuiIcon rpmIcon;
 	private BeefGuiRpmBar rpmBar;
 
-	private GuiButton toggleActive;
+	private BeefGuiLabel governorString;
+	private GuiIconButton btnGovernorUp;
+	private GuiIconButton btnGovernorDown;
+	
+	private GuiIconButton btnActivate;
+	private GuiIconButton btnDeactivate;
 	
 	public GuiTurbineController(Container container, TileEntityTurbinePartBase part) {
 		super(container);
@@ -82,16 +89,21 @@ public class GuiTurbineController extends BeefGuiBase {
 		powerIcon = new BeefGuiIcon(this, guiLeft + 153, guiTop + 4, ClientProxy.GuiIcons.getIcon("energyStored"), new String[] { GuiConstants.LITECYAN_TEXT + "Energy Storage" });
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.turbine);
 		
-		steamIcon = new BeefGuiIcon(this, guiLeft + 113, guiTop + 4, ClientProxy.GuiIcons.getIcon("hotFluidIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Hot Fluid Tank" });
+		steamIcon = new BeefGuiIcon(this, guiLeft + 113, guiTop + 4, ClientProxy.GuiIcons.getIcon("hotFluidIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Intake Fluid Tank" });
 		steamBar = new BeefGuiFluidBar(this, guiLeft + 112, guiTop + 22, turbine, MultiblockTurbine.TANK_INPUT);
 
-		waterIcon = new BeefGuiIcon(this, guiLeft + 133, guiTop + 4, ClientProxy.GuiIcons.getIcon("coolantOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Cold Fluid Tank" });
+		waterIcon = new BeefGuiIcon(this, guiLeft + 133, guiTop + 4, ClientProxy.GuiIcons.getIcon("coolantOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Exhaust Fluid Tank" });
 		waterBar = new BeefGuiFluidBar(this, guiLeft + 132, guiTop + 22, turbine, MultiblockTurbine.TANK_OUTPUT);
 
 		rpmIcon = new BeefGuiIcon(this, guiLeft + 93, guiTop + 4, ClientProxy.GuiIcons.getIcon("rpm"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Speed" });
 		rpmBar = new BeefGuiRpmBar(this, guiLeft + 92, guiTop + 22, turbine, "Rotor Speed", new String[] {"Rotors perform best at", "900 or 1800 RPM.", "", "Rotors kept overspeed for too", "long may fail.", "", "Catastrophically."});
 	
-		toggleActive = new GuiButton(1, guiLeft + 4, guiTop + 124, 70, 20, "Activate");
+		governorString = new BeefGuiLabel(this, "", guiLeft + 4, guiTop + 110);
+		btnGovernorUp   = new GuiIconButton(2, guiLeft + 110, guiTop + 104, 18, 18, ClientProxy.GuiIcons.getIcon("upArrow"),   new String[] { GuiConstants.LITECYAN_TEXT + "Increase Max Flow Rate", "", "Higher flow rates will increase", "rotor speed.", "", "SHIFT: +10 mB", "CTRL: +100mB", "CTRL+SHIFT: +1000mB"});
+		btnGovernorDown = new GuiIconButton(3, guiLeft + 128, guiTop + 104, 18, 18, ClientProxy.GuiIcons.getIcon("downArrow"), new String[] { GuiConstants.LITECYAN_TEXT + "Decrease Max Flow Rate", "", "Lower flow rates will decrease", "rotor speed.",  "", "SHIFT: -10 mB", "CTRL: -100mB", "CTRL+SHIFT: -1000mB"});
+
+		btnActivate = new GuiIconButton(0, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Activate Turbine", "", "Enables flow of intake fluid to rotor.", "Fluid flow will spin up the rotor." });
+		btnDeactivate = new GuiIconButton(1, guiLeft + 24, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Turbine", "", "Disables flow of intake fluid to rotor.", "The rotor will spin down." });
 		
 		registerControl(titleString);
 		registerControl(statusString);
@@ -107,7 +119,11 @@ public class GuiTurbineController extends BeefGuiBase {
 		registerControl(waterIcon);
 		registerControl(rpmIcon);
 		registerControl(rpmBar);
-		registerControl(toggleActive);
+		registerControl(governorString);
+		registerControl(btnGovernorUp);
+		registerControl(btnGovernorDown);
+		registerControl(btnActivate);
+		registerControl(btnDeactivate);
 
 		updateStrings();
 		updateTooltips();
@@ -116,15 +132,18 @@ public class GuiTurbineController extends BeefGuiBase {
 	private void updateStrings() {
 		if(turbine.isActive()) {
 			statusString.setLabelText("Status: " + GuiConstants.DARKGREEN_TEXT + "Active");
-			toggleActive.displayString = "Deactivate";
+			btnActivate.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.ON_ON));
+			btnDeactivate.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
 		}
 		else {
 			statusString.setLabelText("Status: " + GuiConstants.DARKRED_TEXT + "Inactive");
-			toggleActive.displayString = "Activate";
+			btnActivate.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.ON_OFF));
+			btnDeactivate.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_ON));
 		}
 		
 		speedString.setLabelText(String.format("%.1f RPM", turbine.getRotorSpeed()));
 		energyGeneratedString.setLabelText(String.format("%.0f RF/t", turbine.getEnergyGeneratedLastTick()));
+		governorString.setLabelText(String.format("Max Flow: %d mB/t", turbine.getMaxIntakeRate()));
 	}
 
 	@Override
@@ -140,11 +159,36 @@ public class GuiTurbineController extends BeefGuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		if(button.id == 1) {
-			CoordTriplet saveDelegate = turbine.getReferenceCoord();
-			boolean newValue = !turbine.isActive();
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", newValue }));
+		if(button.id == 0 || button.id == 1) {
+			boolean setActive = button.id == 0;
+			if(setActive != turbine.isActive()) {
+				CoordTriplet saveDelegate = turbine.getReferenceCoord();
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", setActive }));
+			}
+		}
+		
+		if(button.id == 2 || button.id == 3) {
+			int exponent = 0;
+
+			if(isShiftKeyDown()) {
+				exponent += 1;
+			}
+			if(isCtrlKeyDown()) {
+				exponent += 2;
+			}
+
+			int newMax = (int) Math.round(Math.pow(10, exponent));
+
+			if(button.id == 3) { newMax *= -1; }
+			
+			newMax = Math.max(0, Math.min(turbine.getMaxIntakeRateMax(), turbine.getMaxIntakeRate() + newMax));
+
+			if(newMax != turbine.getMaxIntakeRate()) {
+				CoordTriplet saveDelegate = turbine.getReferenceCoord();
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockTurbineGovernorUpdate,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newMax }));
+			}
 		}
 	}
 }
