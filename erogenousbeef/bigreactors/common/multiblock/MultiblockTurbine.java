@@ -259,17 +259,20 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			
 			if(buttonName.equals("activate")) {
 				setActive(newValue);
+				markReferenceCoordDirty();
 			}
 		}
 
 		if(packetType == Packets.MultiblockTurbineGovernorUpdate) {
 			setMaxIntakeRate(data.readInt());
+			markReferenceCoordDirty();
 		}
 		
 		if(packetType == Packets.MultiblockTurbineVentUpdate) {
 			int idx = data.readInt();
 			if(idx >= 0 && idx < VentStatus.values().length) {
 				ventStatus = VentStatus.values()[idx];
+				markReferenceCoordDirty();
 			}
 		}
 
@@ -637,8 +640,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			sendTickUpdate();
 			ticksSinceLastUpdate = 0;
 		}
-		
-		return false;
+
+		// TODO: Only mark dirty when stuff changes
+		return true;
 	}
 
 	@Override
@@ -971,5 +975,15 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	public float getMaxRotorSpeed() {
 		return 2000f;
+	}
+	
+	private void markReferenceCoordDirty() {
+		if(worldObj == null || worldObj.isRemote) { return; }
+
+		CoordTriplet referenceCoord = getReferenceCoord();
+		if(referenceCoord == null) { return; }
+
+		TileEntity saveTe = worldObj.getBlockTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
 	}
 }
