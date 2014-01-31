@@ -42,6 +42,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Heat transfer rate precalculated on reactor assembly, based on surfaces in contact with non-fuel-rod stuff
 - (DONE) Calculate "effective coolant surface area" based on interior surface area of reactor housing
 - (DONE) Passively-cooled reactors generate power based on effective coolant surface area
+- (DONE) Add minimum heat transfer/loss so we don't hit floating point problems.
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Fix RedNet port's outputTemperature
 
@@ -55,12 +56,15 @@ TODO - 0.3: The Coolant Update
 
 ### Multiblock Turbine
 - (DONE) Turbine consumes steam, produces power and water.
-- Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
 - (DONE) Turbine glass. Solve the connected-texture problem.
+- (DONE) Validation of internal turbine & coil shape on assembly.
+- (DONE) Add flow governor to limit rate of input fluid usage.
+- (NEED GUI) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
+- Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
+- Add efficiency curve that peaks at 900/1800 RPMs
+- Optional explosion during severe overspeed conditions
 - Do an art pass.
 - Renderer to show off the turbine blade.
-- (DONE) Validation of internal turbine & coil shape on assembly.
-- (PARTIAL) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - Redstone port.
 - Computer port.
 - Particle effects for venting steam and stuff!
@@ -76,8 +80,11 @@ TODO - 0.3: The Coolant Update
 
 ### User Interface
 - Fix Control Rod GUI
-- Fix & improve Reactor Controller GUI. Add graphical indicators for fuel heat, fuel fertility.
-- Add graphical bars for coolant and vapor.
+- (DONE) Add imagebutton for reactor on/off
+- (DONE) Add graphical bars for coolant system: system heat, coolant/vapor tanks. Hide when passively cooled.
+- (DONE) Change current heat bar to show fuel heat
+- Add 1px extra between lines on reactor GUI to see if they look better
+- (DONE) Add RPM bar to turbine
 - Add "dump fuel" button to access port GUI
 - Add turbine stuff to German and Chinese localization files
 
@@ -88,7 +95,7 @@ TODO - 0.3: The Coolant Update
 TODO - 0.4: The Fueling Update
 ------------------------------
 ### Gameplay
-- Rewrite fertilization mechanics to be more sane/useful and expose fertility via control rod UI
+- (DONE) Rewrite fertilization mechanics to be more sane/useful and expose fertility via control rod UI
 - Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
 ### Reactor Mechanics
