@@ -298,9 +298,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// Heat Transfer: Fuel Pool <> Reactor Environment
 		float tempDiff = fuelHeat - reactorHeat;
-		if(tempDiff > 0.00001f) {
+		if(tempDiff > 0.01f) {
 			float rfTransferred = tempDiff * fuelToReactorHeatTransferCoefficient;
 			float fuelRf = StaticUtils.Energy.getRFFromVolumeAndTemp(attachedFuelRods.size(), fuelHeat);
+			
 			fuelRf -= rfTransferred;
 			setFuelHeat(StaticUtils.Energy.getTempFromVolumeAndRF(attachedFuelRods.size(), fuelRf));
 
@@ -312,7 +313,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// If we have a temperature differential between environment and coolant system, move heat between them.
 		tempDiff = getReactorHeat() - getCoolantTemperature();
-		if(tempDiff > 0.00001f) {
+		if(tempDiff > 0.01f) {
 			float rfTransferred = tempDiff * reactorToCoolantSystemHeatTransferCoefficient;
 			float reactorRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat());
 
@@ -330,9 +331,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// Do passive heat loss - this is always versus external environment
 		tempDiff = getReactorHeat() - getPassiveCoolantTemperature();
-		if(tempDiff > 0.00001f) {
-			float rfLost = tempDiff * reactorHeatLossCoefficient;
-			float reactorNewRf = StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat()) - rfLost;
+		if(tempDiff > 0.000001f) {
+			float rfLost = Math.max(1f, tempDiff * reactorHeatLossCoefficient); // Lose at least 1RF/t
+			float reactorNewRf = Math.max(0f, StaticUtils.Energy.getRFFromVolumeAndTemp(getReactorVolume(), getReactorHeat()) - rfLost);
 			setReactorHeat(StaticUtils.Energy.getTempFromVolumeAndRF(getReactorVolume(), reactorNewRf));
 		}
 		
