@@ -49,7 +49,7 @@ public class BeefGuiRpmBar extends BeefGuiTextureProgressBar implements
 	protected float getProgress() {
 		if(turbine == null) { return 0f; }
 		
-		return turbine.getRotorSpeed() / turbine.getMaxRotorSpeed();
+		return Math.min(1f, turbine.getRotorSpeed() / (turbine.getMaxRotorSpeed()*1.1f)); // Give a little extra warning
 	}
 
 }

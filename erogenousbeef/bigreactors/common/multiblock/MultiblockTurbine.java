@@ -78,19 +78,21 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	int coilSize;  // number of blocks in the coils
 	
 	// Inductor dynamic constants - get from a table on assembly
-	float inductorDragCoefficient = 0.01f; // Keep this small, as it gets multiplied by v^2 and dominates at high speeds. Higher = more drag from the inductor vs. aerodynamic drag = more efficient energy conversion.
-	float inductionEnergyBonus = 1f; // Bonus to energy generation based on construction materials. 1 = plain iron.
+	float inductorDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
+	float inductionEnergyBonus = 0.25f; // Final energy rectification efficiency. Averaged based on coil material. 0.25 = iron, 0.75 = diamond, 1 = perfect.
 	float inductionEnergyExponentBonus = 0f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
 
 	// Rotor dynamic constants - calculate on assembly
-	float rotorDragCoefficient = 0.1f; // totally arbitrary. Allow upgrades to decrease this. This is the drag of the ROTOR.
-	float bladeDragCoefficient = 0.04f; // From wikipedia, drag of a standard airfoil. This is the drag of the BLADES.
+	float rotorDragCoefficient = 0.01f; // RF/t lost to friction per unit of mass in the rotor.
+	float bladeDragCoefficient = 0.4f; // RF/t lost to friction per blade block, multiplied by rotor speed squared.
+	float bladeExtractionEfficiency = 1f; // TODO: Calculate on assembly. Imperfect shapes become less than 1.
+
 	// Penalize suboptimal shapes with worse drag (i.e. increased drag without increasing lift)
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
 	
 	// Game balance constants
-	final static float bladeLiftCoefficient = 0.75f; // From wikipedia, lift of a standard airfoil 
-	final static float inductionEnergyCoefficient = 1.2f; // Power to raise the induced current by. This makes higher RPMs more efficient.
+	final static float inductionEnergyCoefficient = 1.2f; // Power to raise the induced current by.
+	final static int inputFluidPerBlade = 15; // mB
 	
 	float energyGeneratedLastTick;
 	
@@ -188,7 +190,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 								energyStored,
 								rotorSpeed,
 								energyGeneratedLastTick,
-								maxIntakeRate
+								maxIntakeRate,
+								active
 		});
 	}
 
@@ -206,6 +209,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorSpeed = data.readFloat();
 		energyGeneratedLastTick = data.readFloat();
 		maxIntakeRate = data.readInt();
+		this.active = data.readBoolean();
 		
 		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
 			tanks[TANK_INPUT].setFluid(null);
@@ -547,12 +551,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		// Generate energy based on steam
 		int steamIn = 0; // mB. Based on water, actually. Probably higher for steam. Measure it.
-		float fluidEnergyDensity = 0.001f;
 
 		if(isActive()) {
-			// TODO: Lookup fluid parameters from a table
-			fluidEnergyDensity = 0.001f; // effectively, force-units per mB. (one mB-force or mBf). Stand-in for fluid density.
-
 			// Spin up via steam inputs, convert some steam back into water.
 			// Use at most the user-configured max, or the amount in the tank, whichever is less.
 			steamIn = Math.min(maxIntakeRate, tanks[TANK_INPUT].getFluidAmount());
@@ -565,24 +565,52 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(steamIn > 0 || rotorSpeed > 0) {
-			// Induction-driven torque pulled out of my ass.
-			float inductionTorque = (float)(Math.pow(rotorSpeed*0.1f, 1.5)*inductorDragCoefficient*coilSize);
+			float scaledRotorSpeed = (float)Math.pow(rotorSpeed, 1.2);
 
-			// Aerodynamic drag equation. Thanks, Mr. Euler.
-			float aerodynamicDragTorque = (float)Math.pow(rotorSpeed, 2) * fluidEnergyDensity * bladeDragCoefficient * bladeSurfaceArea / 2f;
+			// RFs extracted by the coils
+			float inductionTorque = scaledRotorSpeed * inductorDragCoefficient * coilSize;
 
-			// Frictional drag equation. Basically, a small amount of constant drag based on the size of your rotor.
+			// RFs lost to aerodynamic drag.
+			float aerodynamicDragTorque = scaledRotorSpeed * bladeDragCoefficient * bladeSurfaceArea;
+
+			// RFs lost to frictional drag. A small amount of constant drag based on rotor size.
 			float frictionalDragTorque = rotorDragCoefficient * rotorMass;
-			
-			// Aerodynamic lift equation. Also via Herr Euler.
-			float liftTorque = 2 * (float)Math.pow(steamIn, 2) * fluidEnergyDensity * bladeLiftCoefficient * bladeSurfaceArea;
+
+			float liftTorque = 0f;
+			if(steamIn > 0) {
+				// TODO: Lookup fluid parameters from a table
+				float fluidEnergyDensity = 10f; // RF per mB
+
+				// Cap amount of steam we can fully extract energy from based on blade size
+				int steamToProcess = bladeSurfaceArea * inputFluidPerBlade;
+				steamToProcess = Math.min(steamToProcess, steamIn);
+				liftTorque = steamToProcess * fluidEnergyDensity * bladeExtractionEfficiency;
+
+				// Did we have excess steam for our blade size?
+				if(steamToProcess < steamIn) {
+					// Extract some percentage of the remaining steam's energy, based on how many blades are missing
+					steamToProcess = steamIn - steamToProcess;
+					float bladeEfficiency = 1f;
+					int neededBlades = steamIn / inputFluidPerBlade; // round in the player's favor
+					int missingBlades = neededBlades - bladeSurfaceArea;
+					bladeEfficiency = 1f / (float)Math.pow(2, (float)missingBlades / (float)neededBlades);
+					liftTorque += steamIn * fluidEnergyDensity * bladeEfficiency * bladeExtractionEfficiency;
+				}
+			}
 
 			// Yay for derivation. We're assuming delta-Time is always 1, as we're always calculating for 1 tick.
-			// TODO: When calculating rotor mass, factor in a division by two to eliminate the constant term.
-			float deltaV = (2 * (liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque)) / rotorMass;
+			float deltaV = (0.2f * (liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque)) / rotorMass;
 
-			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEnergyBonus * BigReactors.powerProductionMultiplier;
-			generateEnergy(energyToGenerate);
+			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEnergyBonus;
+			if(energyToGenerate > 0f) {
+				// Efficiency curve. Rotors are 50% less efficient when not near 900/1800 RPMs.
+				float efficiency = (float)(0.25*Math.cos(rotorSpeed/(45.5*Math.PI))) + 0.75f;
+				if(rotorSpeed < 500) {
+					efficiency = Math.min(0.5f, efficiency);
+				}
+
+				generateEnergy(energyToGenerate * efficiency);
+			}
 
 			rotorSpeed += deltaV;
 			if(rotorSpeed < 0f) { rotorSpeed = 0f; }
