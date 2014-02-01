@@ -8,7 +8,6 @@ import erogenousbeef.bigreactors.client.ClientProxy;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
