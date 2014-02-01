@@ -59,9 +59,10 @@ TODO - 0.3: The Coolant Update
 - (DONE) Validation of internal turbine & coil shape on assembly.
 - (DONE) Add flow governor to limit rate of input fluid usage.
 - (NEED GUI) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
-- Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
-- Add efficiency curve that peaks at 900/1800 RPMs
-- Do an art pass.
+- (DONE) Do an art pass.
+- (DONE) Fix turbine RPM bar to be green at the right places
+- (DONE) Add efficiency curve that peaks at 900/1800 RPMs
+- (DONE) Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
 - Renderer to show off the turbine blade.
 - Particle effects for venting steam and stuff!
 
@@ -76,8 +77,8 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add graphical bars for coolant system: system heat, coolant/vapor tanks. Hide when passively cooled.
 - (DONE) Change current heat bar to show fuel heat
 - (DONE) Add RPM bar to turbine
+- (DONE) Add "dump fuel" button to access port GUI
 - Add 1px extra between lines on reactor GUI to see if they look better
-- Add "dump fuel" button to access port GUI
 - Add turbine stuff to German and Chinese localization files
 
 ### Items
