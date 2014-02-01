@@ -26,8 +26,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
-import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
@@ -37,13 +35,9 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 public class BlockBRSmallMachine extends BlockContainer {
 
 	public static final int META_CYANITE_REPROCESSOR = 0;
-	public static final int META_DEBUG_STEAM_CREATOR = 1;
-	public static final int META_DEBUG_TURBINE = 2;
 	
 	public static final String[] _subBlocks = {
-		"cyaniteReprocessor",
-		"debugSteamMachine",
-		"debugTurbine",
+		"cyaniteReprocessor"
 	};
 	
 	private Icon[] _icons = new Icon[_subBlocks.length];
@@ -153,10 +147,6 @@ public class BlockBRSmallMachine extends BlockContainer {
 		switch(metadata) {
 		case META_CYANITE_REPROCESSOR:
 			return new TileEntityCyaniteReprocessor();
-		case META_DEBUG_STEAM_CREATOR:
-			return new TileEntitySteamCreator();
-		case META_DEBUG_TURBINE:
-			return new TileEntityDebugTurbine();
 		default:
 			throw new IllegalArgumentException("Unknown metadata for tile entity");
 		}
@@ -184,20 +174,10 @@ public class BlockBRSmallMachine extends BlockContainer {
 		return new ItemStack(this.blockID, 1, META_CYANITE_REPROCESSOR);
 	}
 	
-	public ItemStack getHeatGeneratorItemStack() {
-		return new ItemStack(this.blockID, 1, META_DEBUG_STEAM_CREATOR);
-	}
-	
-	public ItemStack getDebugTurbineItemStack() {
-		return new ItemStack(this.blockID, 1, META_DEBUG_TURBINE);
-	}
-	
 	@Override
 	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		par3List.add(this.getCyaniteReprocessorItemStack());
-		par3List.add(this.getHeatGeneratorItemStack());
-		par3List.add(this.getDebugTurbineItemStack());
 	}
 
 	@Override

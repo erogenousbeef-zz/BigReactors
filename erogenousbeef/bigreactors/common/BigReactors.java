@@ -20,7 +20,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
@@ -37,27 +36,23 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartStandard;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityReactorCreativeCoolantPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityTurbineCreativeSteamGenerator;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityDebugTurbine;
-import erogenousbeef.bigreactors.common.tileentity.TileEntityRTG;
-import erogenousbeef.bigreactors.common.tileentity.TileEntitySteamCreator;
 import erogenousbeef.bigreactors.world.BRSimpleOreGenerator;
 import erogenousbeef.bigreactors.world.BRWorldGenerator;
 
@@ -345,10 +340,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityReactorAccessPort.class,	"BRReactorAccessPort");
 			GameRegistry.registerTileEntity(TileEntityReactorGlass.class,		"BRReactorGlass");
 			GameRegistry.registerTileEntity(TileEntityReactorFuelRod.class, 			"BRFuelRod");
-			GameRegistry.registerTileEntity(TileEntityRTG.class, 				"BRRadiothermalGen");
 			GameRegistry.registerTileEntity(TileEntityCyaniteReprocessor.class, "BRCyaniteReprocessor");
-			GameRegistry.registerTileEntity(TileEntitySteamCreator.class, 		"BRHeatGenerator");
-			GameRegistry.registerTileEntity(TileEntityDebugTurbine.class,		"BRDebugTurbine");
 			
 			GameRegistry.registerTileEntity(TileEntityReactorControlRod.class, "BRReactorControlRod");
 			GameRegistry.registerTileEntity(TileEntityReactorRedNetPort.class, "BRReactorRedNetPort");
@@ -534,7 +526,6 @@ public class BigReactors {
 			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockBigReactors.class, "BRSmallMachine");
 			
 			OreDictionary.registerOre("brSmallMachineCyaniteProcessor", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getCyaniteReprocessorItemStack());
-			OreDictionary.registerOre("brSmallMachineHeatGenerator", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getHeatGeneratorItemStack());
 			
 			BRConfig.CONFIGURATION.save();
 		}
