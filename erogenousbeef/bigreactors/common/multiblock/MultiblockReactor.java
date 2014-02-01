@@ -202,7 +202,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(part instanceof TileEntityReactorCoolantPort) {
-			FMLLog.info("attached coolant port at %s", part.getWorldLocation());
 			attachedCoolantPorts.add((TileEntityReactorCoolantPort) part);
 		}
 	}
@@ -1054,7 +1053,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
 
-		FMLLog.info("attached coolant ports: %d", attachedCoolantPorts.size());
 		if(attachedCoolantPorts.size() > 0) {
 			coolantContainer.setCapacity(5000);
 		}
@@ -1316,7 +1314,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			}
 		}
 	}
-	
+
+
 	public void debugOutput() {
 		String clientOrServer = worldObj.isRemote?"CLIENT":"SERVER";
 		FMLLog.info("[%s] Multiblock reactor %s - %d connected parts", clientOrServer, hashCode(), connectedParts.size());
