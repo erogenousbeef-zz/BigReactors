@@ -15,6 +15,7 @@ import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -49,20 +50,22 @@ public class BlockTurbinePart extends BlockContainer {
 
 	// Additional non-metadata-based icons
 	private static final int SUBICON_NONE = -1;
-	private static final int SUBICON_HOUSING_FRAME_VERTICAL = 0;
-	private static final int SUBICON_HOUSING_FRAME_EASTWEST = 1;
-	private static final int SUBICON_HOUSING_FRAME_NORTHSOUTH = 2;
-	private static final int SUBICON_HOUSING_FACE = 3;
-	private static final int SUBICON_HOUSING_CORNER = 4;
-	private static final int SUBICON_CONTROLLER_IDLE = 5;
-	private static final int SUBICON_CONTROLLER_ACTIVE = 6;
-	private static final int SUBICON_POWERTAP_ACTIVE = 7;
-	private static final int SUBICON_FLUIDPORT_OUTPUT = 8;
+	private static final int SUBICON_HOUSING_FRAME_TOP = 0;
+	private static final int SUBICON_HOUSING_FRAME_BOTTOM = 1;
+	private static final int SUBICON_HOUSING_FRAME_LEFT = 2;
+	private static final int SUBICON_HOUSING_FRAME_RIGHT = 3;
+	private static final int SUBICON_HOUSING_FACE = 4;
+	private static final int SUBICON_HOUSING_CORNER = 5;
+	private static final int SUBICON_CONTROLLER_IDLE = 6;
+	private static final int SUBICON_CONTROLLER_ACTIVE = 7;
+	private static final int SUBICON_POWERTAP_ACTIVE = 8;
+	private static final int SUBICON_FLUIDPORT_OUTPUT = 9;
 
 	private static final String[] _subIconNames = new String[] {
-		"housing.vertical",
-		"housing.eastwest",
-		"housing.northsouth",
+		"housing.edge.0",
+		"housing.edge.1",
+		"housing.edge.2",
+		"housing.edge.3",
 		"housing.face",
 		"housing.corner",
 		"controller.idle",
@@ -116,7 +119,7 @@ public class BlockTurbinePart extends BlockContainer {
 				int subIcon = SUBICON_NONE;
 				if(metadata == METADATA_HOUSING) {
 					//FMLLog.info("getting subicon for housing @ %d, %d, %d on controller %d", x, y, z, turbine.hashCode());
-					subIcon = getSubIconForHousing(x, y, z, turbine, side);
+					subIcon = getSubIconForHousing(blockAccess, x, y, z, turbine, side);
 				}
 				else if(part.getOutwardsDir().ordinal() == side) {
 					// Only put the fancy icon on one side of the machine. Other parts will use the base.
@@ -160,7 +163,7 @@ public class BlockTurbinePart extends BlockContainer {
 		return getIcon(side, metadata);
 	}
 	
-	private int getSubIconForHousing(int x, int y, int z, MultiblockTurbine turbine, int side) {
+	private int getSubIconForHousing(IBlockAccess blockAccess, int x, int y, int z, MultiblockTurbine turbine, int side) {
 		CoordTriplet minCoord, maxCoord;
 		minCoord = turbine.getMinimumCoord();
 		maxCoord = turbine.getMaximumCoord();
@@ -192,23 +195,26 @@ public class BlockTurbinePart extends BlockContainer {
 			return SUBICON_HOUSING_FACE;
 		}
 		else {
-			// fun...
-			if(!yExtreme) {
-				// Vertical frame
-				if(side == 0 || side == 1) { return SUBICON_NONE; }
-				else { return SUBICON_HOUSING_FRAME_VERTICAL; }
+			ForgeDirection[] dirsToCheck = StaticUtils.neighborsBySide[side];
+			ForgeDirection dir;
+
+			int myBlockId = blockAccess.getBlockId(x,y,z);
+			int iconIdx = -1;
+
+			for(int i = 0; i < dirsToCheck.length; i++) {
+				dir = dirsToCheck[i];
+				
+				int neighborBlockId = blockAccess.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+				// See if we're a turbine part
+				if(neighborBlockId != myBlockId && neighborBlockId != BigReactors.blockMultiblockGlass.blockID
+						&& neighborBlockId != BigReactors.blockMultiblockCreativePart.blockID) {
+					// One of these things is not like the others...
+					iconIdx = i;
+					break;
+				}
 			}
-			else if(!xExtreme) {
-				// East-west frame
-				if(side == 4 || side == 5) { return SUBICON_NONE; }
-				else { return SUBICON_HOUSING_FRAME_EASTWEST; }
-			}
-			else {
-				// North-south frame
-				if(side == 0 || side == 1) { return SUBICON_HOUSING_FRAME_NORTHSOUTH; }
-				else if(side == 4 || side == 5) { return SUBICON_HOUSING_FRAME_EASTWEST; }
-				else { return SUBICON_NONE; }
-			}
+			
+			return iconIdx + SUBICON_HOUSING_FRAME_TOP;
 		}
 	}
 

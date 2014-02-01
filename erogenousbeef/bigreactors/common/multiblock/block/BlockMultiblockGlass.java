@@ -19,6 +19,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
@@ -30,15 +31,6 @@ public class BlockMultiblockGlass extends BlockContainer {
 	private static String[] subBlocks = new String[] { "reactor", "turbine" };
 	private Icon[][] icons = new Icon[subBlocks.length][16]; 
 	private Icon transparentIcon;
-
-	private static final ForgeDirection dirsBySide[][] = new ForgeDirection[][] {
-		{ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST},
-		{ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST},
-		{ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.EAST, ForgeDirection.WEST},
-		{ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.WEST, ForgeDirection.EAST},
-		{ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.NORTH, ForgeDirection.SOUTH},
-		{ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.SOUTH, ForgeDirection.NORTH}
-	};
 	
 	public BlockMultiblockGlass(int par1, Material par2Material) {
 		super(par1, par2Material);
@@ -82,7 +74,7 @@ public class BlockMultiblockGlass extends BlockContainer {
 
 	@Override
     public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-		ForgeDirection[] dirsToCheck = dirsBySide[side];
+		ForgeDirection[] dirsToCheck = StaticUtils.neighborsBySide[side];
 		ForgeDirection dir;
 		int myBlockId = blockAccess.getBlockId(x,y,z);
 		int myBlockMetadata = blockAccess.getBlockMetadata(x, y, z);
