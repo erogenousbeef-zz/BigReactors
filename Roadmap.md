@@ -43,8 +43,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Calculate "effective coolant surface area" based on interior surface area of reactor housing
 - (DONE) Passively-cooled reactors generate power based on effective coolant surface area
 - (DONE) Add minimum heat transfer/loss so we don't hit floating point problems.
-- Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
-- Fix RedNet port's outputTemperature
+- Fix reactor rednet, computer and redstone ports to not address individual control rods for heat, fuel and waste
 
 ### Active Coolant Loop
 - (DONE) Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
@@ -62,16 +61,9 @@ TODO - 0.3: The Coolant Update
 - (NEED GUI) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
 - Add efficiency curve that peaks at 900/1800 RPMs
-- Optional explosion during severe overspeed conditions
 - Do an art pass.
 - Renderer to show off the turbine blade.
-- Redstone port.
-- Computer port.
 - Particle effects for venting steam and stuff!
-
-### Advanced coolant add-ons (post-0.3.0)
-- Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
-- Different types of coolant with different transference properties
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
@@ -83,14 +75,36 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add imagebutton for reactor on/off
 - (DONE) Add graphical bars for coolant system: system heat, coolant/vapor tanks. Hide when passively cooled.
 - (DONE) Change current heat bar to show fuel heat
-- Add 1px extra between lines on reactor GUI to see if they look better
 - (DONE) Add RPM bar to turbine
+- Add 1px extra between lines on reactor GUI to see if they look better
 - Add "dump fuel" button to access port GUI
 - Add turbine stuff to German and Chinese localization files
 
 ### Items
 - Add nuggets for the 4 types of ingots
 - Add blocks for the 4 types of ingots
+
+### Multiblock Turbine (post-0.3.0)
+- Optional explosion during severe overspeed conditions
+- Redstone port.
+- Computer port.
+
+### Advanced coolant add-ons (post-0.3.0)
+- Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
+- Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
+- Different types of coolant with different transference properties
+
+### Reactor meltdowns (post-0.3.0, may slip to 0.4)
+- Add option to enable reactor meltdowns to config
+- When overheated, low chance of meltdown, based on heat.
+- When meltdown occurs:
+-- Reactor disassembles
+-- One or more fuel rod blocks convert to corium fluid at the reactor's bottom
+-- Zero or more explosions near the reactor's top
+- Corium fluid acts like acid; slowly eats through materials beneath it.
+- Touching corium fluid swiftly kills the shit out of you.
+- Corium fluid eventually hardens into corium.
+- Touching corium damages and withers you.
 
 TODO - 0.4: The Fueling Update
 ------------------------------
@@ -139,7 +153,6 @@ Wishlist
 - Add remote versions of above that read their inputs from RedNet
 
 ### Interoperability
-- Add IAntiPoisonBlock interface to reactor blocks from Atomic Science
 - Add MFR compatibility for drinking BR fluids with a straw
 
 ### More stuff with liquids

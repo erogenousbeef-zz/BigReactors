@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.net;
 
 public final class Packets {
-	public static final int MultiblockControllerButton 	= 0;
+	public static final int MultiblockActivateButton 	= 0;
 	public static final int ReactorControllerFullUpdate	= 1;
 	public static final int AccessPortButton = 2;
 	public static final int BeefGuiButtonPress = 3;
@@ -10,7 +10,7 @@ public final class Packets {
 	public static final int SmallMachineInventoryExposureUpdate = 6;
 	public static final int SmallMachineFluidExposureUpdate = 7;
 	public static final int ControlRodUpdate = 8;
-
+	public static final int ReactorEjectButton = 9;
 	public static final int ReactorWasteEjectionSettingUpdate = 10;
 	public static final int ControlRodSetName = 11;
 	public static final int RedNetSetData = 12;

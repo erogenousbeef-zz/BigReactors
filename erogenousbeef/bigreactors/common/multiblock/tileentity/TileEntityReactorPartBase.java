@@ -46,21 +46,26 @@ public abstract class TileEntityReactorPartBase extends
 
 		/// Client->Server packets
 		
-		if(packetType == Packets.MultiblockControllerButton) {
-			String buttonName = data.readUTF();
+		if(packetType == Packets.MultiblockActivateButton) {
 			boolean newValue = data.readBoolean();
-			
-			if(buttonName.equals("activate")) {
-				getReactorController().setActive(newValue);
-			}
-			else if(buttonName.equals("ejectWaste")) {
-				getReactorController().ejectWaste();
-			}
+			getReactorController().setActive(newValue);
 		}
 		
 		if(packetType == Packets.ReactorWasteEjectionSettingUpdate) {
 			int newSetting = data.readInt();
 			getReactorController().setWasteEjection(WasteEjectionSetting.values()[newSetting]);
+		}
+		
+		if(packetType == Packets.ReactorEjectButton) {
+			boolean isFuelButton = data.readBoolean();
+			boolean dumpAll = data.readBoolean();
+			
+			if(isFuelButton) {
+				getReactorController().ejectFuel(dumpAll);
+			}
+			else {
+				getReactorController().ejectWaste(dumpAll);
+			}
 		}
 		
 		/// Server->Client packets

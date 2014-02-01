@@ -149,6 +149,10 @@ public abstract class FluidHelper {
 				fluids[i] = FluidStack.loadFluidStackFromNBT(data.getCompoundTag(tankNames[i]));
 				fluidLevelAtLastUpdate[i] = fluids[i].amount;
 			}
+			else {
+				fluids[i] = null;
+				fluidLevelAtLastUpdate[i] = 0;
+			}
 		}
 	}
 	

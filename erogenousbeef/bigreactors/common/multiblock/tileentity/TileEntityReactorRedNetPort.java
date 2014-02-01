@@ -223,7 +223,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			// This only makes sense for pulsing
 			if(isPulse) {
 				reactor = getReactorController();
-				reactor.ejectWaste();
+				reactor.ejectWaste(false);
 			}
 		default:
 			break;

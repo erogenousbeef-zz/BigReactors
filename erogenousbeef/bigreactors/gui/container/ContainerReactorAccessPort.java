@@ -22,10 +22,10 @@ public class ContainerReactorAccessPort extends Container {
 
 	protected void addSlots() {
 		// Input Slot
-		addSlotToContainer(new SlotReactorInput(_port, 0, 44, 41, true));
+		addSlotToContainer(new SlotReactorInput(_port, 0, 44, 18, true));
 	
 		// Output Slot
-		addSlotToContainer(new SlotRemoveOnly(_port, 1, 116, 41));
+		addSlotToContainer(new SlotRemoveOnly(_port, 1, 116, 18));
 	}
 	
 	protected int getPlayerInventoryVerticalOffset()

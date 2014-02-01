@@ -251,16 +251,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
 		// Client->Server Packets
-		if(packetType == Packets.MultiblockControllerButton) {
-			Class decodeAs[] = { String.class, Boolean.class };
-			Object[] decodedData = PacketWrapper.readPacketData(data, decodeAs);
-			String buttonName = (String) decodedData[0];
-			boolean newValue = (Boolean) decodedData[1];
-			
-			if(buttonName.equals("activate")) {
-				setActive(newValue);
-				markReferenceCoordDirty();
-			}
+		if(packetType == Packets.MultiblockActivateButton) {
+			boolean nowActive = data.readBoolean();
+			setActive(nowActive);
 		}
 
 		if(packetType == Packets.MultiblockTurbineGovernorUpdate) {
@@ -566,7 +559,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			
 			if(ventStatus == VentStatus.DoNotVent) {
 				// Cap steam used to available space, if not venting
-				// TODO: Calculate difference from available space
 				int availableSpace = tanks[TANK_OUTPUT].getCapacity() - tanks[TANK_OUTPUT].getFluidAmount();
 				steamIn = Math.max(steamIn, availableSpace);
 			}
@@ -876,6 +868,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			
 			CoordTriplet referenceCoord = getReferenceCoord();
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+
+			markReferenceCoordDirty();
 			
 			if(worldObj.isRemote) {
 				// Force controllers to re-render on client
@@ -977,7 +971,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		return 2000f;
 	}
 	
-	private void markReferenceCoordDirty() {
+	protected void markReferenceCoordDirty() {
 		if(worldObj == null || worldObj.isRemote) { return; }
 
 		CoordTriplet referenceCoord = getReferenceCoord();

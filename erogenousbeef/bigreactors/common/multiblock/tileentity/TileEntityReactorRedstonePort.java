@@ -154,7 +154,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		case inputEjectWaste:
 			// Pulse only
 			if(this.isExternallyPowered) {
-				reactor.ejectWaste();
+				reactor.ejectWaste(false);
 			}
 			break;
 		default:

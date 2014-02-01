@@ -101,6 +101,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			{
 				ItemStack itemstack = _inventories[slot];
 				_inventories[slot] = null;
+				onInventoryChanged();
 				return itemstack;
 			}
 			ItemStack newStack = _inventories[slot].splitStack(amount);
@@ -108,6 +109,8 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			{
 				_inventories[slot] = null;
 			}
+
+			onInventoryChanged();
 			return newStack;
 		}
 		else
@@ -128,6 +131,8 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		{
 			itemstack.stackSize = getInventoryStackLimit();
 		}
+		
+		onInventoryChanged();
 	}
 
 	@Override
@@ -283,11 +288,13 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	}
 
 	/**
-	 * Called when new waste has been placed in the access port
+	 * Called when stuff has been placed in the access port
 	 */
-	public void onWasteReceived() {
+	public void onItemsReceived() {
 		if(BlockReactorPart.ACCESSPORT_OUTLET == this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
 			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
 		}
+		
+		onInventoryChanged();
 	}
 }
