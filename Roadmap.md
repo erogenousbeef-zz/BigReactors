@@ -50,7 +50,6 @@ TODO - 0.3: The Coolant Update
 - (DONE) Coolant buffer in main reactor controller
 - (DONE) Coolant I/O interface blocks
 - (DONE) When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
-- Add transfer rate modifier per fluid, which gives each fluid its own rate of uptake penalty.
 - Add Computercraft methods to monitor the coolant system
 
 ### Multiblock Turbine
@@ -58,18 +57,18 @@ TODO - 0.3: The Coolant Update
 - (DONE) Turbine glass. Solve the connected-texture problem.
 - (DONE) Validation of internal turbine & coil shape on assembly.
 - (DONE) Add flow governor to limit rate of input fluid usage.
-- (NEED GUI) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - (DONE) Do an art pass.
 - (DONE) Fix turbine RPM bar to be green at the right places
 - (DONE) Add efficiency curve that peaks at 900/1800 RPMs
 - (DONE) Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
+- (NEED GUI) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - Renderer to show off the turbine blade.
 - Particle effects for venting steam and stuff!
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - (DONE) Fix the lighting bug on control rods.
-- Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
+- (DONE) Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
 
 ### User Interface
 - Fix Control Rod GUI
@@ -121,7 +120,7 @@ TODO - 0.4: The Fueling Update
 - Add "fluidizer" small machine - consumes power, outputs fluid fuel
 - Add "fluidic reprocessor" small machine - reprocesses fluid wastes into fluid fuels
 - Figure out how to do fuels/wastes with mixed composition?
-- "Moxie" ingots/fluids.
+- "Moxine" ingots/fluids.
 
 TODO - 0.5: The Reprocessing Update
 -----------------------------------
