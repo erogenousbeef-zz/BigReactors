@@ -27,7 +27,8 @@ public class ServerPacketHandler implements IPacketHandler {
 		
 		int x, y, z;
 		switch(packetType) {
-		case Packets.MultiblockControllerButton:
+		case Packets.MultiblockActivateButton:
+		case Packets.ReactorEjectButton:
 		case Packets.AccessPortButton:
 		case Packets.ReactorWasteEjectionSettingUpdate:
 		case Packets.MultiblockTurbineFullUpdate:

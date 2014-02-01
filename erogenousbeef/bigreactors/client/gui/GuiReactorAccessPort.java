@@ -4,21 +4,27 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.client.ClientProxy;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
+import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
+import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
+import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public class GuiReactorAccessPort extends BeefGuiBase {
-
-	private GuiButton _togglePort;
 	private TileEntityReactorAccessPort _port;
 	
-	protected BeefGuiLabel inletLabel;
-	protected BeefGuiLabel outletLabel;
 	protected BeefGuiLabel inventoryLabel;
+	
+	protected GuiIconButton ejectFuel;
+	protected GuiIconButton ejectWaste;
+	
+	protected GuiIconButton btnInlet;
+	protected GuiIconButton btnOutlet;
 	
 	public GuiReactorAccessPort(Container container, TileEntityReactorAccessPort accessPort) {
 		super(container);
@@ -35,15 +41,21 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 
 		int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
 		
-		_togglePort = new GuiButton(1, xCenter + 31, guiTop + 4, 50, 20, getStringFromMetadata(metadata));
-		buttonList.add(_togglePort);
+		ejectFuel = new GuiIconButton(2, guiLeft + xSize - 97, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("fuelEject"), new String[] { GuiConstants.LITECYAN_TEXT + "Eject Fuel", "", "Ejects fuel contained in the", "reactor, placing ingots in the", "reactor's access ports.", "", "SHIFT: Dump excess fuel."});
+		ejectWaste = new GuiIconButton(3, guiLeft + xSize - 77, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"), new String[] { GuiConstants.LITECYAN_TEXT + "Eject Waste", "", "Ejects waste contained in the", "reactor, placing ingots in the", "reactor's access ports.", "", "SHIFT: Dump excess waste."});
 		
-		inletLabel = new BeefGuiLabel(this, "IN", guiLeft + 25, guiTop + 46);
-		outletLabel = new BeefGuiLabel(this, "OUT", guiLeft + 142, guiTop + 46);
+		btnInlet = new GuiIconButton(0, guiLeft + xSize - 47, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("inletOn"), new String[] { GuiConstants.LITECYAN_TEXT + "Inlet Mode", "", "Sets the access port to", "inlet mode.", "", "Port WILL accept", "items from pipes/ducts.", "Port WILL NOT eject", "items to pipes/ducts."});
+		btnOutlet = new GuiIconButton(1, guiLeft + xSize - 27, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("outletOn"), new String[] { GuiConstants.LITECYAN_TEXT + "Outlet Mode", "", "Sets the access port to", "outlet mode.", "", "Port WILL NOT accept", "items from pipes/ducts.", "Port WILL eject", "ingots to pipes/ducts."});
+		
 		inventoryLabel = new BeefGuiLabel(this, "Inventory", guiLeft + 8, guiTop + 64);
-		registerControl(inletLabel);
-		registerControl(outletLabel);
+		
+		registerControl(ejectFuel);
+		registerControl(ejectWaste);
+		registerControl(btnOutlet);
+		registerControl(btnInlet);
 		registerControl(inventoryLabel);
+		
+		updateIcons();
 	}
 
 	@Override
@@ -54,17 +66,19 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
-		
+
+		updateIcons();
+	}
+	
+	protected void updateIcons() {
 		int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
-		_togglePort.displayString = getStringFromMetadata(metadata);
-		
 		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
-			inletLabel.setLabelTooltip("Blocks from pipes will enter here");
-			outletLabel.setLabelTooltip("Will NOT eject waste into pipes");
+			btnInlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.INLET_ON));
+			btnOutlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OUTLET_OFF));
 		}
 		else {
-			inletLabel.setLabelTooltip("Blocks from pipes will NOT be accepted");
-			outletLabel.setLabelTooltip("Will eject waste into pipes");			
+			btnInlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.INLET_OFF));
+			btnOutlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OUTLET_ON));
 		}
 	}
 	
@@ -75,15 +89,20 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		if(button.id == 1) {
+		if(button.id == 0 || button.id == 1) {
 			int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
-			byte newMetadata = BlockReactorPart.ACCESSPORT_INLET;
-			if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
-				newMetadata = BlockReactorPart.ACCESSPORT_OUTLET;
-			}
+			int newMetadata = button.id == 0 ? BlockReactorPart.ACCESSPORT_INLET : BlockReactorPart.ACCESSPORT_OUTLET;
 			
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.AccessPortButton,
-						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, newMetadata }));
+			if(newMetadata != metadata) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.AccessPortButton,
+						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, (byte)newMetadata }));
+			}
+		}
+		
+		else if(button.id == 2 || button.id == 3) {
+			boolean fuel = button.id == 2;
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
+						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, fuel, isShiftKeyDown() }));
 		}
 	}
 	

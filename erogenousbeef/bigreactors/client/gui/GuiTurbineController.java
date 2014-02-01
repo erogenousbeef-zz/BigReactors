@@ -163,8 +163,8 @@ public class GuiTurbineController extends BeefGuiBase {
 			boolean setActive = button.id == 0;
 			if(setActive != turbine.isActive()) {
 				CoordTriplet saveDelegate = turbine.getReferenceCoord();
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", setActive }));
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockActivateButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, setActive }));
 			}
 		}
 		

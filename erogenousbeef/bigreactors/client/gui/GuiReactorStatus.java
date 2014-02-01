@@ -99,7 +99,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		btnWasteAutoEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Auto-Eject Waste", "Waste in the core will be ejected", "as soon as possible" });
 		btnWasteReplaceOnly.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Replace Waste", "Waste in the core will be ejected", "only when it can be replaced", "with fresh fuel" });
 		btnWasteManual.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Do Not Auto-Eject Waste", GuiConstants.VIOLET_TEXT + "Waste must be manually ejected.", "", "Ejection can be done from this", "screen, or via rednet,", "redstone or computer port signals."});
-		btnWasteEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Eject Waste Now", "Ejects waste from the core", "into access ports.", "Each 1000mB waste = 1 ingot"});
+		btnWasteEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Eject Waste Now", "Ejects waste from the core", "into access ports.", "Each 1000mB waste = 1 ingot", "", "SHIFT: Dump excess waste, if any"});
 		
 		registerControl(btnReactorOn);
 		registerControl(btnReactorOff);
@@ -226,41 +226,35 @@ public class GuiReactorStatus extends BeefGuiBase {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		CoordTriplet saveDelegate = reactor.getReferenceCoord();
-		if(button.id == 0) {
-			if(!reactor.isActive()) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", true }));
+		if(button.id == 0 || button.id == 1) {
+			boolean newSetting = button.id == 0;
+			if(newSetting != reactor.isActive()) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockActivateButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newSetting }));
 			}
 		}
-		else if(button.id == 1) {
-			if(reactor.isActive()) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "activate", false }));
-				
+		else if(button.id >= 2 && button.id <= 4) {
+			WasteEjectionSetting newEjectionSetting;
+			switch(button.id) {
+			case 3:
+				newEjectionSetting = WasteEjectionSetting.kAutomaticOnlyIfCanReplace;
+				break;
+			case 4:
+				newEjectionSetting = WasteEjectionSetting.kManual;
+				break;
+			default:
+				newEjectionSetting = WasteEjectionSetting.kAutomatic;
+				break;
 			}
-		}
-		else if(button.id == 2) {
-			if(reactor.getWasteEjection() != WasteEjectionSetting.kAutomatic) {
+			
+			if(reactor.getWasteEjection() != newEjectionSetting) {
 				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, WasteEjectionSetting.kAutomatic.ordinal() } ));
-			}
-		}
-		else if(button.id == 3) {
-			if(reactor.getWasteEjection() != WasteEjectionSetting.kAutomaticOnlyIfCanReplace) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, WasteEjectionSetting.kAutomaticOnlyIfCanReplace.ordinal() } ));
-			}
-		}
-		else if(button.id == 4) {
-			if(reactor.getWasteEjection() != WasteEjectionSetting.kManual) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, WasteEjectionSetting.kManual.ordinal() } ));
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newEjectionSetting.ordinal() } ));
 			}
 		}
 		else if(button.id == 5) {
-			// Boolean value is ignored here.
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockControllerButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, "ejectWaste", false }));
+			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, true, isShiftKeyDown() }));
 		}
 	}
 	

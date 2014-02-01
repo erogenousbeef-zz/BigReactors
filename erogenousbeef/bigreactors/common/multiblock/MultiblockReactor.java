@@ -385,8 +385,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 
 		if(fuelContainer.shouldSendFuelingUpdate() || coolantContainer.shouldSendFuelingUpdate()) {
-			CoordTriplet referenceCoord = getReferenceCoord();
-			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+			markReferenceCoordForUpdate();
 		}
 		
 		return (oldHeat != this.getReactorHeat() || oldEnergy != this.getEnergyStored());
@@ -620,7 +619,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		if(data.hasKey("fuelContainer")) {
 			fuelContainer.readFromNBT(data.getCompoundTag("fuelContainer"));
-			onFuelStatusChanged();
 		}
 
 		if(data.hasKey("radiation")) {
@@ -630,6 +628,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(data.hasKey("coolantContainer")) {
 			coolantContainer.readFromNBT(data.getCompoundTag("coolantContainer"));
 		}
+		
+		onFuelStatusChanged();
 	}
 
 	protected Packet getUpdatePacket() {
@@ -749,50 +749,47 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	}
 	
 	/**
-	 * Attempt to distribute a stack of waste to a given access port, sensitive to the amount of waste already in it.
-	 * @param port The port to which we're distributing waste.
-	 * @param wasteToDistribute The stack of waste to distribute. Will be modified during the operation and may be returned with stack size 0.
-	 * @param distributeToInputs Should we try to send waste to input ports?
+	 * Attempt to distribute a stack of ingots to a given access port, sensitive to the amount and type of ingots already in it.
+	 * @param port The port to which we're distributing ingots.
+	 * @param itemsToDistribute The stack of ingots to distribute. Will be modified during the operation and may be returned with stack size 0.
+	 * @param distributeToInputs Should we try to send ingots to input ports?
 	 * @return The number of waste items distributed, i.e. the differential in stack size for wasteToDistribute.
 	 */
-	private int tryDistributeWaste(TileEntityReactorAccessPort port, ItemStack wasteToDistribute, boolean distributeToInputs) {
-		ItemStack wasteStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
+	private int tryDistributeItems(TileEntityReactorAccessPort port, ItemStack itemsToDistribute, boolean distributeToInputs) {
+		ItemStack existingStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
 		CoordTriplet coord = port.getWorldLocation();
-		int initialWasteAmount = wasteToDistribute.stackSize;
+		int initialWasteAmount = itemsToDistribute.stackSize;
 
 		int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
 
 		if(metadata == BlockReactorPart.ACCESSPORT_OUTLET || (distributeToInputs || attachedAccessPorts.size() < 2)) {
 			// Dump waste preferentially to outlets, unless we only have one access port
-			if(wasteStack == null) {
-				if(wasteToDistribute.stackSize > port.getInventoryStackLimit()) {
-					ItemStack newStack = wasteToDistribute.splitStack(port.getInventoryStackLimit());
+			if(existingStack == null) {
+				if(itemsToDistribute.stackSize > port.getInventoryStackLimit()) {
+					ItemStack newStack = itemsToDistribute.splitStack(port.getInventoryStackLimit());
 					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, newStack);
 				}
 				else {
-					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, wasteToDistribute.copy());
-					wasteToDistribute.stackSize = 0;
+					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_OUTLET, itemsToDistribute.copy());
+					itemsToDistribute.stackSize = 0;
 				}
 			}
-			else {
-				ItemStack existingStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
-				if(existingStack.isItemEqual(wasteToDistribute)) {
-					if(existingStack.stackSize + wasteToDistribute.stackSize <= existingStack.getMaxStackSize()) {
-						existingStack.stackSize += wasteToDistribute.stackSize;
-						wasteToDistribute.stackSize = 0;
-					}
-					else {
-						int amt = existingStack.getMaxStackSize() - existingStack.stackSize;
-						wasteToDistribute.stackSize -= existingStack.getMaxStackSize() - existingStack.stackSize;
-						existingStack.stackSize += amt;
-					}
+			else if(existingStack.isItemEqual(itemsToDistribute)) {
+				if(existingStack.stackSize + itemsToDistribute.stackSize <= existingStack.getMaxStackSize()) {
+					existingStack.stackSize += itemsToDistribute.stackSize;
+					itemsToDistribute.stackSize = 0;
+				}
+				else {
+					int amt = existingStack.getMaxStackSize() - existingStack.stackSize;
+					itemsToDistribute.stackSize -= existingStack.getMaxStackSize() - existingStack.stackSize;
+					existingStack.stackSize += amt;
 				}
 			}
-			
-			port.onWasteReceived();
+
+			port.onItemsReceived();
 		}
 		
-		return initialWasteAmount - wasteToDistribute.stackSize;
+		return initialWasteAmount - itemsToDistribute.stackSize;
 	}
 
 	@Override
@@ -869,11 +866,22 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return this.wasteEjection;
 	}
 	
-	public void ejectWaste() {
+	/**
+	 * Eject waste from the reactor into the access ports.
+	 * @param dumpAll If true, any remaining waste will be emptied out of the fuel container after dumping.
+	 */
+	public void ejectWaste(boolean dumpAll) {
 		int wasteAmt = fuelContainer.getWasteAmount();
 		int freeFuelSpace = fuelContainer.getCapacity() - fuelContainer.getTotalAmount();
 		
 		tryEjectWaste(freeFuelSpace, wasteAmt);
+		
+		if(dumpAll) {
+			fuelContainer.setWaste(null);
+			markReferenceCoordDirty();
+		}
+		
+		markReferenceCoordForUpdate();
 	}
 
 	protected void refuelAndEjectWaste() {
@@ -956,7 +964,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			}
 
 			if(wasteToDistribute != null && wasteToDistribute.stackSize > 0) {
-				wasteIngotsDistributed += tryDistributeWaste(port, wasteToDistribute, false);
+				wasteIngotsDistributed += tryDistributeItems(port, wasteToDistribute, false);
 			}
 		}
 		
@@ -969,7 +977,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 				if(port == null || !port.isConnected()) { continue; }
 
-				wasteIngotsDistributed += tryDistributeWaste(port, wasteToDistribute, true);
+				wasteIngotsDistributed += tryDistributeItems(port, wasteToDistribute, true);
 			}
 		}
 		
@@ -982,7 +990,42 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(wasteIngotsDistributed > 0) {
 			fuelContainer.drainWaste(wasteIngotsDistributed * AmountPerIngot);
 		}
-	} // End fuel/waste autotransfer
+	}
+	
+	/**
+	 * Eject fuel contained in the reactor.
+	 * @param dumpAll If true, any remaining fuel will simply be lost.
+	 */
+	public void ejectFuel(boolean dumpAll) {
+		int ingots = fuelContainer.getFuelAmount() / AmountPerIngot;
+		if(ingots <= 0) {
+			return;
+		}
+		
+		// TODO: Query the fluid type and use that
+		ItemStack ingotsToDistribute = OreDictionary.getOres("ingotYellorium").get(0).copy();
+		ingotsToDistribute.stackSize = ingots;
+		
+		int ingotsDistributed = 0;
+		for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+			if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
+			if(port == null || !port.isConnected()) { continue; }
+			
+			ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
+		}
+		
+		if(ingotsDistributed > 0 || dumpAll) {
+			if(dumpAll) {
+				fuelContainer.setFuel(null);
+			}
+			else {
+				fuelContainer.drainFuel(ingotsDistributed * AmountPerIngot);
+			}
+
+			markReferenceCoordForUpdate();
+			markReferenceCoordDirty();
+		}
+	}
 
 	@Override
 	protected void onMachineAssembled() {
@@ -1057,8 +1100,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		else {
 			// Force an update of the client's multiblock information
-			CoordTriplet referenceCoord = getReferenceCoord();
-			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+			markReferenceCoordForUpdate();
 		}
 		
 		calculateReactorVolume();
@@ -1295,5 +1337,22 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(isPassivelyCooled()) { return emptyTankInfo; }
 		
 		return coolantContainer.getTankInfo(-1);
+	}
+	
+	protected void markReferenceCoordForUpdate() {
+		CoordTriplet rc = getReferenceCoord();
+		if(worldObj != null && rc != null) {
+			worldObj.markBlockForUpdate(rc.x, rc.y, rc.z);
+		}
+	}
+	
+	protected void markReferenceCoordDirty() {
+		if(worldObj == null || worldObj.isRemote) { return; }
+
+		CoordTriplet referenceCoord = getReferenceCoord();
+		if(referenceCoord == null) { return; }
+
+		TileEntity saveTe = worldObj.getBlockTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
 	}
 }

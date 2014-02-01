@@ -149,7 +149,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			return null;
 		// "do" methods - void return, no inputs
 		case doEjectWaste:
-			reactor.ejectWaste();
+			reactor.ejectWaste(false);
 			return null;
 		default: throw new Exception("Method unimplemented - yell at Beef");
 		}

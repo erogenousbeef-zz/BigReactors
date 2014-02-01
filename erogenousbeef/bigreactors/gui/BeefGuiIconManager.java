@@ -26,6 +26,12 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int RPM = 19;
 	public static final int UP_ARROW = 20;
 	public static final int DOWN_ARROW = 21;
+	public static final int FUEL_EJECT = 22;
+	public static final int INLET_ON = 23;
+	public static final int INLET_OFF = 24;
+	public static final int OUTLET_ON = 25;
+	public static final int OUTLET_OFF = 26;
+	
 	
 	public BeefGuiIconManager() {
 		super();
@@ -51,7 +57,12 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"energyStored",
 				"rpm",
 				"upArrow",
-				"downArrow"
+				"downArrow",
+				"fuelEject",
+				"inletOn",
+				"inletOff",
+				"outletOn",
+				"outletOff"
 		};
 	}
 	
