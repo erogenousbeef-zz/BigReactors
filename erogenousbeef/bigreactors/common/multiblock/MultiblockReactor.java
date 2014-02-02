@@ -322,6 +322,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			}
 			else {
 				rfTransferred -= coolantContainer.onAbsorbHeat(rfTransferred);
+				energyGeneratedLastTick = coolantContainer.getFluidVaporizedLastTick(); // Piggyback so we don't have useless stuff in the update packet
 			}
 
 			reactorRf -= rfTransferred;

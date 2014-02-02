@@ -20,6 +20,7 @@ import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.FloatAverager;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.bigreactors.gui.GuiConstants;
 
@@ -59,8 +60,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiFluidBar hotFluidBar;
 	
 	private FloatAverager averagedHeat;
-	private FloatAverager averagedRfOutput;
-	private FloatAverager averagedFuelConsumption;
 	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
@@ -71,8 +70,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 		this.reactor = part.getReactorController();
 		
 		this.averagedHeat = new FloatAverager(30);
-		this.averagedRfOutput = new FloatAverager(30); // About 1.5 seconds
-		this.averagedFuelConsumption = new FloatAverager(30);
 	}
 	
 	// Add controls, etc.
@@ -165,8 +162,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(hotFluidIcon);
 		
 		averagedHeat.setAll(reactor.getReactorHeat());
-		averagedRfOutput.setAll(reactor.getEnergyGeneratedLastTick());
-		averagedFuelConsumption.setAll(reactor.getFuelConsumedLastTick());
 		
 		updateIcons();
 	}
@@ -190,36 +185,24 @@ public class GuiReactorStatus extends BeefGuiBase {
 		}
 		
 		// Grab averaged values
-		averagedRfOutput.add(reactor.getEnergyGeneratedLastTick());
 		averagedHeat.add(reactor.getFuelHeat());
-		averagedFuelConsumption.add(reactor.getFuelConsumedLastTick());
 		
-		float averagedOutput = averagedRfOutput.average();
-		if(averagedOutput >= 100f) {
-			outputString.setLabelText(String.format("%1.0f RF/t", averagedRfOutput.average()));			
+		outputString.setLabelText(getFormattedOutputString());
+		if(reactor.isPassivelyCooled()) {
+			outputString.setLabelTooltip(String.format("%.2f flux per tick", reactor.getEnergyGeneratedLastTick()));
 		}
 		else {
-			outputString.setLabelText(String.format("%1.1f RF/t", averagedRfOutput.average()));			
+			outputString.setLabelTooltip(String.format("%.0f millibuckets per tick", reactor.getEnergyGeneratedLastTick()));
 		}
 
 		heatString.setLabelText(Integer.toString((int)averagedHeat.average()) + " C");
 		coreHeatBar.setHeat(reactor.getFuelHeat());
 		caseHeatBar.setHeat(reactor.getReactorHeat());
-		
-		float averagedConsumption = averagedFuelConsumption.average();
-		if(averagedConsumption < 0.1f) {
-			fuelConsumedString.setLabelText(String.format("%1.3f mB/t", averagedFuelConsumption.average()));
-		}
-		else if(averagedConsumption < 1f) {
-			fuelConsumedString.setLabelText(String.format("%1.2f mB/t", averagedFuelConsumption.average()));
-		}
-		else if(averagedConsumption < 10f) {
-			fuelConsumedString.setLabelText(String.format("%1.1f mB/t", averagedFuelConsumption.average()));
-		}
-		else {
-			fuelConsumedString.setLabelText(String.format("%1.0f mB/t", averagedFuelConsumption.average()));
-		}
-		
+
+		float fuelConsumption = reactor.getFuelConsumedLastTick();
+		fuelConsumedString.setLabelText(StaticUtils.Strings.formatMillibuckets(fuelConsumption) + "/t");
+		fuelConsumedString.setLabelTooltip(getFuelConsumptionTooltip(fuelConsumption));
+
 		reactivityString.setLabelText(String.format("%2.0f%%", reactor.getFuelFertility() * 100f));
 	}
 	
@@ -324,4 +307,30 @@ public class GuiReactorStatus extends BeefGuiBase {
 		"by a fluid, such as water, which",
 		"is superheated by the core."
 	};
+
+	private String getFormattedOutputString() {
+		float number = reactor.getEnergyGeneratedLastTick(); // Also doubles as fluid vaporized last tick
+
+		if(reactor.isPassivelyCooled()) {
+			return StaticUtils.Strings.formatRF(number) + "/t";
+		}
+		else {
+			return StaticUtils.Strings.formatMillibuckets(number) + "/t";			
+		}
+	}
+	
+	private String getFuelConsumptionTooltip(float fuelConsumption) {
+		if(fuelConsumption <= 0.000001f) { return "0 millibuckets per tick"; }
+		
+		int exp = (int)Math.log10(fuelConsumption);
+		
+		int decimalPlaces = 0;
+		if(exp < 1) {
+			decimalPlaces = Math.abs(exp) + 2;
+			return String.format("%." + Integer.toString(decimalPlaces) + "f millibuckets per tick", fuelConsumption);
+		}
+		else {
+			return String.format("%.0f millibuckets per tick", fuelConsumption);
+		}
+	}
 }
