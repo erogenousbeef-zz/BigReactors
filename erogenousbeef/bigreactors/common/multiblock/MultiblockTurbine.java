@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,7 +40,6 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
-import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
 public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
 

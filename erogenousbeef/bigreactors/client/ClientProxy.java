@@ -12,7 +12,6 @@ import erogenousbeef.bigreactors.client.renderer.SimpleRendererFuelRod;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.CommonProxy;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
-import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.core.multiblock.MultiblockClientTickHandler;

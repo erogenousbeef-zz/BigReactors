@@ -5,7 +5,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
-import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler {

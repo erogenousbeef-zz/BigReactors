@@ -2,9 +2,9 @@ package erogenousbeef.bigreactors.client;
 
 import java.util.HashMap;
 
-import erogenousbeef.bigreactors.common.BigReactors;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.Icon;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 /**
  * Manages Icons that are not registered via blocks or items.

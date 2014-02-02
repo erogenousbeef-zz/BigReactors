@@ -22,7 +22,6 @@ import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;

@@ -1,8 +1,6 @@
 package erogenousbeef.bigreactors.gui.controls;
 
-import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
-import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiHeatBar extends BeefGuiTextureProgressBar implements

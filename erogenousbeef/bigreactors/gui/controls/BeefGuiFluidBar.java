@@ -2,13 +2,11 @@ package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraft.util.Icon;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiFluidBar extends BeefGuiIconProgressBar implements
