@@ -16,11 +16,6 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		rfNetwork = null;
 	}
 
-	public TileEntityTurbinePowerTap(int metadata) {
-		super(metadata);
-		rfNetwork = null;
-	}
-	
 	// INeighborUpdatableEntity
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {

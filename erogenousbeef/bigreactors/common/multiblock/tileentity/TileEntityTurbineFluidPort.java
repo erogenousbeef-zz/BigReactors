@@ -22,11 +22,6 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 		flowSetting = FluidFlow.In;
 	}
 
-	public TileEntityTurbineFluidPort(int metadata) {
-		super(metadata);
-		flowSetting = FluidFlow.In;
-	}
-	
 	public void setFluidFlowDirection(FluidFlow newDirection) {
 		flowSetting = newDirection;
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);

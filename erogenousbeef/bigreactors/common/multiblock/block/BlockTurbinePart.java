@@ -233,13 +233,13 @@ public class BlockTurbinePart extends BlockContainer {
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
 		if(metadata == METADATA_POWERTAP) {
-			return new TileEntityTurbinePowerTap(metadata);
+			return new TileEntityTurbinePowerTap();
 		}
 		else if(metadata == METADATA_FLUIDPORT) {
-			return new TileEntityTurbineFluidPort(metadata);
+			return new TileEntityTurbineFluidPort();
 		}
 		else {
-			return new TileEntityTurbinePartStandard(metadata);
+			return new TileEntityTurbinePartStandard();
 		}
 	}
 
