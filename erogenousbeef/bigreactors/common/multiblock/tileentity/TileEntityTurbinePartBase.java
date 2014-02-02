@@ -24,23 +24,7 @@ import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntity
 
 public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, IMultiblockNetworkHandler {
 
-	protected int _metadata;
-	
 	public TileEntityTurbinePartBase() {
-		_metadata = -1;
-	}
-	
-	public TileEntityTurbinePartBase(int metadata) {
-		this();
-		_metadata = metadata;
-	}
-
-	protected int getMetadata() {
-		if(_metadata < 0) {
-			_metadata = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);
-		}
-		
-		return _metadata;
 	}
 	
 	@Override
@@ -75,18 +59,10 @@ public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTil
 
 	@Override
 	public void onMachineActivated() {
-		// Re-render controller as active state has changed
-		if(worldObj.isRemote && getMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		}
 	}
 
 	@Override
 	public void onMachineDeactivated() {
-		// Re-render controller as active state has changed
-		if(worldObj.isRemote && getMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		}
 	}
 	
 	///// Network communication - IMultiblockNetworkHandler
@@ -106,27 +82,12 @@ public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTil
 	 */
 	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
-		if(!this.isConnected()) {
-			return null;
-		}
-		
-		if(getMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			return (Object)(new ContainerSlotless(getTurbine(), inventoryPlayer.player));
-		}
-		
 		return null;
 	}
 	
 	@SideOnly(Side.CLIENT)
 	@Override
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
-		if(!this.isConnected()) {
-			return null;
-		}
-
-		if(getMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			return new GuiTurbineController((Container)getContainer(inventoryPlayer), this);
-		}
 		return null;
 	}
 

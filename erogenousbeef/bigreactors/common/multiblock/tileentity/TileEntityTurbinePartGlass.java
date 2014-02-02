@@ -8,11 +8,6 @@ public class TileEntityTurbinePartGlass extends TileEntityTurbinePartBase {
 		// TODO Auto-generated constructor stub
 	}
 
-	public TileEntityTurbinePartGlass(int metadata) {
-		super(metadata);
-		// TODO Auto-generated constructor stub
-	}
-
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%s, %s, %s - Glass cannot be used as part of a turbine's frame", xCoord, yCoord, zCoord));

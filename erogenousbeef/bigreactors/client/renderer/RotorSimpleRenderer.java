@@ -6,11 +6,13 @@ import net.minecraft.block.Block;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
@@ -37,13 +39,15 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 		}
 		else {
-			// TODO - DEBUG REMOVEME
 			Tessellator tessellator = Tessellator.instance;
 			
 	        GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 	        tessellator.startDrawingQuads();
 	        tessellator.setNormal(0.0F, -1.0F, 0.0F);
-			renderRotorBladeConnection(renderer, block, metadata, ForgeDirection.UP, ForgeDirection.EAST, 0, 0, 0);
+			_renderBlade(renderer, 0, 0, 0, block, metadata, ForgeDirection.UP);
+
+			// TODO - DEBUG REMOVEME
+			//renderRotorBladeConnection(renderer, block, metadata, ForgeDirection.UP, ForgeDirection.EAST, 0, 0, 0);
 	        tessellator.draw();
 	        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 		}
@@ -61,13 +65,9 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			renderRotorShaft(block, renderer, metadata, majorAxis, hasBlades, x, y, z);
 		}
 		else {
-			GL11.glPushMatrix();
-			renderRotorBladeConnection(renderer, block, metadata, ForgeDirection.UP, ForgeDirection.EAST, x, y, z);
-			GL11.glPopMatrix();
-			// TODO
-			// TODO renderBasicRotorBlade(renderer);
+			renderBlade(renderer, world, x, y, z, block, metadata);
 		}
-		return false;
+		return true;
 	}
 
 	@Override
@@ -122,10 +122,60 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
         	}
         }
         */
-        renderRotorBladeConnection(renderer, block, metadata, majorAxis, ForgeDirection.EAST, x, y, z);
-        renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
+        //renderRotorBladeConnection(renderer, block, metadata, majorAxis, ForgeDirection.EAST, x, y, z);
+        //renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
 	}
 
+	private void renderBlade(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int metadata) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		ForgeDirection rotorDir = ForgeDirection.UNKNOWN;
+		if(te instanceof TileEntityTurbineRotorPart) {
+			TileEntityTurbineRotorPart rotorPart = (TileEntityTurbineRotorPart)te;
+			if(rotorPart.isConnected()) {
+				rotorDir = rotorPart.getTurbine().getRotorDirection();
+			}
+		}
+		
+		_renderBlade(renderer, x, y, z, block, metadata, rotorDir);
+	}
+	
+	private void _renderBlade(RenderBlocks renderer, int x, int y, int z, Block block, int metadata, ForgeDirection rotorDir) {
+		if(rotorDir == ForgeDirection.UNKNOWN) {
+			rotorDir = ForgeDirection.UP;
+		}
+		
+		double xMin, yMin, zMin, xMax, yMax, zMax;
+		xMin = yMin = zMin = 0D;
+		xMax = yMax = zMax = 1D;
+		
+		if(rotorDir.offsetX != 0) {
+			xMin = 0.45D;
+			xMax = 0.55D;
+		}
+		else if(rotorDir.offsetY != 0) {
+			yMin = 0.45D;
+			yMax = 0.55D;
+		}
+		else if(rotorDir.offsetZ != 0) {
+			zMin = 0.45D;
+			zMax = 0.55D;
+		}
+		
+        renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
+        renderer.renderFaceYNeg(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 0, metadata));
+        renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
+        renderer.renderFaceYPos(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 1, metadata));
+        renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
+        renderer.renderFaceZNeg(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 2, metadata));
+        renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
+        renderer.renderFaceZPos(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 3, metadata));
+        renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
+        renderer.renderFaceXNeg(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 4, metadata));
+        renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
+        renderer.renderFaceXPos(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 5, metadata));
+        renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
+	}
+	
 	/**
 	 * @param world
 	 * @param x

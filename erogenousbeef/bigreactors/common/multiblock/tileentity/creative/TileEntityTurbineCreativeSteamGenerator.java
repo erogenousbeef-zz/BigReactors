@@ -13,10 +13,6 @@ public class TileEntityTurbineCreativeSteamGenerator extends TileEntityTurbinePa
 		super();
 	}
 
-	public TileEntityTurbineCreativeSteamGenerator(int metadata) {
-		super(metadata);
-	}
-
 	@Override
 	public void onMultiblockServerTick() {
 		if(isConnected() && getTurbine().isActive()) {

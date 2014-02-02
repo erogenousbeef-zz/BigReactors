@@ -61,8 +61,9 @@ TODO - 0.3: The Coolant Update
 - (DONE) Fix turbine RPM bar to be green at the right places
 - (DONE) Add efficiency curve that peaks at 900/1800 RPMs
 - (DONE) Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
-- (NEED GUI) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
+- (DONE) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - Renderer to show off the turbine blade.
+- Test inflow/outflow ports with TE
 - Particle effects for venting steam and stuff!
 
 ### Graphics
@@ -71,12 +72,12 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
 
 ### User Interface
-- Fix Control Rod GUI
 - (DONE) Add imagebutton for reactor on/off
 - (DONE) Add graphical bars for coolant system: system heat, coolant/vapor tanks. Hide when passively cooled.
 - (DONE) Change current heat bar to show fuel heat
 - (DONE) Add RPM bar to turbine
 - (DONE) Add "dump fuel" button to access port GUI
+- Fix Control Rod GUI
 - Add 1px extra between lines on reactor GUI to see if they look better
 - Add turbine stuff to German and Chinese localization files
 

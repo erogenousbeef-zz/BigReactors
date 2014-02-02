@@ -13,6 +13,8 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartStandard;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 
 public class BlockTurbineRotorPart extends BlockContainer {
 
@@ -57,7 +59,6 @@ public class BlockTurbineRotorPart extends BlockContainer {
 		return _icons[metadata];
 	}
 
-	// This block has no tile entity associated with it. WHEEEEEE.
 	@Override
 	public TileEntity createNewTileEntity(World world) {
 		return null;
@@ -65,7 +66,7 @@ public class BlockTurbineRotorPart extends BlockContainer {
 
 	@Override
 	public TileEntity createTileEntity(World world, int metadata) {
-		return null;
+		return new TileEntityTurbineRotorPart();
 	}
 
 	@Override

@@ -53,7 +53,7 @@ public class BlockMultiblockGlass extends BlockContainer {
 		case METADATA_REACTOR:
 			return new TileEntityReactorGlass();
 		case METADATA_TURBINE:
-			return new TileEntityTurbinePartGlass(metadata);
+			return new TileEntityTurbinePartGlass();
 		default:
 			throw new IllegalArgumentException("Unrecognized metadata");
 		}
