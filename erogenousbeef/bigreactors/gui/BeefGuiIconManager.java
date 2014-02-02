@@ -31,7 +31,12 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int INLET_OFF = 24;
 	public static final int OUTLET_ON = 25;
 	public static final int OUTLET_OFF = 26;
-	
+	public static final int VENT_ALL_OFF = 27;
+	public static final int VENT_ALL_ON = 28;
+	public static final int VENT_OVERFLOW_OFF = 29;
+	public static final int VENT_OVERFLOW_ON = 30;
+	public static final int VENT_NONE_OFF = 31;
+	public static final int VENT_NONE_ON = 32;
 	
 	public BeefGuiIconManager() {
 		super();
@@ -62,7 +67,13 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"inletOn",
 				"inletOff",
 				"outletOn",
-				"outletOff"
+				"outletOff",
+				"ventAllOff",
+				"ventAllOn",
+				"ventOverflowOff",
+				"ventOverflowOn",
+				"ventNoneOff",
+				"ventNoneOn"
 		};
 	}
 	
