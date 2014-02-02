@@ -7,11 +7,13 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.client.renderer.RotorSimpleRenderer;
 import erogenousbeef.bigreactors.client.renderer.SimpleRendererFuelRod;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.CommonProxy;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
@@ -39,6 +41,10 @@ public class ClientProxy extends CommonProxy {
 		BlockFuelRod.renderId = RenderingRegistry.getNextAvailableRenderId();
 		ISimpleBlockRenderingHandler fuelRodISBRH = new SimpleRendererFuelRod();
 		RenderingRegistry.registerBlockHandler(BlockFuelRod.renderId, fuelRodISBRH);
+		
+		BlockTurbineRotorPart.renderId = RenderingRegistry.getNextAvailableRenderId();
+		ISimpleBlockRenderingHandler rotorISBRH = new RotorSimpleRenderer();
+		RenderingRegistry.registerBlockHandler(BlockTurbineRotorPart.renderId, rotorISBRH);
 	}
 			
 	@Override
