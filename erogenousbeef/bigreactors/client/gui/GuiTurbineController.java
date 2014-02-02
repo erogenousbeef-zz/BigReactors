@@ -7,6 +7,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.client.ClientProxy;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine.VentStatus;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.bigreactors.gui.GuiConstants;
@@ -50,6 +51,10 @@ public class GuiTurbineController extends BeefGuiBase {
 	
 	private GuiIconButton btnActivate;
 	private GuiIconButton btnDeactivate;
+	
+	private GuiIconButton btnVentAll;
+	private GuiIconButton btnVentOverflow;
+	private GuiIconButton btnVentNone;
 	
 	public GuiTurbineController(Container container, TileEntityTurbinePartBase part) {
 		super(container);
@@ -104,6 +109,10 @@ public class GuiTurbineController extends BeefGuiBase {
 		btnActivate = new GuiIconButton(0, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Activate Turbine", "", "Enables flow of intake fluid to rotor.", "Fluid flow will spin up the rotor." });
 		btnDeactivate = new GuiIconButton(1, guiLeft + 24, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Turbine", "", "Disables flow of intake fluid to rotor.", "The rotor will spin down." });
 		
+		btnVentAll = new GuiIconButton(4, guiLeft + 4, guiTop + 90, 18, 18, ClientProxy.GuiIcons.getIcon("ventAllOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: All Exhaust", "", "Dump all exhaust fluids.", "The exhaust fluid tank", "will not fill."});
+		btnVentOverflow = new GuiIconButton(5, guiLeft + 24, guiTop + 90, 18, 18, ClientProxy.GuiIcons.getIcon("ventOverflowOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: Overflow Only", "", "Dump excess exhaust fluids.", "Excess fluids will be lost", "if exhaust fluid tank is full."});
+		btnVentNone = new GuiIconButton(6, guiLeft + 44, guiTop + 90, 18, 18, ClientProxy.GuiIcons.getIcon("ventNoneOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: Closed", "", "Preserve all exhaust fluids.", "Turbine will slow or halt", "fluid intake if exhaust", "fluid tank is full."});
+		
 		registerControl(titleString);
 		registerControl(statusString);
 		registerControl(speedIcon);
@@ -123,6 +132,9 @@ public class GuiTurbineController extends BeefGuiBase {
 		registerControl(btnGovernorDown);
 		registerControl(btnActivate);
 		registerControl(btnDeactivate);
+		registerControl(btnVentAll);
+		registerControl(btnVentOverflow);
+		registerControl(btnVentNone);
 
 		updateStrings();
 		updateTooltips();
@@ -143,6 +155,24 @@ public class GuiTurbineController extends BeefGuiBase {
 		speedString.setLabelText(String.format("%.1f RPM", turbine.getRotorSpeed()));
 		energyGeneratedString.setLabelText(String.format("%.0f RF/t", turbine.getEnergyGeneratedLastTick()));
 		governorString.setLabelText(String.format("Max Flow: %d mB/t", turbine.getMaxIntakeRate()));
+	
+		switch(turbine.getVentSetting()) {
+		case DoNotVent:
+			btnVentNone.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_NONE_ON));
+			btnVentOverflow.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_OVERFLOW_OFF));
+			btnVentAll.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_ALL_OFF));
+			break;
+		case VentOverflow:
+			btnVentNone.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_NONE_OFF));
+			btnVentOverflow.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_OVERFLOW_ON));
+			btnVentAll.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_ALL_OFF));
+			break;
+		default:
+			// Vent all
+			btnVentNone.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_NONE_OFF));
+			btnVentOverflow.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_OVERFLOW_OFF));
+			btnVentAll.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_ALL_ON));
+		}
 	}
 
 	@Override
@@ -158,10 +188,11 @@ public class GuiTurbineController extends BeefGuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
+		CoordTriplet saveDelegate = turbine.getReferenceCoord();
+
 		if(button.id == 0 || button.id == 1) {
 			boolean setActive = button.id == 0;
 			if(setActive != turbine.isActive()) {
-				CoordTriplet saveDelegate = turbine.getReferenceCoord();
 				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockActivateButton,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, setActive }));
 			}
@@ -184,9 +215,28 @@ public class GuiTurbineController extends BeefGuiBase {
 			newMax = Math.max(0, Math.min(turbine.getMaxIntakeRateMax(), turbine.getMaxIntakeRate() + newMax));
 
 			if(newMax != turbine.getMaxIntakeRate()) {
-				CoordTriplet saveDelegate = turbine.getReferenceCoord();
 				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockTurbineGovernorUpdate,
 						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newMax }));
+			}
+		}
+		
+		if(button.id >= 4 && button.id <= 6) {
+			VentStatus newStatus;
+			switch(button.id) {
+			case 5:
+				newStatus = VentStatus.VentOverflow;
+				break;
+			case 6:
+				newStatus = VentStatus.DoNotVent;
+				break;
+			default:
+				newStatus = VentStatus.VentAll;
+				break;
+			}
+			
+			if(newStatus != turbine.getVentSetting()) {
+				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockTurbineVentUpdate,
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus.ordinal() }));
 			}
 		}
 	}

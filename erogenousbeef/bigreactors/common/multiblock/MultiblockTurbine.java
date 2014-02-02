@@ -191,7 +191,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 								rotorSpeed,
 								energyGeneratedLastTick,
 								maxIntakeRate,
-								active
+								active,
+								ventStatus.ordinal()
 		});
 	}
 
@@ -210,6 +211,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		energyGeneratedLastTick = data.readFloat();
 		maxIntakeRate = data.readInt();
 		this.active = data.readBoolean();
+		ventStatus = VentStatus.values()[data.readInt()];
 		
 		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
 			tanks[TANK_INPUT].setFluid(null);
@@ -560,7 +562,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			if(ventStatus == VentStatus.DoNotVent) {
 				// Cap steam used to available space, if not venting
 				int availableSpace = tanks[TANK_OUTPUT].getCapacity() - tanks[TANK_OUTPUT].getFluidAmount();
-				steamIn = Math.max(steamIn, availableSpace);
+				steamIn = Math.min(steamIn, availableSpace);
 			}
 		}
 		
@@ -617,10 +619,13 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			
 			// And create some water
 			if(steamIn > 0) {
-				Fluid effluent = FluidRegistry.WATER;
-				FluidStack effluentStack = new FluidStack(effluent, steamIn);
-				fill(TANK_OUTPUT, effluentStack, true);
 				drain(TANK_INPUT, steamIn, true);
+				
+				if(ventStatus != VentStatus.VentAll) {
+					Fluid effluent = FluidRegistry.WATER;
+					FluidStack effluentStack = new FluidStack(effluent, steamIn);
+					fill(TANK_OUTPUT, effluentStack, true);
+				}
 			}
 		}
 		
@@ -997,6 +1002,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	public float getMaxRotorSpeed() {
 		return 2000f;
+	}
+	
+	public VentStatus getVentSetting() {
+		return ventStatus;
 	}
 	
 	protected void markReferenceCoordDirty() {
