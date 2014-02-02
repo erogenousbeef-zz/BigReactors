@@ -13,9 +13,12 @@ public class CoolantContainer extends FluidHelper {
 	public static final int COLD = 1;
 
 	private static final String[] tankNames = { "hot", "cold" };
+
+	private int fluidVaporizedLastTick;
 	
 	public CoolantContainer() {
 		super(true);
+		fluidVaporizedLastTick = 0;
 	}
 
 	@Override
@@ -135,6 +138,7 @@ public class CoolantContainer extends FluidHelper {
 		}
 		
 		// Vaporize! -- POINT OF NO RETURN
+		fluidVaporizedLastTick = mbVaporized;
 		this.drainCoolant(mbVaporized);
 		
 		if(existingVaporType != null) {
@@ -185,5 +189,9 @@ public class CoolantContainer extends FluidHelper {
 		default:
 			return false;
 		}
+	}
+	
+	public int getFluidVaporizedLastTick() {
+		return fluidVaporizedLastTick;
 	}
 }

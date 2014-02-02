@@ -229,4 +229,66 @@ public class StaticUtils {
 			return rf / ((float)volume * RFPerCentigradePerUnitVolume);
 		}
 	}
+	
+	public static class Strings {
+		public static String[] sizePrefixes = {"", "Ki", "Me", "Gi", "Te", "Pe", "Ex", "Ze", "Yo"};
+		
+		public static String formatRF(float number) {
+			String prefix = "";
+			if(number < 0f) {
+				prefix = "-";
+				number *= -1;
+			}
+			
+			if(number <= 0.00001f) { return "0.00 RF"; }
+			
+			int power = (int)Math.floor(Math.log10(number));
+
+			int decimalPoints = 2 - (power % 3);
+			int letterIdx = Math.max(0, Math.min(sizePrefixes.length, power / 3));
+			float divisor = letterIdx * 1000f;
+			
+			if(divisor > 0) {
+				return String.format("%s%." + Integer.toString(decimalPoints) + "f %sRF", prefix, number/divisor, sizePrefixes[letterIdx]);
+			}
+			else {
+				return String.format("%s%." + Integer.toString(decimalPoints) + "f RF", prefix, number);
+			}
+		}
+		
+		public static String formatMillibuckets(float number) {
+			String prefix = "";
+			if(number < 0f) {
+				prefix = "-";
+				number *= -1;
+			}
+			
+			if(number <= 0.00001f) { return "0.000 mB"; }
+			int power = (int)Math.floor(Math.log10(number));
+			if(power < 1) {
+				return String.format("%.3f mB", number);
+			}
+			else if(power < 2) {
+				return String.format("%.2f mB", number);
+			}
+			else if(power < 3) {
+				return String.format("%.1f mB", number);
+			}
+			else if(power < 4) {
+				return String.format("%.0f mB", number);
+			}
+			else {
+				number /= 1000f; // Re-render into buckets
+				if(power < 5) {
+					return String.format("%.2f B", number);
+				}
+				else if(power < 6) {
+					return String.format("%.1f B", number);
+				}
+				else {
+					return String.format("%.0f B", number);
+				}
+			}
+		}
+	}
 }
