@@ -1,11 +1,11 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
-import cpw.mods.fml.common.FMLLog;
-import erogenousbeef.bigreactors.common.BigReactors;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import cpw.mods.fml.common.FMLLog;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class CoolantContainer extends FluidHelper {
 

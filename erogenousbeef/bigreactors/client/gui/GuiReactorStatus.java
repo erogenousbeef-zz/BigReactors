@@ -10,6 +10,7 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
+import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFuelMixBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiHeatBar;
@@ -22,7 +23,6 @@ import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.FloatAverager;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
-import erogenousbeef.bigreactors.gui.GuiConstants;
 
 public class GuiReactorStatus extends BeefGuiBase {
 

@@ -10,10 +10,10 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
-import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 
 public class ServerPacketHandler implements IPacketHandler {

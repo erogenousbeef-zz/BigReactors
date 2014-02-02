@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.utils;
 
-import erogenousbeef.core.common.CoordTriplet;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -14,6 +13,7 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
 import buildcraft.api.tools.IToolWrench;
+import erogenousbeef.core.common.CoordTriplet;
 
 public class StaticUtils {
 
