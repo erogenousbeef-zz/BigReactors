@@ -18,6 +18,7 @@ public class BlockTurbineRotorPart extends BlockContainer {
 
 	public static final int METADATA_SHAFT = 0;
 	public static final int METADATA_BLADE = 1;
+	public static int renderId;
 
 	private static final String[] _subBlocks = new String[] { "rotor",
 																"blade"
@@ -33,6 +34,12 @@ public class BlockTurbineRotorPart extends BlockContainer {
 		setUnlocalizedName("blockTurbineRotorPart");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbineRotorPart");
 		setCreativeTab(BigReactors.TAB);
+	}
+	
+	
+	@Override
+	public int getRenderType() {
+		return renderId;
 	}
 	
 	@Override
