@@ -22,10 +22,11 @@ public class BlockTurbineRotorPart extends BlockContainer {
 	public static int renderId;
 
 	private static final String[] _subBlocks = new String[] { "rotor",
-																"blade"
+															  "blade",
 															};
 
 	private Icon[] _icons = new Icon[_subBlocks.length];
+	private Icon[] _subIcons = new Icon[1];
 
 	public BlockTurbineRotorPart(int blockID, Material material) {
 		super(blockID, material);
@@ -51,6 +52,8 @@ public class BlockTurbineRotorPart extends BlockContainer {
 		for(int i = 0; i < _subBlocks.length; ++i) {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
 		}
+		
+		_subIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".rotor.connector");
 	}
 	
 	@Override
@@ -58,6 +61,10 @@ public class BlockTurbineRotorPart extends BlockContainer {
 		return _icons[metadata];
 	}
 
+	public Icon getRotorConnectorIcon() {
+		return _subIcons[0];
+	}
+	
 	@Override
 	public TileEntity createNewTileEntity(World world) {
 		return null;
