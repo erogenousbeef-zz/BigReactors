@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.client.renderer;
 
+import java.util.ArrayList;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -11,6 +13,7 @@ import net.minecraftforge.common.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -33,7 +36,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	        tessellator.startDrawingQuads();
 	        tessellator.setNormal(0.0F, -1.0F, 0.0F);
 			
-			renderRotorShaft(block, renderer, metadata, ForgeDirection.UP, new boolean[] { true, true, true, true }, 0, 0, 0);
+			renderRotorShaft(block, renderer, metadata, ForgeDirection.UP, new boolean[] { true, true, true, true }, 0, 0, 0, true);
 			
 	        tessellator.draw();
 	        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
@@ -45,9 +48,6 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	        tessellator.startDrawingQuads();
 	        tessellator.setNormal(0.0F, -1.0F, 0.0F);
 			_renderBlade(renderer, 0, 0, 0, block, metadata, ForgeDirection.UP);
-
-			// TODO - DEBUG REMOVEME
-			//renderRotorBladeConnection(renderer, block, metadata, ForgeDirection.UP, ForgeDirection.EAST, 0, 0, 0);
 	        tessellator.draw();
 	        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 		}
@@ -58,11 +58,11 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			Block block, int modelId, RenderBlocks renderer) {
 		int metadata = world.getBlockMetadata(x, y, z);
 		if(BlockTurbineRotorPart.isRotorShaft(metadata)) {
-			ForgeDirection majorAxis = findRotorMajorAxis(world, x, y, z, block, metadata);
+			ForgeDirection majorAxis = findRotorMajorAxis(world, x, y, z, block);
 			
 			boolean[] hasBlades = findBlades(world, x, y, z, block, majorAxis);
 			
-			renderRotorShaft(block, renderer, metadata, majorAxis, hasBlades, x, y, z);
+			renderRotorShaft(block, renderer, metadata, majorAxis, hasBlades, x, y, z, false);
 		}
 		else {
 			renderBlade(renderer, world, x, y, z, block, metadata);
@@ -80,7 +80,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		return BlockTurbineRotorPart.renderId;
 	}
 
-	private void renderRotorShaft(Block block, RenderBlocks renderer, int metadata, ForgeDirection majorAxis, boolean[] hasBlades, int x, int y, int z) {
+	private void renderRotorShaft(Block block, RenderBlocks renderer, int metadata, ForgeDirection majorAxis, boolean[] hasBlades, int x, int y, int z, boolean drawOuterRectangle) {
 		double xMin, yMin, zMin;
 		double xMax, yMax, zMax;
 		xMin = yMin = zMin = 0.5D - rotorSize;
@@ -99,6 +99,10 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			zMin = 0D;
 		}
 
+        Tessellator.instance.setColorRGBA(255, 255, 255, 255);
+        renderer.setRenderBoundsFromBlock(block);
+        renderer.setOverrideBlockTexture(null);
+		
         renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
         renderer.renderFaceYNeg(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 0, metadata));
         renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
@@ -113,17 +117,15 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
         renderer.renderFaceXPos(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 5, metadata));
         renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
         
-        // TODO: Render blade surfaces if present
-        /*
+        // Render blade surfaces, if present
         ForgeDirection[] bladeDirs = StaticUtils.neighborsBySide[majorAxis.ordinal()];
-        for(int i = 0; i < hasBlades.length; i++) {
+        for(int i = 0; i < bladeDirs.length; i++) {
         	if(hasBlades[i]) {
-        		renderRotorBladeConnection(renderer, block, metadata, majorAxis, bladeDirs[i], x, y, z);
+        		renderRotorBladeConnection(renderer, block, metadata, majorAxis, bladeDirs[i], x, y, z, drawOuterRectangle);
         	}
         }
-        */
-        //renderRotorBladeConnection(renderer, block, metadata, majorAxis, ForgeDirection.EAST, x, y, z);
-        //renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
+
+        renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
 	}
 
 	private void renderBlade(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int metadata) {
@@ -136,6 +138,57 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			}
 		}
 		
+		if(rotorDir == ForgeDirection.UNKNOWN) {
+			// Go walkies!
+			ArrayList<ForgeDirection> bladeDirs = new ArrayList<ForgeDirection>();
+
+			// First check, surrounding area.
+			ForgeDirection[] dirsToCheck = ForgeDirection.VALID_DIRECTIONS;
+			for(ForgeDirection dir : dirsToCheck) {
+				int neighborBlockId = world.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+				if(neighborBlockId == block.blockID) {
+					// Blade or rotor?!
+					int neighborMetadata = world.getBlockMetadata(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+					if(BlockTurbineRotorPart.isRotorShaft(neighborMetadata)) {
+						// SEXY TIMES
+						rotorDir = findRotorMajorAxis(world, x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ, block);
+						break;
+					}
+					else if(BlockTurbineRotorPart.isRotorBlade(neighborMetadata)) {
+						// We'll move in that direction then...
+						bladeDirs.add(dir);
+					}
+				}
+			}
+			
+			// Still no luck eh?
+			while(rotorDir == ForgeDirection.UNKNOWN && !bladeDirs.isEmpty()) {
+				ForgeDirection dir = bladeDirs.remove(bladeDirs.size() - 1); // Trim off the end to avoid shifting crap in memory
+				int curX = x + dir.offsetX;
+				int curY = y + dir.offsetY;
+				int curZ = z + dir.offsetZ;
+				
+				int dist = 0;
+				while(world.getBlockId(curX, curY, curZ) == block.blockID && dist < 32) { // only go up to 32 blocks in any direction without finding a rotor, for sanity
+					int curMeta = world.getBlockMetadata(curX, curY, curZ);
+					if(BlockTurbineRotorPart.isRotorShaft(curMeta)) {
+						// Huz ZAH!
+						rotorDir = findRotorMajorAxis(world, curX, curY, curZ, block);
+						break;
+					}
+					else if(BlockTurbineRotorPart.isRotorBlade(curMeta)) {
+						curX += dir.offsetX;
+						curY += dir.offsetY;
+						curZ += dir.offsetZ;
+						dist++;
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+
 		_renderBlade(renderer, x, y, z, block, metadata, rotorDir);
 	}
 	
@@ -161,6 +214,10 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			zMax = 0.55D;
 		}
 		
+        Tessellator.instance.setColorRGBA(255, 255, 255, 255);
+        renderer.setRenderBoundsFromBlock(block);
+        renderer.setOverrideBlockTexture(null);
+		
         renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
         renderer.renderFaceYNeg(block, x, y, z, renderer.getBlockIconFromSideAndMetadata(block, 0, metadata));
         renderer.setRenderBounds(xMin, yMin, zMin, xMax, yMax, zMax);
@@ -185,7 +242,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	 * @param metadata
 	 * @return The major axis of the rotor. This is always one of the positive directions.
 	 */
-	private ForgeDirection findRotorMajorAxis(IBlockAccess world, int x, int y, int z, Block block, int metadata) {
+	private ForgeDirection findRotorMajorAxis(IBlockAccess world, int x, int y, int z, Block block) {
 		ForgeDirection retDir = ForgeDirection.UP;
 		
 		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -235,137 +292,105 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	}
 	
 	private void renderRotorBladeConnection(RenderBlocks renderer, Block block, int metadata,
-			ForgeDirection majorAxis, ForgeDirection forgeDirection, int x, int y, int z) {
+			ForgeDirection rotorDir, ForgeDirection bladeDir, int x, int y, int z, boolean drawOuterRectangle) {
 
 		// This is the dimension in which the blade expands
-		ForgeDirection normal = findNormal(majorAxis, forgeDirection);
-
-		double[] expandingCoords = {0.1D, 0.3D, 0.7D, 0.9D};
-		double[] majorAxisCoords = {0.3D, 0.3D, 0.7D, 0.7D};
-		double[] minorAxisCoords = {1.0D, 1.0D, 0.7D, 0.7D};
+		ForgeDirection normal = findNormal(rotorDir, bladeDir);
 		
-		switch(forgeDirection) {
-		case EAST:
-			break;
-		case WEST:
-			break;
-		case SOUTH:
-			break;
-		case NORTH:
-			break;
-		case DOWN:
-			break;
-		case UP:
-		default:
-			break;
+		// Used for proper calculation of the IJK coords
+		int rotorDirMultiplier = rotorDir.offsetX < 0 || rotorDir.offsetY < 0 || rotorDir.offsetZ < 0 ? -1 : 1;
+		int bladeDirMultiplier = bladeDir.offsetX < 0 || bladeDir.offsetY < 0 || bladeDir.offsetZ < 0 ? -1 : 1;
+		int normalDirMultiplier = normal.offsetX < 0 || normal.offsetY < 0 || normal.offsetZ < 0 ? -1 : 1;
+
+		// Compute the 8 coordinates of the inner and outer rectangles in IJK space, which we'll re-orient later
+		// I = blade dir, J = rotor dir, K = normal dir
+		double rotorDirectionOffset = 0.05D;
+		double bladeInnerOffset = 0.2D;
+		double bladeOuterOffset = 0.5D;
+		double normalInnerOffset = 0.2D;
+		double normalOuterOffset = 0.4D;
+		
+		double rotorOffsets[] = new double[8];
+		rotorOffsets[0] = rotorOffsets[3] = rotorOffsets[4] = rotorOffsets[7] = 0.5D + (rotorDirMultiplier * rotorDirectionOffset);
+		rotorOffsets[1] = rotorOffsets[2] = rotorOffsets[5] = rotorOffsets[6] = 0.5D - (rotorDirMultiplier * rotorDirectionOffset);
+		
+		double bladeOffsets[] = new double[8];
+		bladeOffsets[0] = bladeOffsets[1] = bladeOffsets[2] = bladeOffsets[3] = 0.5D + (bladeDirMultiplier * bladeInnerOffset);
+		bladeOffsets[4] = bladeOffsets[5] = bladeOffsets[6] = bladeOffsets[7] = 0.5D + (bladeDirMultiplier * bladeOuterOffset);
+
+		double normalOffsets[] = new double[8];
+		normalOffsets[0] = normalOffsets[1] = 0.5D - (normalDirMultiplier * normalInnerOffset); 
+		normalOffsets[2] = normalOffsets[3] = 0.5D + (normalDirMultiplier * normalInnerOffset); 
+		normalOffsets[4] = normalOffsets[5] = 0.5D - (normalDirMultiplier * normalOuterOffset); 
+		normalOffsets[6] = normalOffsets[7] = 0.5D + (normalDirMultiplier * normalOuterOffset);
+		
+		// Now calculate our 8 coordinates in XYZ space from IJK space
+		double[] xCoords = {0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D};
+		double[] yCoords = {0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D};
+		double[] zCoords = {0D, 0D, 0D, 0D, 0D, 0D, 0D, 0D};
+
+		int xMagRotor = Math.abs(rotorDir.offsetX);
+		int xMagBlade = Math.abs(bladeDir.offsetX);
+		int xMagNormal = Math.abs(normal.offsetX);
+		int yMagRotor = Math.abs(rotorDir.offsetY);
+		int yMagBlade = Math.abs(bladeDir.offsetY);
+		int yMagNormal = Math.abs(normal.offsetY);
+		int zMagRotor = Math.abs(rotorDir.offsetZ);
+		int zMagBlade = Math.abs(bladeDir.offsetZ);
+		int zMagNormal = Math.abs(normal.offsetZ);
+		
+		for(int i = 0; i < 8; i++) {
+			xCoords[i] = rotorOffsets[i] * xMagRotor + bladeOffsets[i] * xMagBlade + normalOffsets[i] * xMagNormal;
+			yCoords[i] = rotorOffsets[i] * yMagRotor + bladeOffsets[i] * yMagBlade + normalOffsets[i] * yMagNormal;
+			zCoords[i] = rotorOffsets[i] * zMagRotor + bladeOffsets[i] * zMagBlade + normalOffsets[i] * zMagNormal;
 		}
 
-		// TODO: Rotate so that this is equivalent to rendering a blade pointing east (x-pos)
+		// Calculate UV coords for each face.
+		double[] u = {0D, 0D, 16D, 16D};
+		double[] v = {0D, 16D, 16D, 0D};
+
+		Icon icon = BigReactors.blockTurbineRotorPart.getRotorConnectorIcon();
+		for(int i = 0; i < 4; i++) {
+			u[i] = icon.getInterpolatedU(u[i]);
+			v[i] = icon.getInterpolatedV(v[i]);
+		}
 		
+		// Element buffer, which of these do we draw?
+		int[][] quads;
+		if(rotorDir.offsetX != 0 || (bladeDir.offsetX != 0 && rotorDir.offsetY != 0)) {
+			quads = quadSet2;
+		}
+		else {
+			quads = quadSet1;
+		}
+
 		Tessellator tessellator = Tessellator.instance;
-		
 		tessellator.addTranslation(x, y, z);
 		
-		renderBladeYNeg(0, 0, 0, block.getIcon(0, metadata));
-		renderBladeYPos(block.getIcon(1, metadata));
-		renderBladeZPos(block.getIcon(2, metadata));
-		renderBladeZNeg(block.getIcon(3, metadata));
-
-		renderer.setRenderBounds(1D, 0.3D, 0.1D, 1D, 0.7D, 0.9D);
-		renderer.renderFaceXPos(block, 0, 0, 0, block.getIcon(5, metadata));
+		for(int face = drawOuterRectangle ? 0 : 1; face < quads.length; face++) {
+			for(int vertex = 0; vertex < quads[face].length; vertex++) {
+				int idx = quads[face][vertex];
+				tessellator.addVertexWithUV(xCoords[idx], yCoords[idx], zCoords[idx], u[vertex], v[vertex]);
+			}
+		}
 		
 		tessellator.addTranslation(-x, -y, -z);
 		renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
 	}
-
-	private void renderBladeYNeg(int x, int y, int z, Icon icon) {
-		Tessellator tessellator = Tessellator.instance;
-		
-		double zMin1, zMin2, zMax1, zMax2;
-		
-		zMin1 = 0.6D;
-		zMin2 = 0.4D;
-		zMax1 = 0D;
-		zMax2 = 1D;
-        double u1 = (double)icon.getInterpolatedU(zMin1 * 16.0D);
-        double u2 = (double)icon.getInterpolatedU(zMin2 * 16.0D);
-        double u3 = (double)icon.getInterpolatedU(zMax1 * 16.0D);
-        double u4 = (double)icon.getInterpolatedU(zMax2 * 16.0D);
-        double v1 = (double)icon.getInterpolatedV(16.0D - 0.7D * 16.0D);
-        double v2 = (double)icon.getInterpolatedV(0D);
-		
-		tessellator.setNormal(0f, -1f, 0f);
-		tessellator.addVertexWithUV(1D, 0.3D, 0.1D, u1, v1);
-		tessellator.addVertexWithUV(1D, 0.3D, 0.9D, u2, v1);
-		tessellator.addVertexWithUV(0.7D, 0.3D, 0.7D, u4, v2);
-		tessellator.addVertexWithUV(0.7D, 0.3D, 0.3D, u3, v2);
-	}
-
-	private void renderBladeYPos(Icon icon) {
-		Tessellator tessellator = Tessellator.instance;
-		
-		double zMin1, zMin2, zMax1, zMax2;
-		
-		zMin1 = 0.6D;
-		zMin2 = 0.4D;
-		zMax1 = 0D;
-		zMax2 = 1D;
-        double u1 = (double)icon.getInterpolatedU(zMin1 * 16.0D);
-        double u2 = (double)icon.getInterpolatedU(zMin2 * 16.0D);
-        double u3 = (double)icon.getInterpolatedU(zMax1 * 16.0D);
-        double u4 = (double)icon.getInterpolatedU(zMax2 * 16.0D);
-        double v1 = (double)icon.getInterpolatedV(16.0D - 0.7D * 16.0D);
-        double v2 = (double)icon.getInterpolatedV(0D);
-		
-		tessellator.setNormal(0f, -1f, 0f);
-		tessellator.addVertexWithUV(0.7D, 0.7D, 0.3D, u1, v1);
-		tessellator.addVertexWithUV(0.7D, 0.7D, 0.7D, u2, v1);
-		tessellator.addVertexWithUV(1.0D, 0.7D, 0.9D, u4, v2);
-		tessellator.addVertexWithUV(1.0D, 0.7D, 0.1D, u3, v2);
-	}
-
-	private void renderBladeZPos(Icon icon) {
-		Tessellator tessellator = Tessellator.instance;
-		double zMin1, zMin2, zMax1, zMax2;
-		
-		zMin1 = 0.6D;
-		zMin2 = 0.4D;
-		zMax1 = 0D;
-		zMax2 = 1D;
-        double u1 = (double)icon.getInterpolatedU(zMin1 * 16.0D);
-        double u2 = (double)icon.getInterpolatedU(zMin2 * 16.0D);
-        double u3 = (double)icon.getInterpolatedU(zMax1 * 16.0D);
-        double u4 = (double)icon.getInterpolatedU(zMax2 * 16.0D);
-        double v1 = (double)icon.getInterpolatedV(16.0D - 0.7D * 16.0D);
-        double v2 = (double)icon.getInterpolatedV(0D);
-		
-		tessellator.setNormal(0f, 0f, 1f);
-		tessellator.addVertexWithUV(0.7D, 0.7D, 0.7D, u1, v1);
-		tessellator.addVertexWithUV(0.7D, 0.3D, 0.7D, u2, v1);
-		tessellator.addVertexWithUV(1.0D, 0.3D, 0.9D, u4, v2);
-		tessellator.addVertexWithUV(1.0D, 0.7D, 0.9D, u3, v2);
-	}
 	
-	private void renderBladeZNeg(Icon icon) {
-		Tessellator tessellator = Tessellator.instance;
-		double zMin1, zMin2, zMax1, zMax2;
-		
-		zMin1 = 0.6D;
-		zMin2 = 0.4D;
-		zMax1 = 0D;
-		zMax2 = 1D;
-        double u1 = (double)icon.getInterpolatedU(zMin1 * 16.0D);
-        double u2 = (double)icon.getInterpolatedU(zMin2 * 16.0D);
-        double u3 = (double)icon.getInterpolatedU(zMax1 * 16.0D);
-        double u4 = (double)icon.getInterpolatedU(zMax2 * 16.0D);
-        double v1 = (double)icon.getInterpolatedV(16.0D - 0.7D * 16.0D);
-        double v2 = (double)icon.getInterpolatedV(0D);
-		
-		tessellator.setNormal(0f, 0f, -1f);
-		tessellator.addVertexWithUV(1D, 0.7D, 0.1D, u1, v1);
-		tessellator.addVertexWithUV(1D, 0.3D, 0.1D, u2, v1);
-		tessellator.addVertexWithUV(0.7D, 0.3D, 0.3D, u4, v2);
-		tessellator.addVertexWithUV(0.7D, 0.7D, 0.3D, u3, v2);
-	}
+	private int[][] quadSet1 = {
+			{4, 5, 6, 7}, // Outer rectangular face of the rotor
+			{7, 3, 0, 4}, // "top" rhombus
+			{6, 5, 1, 2}, // "bottom" rhombus
+			{0, 1, 5, 4}, // "left" irregular rectangle
+			{7, 6, 2, 3}, // "right irregular rectangle
+	};
 	
+	private int[][] quadSet2 = {
+			{7, 6, 5, 4}, // Outer rectangular face of the rotor
+			{4, 0, 3, 7}, // "top" rhombus
+			{2, 1, 5, 6}, // "bottom" rhombus
+			{4, 5, 1, 0}, // "left" irregular rectangle
+			{3, 2, 6, 7}, // "right irregular rectangle
+	};
 }
