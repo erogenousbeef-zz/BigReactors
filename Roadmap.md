@@ -62,14 +62,18 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add efficiency curve that peaks at 900/1800 RPMs
 - (DONE) Tune and optimize turbine torque & drag equations. Fluid speed is function of fluid, not of input volume. Add input volume as multiplier.
 - (DONE) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
-- Renderer to show off the turbine blade.
-- Test inflow/outflow ports with TE
+- (DONE) Renderer to show off the turbine blade.
+- (DONE) Test inflow/outflow ports with TE
+- BUG: Outlet port state does not save/load
 - Particle effects for venting steam and stuff!
+- Turbine drag appears to be too high. 4 blades appears to be optimal for all setups.
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - (DONE) Fix the lighting bug on control rods.
 - (DONE) Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
+- Add flair to turbine glass texture
+- Redo turbine exterior textures with "metallic blue" color instead of ugly current job
 
 ### User Interface
 - (DONE) Add imagebutton for reactor on/off
