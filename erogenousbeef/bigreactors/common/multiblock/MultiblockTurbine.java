@@ -67,7 +67,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Persistent game data
 	float energyStored;
 	boolean active;
-	float rotorSpeed;
+	float rotorEnergy;
 	
 	// Player settings
 	VentStatus ventStatus;
@@ -80,19 +80,19 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	// Inductor dynamic constants - get from a table on assembly
 	float inductorDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
-	float inductionEnergyBonus = 0.25f; // Final energy rectification efficiency. Averaged based on coil material. 0.25 = iron, 0.75 = diamond, 1 = perfect.
+	float inductionEfficiency = 0.5f; // Final energy rectification efficiency. Averaged based on coil material and shape. 0.25-0.5 = iron, 0.75-0.9 = diamond, 1 = perfect.
 	float inductionEnergyExponentBonus = 0f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
 
 	// Rotor dynamic constants - calculate on assembly
 	float rotorDragCoefficient = 0.01f; // RF/t lost to friction per unit of mass in the rotor.
-	float bladeDragCoefficient = 0.4f; // RF/t lost to friction per blade block, multiplied by rotor speed squared.
+	float bladeDragCoefficient = 0.00025f; // RF/t lost to friction per blade block, multiplied by rotor speed squared. - includes a 50% reduction to factor in constant parts of the drag equation
 	float bladeExtractionEfficiency = 1f; // TODO: Calculate on assembly. Imperfect shapes become less than 1.
 
 	// Penalize suboptimal shapes with worse drag (i.e. increased drag without increasing lift)
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
 	
 	// Game balance constants
-	final static float inductionEnergyCoefficient = 1.2f; // Power to raise the induced current by.
+	final static float inductionEnergyCoefficient = 1.0f; // Power to raise the induced current by.
 	final static int inputFluidPerBlade = 15; // mB
 	
 	float energyGeneratedLastTick;
@@ -112,6 +112,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	private static final ForgeDirection[] RotorXBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.SOUTH, ForgeDirection.DOWN, ForgeDirection.NORTH };
 	private static final ForgeDirection[] RotorZBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.EAST, ForgeDirection.DOWN, ForgeDirection.WEST };
 
+	
+	private boolean DEBUGhasLogged;
+	
 	public MultiblockTurbine(World world) {
 		super(world);
 
@@ -133,7 +136,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		energyStored = 0f;
 		active = false;
 		ventStatus = VentStatus.VentOverflow;
-		rotorSpeed = 0f;
+		rotorEnergy = 0f;
 		maxIntakeRate = TANK_SIZE;
 		
 		bladeSurfaceArea = 0;
@@ -142,6 +145,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		energyGeneratedLastTick = 0f;
 		
 		foundCoils = new HashSet<CoordTriplet>();
+		
+		DEBUGhasLogged = false;
 	}
 
 	/**
@@ -190,7 +195,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 								outputFluidID,
 								outputFluidAmt,
 								energyStored,
-								rotorSpeed,
+								rotorEnergy,
 								energyGeneratedLastTick,
 								maxIntakeRate,
 								active,
@@ -209,7 +214,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		int outputFluidID = data.readInt();
 		int outputFluidAmt = data.readInt();
 		energyStored = data.readFloat();
-		rotorSpeed = data.readFloat();
+		rotorEnergy = data.readFloat();
 		energyGeneratedLastTick = data.readFloat();
 		maxIntakeRate = data.readInt();
 		this.active = data.readBoolean();
@@ -367,6 +372,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorMass = 0;
 		bladeSurfaceArea = 0;
 		coilSize = 0;
+		
+		rotorEnergy = 0f; // Kill energy when machines get broken by players/explosions
 	}
 
 	// Validation code
@@ -586,16 +593,14 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			}
 		}
 		
-		if(steamIn > 0 || rotorSpeed > 0) {
-			float scaledRotorSpeed = (float)Math.pow(rotorSpeed, 1.2);
-
-			// RFs extracted by the coils
-			float inductionTorque = scaledRotorSpeed * inductorDragCoefficient * coilSize;
+		if(steamIn > 0 || rotorEnergy > 0) {
+			float rotorSpeed = getRotorSpeed();
 
 			// RFs lost to aerodynamic drag.
-			float aerodynamicDragTorque = scaledRotorSpeed * bladeDragCoefficient * bladeSurfaceArea;
+			float aerodynamicDragTorque = (float)rotorSpeed * bladeDragCoefficient * bladeSurfaceArea;
 
 			// RFs lost to frictional drag. A small amount of constant drag based on rotor size.
+			// TODO: Calculate at assembly time
 			float frictionalDragTorque = rotorDragCoefficient * rotorMass;
 
 			float liftTorque = 0f;
@@ -615,15 +620,26 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 					float bladeEfficiency = 1f;
 					int neededBlades = steamIn / inputFluidPerBlade; // round in the player's favor
 					int missingBlades = neededBlades - bladeSurfaceArea;
-					bladeEfficiency = 1f / (float)Math.pow(2, (float)missingBlades / (float)neededBlades);
-					liftTorque += steamIn * fluidEnergyDensity * bladeEfficiency * bladeExtractionEfficiency;
+					bladeEfficiency = 1f - (float)missingBlades / (float)neededBlades;
+					liftTorque += steamToProcess * fluidEnergyDensity * bladeEfficiency * bladeExtractionEfficiency;
+
+					if(!DEBUGhasLogged) {
+						FMLLog.info("on startup, blade efficiency is %2.2f%%, based on %d missing / %d needed - adds %.1f out of %.1f potential energy", bladeEfficiency*100f, missingBlades, neededBlades, liftTorque, steamIn * fluidEnergyDensity);
+						DEBUGhasLogged = true;
+					}
+				}
+				else {
+					if(!DEBUGhasLogged) {
+						FMLLog.info("on startup, blade efficiency is perfect, based on %d mB processed by %d blades - adds %.1f out of %.1f potential energy", steamToProcess, bladeSurfaceArea, liftTorque, steamIn * fluidEnergyDensity);
+						DEBUGhasLogged = true;
+					}
 				}
 			}
 
 			// Yay for derivation. We're assuming delta-Time is always 1, as we're always calculating for 1 tick.
-			float deltaV = (0.2f * (liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque)) / rotorMass;
-
-			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEnergyBonus;
+			// RFs available to coils
+			float inductionTorque = rotorSpeed * inductorDragCoefficient * coilSize;
+			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEfficiency;
 			if(energyToGenerate > 0f) {
 				// Efficiency curve. Rotors are 50% less efficient when not near 900/1800 RPMs.
 				float efficiency = (float)(0.25*Math.cos(rotorSpeed/(45.5*Math.PI))) + 0.75f;
@@ -634,8 +650,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 				generateEnergy(energyToGenerate * efficiency);
 			}
 
-			rotorSpeed += deltaV;
-			if(rotorSpeed < 0f) { rotorSpeed = 0f; }
+			rotorEnergy += liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque;
+			if(rotorEnergy < 0f) { rotorEnergy = 0f; }
 			
 			// And create some water
 			if(steamIn > 0) {
@@ -701,7 +717,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		data.setBoolean("active", active);
 		data.setFloat("energy", energyStored);
 		data.setInteger("ventStatus", ventStatus.ordinal());
-		data.setFloat("rotorSpeed", rotorSpeed);
+		data.setFloat("rotorEnergy", rotorEnergy);
 		data.setInteger("maxIntakeRate", maxIntakeRate);
 	}
 
@@ -727,9 +743,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			ventStatus = VentStatus.values()[data.getInteger("ventStatus")];
 		}
 		
-		if(data.hasKey("rotorSpeed")) {
-			rotorSpeed = data.getFloat("rotorSpeed");
-			if(Float.isNaN(rotorSpeed) || Float.isInfinite(rotorSpeed)) { rotorSpeed = 0f; }
+		if(data.hasKey("rotorEnergy")) {
+			rotorEnergy = data.getFloat("rotorEnergy");
+			if(Float.isNaN(rotorEnergy) || Float.isInfinite(rotorEnergy)) { rotorEnergy = 0f; }
 		}
 		
 		if(data.hasKey("maxIntakeRate")) {
@@ -930,6 +946,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 					worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
 				}
 			}
+			
+			if(newValue == true) {
+				DEBUGhasLogged = false;
+			}
 		}
 	}
 
@@ -1017,7 +1037,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		} // end x loop - looping over interior
 	}
 	
-	public float getRotorSpeed() { return rotorSpeed; }
+	public float getRotorSpeed() { return rotorEnergy / (attachedRotorBlades.size() * rotorMass); }
 	public float getEnergyGeneratedLastTick() { return energyGeneratedLastTick; }
 
 	public float getMaxRotorSpeed() {
