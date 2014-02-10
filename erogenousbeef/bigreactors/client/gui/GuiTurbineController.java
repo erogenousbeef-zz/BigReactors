@@ -109,9 +109,9 @@ public class GuiTurbineController extends BeefGuiBase {
 		btnActivate = new GuiIconButton(0, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Activate Turbine", "", "Enables flow of intake fluid to rotor.", "Fluid flow will spin up the rotor." });
 		btnDeactivate = new GuiIconButton(1, guiLeft + 24, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Turbine", "", "Disables flow of intake fluid to rotor.", "The rotor will spin down." });
 		
-		btnVentAll = new GuiIconButton(4, guiLeft + 4, guiTop + 90, 18, 18, ClientProxy.GuiIcons.getIcon("ventAllOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: All Exhaust", "", "Dump all exhaust fluids.", "The exhaust fluid tank", "will not fill."});
-		btnVentOverflow = new GuiIconButton(5, guiLeft + 24, guiTop + 90, 18, 18, ClientProxy.GuiIcons.getIcon("ventOverflowOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: Overflow Only", "", "Dump excess exhaust fluids.", "Excess fluids will be lost", "if exhaust fluid tank is full."});
-		btnVentNone = new GuiIconButton(6, guiLeft + 44, guiTop + 90, 18, 18, ClientProxy.GuiIcons.getIcon("ventNoneOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: Closed", "", "Preserve all exhaust fluids.", "Turbine will slow or halt", "fluid intake if exhaust", "fluid tank is full."});
+		btnVentAll = new GuiIconButton(4, guiLeft + 4, guiTop + 124, 18, 18, ClientProxy.GuiIcons.getIcon("ventAllOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: All Exhaust", "", "Dump all exhaust fluids.", "The exhaust fluid tank", "will not fill."});
+		btnVentOverflow = new GuiIconButton(5, guiLeft + 24, guiTop + 124, 18, 18, ClientProxy.GuiIcons.getIcon("ventOverflowOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: Overflow Only", "", "Dump excess exhaust fluids.", "Excess fluids will be lost", "if exhaust fluid tank is full."});
+		btnVentNone = new GuiIconButton(6, guiLeft + 44, guiTop + 124, 18, 18, ClientProxy.GuiIcons.getIcon("ventNoneOff"), new String[] { GuiConstants.LITECYAN_TEXT + "Vent: Closed", "", "Preserve all exhaust fluids.", "Turbine will slow or halt", "fluid intake if exhaust", "fluid tank is full."});
 		
 		registerControl(titleString);
 		registerControl(statusString);

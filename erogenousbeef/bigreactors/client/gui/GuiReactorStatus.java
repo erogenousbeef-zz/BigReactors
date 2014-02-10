@@ -80,16 +80,16 @@ public class GuiReactorStatus extends BeefGuiBase {
 		int xCenter = guiLeft + this.xSize / 2;
 		int yCenter = this.ySize / 2;
 		
-		btnReactorOn = new GuiIconButton(0, guiLeft + 4, 190, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"));
-		btnReactorOff = new GuiIconButton(1, guiLeft + 22, 190, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
+		btnReactorOn = new GuiIconButton(0, guiLeft + 4, guiTop + 164, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"));
+		btnReactorOff = new GuiIconButton(1, guiLeft + 22, guiTop + 164, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
 		
 		btnReactorOn.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Activate Reactor" });
 		btnReactorOff.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Reactor", "Residual heat will still", "generate power/consume coolant,", "until the reactor cools." });
 		
-		btnWasteAutoEject = new GuiIconButton(2, guiLeft + 4, 170, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject_off"));
-		btnWasteReplaceOnly = new GuiIconButton(3, guiLeft + 22, 170, 18, 18, ClientProxy.GuiIcons.getIcon("wasteReplace_off"));
-		btnWasteManual = new GuiIconButton(4, guiLeft + 40, 170, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
-		btnWasteEject = new GuiIconButton(5, guiLeft + 80, 170, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
+		btnWasteAutoEject = new GuiIconButton(2, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject_off"));
+		btnWasteReplaceOnly = new GuiIconButton(3, guiLeft + 22, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteReplace_off"));
+		btnWasteManual = new GuiIconButton(4, guiLeft + 40, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
+		btnWasteEject = new GuiIconButton(5, guiLeft + 80, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
 
 		btnWasteEject.drawButton = false;
 
