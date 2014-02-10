@@ -84,7 +84,6 @@ TODO - 0.3: The Coolant Update
 - Fix Control Rod GUI
 - Add 1px extra between lines on reactor GUI to see if they look better
 - Add turbine stuff to German and Chinese localization files
-- BUG: Reactor control buttons are misplaced at high resolutions
 
 ### Items
 - Add nuggets for the 4 types of ingots
