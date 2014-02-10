@@ -86,16 +86,17 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Rotor dynamic constants - calculate on assembly
 	float rotorDragCoefficient = 0.01f; // RF/t lost to friction per unit of mass in the rotor.
 	float bladeDragCoefficient = 0.00025f; // RF/t lost to friction per blade block, multiplied by rotor speed squared. - includes a 50% reduction to factor in constant parts of the drag equation
-	float bladeExtractionEfficiency = 1f; // TODO: Calculate on assembly. Imperfect shapes become less than 1.
 
 	// Penalize suboptimal shapes with worse drag (i.e. increased drag without increasing lift)
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
 	
 	// Game balance constants
 	final static float inductionEnergyCoefficient = 1.0f; // Power to raise the induced current by.
-	final static int inputFluidPerBlade = 15; // mB
+	public final static int inputFluidPerBlade = 15; // mB
 	
 	float energyGeneratedLastTick;
+	int fluidConsumedLastTick;
+	float rotorEfficiencyLastTick;
 	
 	private Set<IMultiblockPart> attachedControllers;
 	private Set<TileEntityTurbinePartBase> attachedRotorBearings;
@@ -143,6 +144,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorMass = 0;
 		coilSize = 0;
 		energyGeneratedLastTick = 0f;
+		fluidConsumedLastTick = 0;
+		rotorEfficiencyLastTick = 1f;
 		
 		foundCoils = new HashSet<CoordTriplet>();
 		
@@ -199,7 +202,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 								energyGeneratedLastTick,
 								maxIntakeRate,
 								active,
-								ventStatus.ordinal()
+								ventStatus.ordinal(),
+								fluidConsumedLastTick,
+								rotorEfficiencyLastTick
 		});
 	}
 
@@ -219,7 +224,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		maxIntakeRate = data.readInt();
 		this.active = data.readBoolean();
 		ventStatus = VentStatus.values()[data.readInt()];
-		
+		fluidConsumedLastTick = data.readInt();
+		rotorEfficiencyLastTick = data.readFloat();
+
 		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
 			tanks[TANK_INPUT].setFluid(null);
 		}
@@ -577,6 +584,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	@Override
 	protected boolean updateServer() {
 		energyGeneratedLastTick = 0f;
+		fluidConsumedLastTick = 0;
+		rotorEfficiencyLastTick = 1f;
 		
 		// Generate energy based on steam
 		int steamIn = 0; // mB. Based on water, actually. Probably higher for steam. Measure it.
@@ -611,7 +620,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 				// Cap amount of steam we can fully extract energy from based on blade size
 				int steamToProcess = bladeSurfaceArea * inputFluidPerBlade;
 				steamToProcess = Math.min(steamToProcess, steamIn);
-				liftTorque = steamToProcess * fluidEnergyDensity * bladeExtractionEfficiency;
+				liftTorque = steamToProcess * fluidEnergyDensity;
 
 				// Did we have excess steam for our blade size?
 				if(steamToProcess < steamIn) {
@@ -621,7 +630,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 					int neededBlades = steamIn / inputFluidPerBlade; // round in the player's favor
 					int missingBlades = neededBlades - bladeSurfaceArea;
 					bladeEfficiency = 1f - (float)missingBlades / (float)neededBlades;
-					liftTorque += steamToProcess * fluidEnergyDensity * bladeEfficiency * bladeExtractionEfficiency;
+					liftTorque += steamToProcess * fluidEnergyDensity * bladeEfficiency;
+
+					rotorEfficiencyLastTick = liftTorque / (steamIn * fluidEnergyDensity);
 
 					if(!DEBUGhasLogged) {
 						FMLLog.info("on startup, blade efficiency is %2.2f%%, based on %d missing / %d needed - adds %.1f out of %.1f potential energy", bladeEfficiency*100f, missingBlades, neededBlades, liftTorque, steamIn * fluidEnergyDensity);
@@ -655,6 +666,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			
 			// And create some water
 			if(steamIn > 0) {
+				fluidConsumedLastTick = steamIn;
 				drain(TANK_INPUT, steamIn, true);
 				
 				if(ventStatus != VentStatus.VentAll) {
@@ -1039,6 +1051,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	public float getRotorSpeed() { return rotorEnergy / (attachedRotorBlades.size() * rotorMass); }
 	public float getEnergyGeneratedLastTick() { return energyGeneratedLastTick; }
+	public int   getFluidConsumedLastTick() { return fluidConsumedLastTick; }
+	public int	 getNumRotorBlades() { return attachedRotorBlades.size(); }
+	public float getRotorEfficiencyLastTick() { return rotorEfficiencyLastTick; }
 
 	public float getMaxRotorSpeed() {
 		return 2000f;
