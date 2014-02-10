@@ -37,7 +37,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int VENT_OVERFLOW_ON = 30;
 	public static final int VENT_NONE_OFF = 31;
 	public static final int VENT_NONE_ON = 32;
-	
+	public static final int ROTOR_EFFICIENCY = 33;
+
 	public BeefGuiIconManager() {
 		super();
 		iconNames = new String[] {
@@ -73,7 +74,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"ventOverflowOff",
 				"ventOverflowOn",
 				"ventNoneOff",
-				"ventNoneOn"
+				"ventNoneOn",
+				"rotorEfficiency"
 		};
 	}
 	

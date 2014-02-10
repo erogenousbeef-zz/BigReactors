@@ -73,7 +73,6 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
 - Add flair to turbine glass texture
 - Redo turbine exterior textures with "metallic blue" color instead of ugly current job
-- Add "blade efficiency" to UI
 
 ### User Interface
 - (DONE) Add imagebutton for reactor on/off

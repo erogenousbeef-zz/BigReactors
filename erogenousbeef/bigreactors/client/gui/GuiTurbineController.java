@@ -34,6 +34,9 @@ public class GuiTurbineController extends BeefGuiBase {
 	
 	private BeefGuiIcon energyGeneratedIcon;
 	private BeefGuiLabel energyGeneratedString;
+	
+	private BeefGuiIcon rotorEfficiencyIcon;
+	private BeefGuiLabel rotorEfficiencyString;
 
 	private BeefGuiIcon powerIcon;
 	private BeefGuiPowerBar powerBar;
@@ -86,6 +89,10 @@ public class GuiTurbineController extends BeefGuiBase {
 		energyGeneratedIcon = new BeefGuiIcon(this, leftX+1, topY, ClientProxy.GuiIcons.getIcon("energyOutput"), new String[] { GuiConstants.LITECYAN_TEXT + "Energy Output", "", "Turbines generate energy via", "metal induction coils placed", "around a spinning rotor.", "More, or higher-quality, coils", "generate energy faster."});
 		energyGeneratedString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += energyGeneratedIcon.getHeight() + 4;
+		
+		rotorEfficiencyIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("rotorEfficiency"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Efficiency", "", "Rotor blades can only fully", "capture energy from 15mB of", "fluid per blade.", "", "Efficiency drops if the flow", "of input fluid rises past", "capacity."});
+		rotorEfficiencyString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
+		topY += rotorEfficiencyIcon.getHeight() + 4;
 
 		statusString = new BeefGuiLabel(this, "", leftX, topY);
 		topY += statusString.getHeight() + 4;
@@ -119,6 +126,8 @@ public class GuiTurbineController extends BeefGuiBase {
 		registerControl(speedString);
 		registerControl(energyGeneratedIcon);
 		registerControl(energyGeneratedString);
+		registerControl(rotorEfficiencyIcon);
+		registerControl(rotorEfficiencyString);
 		registerControl(powerBar);
 		registerControl(steamBar);
 		registerControl(waterBar);
@@ -155,7 +164,25 @@ public class GuiTurbineController extends BeefGuiBase {
 		speedString.setLabelText(String.format("%.1f RPM", turbine.getRotorSpeed()));
 		energyGeneratedString.setLabelText(String.format("%.0f RF/t", turbine.getEnergyGeneratedLastTick()));
 		governorString.setLabelText(String.format("Max Flow: %d mB/t", turbine.getMaxIntakeRate()));
-	
+		
+		if(turbine.isActive()) {
+			if(turbine.getRotorEfficiencyLastTick() < 1f) {
+				rotorEfficiencyString.setLabelText(String.format("%.1f%%", turbine.getRotorEfficiencyLastTick() * 100f));
+			}
+			else {
+				rotorEfficiencyString.setLabelText("100%");
+			}
+
+			int numBlades = turbine.getNumRotorBlades();
+			int fluidLastTick = turbine.getFluidConsumedLastTick();
+			int neededBlades = fluidLastTick / MultiblockTurbine.inputFluidPerBlade;
+			
+			rotorEfficiencyString.setLabelTooltip(String.format("%d / %d blades", numBlades, neededBlades));
+		}
+		else {
+			rotorEfficiencyString.setLabelText("Unknown");
+		}
+		
 		switch(turbine.getVentSetting()) {
 		case DoNotVent:
 			btnVentNone.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.VENT_NONE_ON));
