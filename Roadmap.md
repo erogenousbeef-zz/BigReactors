@@ -64,9 +64,8 @@ TODO - 0.3: The Coolant Update
 - (DONE) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - (DONE) Renderer to show off the turbine blade.
 - (DONE) Test inflow/outflow ports with TE
-- BUG: Outlet port state does not save/load
 - Particle effects for venting steam and stuff!
-- Turbine drag appears to be too high. 4 blades appears to be optimal for all setups.
+- TESR for rotating turbine when machine is active
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
@@ -74,6 +73,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
 - Add flair to turbine glass texture
 - Redo turbine exterior textures with "metallic blue" color instead of ugly current job
+- Add "blade efficiency" to UI
 
 ### User Interface
 - (DONE) Add imagebutton for reactor on/off
@@ -84,6 +84,7 @@ TODO - 0.3: The Coolant Update
 - Fix Control Rod GUI
 - Add 1px extra between lines on reactor GUI to see if they look better
 - Add turbine stuff to German and Chinese localization files
+- BUG: Reactor control buttons are misplaced at high resolutions
 
 ### Items
 - Add nuggets for the 4 types of ingots
