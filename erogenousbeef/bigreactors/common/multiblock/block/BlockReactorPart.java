@@ -210,7 +210,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		// We do this to skip DISABLED
 		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
 		for(int i = 1; i < circuitTypes.length; ++i) {
-			_redNetPortConfigIcons[i - 1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "config.redNetPort." + circuitTypes[i].name());
+			_redNetPortConfigIcons[i - 1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "redNet/" + circuitTypes[i].name());
 		}
 	}
 	

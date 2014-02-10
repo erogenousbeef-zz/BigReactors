@@ -243,7 +243,8 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			case outputFuelAmount: 		return "Output - Fuel Amount";
 			case outputWasteAmount: 	return "Output - Waste Amount";
 			case outputFuelMix: 		return "Output - Fuel Enrichment %";
-			case outputTemperature: 	return "Output - Temperature (C)";
+			case outputFuelTemperature: 	return "Output - Fuel Temp (C)";
+			case outputCasingTemperature:	return "Output - Casing Temp (C)";
 			case outputEnergyAmount:	return "Output - Energy Amount (%)";
 		default:
 			return "";
@@ -287,7 +288,8 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			subInputButton.enabled = false;
 			subInputButton.displayString = "Eject on Pulse";
 			break;
-		case outputTemperature:
+		case outputFuelTemperature:
+		case outputCasingTemperature:
 		case outputFuelMix:
 		case outputFuelAmount:
 		case outputWasteAmount:
@@ -318,7 +320,8 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		subOutputValue.setVisible(false);
 		
 		switch(selectedSetting) {
-			case outputTemperature:
+			case outputFuelTemperature:
+			case outputCasingTemperature:
 				subOutputValueLabel.setLabelText("C");
 				subOutputValueLabel.setLabelTooltip("Degrees centigrade");
 				subOutputValue.setVisible(true);

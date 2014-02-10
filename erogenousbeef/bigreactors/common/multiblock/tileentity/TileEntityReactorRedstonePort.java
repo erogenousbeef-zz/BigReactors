@@ -45,7 +45,9 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		MultiblockReactor reactor = (MultiblockReactor)getMultiblockController();
 
 		switch(circuitType) {
-		case outputTemperature:
+		case outputFuelTemperature:
+			return checkVariable((int)reactor.getFuelHeat());
+		case outputCasingTemperature:
 			return checkVariable((int)reactor.getReactorHeat());
 		case outputFuelMix:
 			return checkVariable((int)(reactor.getFuelRichness()*100));

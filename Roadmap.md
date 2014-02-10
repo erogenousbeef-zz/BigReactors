@@ -43,14 +43,14 @@ TODO - 0.3: The Coolant Update
 - (DONE) Calculate "effective coolant surface area" based on interior surface area of reactor housing
 - (DONE) Passively-cooled reactors generate power based on effective coolant surface area
 - (DONE) Add minimum heat transfer/loss so we don't hit floating point problems.
-- Fix reactor rednet, computer and redstone ports to not address individual control rods for heat, fuel and waste
+- (DONE) Fix reactor rednet, computer and redstone ports to not address individual control rods for heat, fuel and waste
 
 ### Active Coolant Loop
 - (DONE) Actively-cooled reactors use surface area to determine how much heat is available to heat coolant per tick
 - (DONE) Coolant buffer in main reactor controller
 - (DONE) Coolant I/O interface blocks
 - (DONE) When coolant I/O blocks are present during assembly, reactor no longer generates power directly, instead converts coolant.
-- Add Computercraft methods to monitor the coolant system
+- (DONE) Add Computercraft methods to monitor the coolant system
 
 ### Multiblock Turbine
 - (DONE) Turbine consumes steam, produces power and water.

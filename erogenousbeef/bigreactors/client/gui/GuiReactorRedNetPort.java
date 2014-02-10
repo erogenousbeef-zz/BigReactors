@@ -51,7 +51,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		"Input: Toggle reactor on/off",
 		"Input: Change control rod insertion",
 		"Input: Eject Waste",
-		"Output: Temperature (C)",
+		"Output: Fuel Temp (C)",
+		"Output: Casing Temp (C)",
 		"Output: Fuel mix (% fuel, 0-100)",
 		"Output: Fuel amount",
 		"Output: Waste amount",
@@ -177,11 +178,6 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		boolean hasChanges = false;
 		boolean invalidSetting = false;
 		for(RedNetConfigGrabTarget target : grabTargets) {
-			if( TileEntityReactorRedNetPort.circuitTypeRequiresSubSetting(target.getCircuitType()) &&
-						subSettingCoords[target.getChannel()] == null) {
-				invalidSetting = true;
-			}
-
 			if(target.hasChanged()) {
 				hasChanges = true;
 			}
@@ -330,10 +326,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	
 	private String getControlRodLabelFromLocation(CircuitType circuitType, CoordTriplet location) {
 		if(location == null) {
-			if( !TileEntityReactorRedNetPort.circuitTypeRequiresSubSetting(circuitType) )
-				return "-- ALL --";
-			else
-				return "-- NONE -- ";
+			return "-- ALL --";
 		}
 		else {
 			TileEntity te = port.worldObj.getBlockTileEntity(location.x, location.y, location.z);
