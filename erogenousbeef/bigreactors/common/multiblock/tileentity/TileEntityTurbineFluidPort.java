@@ -40,6 +40,20 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 			flowSetting = FluidFlow.values()[data.getInteger("flowSetting")];
 		}
 	}
+	
+	@Override
+	public void encodeDescriptionPacket(NBTTagCompound data) {
+		super.encodeDescriptionPacket(data);
+		data.setInteger("flowSetting", flowSetting.ordinal());
+	}
+	
+	@Override
+	public void decodeDescriptionPacket(NBTTagCompound data) {
+		super.decodeDescriptionPacket(data);
+		if(data.hasKey("flowSetting")) {
+			flowSetting = FluidFlow.values()[data.getInteger("flowSetting")];
+		}
+	}
 
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
