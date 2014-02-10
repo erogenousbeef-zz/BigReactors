@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fluids.Fluid;
 import dan200.computer.api.IComputerAccess;
 import dan200.computer.api.ILuaContext;
 import dan200.computer.api.IPeripheral;
@@ -12,15 +13,23 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	public enum ComputerMethod {
 		getConnected,			// No arguments
 		getActive,				// No arguments
-		getTemperature,			// Optional Arg: fuel rod index
+		getFuelTemperature,		// No arguments
+		getCasingTemperature,	// No arguments	
 		getEnergyStored, 		// No arguments
-		getFuelAmount,  		// Optional Arg: fuel rod index
-		getWasteAmount, 		// Optional Arg: fuel rod index
+		getFuelAmount,  		// No arguments
+		getWasteAmount, 		// No arguments
 		getFuelAmountMax,		// No arguments
 		getControlRodName,		// Required Arg: fuel rod index
 		getNumberOfControlRods,	// No arguments
 		getControlRodLevel, 	// Required Arg: control rod index
 		getEnergyProducedLastTick, // No arguments
+		getCoolantAmount,		// No arguments
+		getCoolantType,			// No arguments
+		getHotFluidAmount,		// No arguments
+		getHotFluidType,		// No arguments
+		getFuelReactivity,		// No arguments
+		getFuelConsumedLastTick,// No arguments
+		isActivelyCooled,		// No arguments
 		setActive,				// Required Arg: integer (active)
 		setControlRodLevel,		// Required Args: fuel rod index, integer (insertion)
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
@@ -74,14 +83,10 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			return new Object[] { (int)reactor.getFuelRodCount() };
 		case getActive:
 			return new Object[] { reactor.isActive() };
-		case getTemperature:
-			if(arguments.length <= 0) {
-				return new Object[] { (int)reactor.getReactorHeat() };
-			}
-			else {
-				controlRod = getControlRodFromArguments(reactor, arguments, 0);
-				return new Object[] { 0 }; // TODO FIXME (int)controlRod.getHeat() };
-			}
+		case getFuelTemperature:
+			return new Object[] { reactor.getFuelHeat() };
+		case getCasingTemperature:
+			return new Object[] { reactor.getReactorHeat() };
 		case getFuelAmount:
 			return new Object[] { (int)reactor.getFuelAmount() };
 		case getWasteAmount:
@@ -106,6 +111,41 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 
 		case getEnergyProducedLastTick:
 			return new Object[] { reactor.getEnergyGeneratedLastTick() };
+		
+		case isActivelyCooled:
+			return new Object[] { !reactor.isPassivelyCooled() };
+
+		case getCoolantAmount:
+			return new Object[] { reactor.getCoolantContainer().getCoolantAmount() };
+			
+		case getCoolantType: {
+			Fluid fluidType = reactor.getCoolantContainer().getCoolantType();
+			if(fluidType == null) {
+				return null;
+			}
+			else {
+				return new Object[] { fluidType.getName() };
+			}
+		}
+
+		case getHotFluidAmount:
+			return new Object[] { reactor.getCoolantContainer().getVaporAmount() };
+			
+		case getHotFluidType: {
+			Fluid fluidType = reactor.getCoolantContainer().getVaporType();
+			if(fluidType == null) {
+				return null;
+			}
+			else {
+				return new Object[] { fluidType.getName() };
+			}
+		}
+		
+		case getFuelReactivity:
+			return new Object[] { reactor.getFuelFertility() * 100f };
+
+		case getFuelConsumedLastTick:
+			return new Object[] { reactor.getFuelConsumedLastTick() };
 			
 		case setActive:
 			if(arguments.length < 1) {
