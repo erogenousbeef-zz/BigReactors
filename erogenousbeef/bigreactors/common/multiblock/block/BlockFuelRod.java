@@ -72,4 +72,30 @@ public class BlockFuelRod extends BlockContainer {
 	public TileEntity createTileEntity(World world, int metadata) {
 		return new TileEntityReactorFuelRod();
 	}
+	
+	/*
+	 * TODO Have to make my own particle for this. :/
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(World world, int x, int y, int z, Random par5Random)
+    {
+    	TileEntity te = world.getBlockTileEntity(x, y, z);
+    	if(te instanceof TileEntityReactorFuelRod) {
+    		TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)te;
+    		MultiblockReactor reactor = fuelRod.getReactorController();
+    		if(reactor != null && reactor.isActive() && reactor.getFuelConsumedLastTick() > 0) {
+    			int numParticles = par5Random.nextInt(4) + 1;
+    			while(numParticles > 0) {
+                    world.spawnParticle(BigReactors.isValentinesDay ? "heart" : "crit",
+                    		fuelRod.xCoord + 0.5D,
+                    		fuelRod.yCoord + 0.5D,
+                    		fuelRod.zCoord + 0.5D,
+                    		par5Random.nextFloat() * 3f - 1.5f,
+                    		par5Random.nextFloat() * 3f - 1.5f,
+                    		par5Random.nextFloat() * 3f - 1.5f);
+    				numParticles--;
+    			}
+    		}
+    	}
+    }
+     */
 }

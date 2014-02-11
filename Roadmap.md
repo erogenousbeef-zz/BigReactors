@@ -18,7 +18,6 @@ Known Issues
 
 TODO - 0.3: The Coolant Update
 ------------------------------
-- Cool particle effects when the reactor is on!
 
 ### Core
 - (DONE) Change BeefCore so client-side machines know when they're assembled, etc.
@@ -64,7 +63,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Water/other outputs can be vented. Vent setting can be changed. Turbine uses less input fluid when output tank is full and turbine is not venting.
 - (DONE) Renderer to show off the turbine blade.
 - (DONE) Test inflow/outflow ports with TE
-- Particle effects for venting steam and stuff!
+- (DONE) Particle effects for venting steam and stuff!
 - TESR for rotating turbine when machine is active
 
 ### Graphics
@@ -87,6 +86,7 @@ TODO - 0.3: The Coolant Update
 - Add blocks for the 4 types of ingots
 
 ### Multiblock Turbine (post-0.3.0)
+- Cool particle effects when the reactor is on! (requires making my own particle, bleah)
 - Optional explosion during severe overspeed conditions
 - Redstone port.
 - Computer port.
