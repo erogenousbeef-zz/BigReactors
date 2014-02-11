@@ -40,7 +40,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	
 	@Override
 	public ResourceLocation getGuiBackground() {
-		// TODO: Real gui?
 		return new ResourceLocation (BigReactors.GUI_DIRECTORY + "BasicBackground.png");
 	}
 
@@ -64,7 +63,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		rodName.setText(entity.getName());
 		rodName.setEnabled(true);
 		
-		setNameBtn = new GuiButton(2, guiLeft + 140, guiTop + topY, 30, 20, "Set");
+		setNameBtn = new GuiButton(2, guiLeft + 140, topY, 30, 20, "Set");
 		setNameBtn.enabled = false;
 		topY += 28;
 		
@@ -110,7 +109,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		MultiblockControllerBase controller = entity.getMultiblockController();
 		if(controller instanceof MultiblockReactor) {
 			MultiblockReactor reactor = (MultiblockReactor)controller;
-			heatString.setLabelText(String.format("Heat: %1.1f C", reactor.getFuelHeat()));
+			heatString.setLabelText(String.format("Fuel Heat: %1.1f C", reactor.getFuelHeat()));
 		}
 		else {
 			heatString.setLabelText(String.format("Heat: Unknown"));
