@@ -136,6 +136,8 @@ public class BigReactors {
 	
 	public static float powerProductionMultiplier = 1.0f;
 	
+	public static boolean isValentinesDay = false; // Easter Egg :)
+	
 	// Game Balance values
 	
 	protected static Icon iconSteamStill;

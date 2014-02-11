@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.block;
 
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -397,4 +398,51 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 
 		super.breakBlock(world, x, y, z, blockId, meta);
 	}
+	
+    /**
+     * A randomly called display update to be able to add particles or other items for display
+     */
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(World world, int x, int y, int z, Random par5Random)
+    {
+    	int metadata = world.getBlockMetadata(x, y, z);
+    	if(metadata == METADATA_BEARING) {
+        	TileEntity te = world.getBlockTileEntity(x, y, z);
+    		if(te instanceof TileEntityTurbinePartStandard) {
+    			// Rotor bearing found!
+    			TileEntityTurbinePartStandard bearing = (TileEntityTurbinePartStandard)te;
+    			MultiblockTurbine turbine = bearing.getTurbine();
+    			if(turbine != null && turbine.isActive()) {
+    				// Spawn particles!
+    				int numParticles = Math.min(20, Math.max(1, turbine.getFluidConsumedLastTick() / 40));
+    				ForgeDirection inwardsDir = bearing.getOutwardsDir().getOpposite();
+    				CoordTriplet minCoord, maxCoord;
+    				minCoord = turbine.getMinimumCoord();
+    				maxCoord = turbine.getMaximumCoord();
+    				minCoord.x++; minCoord.y++; minCoord.z++;
+    				maxCoord.x--; maxCoord.y--; maxCoord.z--;
+    				if(inwardsDir.offsetX != 0) {
+    					minCoord.x = maxCoord.x = bearing.xCoord + inwardsDir.offsetX;
+    				}
+    				else if(inwardsDir.offsetY != 0) {
+    					minCoord.y = maxCoord.y = bearing.yCoord + inwardsDir.offsetY;
+    				}
+    				else {
+    					minCoord.z = maxCoord.z = bearing.zCoord + inwardsDir.offsetZ;
+    				}
+    				
+                    double particleX, particleY, particleZ;
+    				for(int i = 0; i < numParticles; i++) {
+    					particleX = minCoord.x + par5Random.nextFloat() * (maxCoord.x - minCoord.x + 1);
+    					particleY = minCoord.y + par5Random.nextFloat() * (maxCoord.y - minCoord.y + 1);
+    					particleZ = minCoord.z + par5Random.nextFloat() * (maxCoord.z - minCoord.z + 1);
+                        world.spawnParticle(BigReactors.isValentinesDay ? "heart" : "cloud", particleX, particleY, particleZ,
+                        		par5Random.nextFloat() * inwardsDir.offsetX,
+                        		par5Random.nextFloat() * inwardsDir.offsetY,
+                        		par5Random.nextFloat() * inwardsDir.offsetZ);
+    				}
+    			}
+    		}
+    	}
+    }
 }

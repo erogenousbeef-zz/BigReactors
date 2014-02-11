@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common;
 
 import java.lang.reflect.Method;
+import java.util.Calendar;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -194,6 +195,10 @@ public class CommonProxy {
 			FactoryRegistry.registerLaserOre(2, yelloriteOre.copy());
 			FactoryRegistry.addLaserPreferredOre(9, yelloriteOre.copy()); // Register yellorite with cyan, becuz.
 		}
+		
+		// Easter Egg - Check if today is valentine's day. If so, change all particles to hearts.
+		Calendar calendar = Calendar.getInstance();
+		BigReactors.isValentinesDay = (calendar.get(Calendar.MONTH) == 2 && calendar.get(Calendar.DAY_OF_MONTH) == 14);
 	}
 	
 	/// Mekanism Compat - taken from Mekanism's API. Extracted to allow compat with last known green build.
