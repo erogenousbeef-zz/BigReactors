@@ -71,7 +71,7 @@ public class TileEntityTurbinePartStandard extends TileEntityTurbinePartBase {
 	public void onMachineActivated() {
 		// Re-render controller as active state has changed
 		if(worldObj.isRemote && getBlockMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class TileEntityTurbinePartStandard extends TileEntityTurbinePartBase {
 	public void onMachineDeactivated() {
 		// Re-render controller as active state has changed
 		if(worldObj.isRemote && getBlockMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}	
 }

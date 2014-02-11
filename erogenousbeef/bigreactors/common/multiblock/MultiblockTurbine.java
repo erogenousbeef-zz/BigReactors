@@ -952,15 +952,15 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 			markReferenceCoordDirty();
 			
-			if(worldObj.isRemote) {
-				// Force controllers to re-render on client
-				for(IMultiblockPart part : attachedControllers) {
-					worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
-				}
-			}
-			
 			if(newValue == true) {
 				DEBUGhasLogged = false;
+			}
+		}
+		
+		if(worldObj.isRemote) {
+			// Force controllers to re-render on client
+			for(IMultiblockPart part : attachedControllers) {
+				worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
 			}
 		}
 	}
