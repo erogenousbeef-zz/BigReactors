@@ -71,8 +71,8 @@ TODO - 0.3: The Coolant Update
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
 - (DONE) Fix the lighting bug on control rods.
 - (DONE) Add some flair to the reactor and turbine glass textures. They're TOO invisible now.
-- Add flair to turbine glass texture
-- Redo turbine exterior textures with "metallic blue" color instead of ugly current job
+- (DONE) Add flair to turbine glass texture
+- (DONE) Redo turbine exterior textures with "metallic blue" color instead of ugly current job
 
 ### User Interface
 - (DONE) Add imagebutton for reactor on/off
@@ -81,7 +81,6 @@ TODO - 0.3: The Coolant Update
 - (DONE) Add RPM bar to turbine
 - (DONE) Add "dump fuel" button to access port GUI
 - Fix Control Rod GUI
-- Add 1px extra between lines on reactor GUI to see if they look better
 - Add turbine stuff to German and Chinese localization files
 
 ### Items
