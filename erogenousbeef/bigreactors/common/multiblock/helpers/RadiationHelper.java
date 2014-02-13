@@ -22,7 +22,6 @@ import erogenousbeef.core.common.CoordTriplet;
 public class RadiationHelper {
 
 	// Game Balance Values
-	// TODO: Make these configurable
 	public static final float fuelPerRadiationUnit = 0.00001f; // fuel units used per fission event
 	public static final float rfPerRadiationUnit = 10f; // RF generated per fission event
 	public static final float fissionEventsPerFuelUnit = 0.01f; // 1 fission event per 100 mB
@@ -63,7 +62,7 @@ public class RadiationHelper {
 		scaledRadIntensity = scaledRadIntensity * controlRodModifier;
 		rawRadIntensity = rawRadIntensity * controlRodModifier;
 
-		// Now nerf actual radiation production based on heat. TODO: Necessary? Balance this.
+		// Now nerf actual radiation production based on heat.
 		float effectiveRadIntensity = scaledRadIntensity * (1f + (float)(-0.95f*Math.exp(-10f*Math.exp(-0.0012f*fuelHeat))));
 
 		// Radiation hardness starts at 20% and asymptotically approaches 100% as heat rises.

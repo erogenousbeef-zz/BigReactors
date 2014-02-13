@@ -18,8 +18,7 @@ public class TileEntityTurbineCreativeSteamGenerator extends TileEntityTurbinePa
 		if(isConnected() && getTurbine().isActive()) {
 			Fluid steam = FluidRegistry.getFluid("steam");
 			
-			// TODO: Replace 200 with measured number. How much steam can you duct?
-			getTurbine().fill(MultiblockTurbine.TANK_INPUT, new FluidStack(steam, 200), true);
+			getTurbine().fill(MultiblockTurbine.TANK_INPUT, new FluidStack(steam, getTurbine().getMaxIntakeRate()), true);
 		}
 	}
 }

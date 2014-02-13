@@ -606,7 +606,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(data.hasKey("energy")) {
-			this.energyStored = data.getFloat("energyStored");
+			this.energyStored = data.getFloat("energy");
 		}
 		
 		if(data.hasKey("heat")) {
@@ -811,7 +811,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		MultiblockReactor otherReactor = (MultiblockReactor)otherMachine;
 
-		// TODO FIXME: Only change heat based on relative sizes
 		if(otherReactor.reactorHeat > this.reactorHeat) { setReactorHeat(otherReactor.reactorHeat); }
 		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); }
 
@@ -1082,7 +1081,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		int surfaceArea = 2 * (xSize * ySize + xSize * zSize + ySize * zSize);
 		
-		reactorToCoolantSystemHeatTransferCoefficient = IHeatEntity.conductivityIron * surfaceArea; // TODO: Balance me
+		reactorToCoolantSystemHeatTransferCoefficient = IHeatEntity.conductivityIron * surfaceArea;
 
 		// Calculate passive heat loss.
 		// Get external surface area
@@ -1317,6 +1316,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	}
 
 
+	// TODO: REMOVEME
 	public void debugOutput() {
 		String clientOrServer = worldObj.isRemote?"CLIENT":"SERVER";
 		FMLLog.info("[%s] Multiblock reactor %s - %d connected parts", clientOrServer, hashCode(), connectedParts.size());

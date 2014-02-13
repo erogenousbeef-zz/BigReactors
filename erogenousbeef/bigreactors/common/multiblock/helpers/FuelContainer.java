@@ -175,7 +175,6 @@ public class FuelContainer extends FluidHelper {
 			
 			if(getWasteType() != null) {
 				// If there's already waste, just keep on producing the same type.
-				// TODO: Allow fuel miscegenation?
 				this.addWaste(fuelToConvert);
 			}
 			else {

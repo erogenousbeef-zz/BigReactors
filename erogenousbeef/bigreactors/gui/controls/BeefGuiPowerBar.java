@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
@@ -20,7 +21,8 @@ public class BeefGuiPowerBar extends BeefGuiTextureProgressBar implements
 	
 	@Override
 	protected float getProgress() {
-		return Math.min(1f, Math.max(0f, (float)_entity.getEnergyStored(ForgeDirection.UNKNOWN) / (float)_entity.getMaxEnergyStored(ForgeDirection.UNKNOWN)));
+		float val = Math.min(1f, Math.max(0f, (float)_entity.getEnergyStored(ForgeDirection.UNKNOWN) / (float)_entity.getMaxEnergyStored(ForgeDirection.UNKNOWN)));
+		return val;
 	}
 
 	@Override

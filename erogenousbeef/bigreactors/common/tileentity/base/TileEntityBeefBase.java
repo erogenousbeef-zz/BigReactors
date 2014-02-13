@@ -132,7 +132,6 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	}
 	
 	protected Packet getUpdatePacket() {
-		// TODO: Corify
 		NBTTagCompound childData = new NBTTagCompound();
 		onSendUpdate(childData);
 		
