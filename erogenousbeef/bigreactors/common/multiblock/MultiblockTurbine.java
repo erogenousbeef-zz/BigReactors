@@ -86,6 +86,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Rotor dynamic constants - calculate on assembly
 	float rotorDragCoefficient = 0.01f; // RF/t lost to friction per unit of mass in the rotor.
 	float bladeDragCoefficient = 0.00025f; // RF/t lost to friction per blade block, multiplied by rotor speed squared. - includes a 50% reduction to factor in constant parts of the drag equation
+	float frictionalDrag	   = 0f;
 
 	// Penalize suboptimal shapes with worse drag (i.e. increased drag without increasing lift)
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
@@ -301,7 +302,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public void onAttachedPartWithMultiblockData(IMultiblockPart part, NBTTagCompound data) {
-		// TODO: Additional validation to only replace current data if current data is "worse" than NBT data
 		readFromNBT(data);
 	}
 
@@ -608,10 +608,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			// RFs lost to aerodynamic drag.
 			float aerodynamicDragTorque = (float)rotorSpeed * bladeDragCoefficient * bladeSurfaceArea;
 
-			// RFs lost to frictional drag. A small amount of constant drag based on rotor size.
-			// TODO: Calculate at assembly time
-			float frictionalDragTorque = rotorDragCoefficient * rotorMass;
-
 			float liftTorque = 0f;
 			if(steamIn > 0) {
 				// TODO: Lookup fluid parameters from a table
@@ -661,7 +657,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 				generateEnergy(energyToGenerate * efficiency);
 			}
 
-			rotorEnergy += liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDragTorque;
+			rotorEnergy += liftTorque + -1f*inductionTorque + -1f*aerodynamicDragTorque + -1f*frictionalDrag;
 			if(rotorEnergy < 0f) { rotorEnergy = 0f; }
 			
 			// And create some water
@@ -714,8 +710,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			ticksSinceLastUpdate = 0;
 		}
 
-		// TODO: Only mark dirty when stuff changes
-		return true;
+		return energyGeneratedLastTick > 0 || fluidConsumedLastTick > 0;
 	}
 
 	@Override
@@ -989,7 +984,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player) {
-		// TODO DISTANCE CHECK
 		return true;
 	}
 	
@@ -1047,6 +1041,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 				} // end z
 			} // end y
 		} // end x loop - looping over interior
+		
+		frictionalDrag = rotorMass * rotorDragCoefficient;
 	}
 	
 	public float getRotorSpeed() { return rotorEnergy / (attachedRotorBlades.size() * rotorMass); }

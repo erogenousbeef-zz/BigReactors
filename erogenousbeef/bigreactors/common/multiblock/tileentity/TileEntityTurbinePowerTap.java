@@ -24,7 +24,6 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		}
 	}
 	
-	// TODO: Check that this works with TE... do they spawn client-side TEs for their power blocks?
 	public boolean isAttachedToPowerNetwork() {
 		return rfNetwork != null;
 	}

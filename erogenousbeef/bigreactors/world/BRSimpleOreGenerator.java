@@ -26,7 +26,6 @@ public class BRSimpleOreGenerator extends WorldGenMinable {
 	protected int minY;
 	protected int maxY;
 	
-	// TODO: Add booleans for "generate in nether" and "generate in end"
 	// For now, we never generate in those dimensions.
 	protected Set<Integer> dimensionBlacklist;
 	

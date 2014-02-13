@@ -9,7 +9,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
 
-// TODO: IRedNetNoConnection for 0.2 merge
 public class BlockBRGenericFluid extends BlockFluidClassic {
 
 	private Icon _iconFlowing;
@@ -21,7 +20,6 @@ public class BlockBRGenericFluid extends BlockFluidClassic {
 		setUnlocalizedName("fluid." + unlocalizedName + ".still");
 	}
 
-	// TODO: Remove if no longer needed
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void registerIcons(IconRegister iconRegistry) {
@@ -31,7 +29,6 @@ public class BlockBRGenericFluid extends BlockFluidClassic {
 		this.stack.getFluid().setIcons(_iconStill, _iconFlowing);
 	}
 
-	// TODO: Remove me if no longer needed
 	@SideOnly(Side.CLIENT)
 	@Override
 	public Icon getIcon(int side, int metadata) {

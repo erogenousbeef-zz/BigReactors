@@ -5,7 +5,6 @@ import erogenousbeef.core.multiblock.MultiblockValidationException;
 public class TileEntityTurbinePartGlass extends TileEntityTurbinePartBase {
 
 	public TileEntityTurbinePartGlass() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
