@@ -22,7 +22,7 @@ import erogenousbeef.core.common.CoordTriplet;
 public class RadiationHelper {
 
 	// Game Balance Values
-	public static final float fuelPerRadiationUnit = 0.00001f; // fuel units used per fission event
+	public static final float fuelPerRadiationUnit = 0.0007f; // fuel units used per fission event
 	public static final float rfPerRadiationUnit = 10f; // RF generated per fission event
 	public static final float fissionEventsPerFuelUnit = 0.01f; // 1 fission event per 100 mB
 
