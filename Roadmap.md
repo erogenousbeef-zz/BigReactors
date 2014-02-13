@@ -32,7 +32,6 @@ TODO - 0.3: The Coolant Update
 - (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
 - (DONE) Add way to track when fuel was last updated, send world updates as necessary to transmit fuel data
 - (DONE) Add ISBRH for fuel rods and move fuel rendering into there. Keep control rod ISBRH for the rod itself.
-- Rebalance fuel usage
 
 ### Radiation refactor number two
 - (DONE) Radiate from one random rod each tick, but radiate in all four directions. Extrapolate results to entire reactor.
@@ -68,7 +67,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Test inflow/outflow ports with TE
 - (DONE) Particle effects for venting steam and stuff!
 - TESR for rotating turbine when machine is active
-- BUG: Turbine does not always save its "active" state
+- BUG?: Turbine does not always save its "active" state
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
