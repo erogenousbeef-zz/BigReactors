@@ -20,7 +20,7 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 
-	protected double rotorSize = 0.2D;
+	protected static final double rotorSize = 0.2D;
 	
 	public RotorSimpleRenderer() {
 	}
@@ -47,7 +47,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	        GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 	        tessellator.startDrawingQuads();
 	        tessellator.setNormal(0.0F, -1.0F, 0.0F);
-			_renderBlade(renderer, 0, 0, 0, block, metadata, ForgeDirection.UP);
+			renderBlade(renderer, 0, 0, 0, block, metadata, ForgeDirection.UP);
 	        tessellator.draw();
 	        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 		}
@@ -57,6 +57,16 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z,
 			Block block, int modelId, RenderBlocks renderer) {
 		int metadata = world.getBlockMetadata(x, y, z);
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		
+		if(te instanceof TileEntityTurbineRotorPart) {
+			TileEntityTurbineRotorPart rotorPart = (TileEntityTurbineRotorPart)te;
+			if(rotorPart.isConnected() && rotorPart.getTurbine().isActive()) {
+				// Don't draw if the turbine's active.
+				return false;
+			}
+		}
+		
 		if(BlockTurbineRotorPart.isRotorShaft(metadata)) {
 			ForgeDirection majorAxis = findRotorMajorAxis(world, x, y, z, block);
 			
@@ -65,7 +75,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			renderRotorShaft(block, renderer, metadata, majorAxis, hasBlades, x, y, z, false);
 		}
 		else {
-			renderBlade(renderer, world, x, y, z, block, metadata);
+			renderBladeFromWorld(renderer, world, x, y, z, block, metadata);
 		}
 		return true;
 	}
@@ -80,7 +90,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		return BlockTurbineRotorPart.renderId;
 	}
 
-	private void renderRotorShaft(Block block, RenderBlocks renderer, int metadata, ForgeDirection majorAxis, boolean[] hasBlades, int x, int y, int z, boolean drawOuterRectangle) {
+	public static void renderRotorShaft(Block block, RenderBlocks renderer, int metadata, ForgeDirection majorAxis, boolean[] hasBlades, int x, int y, int z, boolean drawOuterRectangle) {
 		double xMin, yMin, zMin;
 		double xMax, yMax, zMax;
 		xMin = yMin = zMin = 0.5D - rotorSize;
@@ -128,7 +138,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
         renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
 	}
 
-	private void renderBlade(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int metadata) {
+	private void renderBladeFromWorld(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int metadata) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
 		ForgeDirection rotorDir = ForgeDirection.UNKNOWN;
 		if(te instanceof TileEntityTurbineRotorPart) {
@@ -189,10 +199,10 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			}
 		}
 
-		_renderBlade(renderer, x, y, z, block, metadata, rotorDir);
+		renderBlade(renderer, x, y, z, block, metadata, rotorDir);
 	}
 	
-	private void _renderBlade(RenderBlocks renderer, int x, int y, int z, Block block, int metadata, ForgeDirection rotorDir) {
+	public static void renderBlade(RenderBlocks renderer, int x, int y, int z, Block block, int metadata, ForgeDirection rotorDir) {
 		if(rotorDir == ForgeDirection.UNKNOWN) {
 			rotorDir = ForgeDirection.UP;
 		}
@@ -242,7 +252,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	 * @param metadata
 	 * @return The major axis of the rotor. This is always one of the positive directions.
 	 */
-	private ForgeDirection findRotorMajorAxis(IBlockAccess world, int x, int y, int z, Block block) {
+	private static ForgeDirection findRotorMajorAxis(IBlockAccess world, int x, int y, int z, Block block) {
 		ForgeDirection retDir = ForgeDirection.UP;
 		
 		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
@@ -260,7 +270,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		return retDir; // Defaults to up if there's no neighbors of the same type
 	}
 	
-	private boolean[] findBlades(IBlockAccess world, int x, int y, int z, Block block, ForgeDirection majorAxis) {
+	private static boolean[] findBlades(IBlockAccess world, int x, int y, int z, Block block, ForgeDirection majorAxis) {
 		boolean[] ret = new boolean[4];
 		ForgeDirection[] dirsToCheck = StaticUtils.neighborsBySide[majorAxis.ordinal()];
 		
@@ -287,11 +297,11 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		{ForgeDirection.SOUTH, ForgeDirection.NORTH, ForgeDirection.DOWN, ForgeDirection.UP, ForgeDirection.UNKNOWN, ForgeDirection.UNKNOWN}, // EAST
 	};
 	
-	private ForgeDirection findNormal(ForgeDirection majorAxis, ForgeDirection minorAxis) {
+	private static ForgeDirection findNormal(ForgeDirection majorAxis, ForgeDirection minorAxis) {
 		return normals[majorAxis.ordinal()][minorAxis.ordinal()];
 	}
 	
-	private void renderRotorBladeConnection(RenderBlocks renderer, Block block, int metadata,
+	private static void renderRotorBladeConnection(RenderBlocks renderer, Block block, int metadata,
 			ForgeDirection rotorDir, ForgeDirection bladeDir, int x, int y, int z, boolean drawOuterRectangle) {
 
 		// This is the dimension in which the blade expands
@@ -378,7 +388,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		renderer.setRenderBounds(0D, 0D, 0D, 1D, 1D, 1D);
 	}
 	
-	private int[][] quadSet1 = {
+	private static final int[][] quadSet1 = {
 			{4, 5, 6, 7}, // Outer rectangular face of the rotor
 			{7, 3, 0, 4}, // "top" rhombus
 			{6, 5, 1, 2}, // "bottom" rhombus
@@ -386,7 +396,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			{7, 6, 2, 3}, // "right irregular rectangle
 	};
 	
-	private int[][] quadSet2 = {
+	private static final int[][] quadSet2 = {
 			{7, 6, 5, 4}, // Outer rectangular face of the rotor
 			{4, 0, 3, 7}, // "top" rhombus
 			{2, 1, 5, 6}, // "bottom" rhombus

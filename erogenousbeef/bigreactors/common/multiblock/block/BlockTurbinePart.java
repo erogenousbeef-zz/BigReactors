@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
@@ -29,6 +30,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineF
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartStandard;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorBearing;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
@@ -238,6 +240,10 @@ public class BlockTurbinePart extends BlockContainer {
 		else if(metadata == METADATA_FLUIDPORT) {
 			return new TileEntityTurbineFluidPort();
 		}
+		else if(metadata == METADATA_BEARING) {
+			// Does jack-all different except for store display lists on the client
+			return new TileEntityTurbineRotorBearing();
+		}
 		else {
 			return new TileEntityTurbinePartStandard();
 		}
@@ -444,5 +450,22 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     			}
     		}
     	}
+    }
+    
+    @Override
+    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
+    {
+    	int metadata = world.getBlockMetadata(x, y, z);
+    	if(metadata == METADATA_BEARING) {
+        	TileEntity te = world.getBlockTileEntity(x, y, z);
+        	if(te instanceof TileEntityTurbineRotorBearing) {
+        		TileEntityTurbineRotorBearing bearing = (TileEntityTurbineRotorBearing)te;
+        		if(bearing.isConnected() && bearing.getTurbine().isActive()) {
+        			return bearing.getAABB();
+        		}
+        	}
+    	}
+    	
+		return super.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
 }
