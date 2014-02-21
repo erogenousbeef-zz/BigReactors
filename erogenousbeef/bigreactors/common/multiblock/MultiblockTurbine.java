@@ -29,6 +29,7 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
@@ -108,6 +109,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	private Set<TileEntityTurbineRotorPart> attachedRotorShafts;
 	private Set<TileEntityTurbineRotorPart> attachedRotorBlades;
 	
+	private Set<TileEntityTurbinePartGlass> attachedGlass; 
+	
 	// Data caches for validation
 	private Set<CoordTriplet> foundCoils;
 
@@ -134,6 +137,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		attachedTickables = new HashSet<ITickableMultiblockPart>();
 		attachedRotorShafts = new HashSet<TileEntityTurbineRotorPart>();
 		attachedRotorBlades = new HashSet<TileEntityTurbineRotorPart>();
+		attachedGlass = new HashSet<TileEntityTurbinePartGlass>();
 		
 		energyStored = 0f;
 		active = false;
@@ -334,6 +338,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			}
 		}
 		
+		if(newPart instanceof TileEntityTurbinePartGlass) {
+			attachedGlass.add((TileEntityTurbinePartGlass)newPart);
+		}
+		
 	}
 
 	@Override
@@ -357,6 +365,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			if(turbinePart.isRotorBlade()) {
 				attachedRotorBlades.remove(turbinePart);
 			}
+		}
+		
+		if(oldPart instanceof TileEntityTurbinePartGlass) {
+			attachedGlass.remove((TileEntityTurbinePartGlass)oldPart);
 		}
 	}
 
@@ -957,6 +969,14 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			for(IMultiblockPart part : attachedControllers) {
 				worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
 			}
+			
+			for(TileEntityTurbineRotorPart part : attachedRotorBlades) {
+				worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
+			}
+			
+			for(TileEntityTurbineRotorPart part : attachedRotorShafts) {
+				worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
+			}
 		}
 	}
 
@@ -1082,4 +1102,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		TileEntityTurbinePartBase rotorBearing = attachedRotorBearings.iterator().next();
 		return rotorBearing.getOutwardsDir().getOpposite();
 	}
+	
+	public boolean hasGlass() { return attachedGlass.size() > 0; }
 }
