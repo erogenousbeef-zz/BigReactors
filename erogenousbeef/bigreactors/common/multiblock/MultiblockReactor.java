@@ -1315,21 +1315,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 	}
 
-
-	// TODO: REMOVEME
-	public void debugOutput() {
-		String clientOrServer = worldObj.isRemote?"CLIENT":"SERVER";
-		FMLLog.info("[%s] Multiblock reactor %s - %d connected parts", clientOrServer, hashCode(), connectedParts.size());
-		FMLLog.info("[%s] Fuel tank size %d for %d fuel blocks in %d columns", clientOrServer, fuelContainer.getCapacity(), attachedFuelRods.size(), attachedControlRods.size());
-		FMLLog.info("[%s] Fuel tank contains %d total fluid; %d fuel, %d waste", clientOrServer, fuelContainer.getTotalAmount(), fuelContainer.getFuelAmount(), fuelContainer.getWasteAmount());
-		FMLLog.info("[%s] Coolant tank size %d", clientOrServer, coolantContainer.getCapacity());
-		Fluid coolantType = coolantContainer.getCoolantType();
-		Fluid vaporType = coolantContainer.getVaporType();
-		
-		FMLLog.info("[%s] Coolant tank has %d units of %s, vapor tank has %d units of %s", clientOrServer, coolantContainer.getCoolantAmount(), coolantType == null?"NONE":coolantType.getName(), coolantContainer.getVaporAmount(), vaporType == null?"NONE":vaporType.getName());
-	}
-
-	
 	private static final FluidTankInfo[] emptyTankInfo = new FluidTankInfo[0];
 	
 	@Override

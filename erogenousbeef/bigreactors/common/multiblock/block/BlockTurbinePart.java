@@ -18,7 +18,6 @@ import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
@@ -120,7 +119,6 @@ public class BlockTurbinePart extends BlockContainer {
 			else {
 				int subIcon = SUBICON_NONE;
 				if(metadata == METADATA_HOUSING) {
-					//FMLLog.info("getting subicon for housing @ %d, %d, %d on controller %d", x, y, z, turbine.hashCode());
 					subIcon = getSubIconForHousing(blockAccess, x, y, z, turbine, side);
 				}
 				else if(part.getOutwardsDir().ordinal() == side) {
@@ -157,9 +155,6 @@ public class BlockTurbinePart extends BlockContainer {
 				}
 			}
 		}
-		else {
-			FMLLog.info("block @ %d, %d, %d is not a turbine part", x, y, z);
-		}
 
 		// Not a "proper" TE, so just pass through
 		return getIcon(side, metadata);
@@ -171,7 +166,6 @@ public class BlockTurbinePart extends BlockContainer {
 		maxCoord = turbine.getMaximumCoord();
 		
 		if(minCoord == null || maxCoord == null) {
-			FMLLog.info("bailing out @ %d, %d %d - min/max are null", x, y, z);
 			return SUBICON_NONE;
 		}
 		
