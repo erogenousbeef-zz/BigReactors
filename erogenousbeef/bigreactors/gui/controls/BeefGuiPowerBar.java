@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 

@@ -117,9 +117,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	private static final ForgeDirection[] RotorXBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.SOUTH, ForgeDirection.DOWN, ForgeDirection.NORTH };
 	private static final ForgeDirection[] RotorZBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.EAST, ForgeDirection.DOWN, ForgeDirection.WEST };
 
-	
-	private boolean DEBUGhasLogged;
-	
 	public MultiblockTurbine(World world) {
 		super(world);
 
@@ -153,8 +150,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorEfficiencyLastTick = 1f;
 		
 		foundCoils = new HashSet<CoordTriplet>();
-		
-		DEBUGhasLogged = false;
 	}
 
 	/**
@@ -641,17 +636,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 					liftTorque += steamToProcess * fluidEnergyDensity * bladeEfficiency;
 
 					rotorEfficiencyLastTick = liftTorque / (steamIn * fluidEnergyDensity);
-
-					if(!DEBUGhasLogged) {
-						FMLLog.info("on startup, blade efficiency is %2.2f%%, based on %d missing / %d needed - adds %.1f out of %.1f potential energy", bladeEfficiency*100f, missingBlades, neededBlades, liftTorque, steamIn * fluidEnergyDensity);
-						DEBUGhasLogged = true;
-					}
-				}
-				else {
-					if(!DEBUGhasLogged) {
-						FMLLog.info("on startup, blade efficiency is perfect, based on %d mB processed by %d blades - adds %.1f out of %.1f potential energy", steamToProcess, bladeSurfaceArea, liftTorque, steamIn * fluidEnergyDensity);
-						DEBUGhasLogged = true;
-					}
 				}
 			}
 
@@ -958,10 +942,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 
 			markReferenceCoordDirty();
-			
-			if(newValue == true) {
-				DEBUGhasLogged = false;
-			}
 		}
 		
 		if(worldObj.isRemote) {

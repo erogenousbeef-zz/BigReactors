@@ -22,7 +22,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
@@ -270,23 +269,12 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 			return false;
 		}
 
-		ItemStack currentEquippedItem = player.getCurrentEquippedItem();
-		
-		if(currentEquippedItem == null) {
-			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof TileEntityReactorPart) {
-				MultiblockReactor r = ((TileEntityReactorPart)te).getReactorController();
-				if(r != null) {
-					r.debugOutput();
-				}
-			}
-		}
-		
 		int metadata = world.getBlockMetadata(x, y, z);
 		if(!isController(metadata) && !isAccessPort(metadata) && !isRedNetPort(metadata)) {
 			// If the player's hands are empty and they rightclick on a multiblock, they get a 
 			// multiblock-debugging message if the machine is not assembled.
 			if(!world.isRemote) {
+				ItemStack currentEquippedItem = player.getCurrentEquippedItem();
 				if(currentEquippedItem == null) {
 					TileEntity te = world.getBlockTileEntity(x, y, z);
 					if(te instanceof IMultiblockPart) {

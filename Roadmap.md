@@ -24,9 +24,7 @@ TODO - 0.3: The Coolant Update
 - (DONE FOR TURBINES) Change icon selection mechanism; instead of using metadata to determine texture, use TileEntity state information
 - (DONE) Calculate & cache the side on which a reactor block is located on assembly, reset it on disassembly.
 - (DONE) Corify the calculation & caching of sides, create a "cubic" base multiblock controller and TE that add those methods
-
 - Add BeefLogger which parents to the FML logger. Makes logs easier to read.
-- Remove debug rightclick code
 
 ### Fuel refactor
 - (DONE) Move fuel and waste pools up to reactor level. Size determined by # fuel rods.
@@ -66,8 +64,9 @@ TODO - 0.3: The Coolant Update
 - (DONE) Renderer to show off the turbine blade.
 - (DONE) Test inflow/outflow ports with TE
 - (DONE) Particle effects for venting steam and stuff!
-- TESR for rotating turbine when machine is active
-- BUG?: Turbine does not always save its "active" state
+- (DONE) TESR for rotating turbine when machine is active
+- BUG: Turbine does not always save its "active" state; seems to reset itself
+- BUG: Turbine does not always propagate RPMs as they change without the UI open
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.

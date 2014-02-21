@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity.creative;
 
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
@@ -31,7 +30,6 @@ public class TileEntityReactorCreativeCoolantPort extends TileEntityReactorCoola
 		if(!isConnected()) { return; }
 		
 		MultiblockReactor reactor = getReactorController();
-		FMLLog.info("force adding 1000mB of water");
 		reactor.getCoolantContainer().addCoolant(new FluidStack(FluidRegistry.WATER, 1000));
 	}
 }
