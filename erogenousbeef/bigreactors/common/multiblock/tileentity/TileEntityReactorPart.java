@@ -2,10 +2,10 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorStatus;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorController;
@@ -64,7 +64,7 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 
 		// Autoheal, for issue #65.
 		if(this.getMultiblockController() == null) {
-			FMLLog.warning("Reactor part at (%d, %d, %d) is being assembled without being attached to a reactor. Attempting to auto-heal. Fully destroying and re-building this reactor is recommended if errors persist.", xCoord, yCoord, zCoord);
+			BRLog.warning("Reactor part at (%d, %d, %d) is being assembled without being attached to a reactor. Attempting to auto-heal. Fully destroying and re-building this reactor is recommended if errors persist.", xCoord, yCoord, zCoord);
 			this.onAttached(multiblockController);
 		}
 		

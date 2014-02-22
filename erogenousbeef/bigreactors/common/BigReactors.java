@@ -14,7 +14,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -700,7 +699,7 @@ public class BigReactors {
 				}
 				catch (Exception e)
 				{
-					FMLLog.severe("Failed to load a child language file.");
+					BRLog.severe("Failed to load a child language file.");
 					e.printStackTrace();
 				}
 			}

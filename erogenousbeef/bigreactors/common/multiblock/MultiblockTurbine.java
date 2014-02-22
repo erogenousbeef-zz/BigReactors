@@ -20,9 +20,9 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
@@ -238,7 +238,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		else {
 			Fluid fluid = FluidRegistry.getFluid(inputFluidID);
 			if(fluid == null) {
-				FMLLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting input tank to empty", inputFluidID);
+				BRLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting input tank to empty", inputFluidID);
 				tanks[TANK_INPUT].setFluid(null);
 			}
 			else {
@@ -252,7 +252,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		else {
 			Fluid fluid = FluidRegistry.getFluid(outputFluidID);
 			if(fluid == null) {
-				FMLLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting output tank to empty", outputFluidID);
+				BRLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting output tank to empty", outputFluidID);
 				tanks[TANK_OUTPUT].setFluid(null);
 			}
 			else {
@@ -585,7 +585,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	@Override
 	protected void onAssimilate(MultiblockControllerBase otherMachine) {
 		if(!(otherMachine instanceof MultiblockTurbine)) {
-			FMLLog.warning("[%s] Turbine @ %s is attempting to assimilate a non-Turbine machine! That machine's data will be lost!", worldObj.isRemote?"CLIENT":"SERVER", getReferenceCoord());
+			BRLog.warning("[%s] Turbine @ %s is attempting to assimilate a non-Turbine machine! That machine's data will be lost!", worldObj.isRemote?"CLIENT":"SERVER", getReferenceCoord());
 			return;
 		}
 		

@@ -4,7 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import cpw.mods.fml.common.FMLLog;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 
 public class CoolantContainer extends FluidHelper {
@@ -128,7 +128,7 @@ public class CoolantContainer extends FluidHelper {
 		// Make sure we either have an empty vapor chamber or the vapor types match
 		Fluid newVaporType = getVaporizedCoolantFluid(coolantType);
 		if(newVaporType == null) {
-			FMLLog.warning("Coolant in tank (%s) has no registered vapor type!", coolantType.getName());
+			BRLog.warning("Coolant in tank (%s) has no registered vapor type!", coolantType.getName());
 			return rfAbsorbed;
 		}
 		

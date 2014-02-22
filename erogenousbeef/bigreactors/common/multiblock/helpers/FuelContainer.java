@@ -3,8 +3,8 @@ package erogenousbeef.bigreactors.common.multiblock.helpers;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.api.IReactorFuel;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 
@@ -85,7 +85,7 @@ public class FuelContainer extends FluidHelper {
 	
 	private int addWaste(int wasteAmt) {
 		if(this.getWasteType() == null) {
-			FMLLog.warning("System is using addWaste(int) when there's no waste present, defaulting to cyanite");
+			BRLog.warning("System is using addWaste(int) when there's no waste present, defaulting to cyanite");
 			return fill(WASTE, new FluidStack(BigReactors.fluidCyanite, wasteAmt), true);
 		}
 		else {
@@ -186,7 +186,7 @@ public class FuelContainer extends FluidHelper {
 				}
 				
 				if(wasteFluid == null) {
-					FMLLog.warning("Unable to locate waste for fuel type " + fuelType.getName() + "; using cyanite instead");
+					BRLog.warning("Unable to locate waste for fuel type " + fuelType.getName() + "; using cyanite instead");
 					wasteFluid = BigReactors.fluidCyanite;
 				}
 				
@@ -194,7 +194,7 @@ public class FuelContainer extends FluidHelper {
 			}
 		}
 		else {
-			FMLLog.warning("Attempting to use %d fuel and there's no fuel in the tank", fuelToConvert);
+			BRLog.warning("Attempting to use %d fuel and there's no fuel in the tank", fuelToConvert);
 		}
 	}
 
