@@ -24,6 +24,7 @@ import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort.FluidFlow;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
@@ -42,12 +43,14 @@ public class BlockTurbinePart extends BlockContainer {
 	public static final int METADATA_POWERTAP = 2;
 	public static final int METADATA_FLUIDPORT = 3;
 	public static final int METADATA_BEARING = 4;
+	public static final int METADATA_COMPUTERPORT = 5;
 	
 	private static final String[] _subBlocks = new String[] { "housing",
 														"controller",
 														"powerTap",
 														"fluidPort",
-														"bearing" };
+														"bearing",
+														"computerPort" };
 
 	// Additional non-metadata-based icons
 	private static final int SUBICON_NONE = -1;
@@ -237,6 +240,9 @@ public class BlockTurbinePart extends BlockContainer {
 		else if(metadata == METADATA_BEARING) {
 			// Does jack-all different except for store display lists on the client
 			return new TileEntityTurbineRotorBearing();
+		}
+		else if(metadata == METADATA_COMPUTERPORT) {
+			return new TileEntityTurbineComputerPort();
 		}
 		else {
 			return new TileEntityTurbinePartStandard();
