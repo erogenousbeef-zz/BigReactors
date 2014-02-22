@@ -284,9 +284,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
 
 			// Assimilate results of radiation
-			addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
-			addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
-			fuelConsumedLastTick += radData.fuelUsage;
+			if(radData != null) {
+				addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
+				addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
+				fuelConsumedLastTick += radData.fuelUsage;
+			}
 		}
 
 		// Allow radiation to decay even when reactor is off.
