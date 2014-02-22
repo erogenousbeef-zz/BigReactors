@@ -24,6 +24,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 
 	public void setFluidFlowDirection(FluidFlow newDirection) {
 		flowSetting = newDirection;
+		worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	
