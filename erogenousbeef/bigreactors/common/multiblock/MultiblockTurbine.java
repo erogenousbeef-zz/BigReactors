@@ -283,7 +283,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 		if(packetType == Packets.MultiblockTurbineGovernorUpdate) {
 			setMaxIntakeRate(data.readInt());
-			markReferenceCoordDirty();
 		}
 		
 		if(packetType == Packets.MultiblockTurbineVentUpdate) {
@@ -983,6 +982,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	public void setMaxIntakeRate(int newRate) {
 		maxIntakeRate = Math.min(TANK_SIZE, Math.max(0, newRate));
+		markReferenceCoordDirty();
 	}
 	
 	// for GUI use
