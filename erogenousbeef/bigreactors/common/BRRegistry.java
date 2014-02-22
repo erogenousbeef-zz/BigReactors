@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
-import cpw.mods.fml.common.FMLLog;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.api.IReactorSolid;
 
@@ -57,7 +56,7 @@ public abstract class BRRegistry {
 			
 			if(matchingFuel == null) {
 				// LOG A WARNING - WE DO NOT HAVE A MATCHING REGISTERED FUEL YET!
-				FMLLog.warning("Big Reactors: Registered a solid fuel mapping from solid %s to fluid %s, but there is no registered fuel data for that fluid yet!", fuelMapping.getReferenceItem().getUnlocalizedName(), fuelMapping.getReferenceFluid().getUnlocalizedName());
+				BRLog.warning("Big Reactors: Registered a solid fuel mapping from solid %s to fluid %s, but there is no registered fuel data for that fluid yet!", fuelMapping.getReferenceItem().getUnlocalizedName(), fuelMapping.getReferenceFluid().getUnlocalizedName());
 			}
 		}
 	}
