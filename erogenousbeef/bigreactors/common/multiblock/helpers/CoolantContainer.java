@@ -94,9 +94,10 @@ public class CoolantContainer extends FluidHelper {
 	}
 	
 	public float getCoolantTemperature(float reactorTemperature) {
-		if(getFluidAmount(COLD) <= 0 || getCoolantType() == null) { return reactorTemperature; }
+		Fluid coolantType = getCoolantType();
+		if(coolantType == null || getFluidAmount(COLD) <= 0) { return reactorTemperature; }
 
-		return Math.min(reactorTemperature, getBoilingPoint(getCoolantType()));
+		return Math.min(reactorTemperature, getBoilingPoint(coolantType));
 	}
 	
 	/**

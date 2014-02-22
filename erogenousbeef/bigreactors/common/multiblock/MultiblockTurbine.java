@@ -27,6 +27,7 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
+import erogenousbeef.bigreactors.common.multiblock.helpers.FloatUpdateTracker;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
@@ -114,9 +115,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Data caches for validation
 	private Set<CoordTriplet> foundCoils;
 
+	private FloatUpdateTracker rpmUpdateTracker;
+	
 	private static final ForgeDirection[] RotorXBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.SOUTH, ForgeDirection.DOWN, ForgeDirection.NORTH };
 	private static final ForgeDirection[] RotorZBladeDirections = new ForgeDirection[] { ForgeDirection.UP, ForgeDirection.EAST, ForgeDirection.DOWN, ForgeDirection.WEST };
-
+	
 	public MultiblockTurbine(World world) {
 		super(world);
 
@@ -150,6 +153,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorEfficiencyLastTick = 1f;
 		
 		foundCoils = new HashSet<CoordTriplet>();
+		
+		rpmUpdateTracker = new FloatUpdateTracker(100, 5, 10f, 100f); // Minimum 10RPM difference for slow updates, if change > 100 RPM, update every 5 ticks
 	}
 
 	/**
@@ -222,7 +227,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorEnergy = data.readFloat();
 		energyGeneratedLastTick = data.readFloat();
 		maxIntakeRate = data.readInt();
-		this.active = data.readBoolean();
+		setActive(data.readBoolean());
 		ventStatus = VentStatus.values()[data.readInt()];
 		fluidConsumedLastTick = data.readInt();
 		rotorEfficiencyLastTick = data.readFloat();
@@ -388,6 +393,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		coilSize = 0;
 		
 		rotorEnergy = 0f; // Kill energy when machines get broken by players/explosions
+		rpmUpdateTracker.setValue(0f);
 	}
 
 	// Validation code
@@ -577,7 +583,15 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	
 	@Override
-	protected void onAssimilate(MultiblockControllerBase assimilated) {
+	protected void onAssimilate(MultiblockControllerBase otherMachine) {
+		if(!(otherMachine instanceof MultiblockTurbine)) {
+			FMLLog.warning("[%s] Turbine @ %s is attempting to assimilate a non-Turbine machine! That machine's data will be lost!", worldObj.isRemote?"CLIENT":"SERVER", getReferenceCoord());
+			return;
+		}
+		
+		MultiblockTurbine otherTurbine = (MultiblockTurbine)otherMachine;
+		
+		rotorEnergy += otherTurbine.rotorEnergy;
 	}
 
 	@Override
@@ -705,6 +719,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			sendTickUpdate();
 			ticksSinceLastUpdate = 0;
 		}
+		
+		if(rpmUpdateTracker.shouldUpdate(getRotorSpeed())) {
+			markReferenceCoordDirty();
+		}
 
 		return energyGeneratedLastTick > 0 || fluidConsumedLastTick > 0;
 	}
@@ -749,6 +767,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		if(data.hasKey("rotorEnergy")) {
 			rotorEnergy = data.getFloat("rotorEnergy");
 			if(Float.isNaN(rotorEnergy) || Float.isInfinite(rotorEnergy)) { rotorEnergy = 0f; }
+			
+			if(!worldObj.isRemote) {
+				rpmUpdateTracker.setValue(getRotorSpeed());
+			}
 		}
 		
 		if(data.hasKey("maxIntakeRate")) {
@@ -764,10 +786,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		readFromNBT(data);
-	}
-
-	@Override
-	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
 	}
 
 	// Nondirectional FluidHandler implementation, similar to IFluidHandler
@@ -1045,7 +1063,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		frictionalDrag = rotorMass * rotorDragCoefficient;
 	}
 	
-	public float getRotorSpeed() { return rotorEnergy / (attachedRotorBlades.size() * rotorMass); }
+	public float getRotorSpeed() {
+		if(attachedRotorBlades.size() <= 0 || rotorMass <= 0) { return 0f; }
+		return rotorEnergy / (attachedRotorBlades.size() * rotorMass);
+	}
+
 	public float getEnergyGeneratedLastTick() { return energyGeneratedLastTick; }
 	public int   getFluidConsumedLastTick() { return fluidConsumedLastTick; }
 	public int	 getNumRotorBlades() { return attachedRotorBlades.size(); }
@@ -1065,8 +1087,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		CoordTriplet referenceCoord = getReferenceCoord();
 		if(referenceCoord == null) { return; }
 
+		rpmUpdateTracker.onExternalUpdate();
+		
 		TileEntity saveTe = worldObj.getBlockTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
+		worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 	}
 	
 	// For client usage only

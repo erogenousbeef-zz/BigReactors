@@ -826,10 +826,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		this.readFromNBT(data);
 	}
 	
-	@Override
-	public void getOrphanData(IMultiblockPart newOrphan, int oldSize, int newSize, NBTTagCompound dataContainer) {
-	}
-
 	public float getEnergyStored() {
 		return energyStored;
 	}
