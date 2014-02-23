@@ -15,11 +15,7 @@ public class TileEntityTurbineRotorBearing extends
 		TileEntityTurbinePartStandard {
 
 	RotorInfo rotorInfo = null;
-	
-	@SideOnly(Side.CLIENT)
 	Integer displayList = null;
-	
-	@SideOnly(Side.CLIENT)
 	float angle = 0f;
 	
 	@SideOnly(Side.CLIENT)
@@ -39,6 +35,7 @@ public class TileEntityTurbineRotorBearing extends
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase controller) {
 		super.onMachineAssembled(controller);
+		displayList = null;
 		calculateRotorInfo();
 	}
 	
