@@ -19,6 +19,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
@@ -198,10 +199,21 @@ public class BigReactors {
 				OreDictionary.registerOre("ingotIron", Item.ingotIron);
 			}
 			
+			if(OreDictionary.getOres("ingotGold").size() <= 0) {
+				OreDictionary.registerOre("ingotGold", Item.ingotGold);
+			}
+			
 			// Use steel if the players are masochists and someone else has supplied steel.
 			String ironOrSteelIngot = "ingotIron";
 			if(useSteelForIron && OreDictionary.getOres("ingotSteel").size() > 0) {
 				ironOrSteelIngot = "ingotSteel";
+			}
+			
+			String yelloriumIngot = "ingotYellorium";
+			String blutoniumIngot = "ingotBlutonium";
+			if(registerYelloriumAsUranium) {
+				yelloriumIngot = "ingotUranium";
+				blutoniumIngot = "ingotPlutonium";
 			}
 			
 			/*
@@ -259,67 +271,65 @@ public class BigReactors {
 			
 			// Basic Parts: Reactor Casing, Fuel Rods
 			if(blockYelloriumFuelRod != null) {
-				if(registerYelloriumAsUranium)
-					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotUranium" } ));
-				else
-					GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotYellorium" } ));
+				GameRegistry.addRecipe(new ShapedOreRecipe( new ItemStack(blockYelloriumFuelRod, 1), new Object[] { "ICI", "IUI", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', yelloriumIngot } ));
 			}
 
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = ((BlockReactorPart) BigReactors.blockReactorPart).getReactorCasingItemStack(); 
 				reactorPartStack.stackSize = 4;
-				if(registerYelloriumAsUranium)
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotUranium" }));
-				else
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', "ingotYellorium" }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "ICI", "CUC", "ICI", 'I', ironOrSteelIngot, 'C', "ingotGraphite", 'U', yelloriumIngot }));
 			}
 			
 			// Advanced Parts: Control Rod, Access Port, Power Tap, Controller
 			if(blockReactorPart != null) {
 				ItemStack reactorPartStack = BigReactors.blockReactorPart.getReactorControllerItemStack(); 
 				
-				if(registerYelloriumAsUranium)
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotUranium", 'C', "reactorCasing", 'R', Item.redstone }));
-				else
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', "ingotYellorium", 'C', "reactorCasing", 'R', Item.redstone }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "GDG", "CRC", 'D', Item.diamond, 'G', yelloriumIngot, 'C', "reactorCasing", 'R', Item.redstone }));
+
 				reactorPartStack = BigReactors.blockReactorPart.getReactorPowerTapItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "R R", "CRC", 'C', "reactorCasing", 'R', Item.redstone }));
 
 				reactorPartStack = BigReactors.blockReactorPart.getAccessPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", " V ", "CPC", 'C', "reactorCasing", 'V', Block.chest, 'P', Block.pistonBase }));
 
+				reactorPartStack = BigReactors.blockReactorPart.getCoolantPortItemStack();
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "C C", "IVI", "CPC", 'C', "reactorCasing", 'V', Item.bucketEmpty, 'P', Block.pistonBase, 'I', ironOrSteelIngot }));
+				
 				if(Loader.isModLoaded("MineFactoryReloaded")) {
 					reactorPartStack = BigReactors.blockReactorPart.getRedNetPortItemStack();
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', Item.ingotGold }));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', "ingotGold" }));
 				}
 				
 				if(Loader.isModLoaded("ComputerCraft")) {
 					reactorPartStack = BigReactors.blockReactorPart.getComputerPortItemStack();
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold, 'P', "reactorRedstonePort" }));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', "ingotGold", 'P', "reactorRedstonePort" }));
 				}
 			}
 			
 			if(blockMultiblockGlass != null) {
 				ItemStack reactorGlassStack = blockMultiblockGlass.getItemStack("reactor");
+				ItemStack turbineGlassStack = blockMultiblockGlass.getItemStack("turbine");
 				
 				if(useExpensiveGlass && (OreDictionary.getOres("glassReinforced").size() > 0 || OreDictionary.getOres("glassHardened").size() > 0)) {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] {"GCG", 'G', "glassReinforced", 'C', "reactorCasing" } ));
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] {"GCG", 'G', "glassHardened", 'C', "reactorCasing" } ));
+					
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] {"GCG", 'G', "glassReinforced", 'C', "turbineHousing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] {"GCG", 'G', "glassHardened", 'C', "turbineHousing" } ));
 				}
 				else {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', Block.glass, 'C', "reactorCasing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] { "GCG", 'G', Block.glass, 'C', "turbineHousing" } ));
 					if(OreDictionary.getOres("glass").size() > 0) {
 						GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "reactorCasing" } ));
+						GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "turbineHousing" } ));
 					}
 				}
 			}
 			
 			if(blockReactorControlRod != null) {
 				ItemStack reactorControlRodStack = new ItemStack(BigReactors.blockReactorControlRod, 1);
-				if(registerYelloriumAsUranium)
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotUranium" }));
-				else
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', "ingotYellorium" }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, new Object[] { "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Item.redstone, 'U', yelloriumIngot }));
 			}
 			
 			if(blockSmallMachine != null) {
@@ -330,6 +340,34 @@ public class BigReactors {
 			if(blockReactorRedstonePort != null) {
 				ItemStack redstonePortStack = new ItemStack(BigReactors.blockReactorRedstonePort, 1);
 				GameRegistry.addRecipe(new ShapedOreRecipe(redstonePortStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold }));
+			}
+			
+			if(blockTurbinePart != null) {
+				ItemStack turbineHousing = blockTurbinePart.getItemStack("housing");
+				ItemStack turbineController = blockTurbinePart.getItemStack("controller");
+				ItemStack turbinePowerTap = blockTurbinePart.getItemStack("powerTap");
+				ItemStack turbineFluidPort = blockTurbinePart.getItemStack("fluidPort");
+				ItemStack turbineBearing = blockTurbinePart.getItemStack("bearing");
+
+				turbineHousing.stackSize = 4;
+				GameRegistry.addRecipe(new ShapedOreRecipe(turbineHousing, new Object[] { "IGI", "QCQ", "IGI", 'C', "ingotCyanite", 'I', ironOrSteelIngot, 'Q', Item.netherQuartz, 'G', "ingotGraphite" }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(turbineController, new Object[] { "H H", "BDB", "H H", 'H', "turbineHousing", 'D', Item.diamond, 'B', blutoniumIngot}));
+				GameRegistry.addRecipe(new ShapedOreRecipe(turbinePowerTap, new Object[] { "HRH", "R R", "HRH", 'H', "turbineHousing", 'R', Item.redstone}));
+				GameRegistry.addRecipe(new ShapedOreRecipe(turbineFluidPort, new Object[] { "H H", "IVI", "HPH", 'H', "turbineHousing", 'I', ironOrSteelIngot, 'V', Item.bucketEmpty, 'P', Block.pistonBase}));
+				GameRegistry.addRecipe(new ShapedOreRecipe(turbineBearing, new Object[] { "HRH", "DDD", "HRH", 'H', "turbineHousing", 'D', Item.diamond, 'R', "turbineRotorShaft"}));
+
+				if(Loader.isModLoaded("ComputerCraft")) {
+					ItemStack turbineComputerPort = blockTurbinePart.getItemStack("computerPort");
+					
+				}
+			}
+			
+			if(blockTurbineRotorPart != null) {
+				ItemStack rotorShaft = blockTurbineRotorPart.getItemStack("rotor");
+				ItemStack rotorBlade = blockTurbineRotorPart.getItemStack("blade");
+
+				GameRegistry.addRecipe(new ShapedOreRecipe(rotorShaft, new Object[] { "ICI", 'C', "ingotCyanite", 'I', ironOrSteelIngot }));
+				GameRegistry.addRecipe(new ShapedOreRecipe(rotorBlade, new Object[] { "CII", 'C', "ingotCyanite", 'I', ironOrSteelIngot }));
 			}
 			
 			registerGameBalanceData();
@@ -695,19 +733,19 @@ public class BigReactors {
 		BRRegistry.registerCoilPart("blockCelenegil", 3.3f, 1f); // Metallurgy
 		BRRegistry.registerCoilPart("blockTartarite", 3.5f, 1f); // Metallurgy
 		
-		BRRegistry.registerRadiationModeratorBlock("blockIron", 0.5f, 0.75f, 1.4f);
-		BRRegistry.registerRadiationModeratorBlock("blockGold", 0.52f, 0.8f, 1.45f);
-		BRRegistry.registerRadiationModeratorBlock("blockDiamond", 0.55f, 0.85f, 1.5f);
-		BRRegistry.registerRadiationModeratorBlock("blockEmerald", 0.55f, 0.85f, 1.5f);
-		BRRegistry.registerRadiationModeratorBlock("blockGraphite", 0.1f, 0.5f, 2f); // Graphite: a great moderator!
+		BRRegistry.registerReactorInteriorBlock("blockIron", 0.5f, 0.75f, 1.4f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorBlock("blockGold", 0.52f, 0.8f, 1.45f, IHeatEntity.conductivityGold);
+		BRRegistry.registerReactorInteriorBlock("blockDiamond", 0.55f, 0.85f, 1.5f, IHeatEntity.conductivityDiamond);
+		BRRegistry.registerReactorInteriorBlock("blockEmerald", 0.55f, 0.85f, 1.5f, IHeatEntity.conductivityEmerald);
+		BRRegistry.registerReactorInteriorBlock("blockGraphite", 0.1f, 0.5f, 2f, IHeatEntity.conductivityGold); // Graphite: a great moderator!
 		
 		//Water: 0.33f, 0.5f, 1.33f
-		BRRegistry.registerRadiationModeratorFluid("water", RadiationHelper.waterData.absorption, RadiationHelper.waterData.heatEfficiency, RadiationHelper.waterData.moderation);
-		BRRegistry.registerRadiationModeratorFluid("redstone", 0.75f, 0.55f, 1.6f);
-		BRRegistry.registerRadiationModeratorFluid("glowstone", 0.2f, 0.6f, 1.75f);
-		BRRegistry.registerRadiationModeratorFluid("cryotheum", 0.5f, 0.85f, 4f); // Cryotheum: an amazing moderator!
-		BRRegistry.registerRadiationModeratorFluid("ender", 0.9f, 0.75f, 2f);
-		BRRegistry.registerRadiationModeratorFluid("pyrothuem", 0.66f, 0.95f, 1f);
+		BRRegistry.registerReactorInteriorFluid("water", RadiationHelper.waterData.absorption, RadiationHelper.waterData.heatEfficiency, RadiationHelper.waterData.moderation, IHeatEntity.conductivityWater);
+		BRRegistry.registerReactorInteriorFluid("redstone", 0.75f, 0.55f, 1.6f, IHeatEntity.conductivityEmerald);
+		BRRegistry.registerReactorInteriorFluid("glowstone", 0.2f, 0.6f, 1.75f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorFluid("cryotheum", 0.5f, 0.85f, 4f, IHeatEntity.conductivityGold); // Cryotheum: an amazing moderator!
+		BRRegistry.registerReactorInteriorFluid("ender", 0.9f, 0.75f, 2f, IHeatEntity.conductivityGold);
+		BRRegistry.registerReactorInteriorFluid("pyrothuem", 0.66f, 0.95f, 1f, IHeatEntity.conductivityIron);
 	}
 	
 	// Stolen wholesale from Universal Electricity. Thanks Cal!
@@ -781,5 +819,4 @@ public class BigReactors {
 			fluidSteam.setIcons(iconSteamStill, iconSteamFlowing);
 		}
 	}
-
 }
