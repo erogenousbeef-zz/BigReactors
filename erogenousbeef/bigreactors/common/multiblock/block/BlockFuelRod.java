@@ -24,11 +24,12 @@ public class BlockFuelRod extends BlockContainer {
 	public BlockFuelRod(int id, Material material) {
 		super(id, material);
 		
-		this.setLightValue(0.9f);
-		this.setLightOpacity(1);
-		this.setCreativeTab(BigReactors.TAB);
-		this.setUnlocalizedName("yelloriumFuelRod");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "yelloriumFuelRod");
+		setHardness(4f);
+		setLightValue(0.9f);
+		setLightOpacity(1);
+		setCreativeTab(BigReactors.TAB);
+		setUnlocalizedName("yelloriumFuelRod");
+		setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "yelloriumFuelRod");
 	}
 
 	@Override

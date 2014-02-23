@@ -33,7 +33,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 		super(id, material);
 		
 		setStepSound(soundMetalFootstep);
-		setHardness(1.0f);
+		setHardness(4.0f);
 		setUnlocalizedName("blockReactorRedstonePort");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		setCreativeTab(BigReactors.TAB);

@@ -32,7 +32,7 @@ public class BlockTurbineRotorPart extends BlockContainer {
 		super(blockID, material);
 
 		setStepSound(soundMetalFootstep);
-		setHardness(1.0f);
+		setHardness(4.0f);
 		setUnlocalizedName("blockTurbineRotorPart");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbineRotorPart");
 		setCreativeTab(BigReactors.TAB);

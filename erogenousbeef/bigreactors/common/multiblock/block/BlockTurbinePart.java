@@ -85,7 +85,7 @@ public class BlockTurbinePart extends BlockContainer {
 		super(blockID, material);
 
 		setStepSound(soundMetalFootstep);
-		setHardness(1.0f);
+		setHardness(4.0f);
 		setUnlocalizedName("blockTurbinePart");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbinePart");
 		setCreativeTab(BigReactors.TAB);
