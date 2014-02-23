@@ -9,6 +9,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
+import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
@@ -29,8 +30,8 @@ public class RadiationHelper {
 	public static final float rfPerRadiationUnit = 10f; // RF generated per fission event
 	public static final float fissionEventsPerFuelUnit = 0.01f; // 1 fission event per 100 mB
 
-	public static final RadiationModeratorData airData = new RadiationModeratorData(0.1f, 0.25f, 1.1f);
-	public static final RadiationModeratorData waterData = new RadiationModeratorData(0.33f, 0.5f, 1.33f);
+	public static final ReactorInteriorData airData = new ReactorInteriorData(0.1f, 0.25f, 1.1f, IHeatEntity.conductivityAir);
+	public static final ReactorInteriorData waterData = new ReactorInteriorData(0.33f, 0.5f, 1.33f, IHeatEntity.conductivityWater);
 
 	private float fertility;
 	
@@ -153,26 +154,26 @@ public class RadiationHelper {
 	}
 	
 	private void moderateByBlock(RadiationData data, RadiationPacket radiation, int blockID, int metadata) {
-		RadiationModeratorData moderatorData = null;
+		ReactorInteriorData moderatorData = null;
 
 		if(blockID == Block.blockIron.blockID) {
-			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockIron");
+			moderatorData = BRRegistry.getReactorInteriorBlockData("blockIron");
 		}
 		else if(blockID == Block.blockGold.blockID) {
-			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockGold");
+			moderatorData = BRRegistry.getReactorInteriorBlockData("blockGold");
 		}
 		else if(blockID == Block.blockDiamond.blockID) {
-			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockDiamond");
+			moderatorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
 		}
 		else if(blockID == Block.blockEmerald.blockID) {
-			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockEmerald");
+			moderatorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
 		}
 		else {
 			// Oredict?
 			int oreId = OreDictionary.getOreID(new ItemStack(blockID, 1, metadata));
 
 			if(oreId >= 0) {
-				moderatorData = BRRegistry.getRadiationModeratorBlockData(OreDictionary.getOreName(oreId));
+				moderatorData = BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreId));
 			}
 		}
 		
@@ -188,7 +189,7 @@ public class RadiationHelper {
 		float absorption, heatEfficiency, moderation;
 		String name = fluid.getName();
 
-		RadiationModeratorData moderatorData = BRRegistry.getRadiationModeratorFluidData(fluid.getName());
+		ReactorInteriorData moderatorData = BRRegistry.getReactorInteriorFluidData(fluid.getName());
 		
 		if(moderatorData == null) {
 			moderatorData = waterData;
@@ -197,7 +198,7 @@ public class RadiationHelper {
 		applyModerationFactors(data, radiation, moderatorData);
 	}
 	
-	private static void applyModerationFactors(RadiationData data, RadiationPacket radiation, RadiationModeratorData moderatorData) {
+	private static void applyModerationFactors(RadiationData data, RadiationPacket radiation, ReactorInteriorData moderatorData) {
 		float radiationAbsorbed = radiation.intensity * moderatorData.absorption * (1f - radiation.hardness);
 		radiation.intensity = Math.max(0f, radiation.intensity - radiationAbsorbed);
 		radiation.hardness /= moderatorData.moderation;

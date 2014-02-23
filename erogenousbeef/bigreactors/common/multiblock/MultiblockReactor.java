@@ -515,7 +515,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		int metadata = world.getBlockMetadata(x, y, z);
 		int oreId = OreDictionary.getOreID(new ItemStack(blockId, 1, metadata));
 
-		if(oreId >= 0 && BRRegistry.getRadiationModeratorBlockData(OreDictionary.getOreName(oreId)) != null) {
+		if(oreId >= 0 && BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreId)) != null) {
 			return;
 		}
 		
@@ -525,7 +525,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(blockClass instanceof IFluidBlock) {
 				Fluid fluid = ((IFluidBlock)blockClass).getFluid();
 				String fluidName = fluid.getName();
-				if(BRRegistry.getRadiationModeratorFluidData(fluidName) != null) { return; }
+				if(BRRegistry.getReactorInteriorFluidData(fluidName) != null) { return; }
 
 				throw new MultiblockValidationException(String.format("%d, %d, %d - The fluid %s is not valid for the reactor's interior", x, y, z, fluidName));
 			}
