@@ -96,7 +96,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
 	
 	// Game balance constants
-	public final static int inputFluidPerBlade = 15; // mB
+	public final static int inputFluidPerBlade = 25; // mB
 	
 	float energyGeneratedLastTick;
 	int fluidConsumedLastTick;
