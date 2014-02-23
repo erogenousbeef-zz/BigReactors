@@ -2,10 +2,6 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import cpw.mods.fml.common.registry.GameRegistry;
-
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.item.ItemIngot;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
@@ -13,6 +9,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import net.minecraftforge.oredict.OreDictionary;
+import cpw.mods.fml.common.registry.GameRegistry;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.item.ItemIngot;
 
 public class BlockBRMetal extends Block {
 
