@@ -5,7 +5,6 @@ import dan200.computer.api.IComputerAccess;
 import dan200.computer.api.ILuaContext;
 import dan200.computer.api.IPeripheral;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort.ComputerMethod;
 
 public class TileEntityTurbineComputerPort extends
 		TileEntityTurbinePartStandard implements IPeripheral {
