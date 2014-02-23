@@ -20,6 +20,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
+import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
@@ -35,6 +36,7 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
+import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -45,6 +47,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineFluidPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartStandard;
@@ -79,6 +82,7 @@ public class BigReactors {
 	public static final int BLOCK_ID_PREFIX = 1750;
 	
 	public static Block blockYelloriteOre;
+	public static BlockBRMetal blockMetal;
 	public static Block blockYelloriumFuelRod;
 	public static BlockReactorPart blockReactorPart;
 	public static Block blockReactorControlRod;
@@ -220,6 +224,12 @@ public class BigReactors {
 				FurnaceRecipes.smelting().addSmelting(blockYelloriteOre.blockID, 0, product, 0.5f);
 			}
 			
+			
+			// Metal blocks
+			if(blockMetal != null && ingotGeneric != null) {
+				blockMetal.registerIngotRecipes(ingotGeneric);
+			}
+			
 			if(ingotGeneric != null) {
 				// Kind of a hack. Maps all ItemIngot dusts to ingots.
 				for(int i = 0; i < ItemIngot.DUST_OFFSET; i++) {
@@ -322,7 +332,7 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(redstonePortStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', Item.ingotGold }));
 			}
 			
-			registerReactorFuelData();
+			registerGameBalanceData();
 		}
 
 		INITIALIZED = true;
@@ -355,6 +365,7 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityTurbinePartStandard.class,  "BRTurbinePart");
 			GameRegistry.registerTileEntity(TileEntityTurbinePowerTap.class, "BRTurbinePowerTap");
 			GameRegistry.registerTileEntity(TileEntityTurbineFluidPort.class, "BRTurbineFluidPort");
+			GameRegistry.registerTileEntity(TileEntityTurbineComputerPort.class, "BRTurbineComputerPort");
 			GameRegistry.registerTileEntity(TileEntityTurbinePartGlass.class,  "BRTurbineGlass");
 			GameRegistry.registerTileEntity(TileEntityTurbineRotorBearing.class, "BRTurbineRotorBearing");
 			GameRegistry.registerTileEntity(TileEntityTurbineRotorPart.class, "BRTurbineRotorPart");
@@ -368,11 +379,16 @@ public class BigReactors {
 	public static ItemStack registerOres(int i, boolean b) {
 		BRConfig.CONFIGURATION.load();
 
-		if (blockYelloriteOre == null)
-		{
+		if (blockYelloriteOre == null) {
 			blockYelloriteOre = new BlockBROre(BRConfig.CONFIGURATION.getBlock("YelloriteOre", BigReactors.BLOCK_ID_PREFIX + 0).getInt());
 			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBigReactors.class, "YelloriteOre");
 			OreDictionary.registerOre("oreYellorite", blockYelloriteOre);
+		}
+
+		if(blockMetal == null) {
+			blockMetal = new BlockBRMetal(BRConfig.CONFIGURATION.getBlock("MetalBlock", BigReactors.BLOCK_ID_PREFIX + 13).getInt());
+			GameRegistry.registerBlock(BigReactors.blockMetal, ItemBlockBigReactors.class, "BRMetalBlock");
+			blockMetal.registerOreDictEntries();
 		}
 
 		boolean genYelloriteOre = BRConfig.CONFIGURATION.get("WorldGen", "GenerateYelloriteOre", true, "Add yellorite ore during world generation?").getBoolean(true);
@@ -643,7 +659,7 @@ public class BigReactors {
 	}
 	
 	// This must be done in init or later
-	protected static void registerReactorFuelData() {
+	protected static void registerGameBalanceData() {
 		// Register fluids as fuels
 		BRRegistry.registerReactorFluid(new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
 		BRRegistry.registerReactorFluid(new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
@@ -658,6 +674,40 @@ public class BigReactors {
 		// TODO: Fix the color of this
 		// TODO: Make a proper blutonium fluid
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
+		
+		BRRegistry.registerCoilPart("blockIron", 1f, 1f);
+		BRRegistry.registerCoilPart("blockGold", 2f, 1f);
+
+		BRRegistry.registerCoilPart("blockCopper", 1.2f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockOsmium", 1.2f, 1f);	// Mekanism
+		BRRegistry.registerCoilPart("blockBrass", 1.4f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockBronze", 1.4f, 1f);	// Mekanism, many others
+		BRRegistry.registerCoilPart("blockAluminum", 1.5f, 1f);	// TiCo, couple others
+		BRRegistry.registerCoilPart("blockSteel", 1.5f, 1f);	// Metallurgy, Mek, etc.
+		BRRegistry.registerCoilPart("blockSilver", 1.7f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockMithril", 2.2f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockOrichalcum", 2.3f, 1f); // Metallurgy
+		BRRegistry.registerCoilPart("blockElectrum", 2.5f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockQuicksilver", 2.6f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockPlatinum", 3f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockShiny", 3f, 1f);		// TE
+		BRRegistry.registerCoilPart("blockHaderoth", 3f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockCelenegil", 3.3f, 1f); // Metallurgy
+		BRRegistry.registerCoilPart("blockTartarite", 3.5f, 1f); // Metallurgy
+		
+		BRRegistry.registerRadiationModeratorBlock("blockIron", 0.5f, 0.75f, 1.4f);
+		BRRegistry.registerRadiationModeratorBlock("blockGold", 0.52f, 0.8f, 1.45f);
+		BRRegistry.registerRadiationModeratorBlock("blockDiamond", 0.55f, 0.85f, 1.5f);
+		BRRegistry.registerRadiationModeratorBlock("blockEmerald", 0.55f, 0.85f, 1.5f);
+		BRRegistry.registerRadiationModeratorBlock("blockGraphite", 0.1f, 0.5f, 2f); // Graphite: a great moderator!
+		
+		//Water: 0.33f, 0.5f, 1.33f
+		BRRegistry.registerRadiationModeratorFluid("water", RadiationHelper.waterData.absorption, RadiationHelper.waterData.heatEfficiency, RadiationHelper.waterData.moderation);
+		BRRegistry.registerRadiationModeratorFluid("redstone", 0.75f, 0.55f, 1.6f);
+		BRRegistry.registerRadiationModeratorFluid("glowstone", 0.2f, 0.6f, 1.75f);
+		BRRegistry.registerRadiationModeratorFluid("cryotheum", 0.5f, 0.85f, 4f); // Cryotheum: an amazing moderator!
+		BRRegistry.registerRadiationModeratorFluid("ender", 0.9f, 0.75f, 2f);
+		BRRegistry.registerRadiationModeratorFluid("pyrothuem", 0.66f, 0.95f, 1f);
 	}
 	
 	// Stolen wholesale from Universal Electricity. Thanks Cal!

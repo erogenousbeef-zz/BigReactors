@@ -23,10 +23,12 @@ import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.common.BRLog;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
+import erogenousbeef.bigreactors.common.multiblock.helpers.CoilPartData;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FloatUpdateTracker;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
@@ -83,7 +85,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Inductor dynamic constants - get from a table on assembly
 	float inductorDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
 	float inductionEfficiency = 0.5f; // Final energy rectification efficiency. Averaged based on coil material and shape. 0.25-0.5 = iron, 0.75-0.9 = diamond, 1 = perfect.
-	float inductionEnergyExponentBonus = 0f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
+	float inductionEnergyExponentBonus = 1f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
 
 	// Rotor dynamic constants - calculate on assembly
 	float rotorDragCoefficient = 0.01f; // RF/t lost to friction per unit of mass in the rotor.
@@ -94,7 +96,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
 	
 	// Game balance constants
-	final static float inductionEnergyCoefficient = 1.0f; // Power to raise the induced current by.
 	public final static int inputFluidPerBlade = 15; // mB
 	
 	float energyGeneratedLastTick;
@@ -541,7 +542,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		int metadata = world.getBlockMetadata(x,y,z);
 
 		// Coil windings below here:
-		if(isBlockPartOfCoil(x, y, z, blockId, metadata)) { 
+		if(getCoilPartData(x, y, z, blockId, metadata) != null) { 
 			foundCoils.add(new CoordTriplet(x,y,z));
 			return;
 		}
@@ -655,7 +656,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			// Yay for derivation. We're assuming delta-Time is always 1, as we're always calculating for 1 tick.
 			// RFs available to coils
 			float inductionTorque = rotorSpeed * inductorDragCoefficient * coilSize;
-			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyCoefficient + inductionEnergyExponentBonus) * inductionEfficiency;
+			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyExponentBonus) * inductionEfficiency;
 			if(energyToGenerate > 0f) {
 				// Efficiency curve. Rotors are 50% less efficient when not near 900/1800 RPMs.
 				float efficiency = (float)(0.25*Math.cos(rotorSpeed/(45.5*Math.PI))) + 0.75f;
@@ -1005,24 +1006,24 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		return true;
 	}
 	
-	private boolean isBlockPartOfCoil(int x, int y, int z) {
-		return isBlockPartOfCoil(x, y, z, worldObj.getBlockId(x,y,z), worldObj.getBlockMetadata(x, y, z));
+	private CoilPartData getCoilPartData(int x, int y, int z) {
+		return getCoilPartData(x, y, z, worldObj.getBlockId(x,y,z), worldObj.getBlockMetadata(x, y, z));
 	}
 	
-	private boolean isBlockPartOfCoil(int x, int y, int z, int blockID, int metadata) {
+	private CoilPartData getCoilPartData(int x, int y, int z, int blockID, int metadata) {
 		// Allow vanilla iron and gold blocks
-		if(blockID == Block.blockGold.blockID || blockID == Block.blockIron.blockID) { return true; }
+		if(blockID == Block.blockIron.blockID) { return BRRegistry.getCoilPartData("blockIron"); }
+		if(blockID == Block.blockGold.blockID) { return BRRegistry.getCoilPartData("blockGold"); }
 		
 		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
 		int oreId = OreDictionary.getOreID(new ItemStack(blockID, 1, metadata));
 
 		// Not oredicted? Buzz off.
-		if(oreId < 0) { return false; }
+		if(oreId < 0) { return null; }
 		
+		// TODO: Registry lookup
 		String oreName = OreDictionary.getOreName(oreId);
-		if(oreName.equals("blockCopper") || oreName.equals("blockIron") || oreName.equals("blockGold")) { return true; }
-		
-		return false;
+		return BRRegistry.getCoilPartData(oreName);
 	}
 	
 	/**
@@ -1038,6 +1039,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		rotorMass = 0;
 		bladeSurfaceArea = 0;
 		coilSize = 0;
+		float coilEfficiency = 0f;
+		float coilBonus = 0f;
 
 		// Loop over interior space. Calculate mass and blade area of rotor and size of coils
 		for(int x = minInterior.x; x <= maxInterior.x; x++) {
@@ -1045,6 +1048,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 				for(int z = minInterior.z; z <= maxInterior.z; z++) {
 					int blockId = worldObj.getBlockId(x, y, z);
 					int metadata = worldObj.getBlockMetadata(x, y, z);
+					CoilPartData coilData = null;
 
 					if(blockId == BigReactors.blockTurbineRotorPart.blockID) {
 						rotorMass += BigReactors.blockTurbineRotorPart.getRotorMass(blockId, metadata);
@@ -1053,13 +1057,18 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 						}
 					}
 					
-					if(isBlockPartOfCoil(x, y, z, blockId, metadata)) {
+					coilData = getCoilPartData(x, y, z, blockId, metadata); 
+					if(coilData != null) {
+						coilEfficiency += coilData.efficiency;
+						coilBonus += coilData.bonus;
 						coilSize += 1;
 					}
 				} // end z
 			} // end y
 		} // end x loop - looping over interior
 		
+		inductionEfficiency = (coilEfficiency * 0.33f) / coilSize;
+		inductionEnergyExponentBonus = Math.max(1f, (coilBonus / coilSize));
 		frictionalDrag = rotorMass * rotorDragCoefficient;
 	}
 	

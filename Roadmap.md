@@ -66,6 +66,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Particle effects for venting steam and stuff!
 - (DONE) TESR for rotating turbine when machine is active
 - (DONE) Computer port.
+- (DONE) Make gold coils work better than regular ones
 
 ### Graphics
 - (DONE) Fix reactor glass texture. Change to a nicer texture and port connected-texture code from turbines.
@@ -83,8 +84,7 @@ TODO - 0.3: The Coolant Update
 - Add turbine stuff to German and Chinese localization files
 
 ### Items
-- Add nuggets for the 4 types of ingots
-- Add blocks for the 4 types of ingots
+- (DONE) Add blocks for the 4 types of ingots
 
 ### Multiblock Turbine (post-0.3.0)
 - Cool particle effects when the reactor is on! (requires making my own particle, bleah)

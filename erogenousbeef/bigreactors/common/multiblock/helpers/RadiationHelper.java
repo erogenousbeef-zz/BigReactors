@@ -1,15 +1,18 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -25,6 +28,9 @@ public class RadiationHelper {
 	public static final float fuelPerRadiationUnit = 0.0007f; // fuel units used per fission event
 	public static final float rfPerRadiationUnit = 10f; // RF generated per fission event
 	public static final float fissionEventsPerFuelUnit = 0.01f; // 1 fission event per 100 mB
+
+	public static final RadiationModeratorData airData = new RadiationModeratorData(0.1f, 0.25f, 1.1f);
+	public static final RadiationModeratorData waterData = new RadiationModeratorData(0.33f, 0.5f, 1.33f);
 
 	private float fertility;
 	
@@ -142,90 +148,60 @@ public class RadiationHelper {
 		}
 	}
 	
-	static final float airAbsorption = 0.1f;
-	static final float airHeatEfficiency = 0.25f;
-	static final float airModeration = 1.1f;
-
 	private void moderateByAir(RadiationData data, RadiationPacket radiation) {
-		applyModerationFactors(data, radiation, airAbsorption, airModeration, airHeatEfficiency);
+		applyModerationFactors(data, radiation, airData);
 	}
 	
 	private void moderateByBlock(RadiationData data, RadiationPacket radiation, int blockID, int metadata) {
-		float absorption, heatEfficiency, moderation;
+		RadiationModeratorData moderatorData = null;
 
 		if(blockID == Block.blockIron.blockID) {
-			absorption = 0.5f;
-			moderation = 1.4f;
-			heatEfficiency = 0.75f;
+			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockIron");
 		}
 		else if(blockID == Block.blockGold.blockID) {
-			absorption = 0.52f;
-			moderation = 1.45f;
-			heatEfficiency = 0.8f;
+			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockGold");
 		}
 		else if(blockID == Block.blockDiamond.blockID) {
-			absorption = 0.55f;
-			moderation = 1.5f;
-			heatEfficiency = 0.85f;
+			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockDiamond");
 		}
 		else if(blockID == Block.blockEmerald.blockID) {
-			absorption = 0.55f;
-			moderation = 1.5f;
-			heatEfficiency = 0.85f;
+			moderatorData = BRRegistry.getRadiationModeratorBlockData("blockEmerald");
 		}
 		else {
-			absorption = airAbsorption;
-			heatEfficiency = airHeatEfficiency;
-			moderation = airModeration;
+			// Oredict?
+			int oreId = OreDictionary.getOreID(new ItemStack(blockID, 1, metadata));
+
+			if(oreId >= 0) {
+				moderatorData = BRRegistry.getRadiationModeratorBlockData(OreDictionary.getOreName(oreId));
+			}
 		}
 		
-		applyModerationFactors(data, radiation, absorption, heatEfficiency, moderation);
+		if(moderatorData == null) {
+			moderatorData = airData;
+		}
+
+		applyModerationFactors(data, radiation, moderatorData);
 	}
 	
 	private void moderateByFluid(RadiationData data, RadiationPacket radiation, Fluid fluid) {
+		
 		float absorption, heatEfficiency, moderation;
 		String name = fluid.getName();
 
-		if(name.equals("ender")) {
-			absorption = 0.9f;
-			moderation = 2.0f;
-			heatEfficiency = 0.75f;
-		}
-		else if(name.equals("cryotheum")) {
-			absorption = 0.66f;
-			moderation = 4.0f;
-			heatEfficiency = 0.6f;
-		}
-		else if(name.equals("redstone")) {
-			absorption = 0.75f;
-			moderation = 1.6f;
-			heatEfficiency = 0.5f;
-		}
-		else if(name.equals("pyrotheum")) {
-			absorption = 0.33f; // Not terribly absorptive
-			moderation = 0.66f; // Makes your radiation harder!
-			heatEfficiency = 0.7f; // But efficient...!
-		}
-		else if(name.equals("glowstone")) {
-			absorption = 0.2f;
-			moderation = 1.2f;
-			heatEfficiency = 0.6f;
-		}
-		else {
-			// Assume it's like water
-			absorption = 0.33f;
-			moderation = 1.33f;
-			heatEfficiency = 0.5f;
+		RadiationModeratorData moderatorData = BRRegistry.getRadiationModeratorFluidData(fluid.getName());
+		
+		if(moderatorData == null) {
+			moderatorData = waterData;
 		}
 
-		applyModerationFactors(data, radiation, absorption, heatEfficiency, moderation);
+		applyModerationFactors(data, radiation, moderatorData);
 	}
 	
-	private static void applyModerationFactors(RadiationData data, RadiationPacket radiation, float absorption, float heatEfficiency, float moderation) {
-		float radiationAbsorbed = radiation.intensity * absorption * (1f - radiation.hardness);
+	private static void applyModerationFactors(RadiationData data, RadiationPacket radiation, RadiationModeratorData moderatorData) {
+		float radiationAbsorbed = radiation.intensity * moderatorData.absorption * (1f - radiation.hardness);
 		radiation.intensity = Math.max(0f, radiation.intensity - radiationAbsorbed);
-		radiation.hardness /= moderation;
-		data.environmentRfChange += heatEfficiency * radiationAbsorbed * rfPerRadiationUnit;
+		radiation.hardness /= moderatorData.moderation;
+		data.environmentRfChange += moderatorData.heatEfficiency * radiationAbsorbed * rfPerRadiationUnit;
 	}
 	
 	// Data Access
