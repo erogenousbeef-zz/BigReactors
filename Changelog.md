@@ -12,6 +12,7 @@ Next Release (Anticipated Version: 0.3.0A)
 - Feature: Graphite blocks can now be used inside reactors as a radiation moderator. They're very good at this role.
 - Feature: Turbines can be controlled via Computercraft. Build a Turbine Computer Port.
 - Enhancement: Can now toggle direction of access ports by right-clicking them with a wrench, as well as within the UI.
+- Enhancement: Reactor and turbine parts are more resilient to being hit, so they aren't accidentally disassembled so easily.
 - Compatibility: Most metallurgy, Mekanism, TE and TiCo metals can be used inside turbines as induction coil parts. Rarer generally = better.
 - Balance: Rebalanced reactor heat, energy production and fuel consumption. Most reactors should see all three rise compared to 0.2.
 - UI: Reactor UI redone, tooltips on EVERYTHING! English only, currently.
