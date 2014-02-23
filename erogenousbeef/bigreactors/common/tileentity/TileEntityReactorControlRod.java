@@ -1011,7 +1011,7 @@ public class TileEntityReactorControlRod extends MultiblockTileEntityBase implem
 		// Else, treat as air and use default values
 		
 		float neutronsCaptured, neutronsModerated;
-		neutronsCaptured = radiation.getSlowRadiation() * 1f - neutronPermeability;
+		neutronsCaptured = radiation.getSlowRadiation() * (1f - neutronPermeability);
 		neutronsModerated = radiation.getFastRadiation() * neutronModeration;
 		
 		// TODO: Allow heating from radiation again in 0.3
