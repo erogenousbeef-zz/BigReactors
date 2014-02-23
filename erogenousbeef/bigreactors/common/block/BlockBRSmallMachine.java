@@ -21,6 +21,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
@@ -63,6 +64,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 				if(te instanceof TileEntityPoweredInventory) {
 					if(((TileEntityPoweredInventory)te).isActive()) {
 						if(metadata >= _activeIcons.length) {
+							FMLLog.warning("Block at %d, %d, %d has invalid metadata (%d)", te.xCoord, te.yCoord, te.zCoord, metadata);
 							return blockIcon;
 						}
 						else {
@@ -72,6 +74,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 				}
 				
 				if(metadata >= _icons.length) {
+					FMLLog.warning("Block at %d, %d, %d has invalid metadata (%d)", te.xCoord, te.yCoord, te.zCoord, metadata);
 					return blockIcon;
 				}
 				else {
