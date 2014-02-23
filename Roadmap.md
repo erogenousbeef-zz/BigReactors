@@ -81,7 +81,7 @@ TODO - 0.3: The Coolant Update
 - (DONE) Change current heat bar to show fuel heat
 - (DONE) Add RPM bar to turbine
 - (DONE) Add "dump fuel" button to access port GUI
-- Add turbine stuff to German and Chinese localization files
+- (DONE) Add turbine stuff to German and Chinese localization files
 
 ### Items
 - (DONE) Add blocks for the 4 types of ingots

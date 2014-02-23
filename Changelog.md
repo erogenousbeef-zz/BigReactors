@@ -3,6 +3,19 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
+- Core: Full rewrite of internal reactor mechanics. Substantially more efficient on servers.
+- Core: Big Reactors and BeefCore now log to their own channels, for server admins' convenience.
+- Feature: Reactors now have fluid inlet/outlet ports available to convert them to active cooling.
+- Feature: Active-cooled reactors convert water into steam. Can be used in any mod which uses steam.
+- Feature: Turbines have been introduced. Build a big turbine, pipe steam into it to generate power. Generally more efficient than passively-cooled reactors.
+- Feature: Yellorium, cyanite, blutonium and graphite can now be converted to/from blocks for decoration and storage.
+- Feature: Graphite blocks can now be used inside reactors as a radiation moderator. They're very good at this role.
+- Feature: Turbines can be controlled via Computercraft. Build a Turbine Computer Port.
+- Enhancement: Can now toggle direction of access ports by right-clicking them with a wrench, as well as within the UI.
+- Compatibility: Most metallurgy, Mekanism, TE and TiCo metals can be used inside turbines as induction coil parts. Rarer generally = better.
+- Balance: Rebalanced reactor heat, energy production and fuel consumption. Most reactors should see all three rise compared to 0.2.
+- UI: Reactor UI redone, tooltips on EVERYTHING! English only, currently.
+- Bugfix: Fixed a rare crash that could occur with itemducts attached to reactor access ports set to "out" mode.
 
 Current Release (0.2.15A)
 --------------------------------
