@@ -90,7 +90,7 @@ public class GuiTurbineController extends BeefGuiBase {
 		energyGeneratedString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += energyGeneratedIcon.getHeight() + 4;
 		
-		rotorEfficiencyIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("rotorEfficiency"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Efficiency", "", "Rotor blades can only fully", "capture energy from 15mB of", "fluid per blade.", "", "Efficiency drops if the flow", "of input fluid rises past", "capacity."});
+		rotorEfficiencyIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("rotorEfficiency"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Efficiency", "", "Rotor blades can only fully", String.format("capture energy from %d mB of", MultiblockTurbine.inputFluidPerBlade), "fluid per blade.", "", "Efficiency drops if the flow", "of input fluid rises past", "capacity."});
 		rotorEfficiencyString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += rotorEfficiencyIcon.getHeight() + 4;
 

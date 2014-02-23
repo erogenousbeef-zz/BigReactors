@@ -59,8 +59,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private BeefGuiIcon hotFluidIcon;
 	private BeefGuiFluidBar hotFluidBar;
 	
-	private FloatAverager averagedHeat;
-	
 	public GuiReactorStatus(Container container, TileEntityReactorPart tileEntityReactorPart) {
 		super(container);
 		
@@ -68,8 +66,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		this.part = tileEntityReactorPart;
 		this.reactor = part.getReactorController();
-		
-		this.averagedHeat = new FloatAverager(30);
 	}
 	
 	// Add controls, etc.
@@ -161,8 +157,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 		registerControl(coolantIcon);
 		registerControl(hotFluidIcon);
 		
-		averagedHeat.setAll(reactor.getReactorHeat());
-		
 		updateIcons();
 	}
 
@@ -184,9 +178,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 			statusString.setLabelText("Status: " + GuiConstants.DARKRED_TEXT + "Offline");
 		}
 		
-		// Grab averaged values
-		averagedHeat.add(reactor.getFuelHeat());
-		
 		outputString.setLabelText(getFormattedOutputString());
 		if(reactor.isPassivelyCooled()) {
 			outputString.setLabelTooltip(String.format("%.2f flux per tick", reactor.getEnergyGeneratedLastTick()));
@@ -195,7 +186,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 			outputString.setLabelTooltip(String.format("%.0f millibuckets per tick", reactor.getEnergyGeneratedLastTick()));
 		}
 
-		heatString.setLabelText(Integer.toString((int)averagedHeat.average()) + " C");
+		heatString.setLabelText(Integer.toString((int)reactor.getFuelHeat()) + " C");
 		coreHeatBar.setHeat(reactor.getFuelHeat());
 		caseHeatBar.setHeat(reactor.getReactorHeat());
 
