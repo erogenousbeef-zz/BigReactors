@@ -1,12 +1,16 @@
 package erogenousbeef.bigreactors.common;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.api.IReactorSolid;
+import erogenousbeef.bigreactors.common.multiblock.helpers.CoilPartData;
+import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationModeratorData;
 
 public abstract class BRRegistry {
 	
@@ -14,6 +18,77 @@ public abstract class BRRegistry {
 	private static List<IReactorFuel> _reactorWastes = new LinkedList<IReactorFuel>();
 	
 	private static List<IReactorSolid> _reactorSolids = new LinkedList<IReactorSolid>();
+	
+	private static Map<String, CoilPartData> _turbineCoilParts = new HashMap<String, CoilPartData>();
+	private static Map<String, RadiationModeratorData> _reactorModeratorBlocks = new HashMap<String, RadiationModeratorData>();
+	private static Map<String, RadiationModeratorData> _reactorModeratorFluids = new HashMap<String, RadiationModeratorData>();
+
+	/**
+	 * @param absorption	How much radiation this material absorbs and converts to heat. 0.0 = none, 1.0 = all.
+	 * @param heatEfficiency How efficiently radiation is converted to heat. 0 = no heat, 1 = all heat.
+	 * @param moderation	How well this material moderates radiation. This is a divisor; should not be below 1.
+	 */
+	public static void registerRadiationModeratorBlock(String oreDictName, float absorption, float heatEfficiency, float moderation) {
+		if(_reactorModeratorBlocks.containsKey(oreDictName)) {
+			BRLog.warning("Overriding existing radiation moderator block data for oredict name <%s>", oreDictName);
+			RadiationModeratorData data = _reactorModeratorBlocks.get(oreDictName);
+			data.absorption = absorption;
+			data.heatEfficiency = heatEfficiency;
+			data.moderation = moderation;
+		}
+		else {
+			_reactorModeratorBlocks.put(oreDictName, new RadiationModeratorData(absorption, heatEfficiency, moderation));
+		}
+	}
+
+	/**
+	 * @param absorption	How much radiation this material absorbs and converts to heat. 0.0 = none, 1.0 = all.
+	 * @param heatEfficiency How efficiently radiation is converted to heat. 0 = no heat, 1 = all heat.
+	 * @param moderation	How well this material moderates radiation. This is a divisor; should not be below 1.
+	 */
+	public static void registerRadiationModeratorFluid(String fluidName, float absorption, float heatEfficiency, float moderation) {
+		if(_reactorModeratorFluids.containsKey(fluidName)) {
+			BRLog.warning("Overriding existing radiation moderator fluid data for fluid name <%s>", fluidName);
+			RadiationModeratorData data = _reactorModeratorFluids.get(fluidName);
+			data.absorption = absorption;
+			data.heatEfficiency = heatEfficiency;
+			data.moderation = moderation;
+		}
+		else {
+			_reactorModeratorFluids.put(fluidName, new RadiationModeratorData(absorption, heatEfficiency, moderation));
+		}
+	}
+	
+	
+	public static RadiationModeratorData getRadiationModeratorBlockData(String oreDictName) {
+		return _reactorModeratorBlocks.get(oreDictName);
+	}
+
+	public static RadiationModeratorData getRadiationModeratorFluidData(String oreDictName) {
+		return _reactorModeratorFluids.get(oreDictName);
+	}
+	
+	/**
+	 * Register a block as permissible in a turbine's inductor coil.
+	 * @param oreDictName Name of the block, as registered in the ore dictionary
+	 * @param efficiency  Efficiency of the block. 1.0 == iron, 2.0 == gold, etc.
+	 * @param bonus		  Energy bonus of the block, if any. Normally 1.0. This is an exponential term and should only be used for EXTREMELY rare blocks!
+	 */
+	public static void registerCoilPart(String oreDictName, float efficiency, float bonus) {
+		if(_turbineCoilParts.containsKey(oreDictName)) {
+			CoilPartData data = _turbineCoilParts.get(oreDictName);
+			BRLog.warning("Overriding existing coil part data for oredict name <%s>, original values: eff %.2f / bonus %.2f, new values: eff %.2f / bonus %.2f", oreDictName, data.efficiency, data.bonus, efficiency, bonus); 
+			data.efficiency = efficiency;
+			data.bonus = bonus;
+		}
+		else {
+			_turbineCoilParts.put(oreDictName, new CoilPartData(efficiency, bonus));
+		}
+	}
+	
+	public static CoilPartData getCoilPartData(String oreDictName) {
+		return _turbineCoilParts.get(oreDictName);
+	}
 	
 	public static void registerReactorFluid(IReactorFuel fuelData) {
 		if(fuelData.isFuel() && fuelData.isWaste()) {

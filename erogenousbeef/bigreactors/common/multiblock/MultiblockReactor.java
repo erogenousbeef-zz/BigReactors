@@ -27,6 +27,7 @@ import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.common.BRLog;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
@@ -506,7 +507,15 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		
 		int blockId = world.getBlockId(x, y, z);
-		if(blockId == Block.blockIron.blockID || blockId == Block.blockGold.blockID || blockId == Block.blockDiamond.blockID) {
+		if(blockId == Block.blockIron.blockID || blockId == Block.blockGold.blockID || blockId == Block.blockDiamond.blockID || blockId == Block.blockEmerald.blockID) {
+			return;
+		}
+		
+		// Permit registered moderator blocks
+		int metadata = world.getBlockMetadata(x, y, z);
+		int oreId = OreDictionary.getOreID(new ItemStack(blockId, 1, metadata));
+
+		if(oreId >= 0 && BRRegistry.getRadiationModeratorBlockData(OreDictionary.getOreName(oreId)) != null) {
 			return;
 		}
 		
@@ -516,11 +525,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(blockClass instanceof IFluidBlock) {
 				Fluid fluid = ((IFluidBlock)blockClass).getFluid();
 				String fluidName = fluid.getName();
-				if(fluidName.equals("redstone") || fluidName.equals("pyrotheum") ||
-					fluidName.equals("cryotheum") || fluidName.equals("glowstone") ||
-					fluidName.equals("ender")) {
-					return;
-				}
+				if(BRRegistry.getRadiationModeratorFluidData(fluidName) != null) { return; }
+
 				throw new MultiblockValidationException(String.format("%d, %d, %d - The fluid %s is not valid for the reactor's interior", x, y, z, fluidName));
 			}
 			else {
