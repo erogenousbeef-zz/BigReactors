@@ -48,6 +48,8 @@ public class StaticUtils {
 		 */
 		public static ItemStack consumeItem(ItemStack stack, int amount)
 		{
+			if(stack == null) { return null; }
+
 			if(stack.stackSize <= amount)
 			{
 				if(stack.getItem().hasContainerItem())
