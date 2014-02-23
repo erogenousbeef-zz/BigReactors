@@ -1,16 +1,20 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
+import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
+import erogenousbeef.bigreactors.common.multiblock.helpers.ReactorInteriorData;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
@@ -159,66 +163,51 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 			}
 			else {
 				
-				int blockID;
+				int blockID, metadata;
 				blockID = worldObj.getBlockId(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
-				heatTransferRate += getConductivityFromBlockID(blockID);
+				metadata = worldObj.getBlockMetadata(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
+				heatTransferRate += getConductivityFromBlock(blockID, metadata);
 			}
 		}
 
 		return heatTransferRate;
 	}
 	
-	private float getConductivityFromBlockID(int blockID) {
+	private float getConductivityFromBlock(int blockID, int metadata) {
+		ReactorInteriorData interiorData = null;
+		
 		if(blockID == Block.blockIron.blockID) {
-			return IHeatEntity.conductivityIron;
+			interiorData = BRRegistry.getReactorInteriorBlockData("blockIron");
 		}
 		else if(blockID == Block.blockGold.blockID) {
-			return IHeatEntity.conductivityGold;
+			interiorData = BRRegistry.getReactorInteriorBlockData("blockGold");
 		}
 		else if(blockID == Block.blockDiamond.blockID) {
-			return IHeatEntity.conductivityDiamond;
+			interiorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
 		}
 		else if(blockID == Block.blockEmerald.blockID) {
-			return IHeatEntity.conductivityEmerald;
+			interiorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
 		}
 		else {
-			Block b = Block.blocksList[blockID];
-			if(b instanceof IFluidBlock) {
-				Fluid fluid = ((IFluidBlock)b).getFluid();
-				if(fluid != null) {
-					return getConductivityForFluid(fluid.getName());
-				}
-				else {
-					return IHeatEntity.conductivityWater;
+			int oreID = OreDictionary.getOreID(new ItemStack(blockID, 1, metadata));
+			if(oreID >= 0) {
+				interiorData = BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreID));
+			}
+			else if(blockID < Block.blocksList.length) {
+				Block b = Block.blocksList[blockID];
+				if(b instanceof IFluidBlock) {
+					Fluid fluid = ((IFluidBlock)b).getFluid();
+					if(fluid != null) {
+						interiorData = BRRegistry.getReactorInteriorFluidData(fluid.getName());
+					}
 				}
 			}
-			else {
-				// Screw it, just assume it's air.
-				return IHeatEntity.conductivityAir;
-			}
-		}
-	}
-	
-	private float getConductivityForFluid(String fluidName) {
-		if(fluidName.equals("water")) {
-			return IHeatEntity.conductivityWater;
-		}
-		else if(fluidName.equals("ender")) {
-			return IHeatEntity.conductivityGold;
-		}
-		else if(fluidName.equals("redstone")) {
-			return IHeatEntity.conductivityEmerald;
-		}
-		else if(fluidName.equals("cryotheum")) {
-			return IHeatEntity.conductivityGold;
-		}
-		else if(fluidName.equals("pyrotheum")) {
-			return IHeatEntity.conductivityGlass;
-		}
-		else if(fluidName.equals("glowstone")) {
-			return IHeatEntity.conductivityStone;
 		}
 		
-		return IHeatEntity.conductivityWater;
+		if(interiorData == null) {
+			interiorData = RadiationHelper.airData;
+		}
+		
+		return interiorData.heatConductivity;
 	}
 }
