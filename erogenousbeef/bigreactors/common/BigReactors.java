@@ -202,6 +202,10 @@ public class BigReactors {
 			if(OreDictionary.getOres("ingotGold").size() <= 0) {
 				OreDictionary.registerOre("ingotGold", Item.ingotGold);
 			}
+
+			if(OreDictionary.getOreID(new ItemStack(Block.glass)) < 0) {
+				OreDictionary.registerOre("glass", Block.glass);
+			}
 			
 			// Use steel if the players are masochists and someone else has supplied steel.
 			String ironOrSteelIngot = "ingotIron";
@@ -318,12 +322,8 @@ public class BigReactors {
 					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] {"GCG", 'G', "glassHardened", 'C', "turbineHousing" } ));
 				}
 				else {
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', Block.glass, 'C', "reactorCasing" } ));
-					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] { "GCG", 'G', Block.glass, 'C', "turbineHousing" } ));
-					if(OreDictionary.getOres("glass").size() > 0) {
-						GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "reactorCasing" } ));
-						GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "turbineHousing" } ));
-					}
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "reactorCasing" } ));
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, new Object[] { "GCG", 'G', "glass", 'C', "turbineHousing" } ));
 				}
 			}
 			
@@ -716,36 +716,39 @@ public class BigReactors {
 		BRRegistry.registerCoilPart("blockIron", 1f, 1f);
 		BRRegistry.registerCoilPart("blockGold", 2f, 1f);
 
-		BRRegistry.registerCoilPart("blockCopper", 1.2f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockOsmium", 1.2f, 1f);	// Mekanism
-		BRRegistry.registerCoilPart("blockBrass", 1.4f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockBronze", 1.4f, 1f);	// Mekanism, many others
-		BRRegistry.registerCoilPart("blockAluminum", 1.5f, 1f);	// TiCo, couple others
-		BRRegistry.registerCoilPart("blockSteel", 1.5f, 1f);	// Metallurgy, Mek, etc.
-		BRRegistry.registerCoilPart("blockSilver", 1.7f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockMithril", 2.2f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockOrichalcum", 2.3f, 1f); // Metallurgy
-		BRRegistry.registerCoilPart("blockElectrum", 2.5f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockQuicksilver", 2.6f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockPlatinum", 3f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockShiny", 3f, 1f);		// TE
-		BRRegistry.registerCoilPart("blockHaderoth", 3f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockCelenegil", 3.3f, 1f); // Metallurgy
-		BRRegistry.registerCoilPart("blockTartarite", 3.5f, 1f); // Metallurgy
+		BRRegistry.registerCoilPart("blockCopper",		1.2f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockOsmium",		1.2f, 1f);	// Mekanism
+		BRRegistry.registerCoilPart("blockBrass",		1.4f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockBronze",		1.4f, 1f);	// Mekanism, many others
+		BRRegistry.registerCoilPart("blockAluminum",	1.5f, 1f);	// TiCo, couple others
+		BRRegistry.registerCoilPart("blockSteel",		1.5f, 1f);	// Metallurgy, Mek, etc.
+		BRRegistry.registerCoilPart("blockInvar", 		1.5f, 1f);	// TE
+		BRRegistry.registerCoilPart("blockSilver", 		1.7f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockMithril", 	2.2f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockOrichalcum", 	2.3f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockElectrum", 	2.5f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockQuicksilver",	2.6f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockPlatinum",	3.0f, 1f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockShiny",		3.0f, 1f);	// TE
+		BRRegistry.registerCoilPart("blockEnderium",	3.0f, 1.02f);	// TE, note tiny energy bonus!
+		BRRegistry.registerCoilPart("blockHaderoth",	3.0f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockCelenegil",	3.3f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockTartarite",	3.5f, 1f);	// Metallurgy
 		
-		BRRegistry.registerReactorInteriorBlock("blockIron", 0.5f, 0.75f, 1.4f, IHeatEntity.conductivityIron);
-		BRRegistry.registerReactorInteriorBlock("blockGold", 0.52f, 0.8f, 1.45f, IHeatEntity.conductivityGold);
-		BRRegistry.registerReactorInteriorBlock("blockDiamond", 0.55f, 0.85f, 1.5f, IHeatEntity.conductivityDiamond);
-		BRRegistry.registerReactorInteriorBlock("blockEmerald", 0.55f, 0.85f, 1.5f, IHeatEntity.conductivityEmerald);
-		BRRegistry.registerReactorInteriorBlock("blockGraphite", 0.1f, 0.5f, 2f, IHeatEntity.conductivityGold); // Graphite: a great moderator!
+		BRRegistry.registerReactorInteriorBlock("blockIron",		0.50f, 0.75f, 1.40f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorBlock("blockGold",		0.52f, 0.80f, 1.45f, IHeatEntity.conductivityGold);
+		BRRegistry.registerReactorInteriorBlock("blockDiamond",		0.55f, 0.85f, 1.50f, IHeatEntity.conductivityDiamond);
+		BRRegistry.registerReactorInteriorBlock("blockEmerald",		0.55f, 0.85f, 1.50f, IHeatEntity.conductivityEmerald);
+		BRRegistry.registerReactorInteriorBlock("blockGraphite",	0.10f, 0.50f, 2.00f, IHeatEntity.conductivityGold); // Graphite: a great moderator!
+		BRRegistry.registerReactorInteriorBlock("glass",			0.20f, 0.25f, 1.10f, IHeatEntity.conductivityGlass);
 		
 		//Water: 0.33f, 0.5f, 1.33f
 		BRRegistry.registerReactorInteriorFluid("water", RadiationHelper.waterData.absorption, RadiationHelper.waterData.heatEfficiency, RadiationHelper.waterData.moderation, IHeatEntity.conductivityWater);
-		BRRegistry.registerReactorInteriorFluid("redstone", 0.75f, 0.55f, 1.6f, IHeatEntity.conductivityEmerald);
-		BRRegistry.registerReactorInteriorFluid("glowstone", 0.2f, 0.6f, 1.75f, IHeatEntity.conductivityCopper);
-		BRRegistry.registerReactorInteriorFluid("cryotheum", 0.5f, 0.85f, 4f, IHeatEntity.conductivityGold); // Cryotheum: an amazing moderator!
-		BRRegistry.registerReactorInteriorFluid("ender", 0.9f, 0.75f, 2f, IHeatEntity.conductivityGold);
-		BRRegistry.registerReactorInteriorFluid("pyrothuem", 0.66f, 0.95f, 1f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorFluid("redstone",		0.75f, 0.55f, 1.60f, IHeatEntity.conductivityEmerald);
+		BRRegistry.registerReactorInteriorFluid("glowstone",	0.20f, 0.60f, 1.75f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorFluid("cryotheum",	0.50f, 0.85f, 4.00f, IHeatEntity.conductivityGold); // Cryotheum: an amazing moderator!
+		BRRegistry.registerReactorInteriorFluid("ender",		0.90f, 0.75f, 2.00f, IHeatEntity.conductivityGold);
+		BRRegistry.registerReactorInteriorFluid("pyrothuem",	0.66f, 0.95f, 1.00f, IHeatEntity.conductivityIron);
 	}
 	
 	// Stolen wholesale from Universal Electricity. Thanks Cal!
