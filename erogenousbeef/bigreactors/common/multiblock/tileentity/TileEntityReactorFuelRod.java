@@ -53,8 +53,8 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 
 		// Control rods increase total neutron absorption, but decrease the total neutrons which fertilize the fuel
 		// Absorb up to 50% better with control rods inserted.
-		controlRodBonus = (1f - scaledAbsorption) * controlRodInsertion * 0.5f;
-		controlRodPenalty = scaledAbsorption * controlRodInsertion * 0.5f;
+		float controlRodBonus = (1f - scaledAbsorption) * controlRodInsertion * 0.5f;
+		float controlRodPenalty = scaledAbsorption * controlRodInsertion * 0.5f;
 		
 		float radiationAbsorbed = (scaledAbsorption + controlRodBonus) * radiation.intensity;
 		float fertilityAbsorbed = (scaledAbsorption - controlRodPenalty) * radiation.intensity;
