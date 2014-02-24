@@ -709,6 +709,11 @@ public class BigReactors {
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(yelloriumStack, fluidYellorium));
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(cyaniteStack, fluidCyanite));
 
+		BRConfig.CONFIGURATION.load();
+		boolean enableFantasyMetals = BRConfig.CONFIGURATION.get("General", "enableMetallurgyFantasyMetalsInTurbines", true, "If true, allows Metallurgy's fantasy metals to be used as part of turbine coils. Default: true").getBoolean(true);
+		boolean enableComedy 		= BRConfig.CONFIGURATION.get("General", "enableComedy", true, "If true, allows weird stuff inside reactors, like MFR sewage and pink slime. Default: true").getBoolean(true);
+		BRConfig.CONFIGURATION.save();
+
 		// TODO: Fix the color of this
 		// TODO: Make a proper blutonium fluid
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
@@ -724,16 +729,22 @@ public class BigReactors {
 		BRRegistry.registerCoilPart("blockSteel",		1.5f, 1f);	// Metallurgy, Mek, etc.
 		BRRegistry.registerCoilPart("blockInvar", 		1.5f, 1f);	// TE
 		BRRegistry.registerCoilPart("blockSilver", 		1.7f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockMithril", 	2.2f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockOrichalcum", 	2.3f, 1f);	// Metallurgy
 		BRRegistry.registerCoilPart("blockElectrum", 	2.5f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockQuicksilver",	2.6f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockElectrumFlux",2.5f, 1.01f);	// Redstone Arsenal, note small energy bonus (7% at 1000RF/t output)
 		BRRegistry.registerCoilPart("blockPlatinum",	3.0f, 1f);	// TE, lots of mods
 		BRRegistry.registerCoilPart("blockShiny",		3.0f, 1f);	// TE
-		BRRegistry.registerCoilPart("blockEnderium",	3.0f, 1.02f);	// TE, note tiny energy bonus!
-		BRRegistry.registerCoilPart("blockHaderoth",	3.0f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockCelenegil",	3.3f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockTartarite",	3.5f, 1f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockPlatinum",	3.1f, 1f);	// Mariculture
+		BRRegistry.registerCoilPart("blockEnderium",	3.0f, 1.02f);	// TE, note tiny energy bonus!	(14% at 1000RF/t output)
+
+		if(enableFantasyMetals) {
+			// Metallurgy fantasy metals
+			BRRegistry.registerCoilPart("blockMithril", 	2.2f, 1f);
+			BRRegistry.registerCoilPart("blockOrichalcum", 	2.3f, 1f);
+			BRRegistry.registerCoilPart("blockQuicksilver",	2.6f, 1f);
+			BRRegistry.registerCoilPart("blockHaderoth",	3.0f, 1f);
+			BRRegistry.registerCoilPart("blockCelenegil",	3.3f, 1f);
+			BRRegistry.registerCoilPart("blockTartarite",	3.5f, 1f);
+		}
 		
 		BRRegistry.registerReactorInteriorBlock("blockIron",		0.50f, 0.75f, 1.40f, IHeatEntity.conductivityIron);
 		BRRegistry.registerReactorInteriorBlock("blockGold",		0.52f, 0.80f, 1.45f, IHeatEntity.conductivityGold);
@@ -742,6 +753,31 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorBlock("blockGraphite",	0.10f, 0.50f, 2.00f, IHeatEntity.conductivityGold); // Graphite: a great moderator!
 		BRRegistry.registerReactorInteriorBlock("glass",			0.20f, 0.25f, 1.10f, IHeatEntity.conductivityGlass);
 		
+		// Mod blocks
+		BRRegistry.registerReactorInteriorBlock("blockCopper", 		0.50f, 0.75f, 1.40f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorBlock("blockOsmium", 		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorBlock("blockBrass", 		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorBlock("blockBronze", 		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorBlock("blockAluminum", 	0.50f, 0.78f, 1.42f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorBlock("blockSteel",	 	0.50f, 0.78f, 1.42f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorBlock("blockInvar",	 	0.50f, 0.79f, 1.43f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorBlock("blockSilver", 		0.51f, 0.79f, 1.43f, IHeatEntity.conductivitySilver);
+		BRRegistry.registerReactorInteriorBlock("blockElectrum", 	0.53f, 0.82f, 1.47f, 2.2f); // Between gold and emerald
+		BRRegistry.registerReactorInteriorBlock("blockElectrumFlux",0.54f, 0.83f, 1.48f, 2.4f); // Between gold and emerald
+		BRRegistry.registerReactorInteriorBlock("blockPlatinum", 	0.57f, 0.86f, 1.58f, IHeatEntity.conductivityEmerald);
+		BRRegistry.registerReactorInteriorBlock("blockShiny", 		0.57f, 0.86f, 1.58f, IHeatEntity.conductivityEmerald);		
+		BRRegistry.registerReactorInteriorBlock("blockTitanium", 	0.58f, 0.87f, 1.59f, 2.7f); // Mariculture
+		BRRegistry.registerReactorInteriorBlock("blockEnderium", 	0.60f, 0.88f, 1.60f, IHeatEntity.conductivityDiamond);
+
+		if(enableFantasyMetals) {
+			BRRegistry.registerReactorInteriorBlock("blockMithril", 	0.53f, 0.81f, 1.45f, IHeatEntity.conductivitySilver);
+			BRRegistry.registerReactorInteriorBlock("blockOrichalcum", 	0.52f, 0.83f, 1.46f, 1.7f);	// Between silver and gold
+			BRRegistry.registerReactorInteriorBlock("blockQuicksilver", 0.53f, 0.84f, 1.48f, IHeatEntity.conductivityGold);
+			BRRegistry.registerReactorInteriorBlock("blockHaderoth", 	0.54f, 0.84f, 1.49f, IHeatEntity.conductivityEmerald);
+			BRRegistry.registerReactorInteriorBlock("blockCelenegil", 	0.54f, 0.84f, 1.49f, IHeatEntity.conductivityDiamond);
+			BRRegistry.registerReactorInteriorBlock("blockTartarite", 	0.65f, 0.90f, 1.62f, 4f); // Between diamond and graphene
+		}
+
 		//Water: 0.33f, 0.5f, 1.33f
 		BRRegistry.registerReactorInteriorFluid("water", RadiationHelper.waterData.absorption, RadiationHelper.waterData.heatEfficiency, RadiationHelper.waterData.moderation, IHeatEntity.conductivityWater);
 		BRRegistry.registerReactorInteriorFluid("redstone",		0.75f, 0.55f, 1.60f, IHeatEntity.conductivityEmerald);
@@ -749,6 +785,16 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorFluid("cryotheum",	0.50f, 0.85f, 4.00f, IHeatEntity.conductivityGold); // Cryotheum: an amazing moderator!
 		BRRegistry.registerReactorInteriorFluid("ender",		0.90f, 0.75f, 2.00f, IHeatEntity.conductivityGold);
 		BRRegistry.registerReactorInteriorFluid("pyrothuem",	0.66f, 0.95f, 1.00f, IHeatEntity.conductivityIron);
+		
+		BRRegistry.registerReactorInteriorFluid("liquid essence", 0.70f, 0.55f, 1.75f, IHeatEntity.conductivityGold); // From Blood Magic
+
+		if(enableComedy) {
+			BRRegistry.registerReactorInteriorBlock("blockMeat", 	0.50f, 0.33f, 1.33f, IHeatEntity.conductivityStone);
+			BRRegistry.registerReactorInteriorBlock("blockMeatRaw",	0.40f, 0.50f, 1.50f, IHeatEntity.conductivityStone);
+			BRRegistry.registerReactorInteriorFluid("meat",			0.40f, 0.60f, 1.33f, IHeatEntity.conductivityStone);
+			BRRegistry.registerReactorInteriorFluid("pinkSlime",	0.45f, 0.70f, 1.50f, IHeatEntity.conductivityIron);
+			BRRegistry.registerReactorInteriorFluid("sewage",		0.50f, 0.65f, 1.44f, IHeatEntity.conductivityIron);
+		}
 	}
 	
 	// Stolen wholesale from Universal Electricity. Thanks Cal!
