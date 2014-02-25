@@ -3,6 +3,18 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
+- Enhancement: Glass can now be used inside a reactor. It's not a very good moderator or heat conductor, but is useful for corralling fluids.
+- Enhancement: Invar and enderium blocks can now be used as turbine coil parts.
+- Enhancement: TE, Mekanism and Metallurgy metals can now be used inside a reactor, similar to iron/gold/diamond/emerald blocks.
+- Enhancement: Redstone Arsenal's fluxed electrum blocks can now be used in reactors and turbine coils.
+- Config: Metallurgy's fantasy metals can be disallowed as coil parts in the config if you feel them unbalanced. Set "enableMetallurgyFantasyMetals" to false.
+- Config: Added "comedy" option. If enabled, allows MFR's sewage, meat blocks and fluid meat/pink-slime to be used as a slight upgrade to water inside a reactor. Disabled by default.
+- Bugfix: Rotor turbines no longer become invisible if a turbine is broken while activated
+- Bugfix: Control rods no longer cause fertility to skyrocket when inserted. (Thanks XXX!)
+
+
+Current Release (0.3.0rc1)
+--------------------------------
 - Core: Full rewrite of internal reactor mechanics. Substantially more efficient on servers.
 - Core: Big Reactors and BeefCore now log to their own channels, for server admins' convenience.
 - Feature: Reactors now have fluid inlet/outlet ports available to convert them to active cooling.
@@ -18,15 +30,17 @@ Next Release (Anticipated Version: 0.3.0A)
 - UI: Reactor UI redone, tooltips on EVERYTHING! English only, currently.
 - Bugfix: Fixed a rare crash that could occur with itemducts attached to reactor access ports set to "out" mode.
 
-Current Release (0.2.15A)
---------------------------------
+Older Releases
+--------------
+### Release 0.3.0rc1
+
+
+### Release 0.2.15A
 - Core: Changed how block attachment is tracked to a much more robust system
 - Bugfix: Fixed crashes that could occur when logging into chunks with lots of machines, on a low-spec computer running a large modpack.
 - Bugfix: Fixed some potential spontaneous-disassembly bugs.
 - Bugfix: Fixed a client crash that could occur when right-clicking the reactor to get debug output, in rare cases.
 
-Older Releases
---------------
 ### Release 0.2.14A
 - Enhancement: The empty-hand right-click validation tool now has more-informative error messages.
 - Bugfix: Fixed a compatibility glitch between BR and Railcraft. Reactors should no longer mysteriously disassemble when BR is used alongside Railcraft.
