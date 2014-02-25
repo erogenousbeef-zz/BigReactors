@@ -61,7 +61,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		
 		if(te instanceof TileEntityTurbineRotorPart) {
 			TileEntityTurbineRotorPart rotorPart = (TileEntityTurbineRotorPart)te;
-			if(rotorPart.isConnected() && rotorPart.getTurbine().isActive()) {
+			if(rotorPart.isConnected() && rotorPart.getTurbine().isAssembled() && rotorPart.getTurbine().isActive()) {
 				// Don't draw if the turbine's active.
 				return false;
 			}
