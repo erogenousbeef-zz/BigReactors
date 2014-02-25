@@ -18,6 +18,8 @@ Known Issues
 
 TODO - 0.3: The Coolant Update
 ------------------------------
+### Compatibility
+- Change "liquid essence" to "life essence"
 
 ### Graphics
 - Cool particle effects when the reactor is on! (requires making my own particle, bleah)
@@ -31,6 +33,7 @@ TODO - 0.3: The Coolant Update
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
 - Different types of coolant with different transference properties
+- Add "special steam" mode for people who complain about Power Converters/Railcraft steam
 
 ### Reactor meltdowns (may slip to 0.4)
 - Add option to enable reactor meltdowns to config
@@ -95,6 +98,7 @@ Wishlist
 
 ### Interoperability
 - Add MFR compatibility for drinking BR fluids with a straw
+- Some way of extracting fuel from thaumcraft nodes?
 
 ### More stuff with liquids
 - Add nasty side effects for going near pools of yellorium
