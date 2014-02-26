@@ -13,6 +13,7 @@ Next Release (Anticipated Version: 0.3.0A)
 - Bugfix: Rotor turbines no longer become invisible if a turbine is broken while activated
 - Bugfix: Control rods no longer cause fertility to skyrocket when inserted. (Thanks XXX!)
 - Bugfix: Rotors no longer render incorrectly when bearings are on the top, east or south sides of the reactor.
+- Bugfix: Hi-rez GUI icons no longer render at insane sizes
 
 Current Release (0.3.0rc1)
 --------------------------------

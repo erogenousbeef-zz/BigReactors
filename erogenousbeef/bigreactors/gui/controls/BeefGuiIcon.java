@@ -19,15 +19,12 @@ public class BeefGuiIcon extends BeefGuiControlBase implements IBeefTooltipContr
 		this(container, absoluteX, absoluteY, 16, 16);
 	}
 	
-	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY, Icon icon) {
-		this(container, absoluteX, absoluteY, icon.getIconWidth(), icon.getIconHeight());	
+	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY, int sizeX, int sizeY, Icon icon, String[] tooltip) {
+		this(container, absoluteX, absoluteY, sizeX, sizeY);
 		this.icon = icon;
-	}
-
-	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY, Icon icon, String[] tooltip) {
-		this(container, absoluteX, absoluteY, icon);
 		this.tooltip = tooltip;
 	}
+
 	
 	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY,
 			int width, int height) {
