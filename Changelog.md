@@ -3,6 +3,7 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
+- Enhancement: Russian translation, thanks to Vladimir Gendel!
 - Enhancement: Glass can now be used inside a reactor. It's not a very good moderator or heat conductor, but is useful for corralling fluids.
 - Enhancement: Invar and enderium blocks can now be used as turbine coil parts.
 - Enhancement: TE, Mekanism and Metallurgy metals can now be used inside a reactor, similar to iron/gold/diamond/emerald blocks.
@@ -11,7 +12,7 @@ Next Release (Anticipated Version: 0.3.0A)
 - Config: Added "comedy" option. If enabled, allows MFR's sewage, meat blocks and fluid meat/pink-slime to be used as a slight upgrade to water inside a reactor. Disabled by default.
 - Bugfix: Rotor turbines no longer become invisible if a turbine is broken while activated
 - Bugfix: Control rods no longer cause fertility to skyrocket when inserted. (Thanks XXX!)
-
+- Bugfix: Rotors no longer render incorrectly when bearings are on the top, east or south sides of the reactor.
 
 Current Release (0.3.0rc1)
 --------------------------------

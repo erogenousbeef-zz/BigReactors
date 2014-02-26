@@ -68,7 +68,7 @@ public class RotorSpecialRenderer extends TileEntitySpecialRenderer {
 			GL11.glTranslated(0.5, 0.5, 0);
 		}
 
-		GL11.glRotatef(angle, Math.abs(rotorDir.offsetX), Math.abs(rotorDir.offsetY), Math.abs(rotorDir.offsetZ));
+		GL11.glRotatef(angle, rotorDir.offsetX, rotorDir.offsetY, rotorDir.offsetZ);
 		GL11.glColor3f(1f, 1f, 1f);
 		GL11.glCallList(displayList);
 
@@ -83,25 +83,7 @@ public class RotorSpecialRenderer extends TileEntitySpecialRenderer {
 
 		ForgeDirection rotorDir = rotorInfo.rotorDirection;
 		int rotorLen = rotorInfo.rotorLength;
-		CoordTriplet currentRotorCoord;
-		switch(rotorDir) {
-		case DOWN:
-		case WEST:
-		case NORTH:
-			currentRotorCoord = new CoordTriplet(rotorDir.offsetX * rotorLen, rotorDir.offsetY * rotorLen, rotorDir.offsetZ * rotorLen);
-			rotorDir = rotorDir.getOpposite();
-			break;
-		case SOUTH:
-		case UP:
-		case EAST:
-			currentRotorCoord = new CoordTriplet(0,0,0);
-			break;
-		case UNKNOWN:
-		default:
-			// Derp?!
-			GL11.glEndList();
-			return list;
-		}
+		CoordTriplet currentRotorCoord = new CoordTriplet(0,0,0);
 
 		Tessellator tessellator = Tessellator.instance;
 		if(rotorDir.offsetX != 0) {
