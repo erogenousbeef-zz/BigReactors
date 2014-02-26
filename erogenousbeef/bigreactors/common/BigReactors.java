@@ -782,11 +782,11 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorFluid("water", RadiationHelper.waterData.absorption, RadiationHelper.waterData.heatEfficiency, RadiationHelper.waterData.moderation, IHeatEntity.conductivityWater);
 		BRRegistry.registerReactorInteriorFluid("redstone",		0.75f, 0.55f, 1.60f, IHeatEntity.conductivityEmerald);
 		BRRegistry.registerReactorInteriorFluid("glowstone",	0.20f, 0.60f, 1.75f, IHeatEntity.conductivityCopper);
-		BRRegistry.registerReactorInteriorFluid("cryotheum",	0.50f, 0.85f, 4.00f, IHeatEntity.conductivityGold); // Cryotheum: an amazing moderator!
+		BRRegistry.registerReactorInteriorFluid("cryotheum",	0.66f, 0.95f, 6.00f, IHeatEntity.conductivityEmerald); // Cryotheum: an amazing moderator!
 		BRRegistry.registerReactorInteriorFluid("ender",		0.90f, 0.75f, 2.00f, IHeatEntity.conductivityGold);
-		BRRegistry.registerReactorInteriorFluid("pyrothuem",	0.66f, 0.95f, 1.00f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorFluid("pyrothuem",	0.66f, 0.90f, 1.00f, IHeatEntity.conductivityIron);
 		
-		BRRegistry.registerReactorInteriorFluid("liquid essence", 0.70f, 0.55f, 1.75f, IHeatEntity.conductivityGold); // From Blood Magic
+		BRRegistry.registerReactorInteriorFluid("life essence", 0.70f, 0.55f, 1.75f, IHeatEntity.conductivityGold); // From Blood Magic
 
 		if(enableComedy) {
 			BRRegistry.registerReactorInteriorBlock("blockMeat", 	0.50f, 0.33f, 1.33f, IHeatEntity.conductivityStone);
