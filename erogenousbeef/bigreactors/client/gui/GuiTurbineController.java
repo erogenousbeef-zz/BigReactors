@@ -82,31 +82,31 @@ public class GuiTurbineController extends BeefGuiBase {
 		titleString = new BeefGuiLabel(this, "Turbine Control", leftX, topY);
 		topY += titleString.getHeight() + 4;
 		
-		speedIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("rpm"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Speed", "", "Speed of the rotor in", "revolutions per minute.", "", "Rotors perform best at 900", "or 1800 RPM.", "", "Speeds over 2000PM are overspeed", "and may cause a turbine to", "fail catastrophically." });
+		speedIcon = new BeefGuiIcon(this, leftX + 1, topY, 16, 16, ClientProxy.GuiIcons.getIcon("rpm"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Speed", "", "Speed of the rotor in", "revolutions per minute.", "", "Rotors perform best at 900", "or 1800 RPM.", "", "Speeds over 2000PM are overspeed", "and may cause a turbine to", "fail catastrophically." });
 		speedString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += speedIcon.getHeight() + 4;
 
-		energyGeneratedIcon = new BeefGuiIcon(this, leftX+1, topY, ClientProxy.GuiIcons.getIcon("energyOutput"), new String[] { GuiConstants.LITECYAN_TEXT + "Energy Output", "", "Turbines generate energy via", "metal induction coils placed", "around a spinning rotor.", "More, or higher-quality, coils", "generate energy faster."});
+		energyGeneratedIcon = new BeefGuiIcon(this, leftX+1, topY, 16, 16, ClientProxy.GuiIcons.getIcon("energyOutput"), new String[] { GuiConstants.LITECYAN_TEXT + "Energy Output", "", "Turbines generate energy via", "metal induction coils placed", "around a spinning rotor.", "More, or higher-quality, coils", "generate energy faster."});
 		energyGeneratedString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += energyGeneratedIcon.getHeight() + 4;
 		
-		rotorEfficiencyIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("rotorEfficiency"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Efficiency", "", "Rotor blades can only fully", String.format("capture energy from %d mB of", MultiblockTurbine.inputFluidPerBlade), "fluid per blade.", "", "Efficiency drops if the flow", "of input fluid rises past", "capacity."});
+		rotorEfficiencyIcon = new BeefGuiIcon(this, leftX + 1, topY, 16, 16, ClientProxy.GuiIcons.getIcon("rotorEfficiency"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Efficiency", "", "Rotor blades can only fully", String.format("capture energy from %d mB of", MultiblockTurbine.inputFluidPerBlade), "fluid per blade.", "", "Efficiency drops if the flow", "of input fluid rises past", "capacity."});
 		rotorEfficiencyString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += rotorEfficiencyIcon.getHeight() + 4;
 
 		statusString = new BeefGuiLabel(this, "", leftX, topY);
 		topY += statusString.getHeight() + 4;
 		
-		powerIcon = new BeefGuiIcon(this, guiLeft + 153, guiTop + 4, ClientProxy.GuiIcons.getIcon("energyStored"), new String[] { GuiConstants.LITECYAN_TEXT + "Energy Storage" });
+		powerIcon = new BeefGuiIcon(this, guiLeft + 153, guiTop + 4, 16, 16, ClientProxy.GuiIcons.getIcon("energyStored"), new String[] { GuiConstants.LITECYAN_TEXT + "Energy Storage" });
 		powerBar = new BeefGuiPowerBar(this, guiLeft + 152, guiTop + 22, this.turbine);
 		
-		steamIcon = new BeefGuiIcon(this, guiLeft + 113, guiTop + 4, ClientProxy.GuiIcons.getIcon("hotFluidIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Intake Fluid Tank" });
+		steamIcon = new BeefGuiIcon(this, guiLeft + 113, guiTop + 4, 16, 16, ClientProxy.GuiIcons.getIcon("hotFluidIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Intake Fluid Tank" });
 		steamBar = new BeefGuiFluidBar(this, guiLeft + 112, guiTop + 22, turbine, MultiblockTurbine.TANK_INPUT);
 
-		waterIcon = new BeefGuiIcon(this, guiLeft + 133, guiTop + 4, ClientProxy.GuiIcons.getIcon("coolantOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Exhaust Fluid Tank" });
+		waterIcon = new BeefGuiIcon(this, guiLeft + 133, guiTop + 4, 16, 16, ClientProxy.GuiIcons.getIcon("coolantOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Exhaust Fluid Tank" });
 		waterBar = new BeefGuiFluidBar(this, guiLeft + 132, guiTop + 22, turbine, MultiblockTurbine.TANK_OUTPUT);
 
-		rpmIcon = new BeefGuiIcon(this, guiLeft + 93, guiTop + 4, ClientProxy.GuiIcons.getIcon("rpm"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Speed" });
+		rpmIcon = new BeefGuiIcon(this, guiLeft + 93, guiTop + 4, 16, 16, ClientProxy.GuiIcons.getIcon("rpm"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Speed" });
 		rpmBar = new BeefGuiRpmBar(this, guiLeft + 92, guiTop + 22, turbine, "Rotor Speed", new String[] {"Rotors perform best at", "900 or 1800 RPM.", "", "Rotors kept overspeed for too", "long may fail.", "", "Catastrophically."});
 	
 		governorString = new BeefGuiLabel(this, "", guiLeft + 4, guiTop + 110);

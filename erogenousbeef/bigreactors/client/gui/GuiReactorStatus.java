@@ -107,7 +107,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		titleString = new BeefGuiLabel(this, "Reactor Control", leftX, topY);
 		topY += titleString.getHeight() + 4;
 		
-		heatIcon = new BeefGuiIcon(this, leftX - 2, topY, ClientProxy.GuiIcons.getIcon("temperature"), new String[] { GuiConstants.LITECYAN_TEXT + "Core Temperature", "", "Temperature inside the reactor core.", "Higher temperatures increase fuel burnup." });
+		heatIcon = new BeefGuiIcon(this, leftX - 2, topY, 16, 16, ClientProxy.GuiIcons.getIcon("temperature"), new String[] { GuiConstants.LITECYAN_TEXT + "Core Temperature", "", "Temperature inside the reactor core.", "Higher temperatures increase fuel burnup." });
 		heatString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += heatIcon.getHeight() + 5;
 		
@@ -115,11 +115,11 @@ public class GuiReactorStatus extends BeefGuiBase {
 		outputString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += outputIcon.getHeight() + 5;
 		
-		fuelConsumedIcon = new BeefGuiIcon(this, leftX + 1, topY, ClientProxy.GuiIcons.getIcon("fuelUsageRate"), new String[] { GuiConstants.LITECYAN_TEXT + "Fuel Burnup Rate", "", "The rate at which fuel is", "fissioned into waste in the core."});
+		fuelConsumedIcon = new BeefGuiIcon(this, leftX + 1, topY, 16, 16, ClientProxy.GuiIcons.getIcon("fuelUsageRate"), new String[] { GuiConstants.LITECYAN_TEXT + "Fuel Burnup Rate", "", "The rate at which fuel is", "fissioned into waste in the core."});
 		fuelConsumedString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += fuelConsumedIcon.getHeight() + 5;
 
-		reactivityIcon = new BeefGuiIcon(this, leftX, topY, ClientProxy.GuiIcons.getIcon("reactivity"), new String[] { GuiConstants.LITECYAN_TEXT + "Fuel Reactivity", "", "How heavily irradiated the core is.", "Higher levels of radiation", "reduce fuel burnup."});
+		reactivityIcon = new BeefGuiIcon(this, leftX, topY, 16, 16, ClientProxy.GuiIcons.getIcon("reactivity"), new String[] { GuiConstants.LITECYAN_TEXT + "Fuel Reactivity", "", "How heavily irradiated the core is.", "Higher levels of radiation", "reduce fuel burnup."});
 		reactivityString = new BeefGuiLabel(this, "", leftX + 22, topY + 4);
 		topY += reactivityIcon.getHeight() + 6;
 
@@ -132,10 +132,10 @@ public class GuiReactorStatus extends BeefGuiBase {
 		caseHeatBar = new BeefGuiHeatBar(this, guiLeft + 108, guiTop + 22, GuiConstants.LITECYAN_TEXT + "Casing Heat", new String[] { "Heat of the reactor's casing.", "High heat raises energy output", "and coolant conversion."});
 		fuelMixBar = new BeefGuiFuelMixBar(this, guiLeft + 86, guiTop + 22, this.reactor);
 
-		coolantIcon = new BeefGuiIcon(this, guiLeft + 132, guiTop + 91, ClientProxy.GuiIcons.getIcon("coolantIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Coolant Fluid Tank", "", "Casing heat will superheat", "coolant in this tank." });
+		coolantIcon = new BeefGuiIcon(this, guiLeft + 132, guiTop + 91, 16, 16, ClientProxy.GuiIcons.getIcon("coolantIn"), new String[] { GuiConstants.LITECYAN_TEXT + "Coolant Fluid Tank", "", "Casing heat will superheat", "coolant in this tank." });
 		coolantBar = new BeefGuiFluidBar(this, guiLeft + 131, guiTop + 108, this.reactor, MultiblockReactor.FLUID_COOLANT);
 		
-		hotFluidIcon = new BeefGuiIcon(this, guiLeft + 154, guiTop + 91, ClientProxy.GuiIcons.getIcon("hotFluidOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Hot Fluid Tank", "", "Superheated coolant", "will pump into this tank,", "and must be piped out", "via coolant ports" });
+		hotFluidIcon = new BeefGuiIcon(this, guiLeft + 154, guiTop + 91, 16, 16, ClientProxy.GuiIcons.getIcon("hotFluidOut"), new String[] { GuiConstants.LITECYAN_TEXT + "Hot Fluid Tank", "", "Superheated coolant", "will pump into this tank,", "and must be piped out", "via coolant ports" });
 		hotFluidBar = new BeefGuiFluidBar(this, guiLeft + 153, guiTop + 108, this.reactor, MultiblockReactor.FLUID_SUPERHEATED);
 		
 		registerControl(titleString);
