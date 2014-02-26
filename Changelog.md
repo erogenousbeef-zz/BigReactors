@@ -8,6 +8,7 @@ Next Release (Anticipated Version: 0.3.0A)
 - Enhancement: Invar and enderium blocks can now be used as turbine coil parts.
 - Enhancement: TE, Mekanism and Metallurgy metals can now be used inside a reactor, similar to iron/gold/diamond/emerald blocks.
 - Enhancement: Redstone Arsenal's fluxed electrum blocks can now be used in reactors and turbine coils.
+- Balance: Cryotheum's heat transfer, moderation capability and heat efficiency have been significantly boosted
 - Config: Metallurgy's fantasy metals can be disallowed as coil parts in the config if you feel them unbalanced. Set "enableMetallurgyFantasyMetals" to false.
 - Config: Added "comedy" option. If enabled, allows MFR's sewage, meat blocks and fluid meat/pink-slime to be used as a slight upgrade to water inside a reactor. Disabled by default.
 - Bugfix: Rotor turbines no longer become invisible if a turbine is broken while activated
