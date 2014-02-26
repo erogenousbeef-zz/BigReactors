@@ -14,6 +14,7 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.RadiationData;
 import erogenousbeef.bigreactors.api.RadiationPacket;
 import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -77,7 +78,7 @@ public class RadiationHelper {
 		float radHardness = 0.2f + (float)(0.8 * radiationPenaltyBase);
 
 		// Calculate based on propagation-to-self
-		float rawFuelUsage = fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier(); // Not a typo. Fuel usage is thus penalized at high heats.
+		float rawFuelUsage = (fuelPerRadiationUnit * rawRadIntensity / getFertilityModifier()) * BigReactors.fuelUsageMultiplier; // Not a typo. Fuel usage is thus penalized at high heats.
 		data.fuelRfChange = rfPerRadiationUnit * effectiveRadIntensity;
 		data.environmentRfChange = 0f;
 
