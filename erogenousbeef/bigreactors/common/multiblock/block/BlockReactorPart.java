@@ -275,7 +275,17 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 			// multiblock-debugging message if the machine is not assembled.
 			if(!world.isRemote) {
 				ItemStack currentEquippedItem = player.getCurrentEquippedItem();
-				if(currentEquippedItem == null) {
+				
+				if(isCoolantPort(metadata) && (StaticUtils.Inventory.isPlayerHoldingWrench(player) || currentEquippedItem == null)) {
+					// Use wrench to change inlet/outlet state
+					TileEntity te = world.getBlockTileEntity(x, y, z);
+					if(te instanceof TileEntityReactorCoolantPort) {
+						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
+						cp.setInlet(!cp.isInlet());
+						return true;
+					}
+				}
+				else if(currentEquippedItem == null) {
 					TileEntity te = world.getBlockTileEntity(x, y, z);
 					if(te instanceof IMultiblockPart) {
 						MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
@@ -290,16 +300,6 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 							player.sendChatToPlayer(ChatMessageComponent.createFromText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block."));
 							return true;
 						}
-					}
-				}
-				else if(StaticUtils.Inventory.isPlayerHoldingWrench(player) && isCoolantPort(metadata)) {
-					// Use wrench to change inlet/outlet state
-					TileEntity te = world.getBlockTileEntity(x, y, z);
-					if(te instanceof TileEntityReactorCoolantPort) {
-						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
-						cp.setInlet(!cp.isInlet());
-						player.sendChatToPlayer(ChatMessageComponent.createFromText("Swapping coolant port direction"));
-						return true;
 					}
 				}
 			}

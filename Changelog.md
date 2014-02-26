@@ -14,6 +14,8 @@ Next Release (Anticipated Version: 0.3.0A)
 - Bugfix: Control rods no longer cause fertility to skyrocket when inserted. (Thanks XXX!)
 - Bugfix: Rotors no longer render incorrectly when bearings are on the top, east or south sides of the reactor.
 - Bugfix: Hi-rez GUI icons no longer render at insane sizes
+- Bugfix: Can now switch the direction of reactor coolant ports with both empty hands and a wrench, and it no longer spams chat messages
+- Bugfix: Reactor coolant ports no longer delay their render update when not part of a reactor, so the visual switch between inlet/outlet happens instantly
 
 Current Release (0.3.0rc1)
 --------------------------------

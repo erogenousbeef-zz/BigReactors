@@ -40,7 +40,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 		super.decodeDescriptionPacket(packetData);
 		
 		if(packetData.hasKey("inlet")) {
-			inlet = packetData.getBoolean("inlet");
+			setInlet(packetData.getBoolean("inlet"));
 		}
 	}
 	
