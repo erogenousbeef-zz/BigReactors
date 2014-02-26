@@ -140,6 +140,7 @@ public class BigReactors {
 	public static int maximumTurbineHeight = 32;
 	
 	public static float powerProductionMultiplier = 1.0f;
+	public static float fuelUsageMultiplier = 1.0f;
 	
 	public static boolean isValentinesDay = false; // Easter Egg :)
 	
@@ -183,7 +184,8 @@ public class BigReactors {
 			maximumReactorHeight = BRConfig.CONFIGURATION.get("General", "maxReactorHeight", 48, "The maximum valid size of a reactor in the Y dimension, in blocks. Lower this if your server's players are building ginormous reactors. Bigger Y sizes have far less performance impact than X/Z sizes.").getInt();
 			ticksPerRedstoneUpdate = BRConfig.CONFIGURATION.get("General", "ticksPerRedstoneUpdate", 20, "Number of ticks between updates for redstone/rednet ports.").getInt();
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
-			
+			fuelUsageMultiplier = (float)BRConfig.CONFIGURATION.get("General", "fuelUsageMultiplier", 1.0f, "A multiplier for balancing fuel consumption. Defaults to 1.").getDouble(1.0);
+
 			maximumTurbineSize = BRConfig.CONFIGURATION.get("General",  "maxTurbineSize", 16, "The maximum valid size of a turbine in the X/Z plane, in blocks. Lower this for smaller turbines, which means lower max output. Turbines will be limited to twice this value in height.").getInt();
 			maximumTurbineHeight = maximumTurbineSize * 2;
 			
