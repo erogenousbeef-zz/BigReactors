@@ -20,7 +20,6 @@ TODO - 0.3: The Coolant Update
 ------------------------------
 ### Bugs
 - Waste can somehow go negative when auto-replace waste is turned on. This leads to bizarre-ass shit.
-- When reactors overfill, their graphics glitch the fuck out
 - Water appears to vaporize into 1/10th its input?!
 
 ### Gameplay Tweaks

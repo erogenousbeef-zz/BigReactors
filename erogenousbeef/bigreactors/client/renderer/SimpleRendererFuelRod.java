@@ -139,7 +139,7 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         	    		iconBottom = rodWaste.getStillIcon();
         	    	}
 
-    	    		float pctFilled = (float)totalFluid / (float)capacity;
+    	    		float pctFilled = Math.min(100f, Math.max(0f, (float)totalFluid / (float)capacity));
     	    		fluidColumnOffsetFromCenter = lerp(FLUID_RENDER_OFFSET_MIN, FLUID_RENDER_OFFSET_MAX, pctFilled);
         	    	
     	    		if(iconSide != null && iconBottom != null) {
