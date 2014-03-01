@@ -63,10 +63,8 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	// IFluidHandler
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
-		if(!isConnected() || from != getOutwardsDir()) { return 0; }
+		if(!isConnected() || !inlet || from != getOutwardsDir()) { return 0; }
 		
-		if(!inlet) { return 0; }
-
 		CoolantContainer cc = getReactorController().getCoolantContainer();
 		return cc.fill(getConnectedTank(), resource, doFill);
 	}
