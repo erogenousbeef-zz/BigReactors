@@ -3,11 +3,16 @@ Big Reactors Changelog
 
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
+
+Current Release (0.3.0rc2)
+--------------------------------
 - Enhancement: Russian translation, thanks to Vladimir Gendel!
 - Enhancement: Glass can now be used inside a reactor. It's not a very good moderator or heat conductor, but is useful for corralling fluids.
 - Enhancement: Invar and enderium blocks can now be used as turbine coil parts.
 - Enhancement: TE, Mekanism and Metallurgy metals can now be used inside a reactor, similar to iron/gold/diamond/emerald blocks.
 - Enhancement: Redstone Arsenal's fluxed electrum blocks can now be used in reactors and turbine coils.
+- Enhancement: 3 new methods added to Turbine Computercraft API
+- Enhancement: More-expensive coil parts now extract more rotor energy per tick instead of just being more efficient at converting rotor energy. This means you need fewer coil parts when using very expensive blocks.
 - Balance: Cryotheum's heat transfer, moderation capability and heat efficiency have been significantly boosted
 - Config: Metallurgy's fantasy metals can be disallowed as coil parts in the config if you feel them unbalanced. Set "enableMetallurgyFantasyMetals" to false.
 - Config: Added "comedy" option. If enabled, allows MFR's sewage, meat blocks and fluid meat/pink-slime to be used as a slight upgrade to water inside a reactor. Disabled by default.
@@ -17,9 +22,13 @@ Next Release (Anticipated Version: 0.3.0A)
 - Bugfix: Hi-rez GUI icons no longer render at insane sizes
 - Bugfix: Can now switch the direction of reactor coolant ports with both empty hands and a wrench, and it no longer spams chat messages
 - Bugfix: Reactor coolant ports no longer delay their render update when not part of a reactor, so the visual switch between inlet/outlet happens instantly
+- Bugfix: Reactors no longer occasionally "go haywire" and superfill themselves with fuel during chunk loading on SMP servers
+- Bugfix: Turbines no longer randomly go super-overspeed during chunk loading on SMP servers
 
-Current Release (0.3.0rc1)
---------------------------------
+
+Older Releases
+--------------
+### Release 0.3.0rc1
 - Core: Full rewrite of internal reactor mechanics. Substantially more efficient on servers.
 - Core: Big Reactors and BeefCore now log to their own channels, for server admins' convenience.
 - Feature: Reactors now have fluid inlet/outlet ports available to convert them to active cooling.
@@ -34,11 +43,6 @@ Current Release (0.3.0rc1)
 - Balance: Rebalanced reactor heat, energy production and fuel consumption. Most reactors should see all three rise compared to 0.2.
 - UI: Reactor UI redone, tooltips on EVERYTHING! English only, currently.
 - Bugfix: Fixed a rare crash that could occur with itemducts attached to reactor access ports set to "out" mode.
-
-Older Releases
---------------
-### Release 0.3.0rc1
-
 
 ### Release 0.2.15A
 - Core: Changed how block attachment is tracked to a much more robust system

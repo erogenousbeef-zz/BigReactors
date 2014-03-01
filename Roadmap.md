@@ -19,13 +19,7 @@ Known Issues
 TODO - 0.3: The Coolant Update
 ------------------------------
 ### Bugs
-- Waste can somehow go negative when auto-replace waste is turned on. This leads to bizarre-ass shit.
-- Water appears to vaporize into 1/10th its input?!
-
-### Gameplay Tweaks
-- Change how different level coils work. Better metals should strip more energy off as well as being more efficient.
-- Document CC API: getEnergyProducedLastTick - also returns fluid flow
-- CC API: # of blades, rotor size/mass, rotor blade efficiency numbers for turbines
+- Water appears to vaporize into 1/10th its input?! - CNR.
 
 ### Graphics
 - Cool particle effects when the reactor is on! (requires making my own particle, bleah)
