@@ -720,32 +720,32 @@ public class BigReactors {
 		// TODO: Make a proper blutonium fluid
 		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
 		
-		BRRegistry.registerCoilPart("blockIron", 1f, 1f);
-		BRRegistry.registerCoilPart("blockGold", 2f, 1f);
+		BRRegistry.registerCoilPart("blockIron", 1f, 1f, 1f);
+		BRRegistry.registerCoilPart("blockGold", 2f, 1f, 1.75f);
 
-		BRRegistry.registerCoilPart("blockCopper",		1.2f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockOsmium",		1.2f, 1f);	// Mekanism
-		BRRegistry.registerCoilPart("blockBrass",		1.4f, 1f);	// Metallurgy
-		BRRegistry.registerCoilPart("blockBronze",		1.4f, 1f);	// Mekanism, many others
-		BRRegistry.registerCoilPart("blockAluminum",	1.5f, 1f);	// TiCo, couple others
-		BRRegistry.registerCoilPart("blockSteel",		1.5f, 1f);	// Metallurgy, Mek, etc.
-		BRRegistry.registerCoilPart("blockInvar", 		1.5f, 1f);	// TE
-		BRRegistry.registerCoilPart("blockSilver", 		1.7f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockElectrum", 	2.5f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockElectrumFlux",2.5f, 1.01f);	// Redstone Arsenal, note small energy bonus (7% at 1000RF/t output)
-		BRRegistry.registerCoilPart("blockPlatinum",	3.0f, 1f);	// TE, lots of mods
-		BRRegistry.registerCoilPart("blockShiny",		3.0f, 1f);	// TE
-		BRRegistry.registerCoilPart("blockPlatinum",	3.1f, 1f);	// Mariculture
-		BRRegistry.registerCoilPart("blockEnderium",	3.0f, 1.02f);	// TE, note tiny energy bonus!	(14% at 1000RF/t output)
+		BRRegistry.registerCoilPart("blockCopper",		1.2f, 1f, 1.2f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockOsmium",		1.2f, 1f, 1.2f);	// Mekanism
+		BRRegistry.registerCoilPart("blockBrass",		1.4f, 1f, 1.2f);	// Metallurgy
+		BRRegistry.registerCoilPart("blockBronze",		1.4f, 1f, 1.2f);	// Mekanism, many others
+		BRRegistry.registerCoilPart("blockAluminum",	1.5f, 1f, 1.3f);	// TiCo, couple others
+		BRRegistry.registerCoilPart("blockSteel",		1.5f, 1f, 1.3f);	// Metallurgy, Mek, etc.
+		BRRegistry.registerCoilPart("blockInvar", 		1.5f, 1f, 1.4f);	// TE
+		BRRegistry.registerCoilPart("blockSilver", 		1.7f, 1f, 1.5f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockElectrum", 	2.5f, 1f, 2.0f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockElectrumFlux",2.5f, 1.01f, 2.2f);	// Redstone Arsenal, note small energy bonus (7% at 1000RF/t output)
+		BRRegistry.registerCoilPart("blockPlatinum",	3.0f, 1f, 2.5f);	// TE, lots of mods
+		BRRegistry.registerCoilPart("blockShiny",		3.0f, 1f, 2.5f);	// TE
+		BRRegistry.registerCoilPart("blockPlatinum",	3.1f, 1f, 2.7f);	// Mariculture
+		BRRegistry.registerCoilPart("blockEnderium",	3.0f, 1.02f, 3.0f);	// TE, note tiny energy bonus!	(14% at 1000RF/t output)
 
 		if(enableFantasyMetals) {
 			// Metallurgy fantasy metals
-			BRRegistry.registerCoilPart("blockMithril", 	2.2f, 1f);
-			BRRegistry.registerCoilPart("blockOrichalcum", 	2.3f, 1f);
-			BRRegistry.registerCoilPart("blockQuicksilver",	2.6f, 1f);
-			BRRegistry.registerCoilPart("blockHaderoth",	3.0f, 1f);
-			BRRegistry.registerCoilPart("blockCelenegil",	3.3f, 1f);
-			BRRegistry.registerCoilPart("blockTartarite",	3.5f, 1f);
+			BRRegistry.registerCoilPart("blockMithril", 	2.2f, 1f, 1.5f);
+			BRRegistry.registerCoilPart("blockOrichalcum", 	2.3f, 1f, 1.7f);
+			BRRegistry.registerCoilPart("blockQuicksilver",	2.6f, 1f, 1.8f);
+			BRRegistry.registerCoilPart("blockHaderoth",	3.0f, 1f, 2.0f);
+			BRRegistry.registerCoilPart("blockCelenegil",	3.3f, 1f, 2.25f);
+			BRRegistry.registerCoilPart("blockTartarite",	3.5f, 1f, 2.5f);
 		}
 		
 		BRRegistry.registerReactorInteriorBlock("blockIron",		0.50f, 0.75f, 1.40f, IHeatEntity.conductivityIron);
