@@ -113,7 +113,6 @@ public class CoolantContainer extends FluidHelper {
 
 		Fluid coolantType = getCoolantType();
 		int coolantAmt = getFluidAmount(COLD);
-		int vaporAmt = getFluidAmount(HOT);
 
 		float heatOfVaporization = getHeatOfVaporization(coolantType);
 		

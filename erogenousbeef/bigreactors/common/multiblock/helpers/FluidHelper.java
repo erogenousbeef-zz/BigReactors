@@ -283,7 +283,6 @@ public abstract class FluidHelper {
 		}
 
 		if(!doFill) { return amtToAdd; }
-		
 
 		if(fluids[idx] == null) {
 			fluids[idx] = incoming.copy();
@@ -305,7 +304,7 @@ public abstract class FluidHelper {
 		
 		FluidStack drained = resource.copy();
 		if(!doDrain) {
-			drained.amount = Math.max(resource.amount, getFluidAmount(idx));
+			drained.amount = Math.min(resource.amount, getFluidAmount(idx));
 		}
 		else {
 			drained.amount = drainFluidFromStack(idx, resource.amount);
@@ -322,7 +321,7 @@ public abstract class FluidHelper {
 		FluidStack drained = new FluidStack(getFluidType(idx), 0);
 
 		if(!doDrain) {
-			drained.amount = Math.max(getFluidAmount(idx), maxDrain);
+			drained.amount = Math.min(getFluidAmount(idx), maxDrain);
 		}
 		else {
 			drained.amount = drainFluidFromStack(idx, maxDrain);
