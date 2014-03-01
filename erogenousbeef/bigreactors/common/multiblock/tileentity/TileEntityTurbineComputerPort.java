@@ -23,6 +23,9 @@ public class TileEntityTurbineComputerPort extends
 		getFluidFlowRateMax,	// No arguments
 		getFluidFlowRateMaxMax, // No arguments
 		getEnergyProducedLastTick, // No arguments
+		getNumberOfBlades,		// No arguments
+		getBladeEfficiency,		// No arguments
+		getRotorMass,			// No arguments
 		setActive,				// Required Arg: integer (active)
 		setFluidFlowRateMax,	// Required Arg: integer (active)
 	}
@@ -116,6 +119,12 @@ public class TileEntityTurbineComputerPort extends
 			}
 		case getRotorSpeed:
 			return new Object[] { turbine.getRotorSpeed() };
+		case getNumberOfBlades:
+			return new Object[] { turbine.getNumRotorBlades() };
+		case getBladeEfficiency:
+			return new Object[] { turbine.getRotorEfficiencyLastTick() * 100f };
+		case getRotorMass:
+			return new Object[] { turbine.getRotorMass() };
 		case setActive:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
