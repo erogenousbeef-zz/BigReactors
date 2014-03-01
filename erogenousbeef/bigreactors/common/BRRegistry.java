@@ -74,7 +74,7 @@ public abstract class BRRegistry {
 	 * @param efficiency  Efficiency of the block. 1.0 == iron, 2.0 == gold, etc.
 	 * @param bonus		  Energy bonus of the block, if any. Normally 1.0. This is an exponential term and should only be used for EXTREMELY rare blocks!
 	 */
-	public static void registerCoilPart(String oreDictName, float efficiency, float bonus) {
+	public static void registerCoilPart(String oreDictName, float efficiency, float bonus, float extractionRate) {
 		if(_turbineCoilParts.containsKey(oreDictName)) {
 			CoilPartData data = _turbineCoilParts.get(oreDictName);
 			BRLog.warning("Overriding existing coil part data for oredict name <%s>, original values: eff %.2f / bonus %.2f, new values: eff %.2f / bonus %.2f", oreDictName, data.efficiency, data.bonus, efficiency, bonus); 
@@ -82,7 +82,7 @@ public abstract class BRRegistry {
 			data.bonus = bonus;
 		}
 		else {
-			_turbineCoilParts.put(oreDictName, new CoilPartData(efficiency, bonus));
+			_turbineCoilParts.put(oreDictName, new CoilPartData(efficiency, bonus, extractionRate));
 		}
 	}
 	

@@ -83,7 +83,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	int coilSize;  // number of blocks in the coils
 	
 	// Inductor dynamic constants - get from a table on assembly
-	float inductorDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
+	float inductorDragCoefficient = inductorBaseDragCoefficient;
 	float inductionEfficiency = 0.5f; // Final energy rectification efficiency. Averaged based on coil material and shape. 0.25-0.5 = iron, 0.75-0.9 = diamond, 1 = perfect.
 	float inductionEnergyExponentBonus = 1f; // Exponential bonus to energy generation. Use this for very rare materials or special constructs.
 
@@ -97,6 +97,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	// Game balance constants
 	public final static int inputFluidPerBlade = 25; // mB
+	public static final float inductorBaseDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
 	
 	float energyGeneratedLastTick;
 	int fluidConsumedLastTick;
@@ -1041,6 +1042,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		coilSize = 0;
 		float coilEfficiency = 0f;
 		float coilBonus = 0f;
+		float coilDragCoefficient = 0f;
 
 		// Loop over interior space. Calculate mass and blade area of rotor and size of coils
 		for(int x = minInterior.x; x <= maxInterior.x; x++) {
@@ -1061,6 +1063,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 					if(coilData != null) {
 						coilEfficiency += coilData.efficiency;
 						coilBonus += coilData.bonus;
+						coilDragCoefficient += coilData.energyExtractionRate;
 						coilSize += 1;
 					}
 				} // end z
@@ -1070,6 +1073,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		inductionEfficiency = (coilEfficiency * 0.33f) / coilSize;
 		inductionEnergyExponentBonus = Math.max(1f, (coilBonus / coilSize));
 		frictionalDrag = rotorMass * rotorDragCoefficient;
+		inductorDragCoefficient = (coilDragCoefficient / coilSize) * inductorBaseDragCoefficient;
 	}
 	
 	public float getRotorSpeed() {
@@ -1084,6 +1088,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	public float getMaxRotorSpeed() {
 		return 2000f;
+	}
+	
+	public int getRotorMass() {
+		return rotorMass;
 	}
 	
 	public VentStatus getVentSetting() {
