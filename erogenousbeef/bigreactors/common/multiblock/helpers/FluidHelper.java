@@ -90,23 +90,9 @@ public abstract class FluidHelper {
 	}
 	
 	protected void merge(FluidHelper other) {
-		capacity += other.capacity;
-		for(int i = 0; i < fluids.length; i++) {
-			if(other.fluids[i] != null ){
-				if(fluids[i] == null) {
-					fluids[i] = other.fluids[i];
-				}
-				else {
-					if(fluids[i].isFluidEqual(other.fluids[i])) {
-						// If fluids match, absorb the other stack
-						fluids[i].amount += other.fluids[i].amount;
-					}
-					else if(fluids[i].amount < other.fluids[i].amount) {
-						// If fluids do not match, take the bigger stack
-						fluids[i] = other.fluids[i];
-					}
-				}
-			}
+		if(other.capacity > capacity) {
+			capacity = other.capacity;
+			fluids = other.fluids;
 		}
 	}
 	

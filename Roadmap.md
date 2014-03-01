@@ -18,8 +18,15 @@ Known Issues
 
 TODO - 0.3: The Coolant Update
 ------------------------------
-### Compatibility
-- Change "liquid essence" to "life essence"
+### Bugs
+- Waste can somehow go negative when auto-replace waste is turned on. This leads to bizarre-ass shit.
+- When reactors overfill, their graphics glitch the fuck out
+- Water appears to vaporize into 1/10th its input?!
+
+### Gameplay Tweaks
+- Change how different level coils work. Better metals should strip more energy off as well as being more efficient.
+- Document CC API: getEnergyProducedLastTick - also returns fluid flow
+- CC API: # of blades, rotor size/mass, rotor blade efficiency numbers for turbines
 
 ### Graphics
 - Cool particle effects when the reactor is on! (requires making my own particle, bleah)

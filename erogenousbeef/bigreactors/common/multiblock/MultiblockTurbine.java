@@ -591,7 +591,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		MultiblockTurbine otherTurbine = (MultiblockTurbine)otherMachine;
 		
-		rotorEnergy += otherTurbine.rotorEnergy;
+		rotorEnergy = Math.max(rotorEnergy, otherTurbine.rotorEnergy);
 	}
 
 	@Override
