@@ -22,6 +22,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
@@ -250,16 +251,13 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		}
 	}
 	
+	
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		TileEntity te = world.getBlockTileEntity(x, y, z);
-		if(te instanceof TileEntityReactorPowerTap) {
-			TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)te;
-			tap.onNeighborBlockChange(world, x, y, z, neighborBlockID);
-		}
-		else if(te instanceof TileEntityReactorRedNetPort) {
-			TileEntityReactorRedNetPort port = (TileEntityReactorRedNetPort)te;
-			port.onNeighborBlockChange(world, x, y, z, neighborBlockID);
+		// Signal power taps when their neighbors change, etc.
+		if(te instanceof INeighborUpdatableEntity) {
+			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlockID);
 		}
 	}
 	

@@ -1,21 +1,28 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorCoolantPort extends TileEntityReactorPart implements IFluidHandler {
+public class TileEntityReactorCoolantPort extends TileEntityReactorPart implements IFluidHandler, INeighborUpdatableEntity, ITickableMultiblockPart {
 
 	boolean inlet;
+	IFluidHandler pumpDestination;
 	
 	public TileEntityReactorCoolantPort() {
 		super();
 		
 		inlet = true;
+		pumpDestination = null;
 	}
 	
 	public boolean isInlet() { return inlet; }
@@ -42,6 +49,18 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 		if(packetData.hasKey("inlet")) {
 			setInlet(packetData.getBoolean("inlet"));
 		}
+	}
+	
+	@Override
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
+	{
+		checkForAdjacentTank();
+	}
+	
+	@Override
+	public void onMachineBroken()
+	{
+		pumpDestination = null;
 	}
 	
 	// TileEntity
@@ -112,6 +131,34 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 		return cc.getTankInfo(getConnectedTank());
 	}
 	
+	// ITickableMultiblockPart
+	
+	@Override
+	public void onMultiblockServerTick() {
+		// Try to pump steam out, if an outlet
+		if(pumpDestination == null || isInlet())
+			return;
+
+		CoolantContainer cc = getReactorController().getCoolantContainer();
+		FluidStack fluidToDrain = cc.drain(CoolantContainer.HOT, cc.getCapacity(), false);
+		
+		if(fluidToDrain != null && fluidToDrain.amount > 0)
+		{
+			fluidToDrain.amount = pumpDestination.fill(getOutwardsDir().getOpposite(), fluidToDrain, true);
+			cc.drain(CoolantContainer.HOT, fluidToDrain, true);
+		}
+	}
+
+	// INeighborUpdatableEntity
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z,
+			int neighborBlockID) {
+		if(world.isRemote)
+		{
+			checkForAdjacentTank();
+		}
+	}
+
 	// Private Helpers
 	private int getConnectedTank() {
 		if(inlet) {
@@ -121,4 +168,20 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			return CoolantContainer.HOT;
 		}
 	}
+
+	protected void checkForAdjacentTank()
+	{
+		pumpDestination = null;
+
+		ForgeDirection outDir = getOutwardsDir();
+		if(outDir == ForgeDirection.UNKNOWN)
+			return;
+		
+		TileEntity neighbor = worldObj.getBlockTileEntity(xCoord + outDir.offsetX, yCoord + outDir.offsetY, zCoord + outDir.offsetZ);
+		if(neighbor instanceof IFluidHandler)
+		{
+			pumpDestination = (IFluidHandler)neighbor;
+		}
+	}
+
 }
