@@ -1,41 +1,38 @@
-package erogenousbeef.bigreactors.common;
+package erogenousbeef.bigreactors.common.data;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.api.IReactorSolid;
 
-public class ReactorSolidMapping implements IReactorSolid {
+public class ReactorSolidMapping {
 
 	protected ItemStack referenceItem;
-	protected Fluid referenceFluid;
+	protected FluidStack referenceFluid;
 	
-	public ReactorSolidMapping(ItemStack item, Fluid fluid) {
+	public ReactorSolidMapping(ItemStack item, FluidStack fluid) {
 		referenceItem = item.copy();
 		referenceFluid = fluid;
 	}
 
-	@Override
 	public ItemStack getReferenceItem() {
 		return referenceItem.copy();
 	}
 
-	@Override
-	public boolean isEqual(IReactorSolid otherFuel) {
+	public boolean isEqual(ReactorSolidMapping otherFuel) {
 		return isFluidEqual(otherFuel.getReferenceFluid()) && isItemEqual(otherFuel.getReferenceItem());
 	}
 
-	@Override
 	public boolean isItemEqual(ItemStack otherItem) {
 		return referenceItem.isItemEqual(otherItem);
 	}
 	
-	@Override
 	public boolean equals(Object other) {
-		if(other instanceof IReactorSolid) {
-			return isEqual((IReactorSolid)other);
+		if(other instanceof ReactorSolidMapping) {
+			return isEqual((ReactorSolidMapping)other);
 		}
-		else if(other instanceof Fluid) {
-			return isFluidEqual((Fluid)other);
+		else if(other instanceof FluidStack) {
+			return isFluidEqual((FluidStack)other);
 		}
 		else if(other instanceof ItemStack) {
 			return isItemEqual((ItemStack)other);
@@ -46,13 +43,11 @@ public class ReactorSolidMapping implements IReactorSolid {
 		}
 	}
 
-	@Override
-	public Fluid getReferenceFluid() {
+	public FluidStack getReferenceFluid() {
 		return referenceFluid;
 	}
 
-	@Override
-	public boolean isFluidEqual(Fluid otherFluid) {
-		return referenceFluid.getID() == otherFluid.getID();
+	public boolean isFluidEqual(FluidStack otherFluid) {
+		return referenceFluid.isFluidEqual(otherFluid);
 	}
 }

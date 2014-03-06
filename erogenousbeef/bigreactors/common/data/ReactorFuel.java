@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common;
+package erogenousbeef.bigreactors.common.data;
 
 import net.minecraftforge.fluids.Fluid;
 import erogenousbeef.bigreactors.api.IReactorFuel;

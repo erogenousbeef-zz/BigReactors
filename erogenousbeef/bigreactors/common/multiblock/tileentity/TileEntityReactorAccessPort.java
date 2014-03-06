@@ -13,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.fluids.FluidStack;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemConduit;
 import cpw.mods.fml.relauncher.Side;
@@ -20,6 +21,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.net.Packets;
@@ -170,18 +172,17 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 
-		IReactorFuel data = BRRegistry.getDataForSolid(itemstack);
+		FluidStack data = null;
 		
-		if(data == null) { return false; }
 		
 		if(slot == SLOT_INLET) {
-			return data.isFuel();
+			data = BRRegistry.getReactorMappingForFuel(itemstack);
 		}
 		else if(slot == SLOT_OUTLET) {
-			return data.isWaste();
+			data = BRRegistry.getReactorMappingForWaste(itemstack);
 		}
 		
-		return false;
+		return data != null;
 	}
 
 	// ISidedInventory

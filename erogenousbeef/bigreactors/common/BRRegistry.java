@@ -1,23 +1,31 @@
 package erogenousbeef.bigreactors.common;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.api.IReactorSolid;
+import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.multiblock.helpers.CoilPartData;
 import erogenousbeef.bigreactors.common.multiblock.helpers.ReactorInteriorData;
 
 public abstract class BRRegistry {
 	
-	private static List<IReactorFuel> _reactorFuels = new LinkedList<IReactorFuel>();
-	private static List<IReactorFuel> _reactorWastes = new LinkedList<IReactorFuel>();
-	
-	private static List<IReactorSolid> _reactorSolids = new LinkedList<IReactorSolid>();
+	private static Map<String, ItemStack> _reactorFluidToSolid = new HashMap<String, ItemStack>();
+	private static Set<ReactorSolidMapping> _reactorSolidToFuel = new CopyOnWriteArraySet<ReactorSolidMapping>(); // This won't work
+	private static Set<ReactorSolidMapping> _reactorSolidToWaste = new CopyOnWriteArraySet<ReactorSolidMapping>(); // This won't work
+
+	private static Map<String, IReactorFuel> _reactorFluids = new HashMap<String, IReactorFuel>();
 	
 	private static Map<String, CoilPartData> _turbineCoilParts = new HashMap<String, CoilPartData>();
 	private static Map<String, ReactorInteriorData> _reactorModeratorBlocks = new HashMap<String, ReactorInteriorData>();
@@ -90,98 +98,71 @@ public abstract class BRRegistry {
 		return _turbineCoilParts.get(oreDictName);
 	}
 	
-	public static void registerReactorFluid(IReactorFuel fuelData) {
-		if(fuelData.isFuel() && fuelData.isWaste()) {
-			throw new IllegalArgumentException("Can't register something that's both a fuel and a waste!");
-		}
-
-		if(fuelData.isFuel() && !_reactorFuels.contains(fuelData)) {
-			_reactorFuels.add(fuelData);
-		}
-
-		if(fuelData.isWaste() && !_reactorWastes.contains(fuelData)) {
-			_reactorWastes.add(fuelData);
-		}
+	public static void registerReactorFluidToSolidMapping(String fluidName, ItemStack outputPerBucket)
+	{
+		_reactorFluidToSolid.put(fluidName, outputPerBucket);
 	}
 	
-	/**
-	 * Maps a solid Item onto a Fluid-keyed Fuel or Waste.
-	 * @param fuelMapping
-	 */
-	public static void registerSolidMapping(IReactorSolid fuelMapping) {
-		if(!_reactorSolids.contains(fuelMapping)) {
-			_reactorSolids.add(fuelMapping);
-			
-			IReactorFuel matchingFuel = null;
-			for(IReactorFuel f : _reactorFuels) {
-				if(fuelMapping.isFluidEqual(f.getReferenceFluid())) {
-					matchingFuel = f;
-					break;
-				}
-			}
-			
-			if(matchingFuel == null) {
-				for(IReactorFuel w : _reactorWastes) {
-					if(fuelMapping.isFluidEqual(w.getReferenceFluid())) {
-						matchingFuel = w;
-						break;
-					}
-				}
-			}
-			
-			if(matchingFuel == null) {
-				// LOG A WARNING - WE DO NOT HAVE A MATCHING REGISTERED FUEL YET!
-				BRLog.warning("Big Reactors: Registered a solid fuel mapping from solid %s to fluid %s, but there is no registered fuel data for that fluid yet!", fuelMapping.getReferenceItem().getUnlocalizedName(), fuelMapping.getReferenceFluid().getUnlocalizedName());
-			}
-		}
+	public static void registerReactorSolidToFuelMapping(ReactorSolidMapping solidMapping)
+	{
+		registerToList(solidMapping, _reactorSolidToFuel);
 	}
 	
-	public static IReactorFuel getDataForSolid(ItemStack fuelItem) {
-		if(fuelItem == null) { return null; }
-		for(IReactorSolid candidate : _reactorSolids) {
-			if(candidate.isItemEqual(fuelItem)) {
-				IReactorFuel data = getDataForFuel(candidate.getReferenceFluid());
-				if(data == null) {
-					data = getDataForWaste(candidate.getReferenceFluid());
-				}
-				
-				return data;
+	public static void registerReactorSolidToWasteMapping(ReactorSolidMapping solidMapping)
+	{
+		registerToList(solidMapping, _reactorSolidToWaste);
+	}
+	
+	protected static void registerToList(ReactorSolidMapping mapping, Set<ReactorSolidMapping> set)
+	{
+		ArrayList<ReactorSolidMapping> itemsToRemove = new ArrayList<ReactorSolidMapping>();
+		
+		for(ReactorSolidMapping existingMapping : set)
+		{
+			if(existingMapping.isItemEqual(mapping.getReferenceItem()))
+				itemsToRemove.add(existingMapping);
+		}
+		
+		set.removeAll(itemsToRemove);
+		set.add(mapping);
+
+	}
+	
+	public static void registerReactorFluid(String fluidName, IReactorFuel fuelInfo)
+	{
+		_reactorFluids.put(fluidName, fuelInfo);
+	}
+	
+	public static IReactorFuel getReactorFluidInfo(String fluidName)
+	{
+		return _reactorFluids.get(fluidName);
+	}
+	
+	public static FluidStack getReactorMappingForFuel(ItemStack sourceItem)
+	{
+		return getFluidFromSet(sourceItem, _reactorSolidToFuel);
+	}
+	
+	public static FluidStack getReactorMappingForWaste(ItemStack sourceItem)
+	{
+		return getFluidFromSet(sourceItem, _reactorSolidToWaste);
+	}
+	
+	protected static FluidStack getFluidFromSet(ItemStack sourceItem, Set<ReactorSolidMapping> set)
+	{
+		for(ReactorSolidMapping existingMapping : set)
+		{
+			if(existingMapping.isItemEqual(sourceItem))
+			{
+				return existingMapping.getReferenceFluid();
 			}
 		}
 		
 		return null;
 	}
 	
-	public static IReactorFuel getDataForFuel(Fluid fluid) {
-		if(fluid == null) { return null; }
-		for(IReactorFuel candidate : _reactorFuels) {
-			if(candidate.isFuelEqual(fluid)) {
-				return candidate;
-			}
-		}
-		
-		return null;
+	public static ItemStack getReactorSolidForFluid(String fluidName)
+	{
+		return _reactorFluidToSolid.get(fluidName);
 	}
-
-	public static IReactorFuel getDataForWaste(Fluid fluid) {
-		if(fluid == null) { return null; }
-		for(IReactorFuel candidate : _reactorWastes) {
-			if(candidate.isFuelEqual(fluid)) {
-				return candidate;
-			}
-		}
-		
-		return null;
-	}
-
-	public static IReactorFuel getDataForFluid(Fluid fluid) {
-		IReactorFuel data = getDataForFuel(fluid);
-		if(data == null) {
-			return getDataForWaste(fluid);
-		}
-		else {
-			return data;
-		}
-	}
-	
 }

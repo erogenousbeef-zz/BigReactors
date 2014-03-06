@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.api;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
 
 /**
  * A specialized interface that allows solid ItemStacks to be used as reactor fuels.
@@ -20,7 +21,7 @@ public interface IReactorSolid {
 	/**
 	 * Get the fluid to which this solid fuel maps.
 	 */
-	public Fluid getReferenceFluid();
+	public FluidStack getReferenceFluid();
 
 	// In this case, both the reference item and reference fluid must match!
 	/**

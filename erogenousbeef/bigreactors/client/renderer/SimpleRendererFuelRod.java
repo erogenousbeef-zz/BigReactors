@@ -113,8 +113,8 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         	    		iconBottom = BigReactors.fluidFuelColumn.getStillIcon();
         	        	
         	        	// Blend the colors
-        	        	int fuelColor = BRRegistry.getDataForFluid(rodFuel).getFuelColor();
-        	        	int wasteColor = BRRegistry.getDataForFluid(rodWaste).getFuelColor();
+        	        	int fuelColor = BRRegistry.getReactorFluidInfo(rodFuel.getName()).getFuelColor();
+        	        	int wasteColor = BRRegistry.getReactorFluidInfo(rodWaste.getName()).getFuelColor();
         	        	float proportion = (float)fuelAmount / (float)totalFluid;
         	        	float fuelR, fuelG, fuelB;
         	        	float wasteR, wasteG, wasteB;

@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.gui.slot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.common.BRRegistry;
 
@@ -18,13 +19,13 @@ public class SlotReactorInput extends Slot {
 
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		IReactorFuel data = BRRegistry.getDataForSolid(stack);
-		if(data != null) {
-			if(fuel)
-				return data.isFuel();
-			else
-				return data.isWaste();
-		}
-		return false;
+		FluidStack data;
+		
+		if(fuel)
+			data = BRRegistry.getReactorMappingForFuel(stack);
+		else
+			data = BRRegistry.getReactorMappingForWaste(stack);
+		
+		return data != null;
 	}
 }
