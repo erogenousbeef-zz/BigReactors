@@ -5,9 +5,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler {
+public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler, INeighborUpdatableEntity {
 	IEnergyHandler 	rfNetwork;
 	
 	public TileEntityReactorPowerTap() {

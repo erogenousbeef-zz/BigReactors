@@ -1,14 +1,20 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard implements IFluidHandler {
+public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard implements IFluidHandler, INeighborUpdatableEntity, ITickableMultiblockPart {
 
 	public enum FluidFlow {
 		In,
@@ -16,10 +22,12 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	}
 
 	FluidFlow flowSetting;
+	IFluidHandler pumpDestination;
 	
 	public TileEntityTurbineFluidPort() {
 		super();
 		flowSetting = FluidFlow.In;
+		pumpDestination = null;
 	}
 
 	public void setFluidFlowDirection(FluidFlow newDirection) {
@@ -28,6 +36,19 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	
+	
+	@Override
+	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
+	{
+		checkForAdjacentTank();
+	}
+	
+	@Override
+	public void onMachineBroken()
+	{
+		pumpDestination = null;
+	}
+
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
 		super.writeToNBT(data);
@@ -106,4 +127,48 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	}
 	
 	public FluidFlow getFlowDirection() { return flowSetting; }
+	
+	// ITickableMultiblockPart
+	
+	@Override
+	public void onMultiblockServerTick() {
+		// Try to pump steam out, if an outlet
+		if(pumpDestination == null || flowSetting != FluidFlow.Out)
+			return;
+
+		MultiblockTurbine turbine = getTurbine();
+		FluidStack fluidToDrain = turbine.drain(MultiblockTurbine.TANK_OUTPUT, turbine.TANK_SIZE, false);
+		
+		if(fluidToDrain != null && fluidToDrain.amount > 0)
+		{
+			fluidToDrain.amount = pumpDestination.fill(getOutwardsDir().getOpposite(), fluidToDrain, true);
+			turbine.drain(MultiblockTurbine.TANK_OUTPUT, fluidToDrain, true);
+		}
+	}
+	
+	// INeighborUpdatableEntity
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z,
+			int neighborBlockID) {
+		if(world.isRemote)
+		{
+			checkForAdjacentTank();
+		}
+	}
+	
+	// Private Helpers
+	protected void checkForAdjacentTank()
+	{
+		pumpDestination = null;
+
+		ForgeDirection outDir = getOutwardsDir();
+		if(outDir == ForgeDirection.UNKNOWN)
+			return;
+		
+		TileEntity neighbor = worldObj.getBlockTileEntity(xCoord + outDir.offsetX, yCoord + outDir.offsetY, zCoord + outDir.offsetZ);
+		if(neighbor instanceof IFluidHandler)
+		{
+			pumpDestination = (IFluidHandler)neighbor;
+		}
+	}
 }
