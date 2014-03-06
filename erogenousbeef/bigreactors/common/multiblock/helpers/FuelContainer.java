@@ -28,13 +28,16 @@ public class FuelContainer extends FluidHelper {
 	}
 	
 	public static boolean isAcceptedFuel(Fluid fuelType) {
-		return BRRegistry.getDataForFuel(fuelType) != null;
+		if(fuelType == null) { return false; }
+
+		return BRRegistry.getReactorFluidInfo(fuelType.getName()) != null;
 	}
 	
 	public static boolean isAcceptedWaste(Fluid wasteType) {
-		return BRRegistry.getDataForWaste(wasteType) != null;
+		if(wasteType == null) { return false; }
+
+		return BRRegistry.getReactorFluidInfo(wasteType.getName()) != null;
 	}
-	
 	
 	public int getFuelAmount() {
 		return getFluidAmount(FUEL);
@@ -179,7 +182,7 @@ public class FuelContainer extends FluidHelper {
 			}
 			else {
 				// Create waste type from registry
-				IReactorFuel fuelData = BRRegistry.getDataForFuel(fuelType);
+				IReactorFuel fuelData = BRRegistry.getReactorFluidInfo(fuelType.getName());
 				Fluid wasteFluid = null;
 				if(fuelData != null) {
 					wasteFluid = fuelData.getProductFluid();

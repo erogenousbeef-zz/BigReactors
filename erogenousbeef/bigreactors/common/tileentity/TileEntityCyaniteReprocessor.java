@@ -47,18 +47,16 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 		
-		IReactorFuel data = BRRegistry.getDataForSolid(itemstack);
-		
-		if(data == null) { return false; }
+		FluidStack data = null;
 		
 		if(slot == SLOT_OUTLET) {
-			return data.isFuel();
+			data = BRRegistry.getReactorMappingForWaste(itemstack);
 		}
 		else if(slot == SLOT_INLET) {
-			return data.isWaste();
+			data = BRRegistry.getReactorMappingForFuel(itemstack);
 		}
 		
-		return false;
+		return data != null;
 	}
 
 	@Override

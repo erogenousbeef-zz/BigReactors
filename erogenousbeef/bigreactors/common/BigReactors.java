@@ -12,6 +12,7 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.Icon;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.Loader;
@@ -24,6 +25,8 @@ import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
+import erogenousbeef.bigreactors.common.data.ReactorFuel;
+import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
@@ -697,19 +700,19 @@ public class BigReactors {
 		}
 
 	}
-	
+
 	// This must be done in init or later
 	protected static void registerGameBalanceData() {
 		// Register fluids as fuels
-		BRRegistry.registerReactorFluid(new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
-		BRRegistry.registerReactorFluid(new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
-		
+		BRRegistry.registerReactorFluid("yellorium", new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
+		BRRegistry.registerReactorFluid("cyanite", new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
+
 		ItemStack yelloriumStack 	= ingotGeneric.getItemStackForType("ingotYellorium");
 		ItemStack cyaniteStack 		= ingotGeneric.getItemStackForType("ingotCyanite");
 		ItemStack blutoniumStack 	= ingotGeneric.getItemStackForType("ingotBlutonium");
 		
-		BRRegistry.registerSolidMapping(new ReactorSolidMapping(yelloriumStack, fluidYellorium));
-		BRRegistry.registerSolidMapping(new ReactorSolidMapping(cyaniteStack, fluidCyanite));
+		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(yelloriumStack, new FluidStack(fluidYellorium, 1000)));
+		BRRegistry.registerReactorSolidToWasteMapping(new ReactorSolidMapping(cyaniteStack, new FluidStack(fluidCyanite, 1000)));
 
 		BRConfig.CONFIGURATION.load();
 		boolean enableFantasyMetals = BRConfig.CONFIGURATION.get("General", "enableMetallurgyFantasyMetalsInTurbines", true, "If true, allows Metallurgy's fantasy metals to be used as part of turbine coils. Default: true").getBoolean(true);
@@ -718,7 +721,7 @@ public class BigReactors {
 
 		// TODO: Fix the color of this
 		// TODO: Make a proper blutonium fluid
-		BRRegistry.registerSolidMapping(new ReactorSolidMapping(blutoniumStack, fluidYellorium));
+		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blutoniumStack, new FluidStack(fluidYellorium, 1000)));
 		
 		BRRegistry.registerCoilPart("blockIron", 1f, 1f, 1f);
 		BRRegistry.registerCoilPart("blockGold", 2f, 1f, 1.75f);

@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.api;
+package erogenousbeef.bigreactors.common.data;
 
 import erogenousbeef.bigreactors.utils.StaticUtils;
 

@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import powercrystals.minefactoryreloaded.api.FactoryRegistry;
 import cpw.mods.fml.common.Loader;
@@ -17,6 +18,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
@@ -117,12 +119,12 @@ public class CommonProxy {
 			List<ItemStack> candidates = OreDictionary.getOres("ingotUranium");
 			for(ItemStack candidate : candidates) {
 				// If they're already registered, this will NOT overwrite the existing registration
-				BRRegistry.registerSolidMapping(new ReactorSolidMapping(candidate, BigReactors.fluidYellorium));
+				BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(candidate, new FluidStack(BigReactors.fluidYellorium, 1000)));
 			}
 		}
 
 		BRConfig.CONFIGURATION.save();
-		
+
 		ItemIngot ingotGeneric = ((ItemIngot)BigReactors.ingotGeneric);
 		
 		ItemStack yelloriteOre 	= new ItemStack(BigReactors.blockYelloriteOre, 1);
