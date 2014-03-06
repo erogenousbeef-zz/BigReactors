@@ -735,7 +735,7 @@ public class BigReactors {
 		BRRegistry.registerCoilPart("blockElectrumFlux",2.5f, 1.01f, 2.2f);	// Redstone Arsenal, note small energy bonus (7% at 1000RF/t output)
 		BRRegistry.registerCoilPart("blockPlatinum",	3.0f, 1f, 2.5f);	// TE, lots of mods
 		BRRegistry.registerCoilPart("blockShiny",		3.0f, 1f, 2.5f);	// TE
-		BRRegistry.registerCoilPart("blockPlatinum",	3.1f, 1f, 2.7f);	// Mariculture
+		BRRegistry.registerCoilPart("blockTitanium",	3.1f, 1f, 2.7f);	// Mariculture
 		BRRegistry.registerCoilPart("blockEnderium",	3.0f, 1.02f, 3.0f);	// TE, note tiny energy bonus!	(14% at 1000RF/t output)
 
 		if(enableFantasyMetals) {
