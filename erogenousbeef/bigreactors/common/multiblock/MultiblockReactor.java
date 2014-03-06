@@ -282,13 +282,16 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			// Radiate from that control rod
 			TileEntityReactorFuelRod source  = currentFuelRod.next();
 			TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
-			RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
+			if(source != null && sourceControlRod != null)
+			{
+				RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
 
-			// Assimilate results of radiation
-			if(radData != null) {
-				addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
-				addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
-				fuelConsumedLastTick += radData.fuelUsage;
+				// Assimilate results of radiation
+				if(radData != null) {
+					addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
+					addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
+					fuelConsumedLastTick += radData.fuelUsage;
+				}
 			}
 		}
 
