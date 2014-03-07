@@ -1004,7 +1004,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					if(fuelStack.stackSize >= inputItem.stackSize)
 					{
 						fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, inputItem.stackSize);
-						fuelAdded.amount += inputItem.stackSize;
+						fuelAdded.amount += inputItem.stackSize * inputFluid.amount;
 						inputItem = null;
 						inputFluid = null;
 					}

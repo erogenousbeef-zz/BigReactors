@@ -18,8 +18,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int TEMPERATURE = 11;
 	public static final int WASTE_EJECT_OFF = 12;
 	public static final int WASTE_EJECT_ON = 13;
-	public static final int WASTE_REPLACE_OFF = 14;
-	public static final int WASTE_REPLACE_ON = 15;
+	public static final int WASTE_MANUAL_OFF = 14;
+	public static final int WASTE_MANUAL_ON = 15;
 	public static final int WASTE_EJECT = 16;
 	public static final int REACTIVITY = 17;
 	public static final int ENERGY_STORED = 18;
@@ -56,8 +56,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"temperature",
 				"wasteEject_off",
 				"wasteEject_on",
-				"wasteReplace_off",
-				"wasteReplace_on",
+				"wasteManual_off",
+				"wasteManual_on",
 				"wasteEject",
 				"reactivity",
 				"energyStored",
