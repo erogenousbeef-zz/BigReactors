@@ -168,10 +168,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z,
 			int neighborBlockID) {
-		if(world.isRemote)
-		{
-			checkForAdjacentTank();
-		}
+		checkForAdjacentTank();
 	}
 
 	// Private Helpers
@@ -187,14 +184,17 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	protected void checkForAdjacentTank()
 	{
 		pumpDestination = null;
+		if(worldObj.isRemote || isInlet()) {
+			return;
+		}
 
 		ForgeDirection outDir = getOutwardsDir();
-		if(outDir == ForgeDirection.UNKNOWN)
+		if(outDir == ForgeDirection.UNKNOWN) {
 			return;
+		}
 		
 		TileEntity neighbor = worldObj.getBlockTileEntity(xCoord + outDir.offsetX, yCoord + outDir.offsetY, zCoord + outDir.offsetZ);
-		if(neighbor instanceof IFluidHandler)
-		{
+		if(neighbor instanceof IFluidHandler) {
 			pumpDestination = (IFluidHandler)neighbor;
 		}
 	}
