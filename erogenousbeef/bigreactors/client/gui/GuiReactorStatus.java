@@ -82,8 +82,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		btnReactorOff.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Reactor", "Residual heat will still", "generate power/consume coolant,", "until the reactor cools." });
 		
 		btnWasteAutoEject = new GuiIconButton(2, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject_off"));
-		btnWasteManual = new GuiIconButton(4, guiLeft + 40, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
-		btnWasteEject = new GuiIconButton(5, guiLeft + 80, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
+		btnWasteManual = new GuiIconButton(4, guiLeft + 22, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteManual_off"));
+		btnWasteEject = new GuiIconButton(5, guiLeft + 50, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
 
 		btnWasteEject.drawButton = false;
 
@@ -221,7 +221,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		}
 		else if(button.id == 5) {
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, true, isShiftKeyDown() }));
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown() }));
 		}
 	}
 	
@@ -258,13 +258,13 @@ public class GuiReactorStatus extends BeefGuiBase {
 		switch(reactor.getWasteEjection()) {
 		case kAutomatic:
 			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_ON));
-			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
+			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_MANUAL_OFF));
 			btnWasteEject.drawButton = false;
 			break;
 		case kManual:
 		default:
 			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_OFF));
-			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_ON));
+			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_MANUAL_ON));
 			btnWasteEject.drawButton = true;
 			break;
 		}
