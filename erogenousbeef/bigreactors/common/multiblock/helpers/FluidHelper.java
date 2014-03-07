@@ -84,9 +84,7 @@ public abstract class FluidHelper {
 		int oldCapacity = capacity;
 		capacity = newCapacity;
 
-		if(oldCapacity > capacity) {
-			clampContentsToCapacity();
-		}
+		clampContentsToCapacity();
 	}
 	
 	protected void merge(FluidHelper other) {
