@@ -789,7 +789,7 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorFluid("glowstone",	0.20f, 0.60f, 1.75f, IHeatEntity.conductivityCopper);
 		BRRegistry.registerReactorInteriorFluid("cryotheum",	0.66f, 0.95f, 6.00f, IHeatEntity.conductivityDiamond); // Cryotheum: an amazing moderator!
 		BRRegistry.registerReactorInteriorFluid("ender",		0.90f, 0.75f, 2.00f, IHeatEntity.conductivityGold);
-		BRRegistry.registerReactorInteriorFluid("pyrothuem",	0.66f, 0.90f, 1.00f, IHeatEntity.conductivityIron);
+		BRRegistry.registerReactorInteriorFluid("pyrotheum",	0.66f, 0.90f, 1.00f, IHeatEntity.conductivityIron);
 		
 		BRRegistry.registerReactorInteriorFluid("life essence", 0.70f, 0.55f, 1.75f, IHeatEntity.conductivityGold); // From Blood Magic
 
