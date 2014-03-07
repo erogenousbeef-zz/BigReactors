@@ -29,7 +29,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 	private GuiIconButton btnReactorOn;
 	private GuiIconButton btnReactorOff;
 	private GuiIconButton btnWasteAutoEject;
-	private GuiIconButton btnWasteReplaceOnly;
 	private GuiIconButton btnWasteManual;
 	
 	private GuiIconButton btnWasteEject;
@@ -83,21 +82,18 @@ public class GuiReactorStatus extends BeefGuiBase {
 		btnReactorOff.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Reactor", "Residual heat will still", "generate power/consume coolant,", "until the reactor cools." });
 		
 		btnWasteAutoEject = new GuiIconButton(2, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject_off"));
-		btnWasteReplaceOnly = new GuiIconButton(3, guiLeft + 22, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteReplace_off"));
 		btnWasteManual = new GuiIconButton(4, guiLeft + 40, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
 		btnWasteEject = new GuiIconButton(5, guiLeft + 80, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
 
 		btnWasteEject.drawButton = false;
 
 		btnWasteAutoEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Auto-Eject Waste", "Waste in the core will be ejected", "as soon as possible" });
-		btnWasteReplaceOnly.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Replace Waste", "Waste in the core will be ejected", "only when it can be replaced", "with fresh fuel" });
 		btnWasteManual.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Do Not Auto-Eject Waste", GuiConstants.VIOLET_TEXT + "Waste must be manually ejected.", "", "Ejection can be done from this", "screen, or via rednet,", "redstone or computer port signals."});
 		btnWasteEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Eject Waste Now", "Ejects waste from the core", "into access ports.", "Each 1000mB waste = 1 ingot", "", "SHIFT: Dump excess waste, if any"});
 		
 		registerControl(btnReactorOn);
 		registerControl(btnReactorOff);
 		registerControl(btnWasteAutoEject);
-		registerControl(btnWasteReplaceOnly);
 		registerControl(btnWasteManual);
 		registerControl(btnWasteEject);
 		
@@ -210,9 +206,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 		else if(button.id >= 2 && button.id <= 4) {
 			WasteEjectionSetting newEjectionSetting;
 			switch(button.id) {
-			case 3:
-				newEjectionSetting = WasteEjectionSetting.kAutomaticOnlyIfCanReplace;
-				break;
 			case 4:
 				newEjectionSetting = WasteEjectionSetting.kManual;
 				break;
@@ -261,24 +254,18 @@ public class GuiReactorStatus extends BeefGuiBase {
 			hotFluidBar.visible = true;
 		}
 
-		btnWasteEject.drawButton = false;
 		
 		switch(reactor.getWasteEjection()) {
 		case kAutomatic:
 			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_ON));
-			btnWasteReplaceOnly.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_REPLACE_OFF));
 			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
+			btnWasteEject.drawButton = false;
 			break;
 		case kManual:
-			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_OFF));
-			btnWasteReplaceOnly.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_REPLACE_OFF));
-			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_ON));
-			btnWasteEject.drawButton = true;
-			break;
 		default:
 			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_OFF));
-			btnWasteReplaceOnly.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_REPLACE_ON));
-			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
+			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_ON));
+			btnWasteEject.drawButton = true;
 			break;
 		}
 	}
