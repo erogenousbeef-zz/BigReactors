@@ -40,12 +40,14 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
 	{
+		super.onMachineAssembled(multiblockControllerBase);
 		checkForAdjacentTank();
 	}
 	
 	@Override
 	public void onMachineBroken()
 	{
+		super.onMachineBroken();
 		pumpDestination = null;
 	}
 
@@ -150,8 +152,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z,
 			int neighborBlockID) {
-		if(world.isRemote)
-		{
+		if(!world.isRemote) {
 			checkForAdjacentTank();
 		}
 	}
@@ -160,14 +161,17 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	protected void checkForAdjacentTank()
 	{
 		pumpDestination = null;
+		if(worldObj.isRemote || flowSetting == FluidFlow.In) {
+			return;
+		}
 
 		ForgeDirection outDir = getOutwardsDir();
-		if(outDir == ForgeDirection.UNKNOWN)
+		if(outDir == ForgeDirection.UNKNOWN) {
 			return;
+		}
 		
 		TileEntity neighbor = worldObj.getBlockTileEntity(xCoord + outDir.offsetX, yCoord + outDir.offsetY, zCoord + outDir.offsetZ);
-		if(neighbor instanceof IFluidHandler)
-		{
+		if(neighbor instanceof IFluidHandler) {
 			pumpDestination = (IFluidHandler)neighbor;
 		}
 	}
