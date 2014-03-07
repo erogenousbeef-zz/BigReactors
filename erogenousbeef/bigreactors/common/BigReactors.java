@@ -703,26 +703,31 @@ public class BigReactors {
 
 	// This must be done in init or later
 	protected static void registerGameBalanceData() {
-		// Register fluids as fuels
-		BRRegistry.registerReactorFluid("yellorium", new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
-		BRRegistry.registerReactorFluid("cyanite", new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
-
 		ItemStack yelloriumStack 	= ingotGeneric.getItemStackForType("ingotYellorium");
 		ItemStack cyaniteStack 		= ingotGeneric.getItemStackForType("ingotCyanite");
 		ItemStack blutoniumStack 	= ingotGeneric.getItemStackForType("ingotBlutonium");
-		
+
+		// Register fluids as fuels
+		BRRegistry.registerReactorFluidData("yellorium", new ReactorFuel(fluidYellorium, BigReactors.defaultFluidColorFuel, true, false, fluidCyanite));
+		BRRegistry.registerReactorFluidData("cyanite", new ReactorFuel(fluidCyanite, BigReactors.defaultFluidColorWaste, false, true/*, fluidBlutonium */)); // TODO: Make a blutonium fluid
+
 		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(yelloriumStack, new FluidStack(fluidYellorium, 1000)));
 		BRRegistry.registerReactorSolidToWasteMapping(new ReactorSolidMapping(cyaniteStack, new FluidStack(fluidCyanite, 1000)));
+		
+		ItemStack blockYellorium = blockMetal.getItemStackForMaterial("Yellorium");
+		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blockYellorium, new FluidStack(fluidYellorium, 9000)));
+
+		BRRegistry.registerReactorFluidToSolidMapping(fluidYellorium.getName(), yelloriumStack);
+		BRRegistry.registerReactorFluidToSolidMapping(fluidCyanite.getName(), cyaniteStack);
+
+		// TODO: Make a proper blutonium fluid
+		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blutoniumStack, new FluidStack(fluidYellorium, 1000)));
 
 		BRConfig.CONFIGURATION.load();
 		boolean enableFantasyMetals = BRConfig.CONFIGURATION.get("General", "enableMetallurgyFantasyMetalsInTurbines", true, "If true, allows Metallurgy's fantasy metals to be used as part of turbine coils. Default: true").getBoolean(true);
 		boolean enableComedy 		= BRConfig.CONFIGURATION.get("General", "enableComedy", true, "If true, allows weird stuff inside reactors, like MFR sewage and pink slime. Default: true").getBoolean(true);
 		BRConfig.CONFIGURATION.save();
 
-		// TODO: Fix the color of this
-		// TODO: Make a proper blutonium fluid
-		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blutoniumStack, new FluidStack(fluidYellorium, 1000)));
-		
 		BRRegistry.registerCoilPart("blockIron", 1f, 1f, 1f);
 		BRRegistry.registerCoilPart("blockGold", 2f, 1f, 1.75f);
 

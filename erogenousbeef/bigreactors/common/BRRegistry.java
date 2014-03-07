@@ -128,7 +128,7 @@ public abstract class BRRegistry {
 
 	}
 	
-	public static void registerReactorFluid(String fluidName, IReactorFuel fuelInfo)
+	public static void registerReactorFluidData(String fluidName, IReactorFuel fuelInfo)
 	{
 		_reactorFluids.put(fluidName, fuelInfo);
 	}
