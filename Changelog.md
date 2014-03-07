@@ -4,8 +4,22 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.0A)
 ------------------------------------------
 
-Current Release (0.3.0rc2)
+
+Current Release (0.3.0rc3)
 --------------------------------
+- Enhancement: Turbine and reactor fluid/coolant ports set to "outlet" mode will now automatically attempt to pump fluids into nearby fluid pipes/containers
+- Enhancement: Yellorium and blutonium blocks can now be used to fuel reactors.
+- Enhancement: Polish translation now available! Thanks, kostek00!
+- Change: Size of a reactor's active coolant tanks is now based on the size of its casing. 100 mB per casing block, maximum 50 buckets.
+- Change: Waste ejection has been simplified. The only options are now "auto-eject" or "do not auto-eject".
+- Bugfix: Fixed a crash which could occur when breaking a reactor via a control rod while the reactor is running
+- Bugfix: Mariculture's Titanium actually supported for turbine coils now
+- Bugfix: TE Pyrotheum can be placed in reactor cores again
+- Bugfix: "Dump all fuel" option now actually works
+
+Older Releases
+--------------
+### Release 0.3.0rc2
 - Enhancement: Russian translation, thanks to Vladimir Gendel!
 - Enhancement: Glass can now be used inside a reactor. It's not a very good moderator or heat conductor, but is useful for corralling fluids.
 - Enhancement: Invar and enderium blocks can now be used as turbine coil parts.
@@ -25,9 +39,6 @@ Current Release (0.3.0rc2)
 - Bugfix: Reactors no longer occasionally "go haywire" and superfill themselves with fuel during chunk loading on SMP servers
 - Bugfix: Turbines no longer randomly go super-overspeed during chunk loading on SMP servers
 
-
-Older Releases
---------------
 ### Release 0.3.0rc1
 - Core: Full rewrite of internal reactor mechanics. Substantially more efficient on servers.
 - Core: Big Reactors and BeefCore now log to their own channels, for server admins' convenience.

@@ -18,9 +18,6 @@ Known Issues
 
 TODO - 0.3: The Coolant Update
 ------------------------------
-### Bugs
-- Water appears to vaporize into 1/10th its input?! - CNR.
-
 ### Graphics
 - Cool particle effects when the reactor is on! (requires making my own particle, bleah)
 
