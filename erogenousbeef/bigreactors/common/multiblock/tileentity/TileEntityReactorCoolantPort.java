@@ -32,6 +32,10 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 
 		inlet = shouldBeInlet;
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		
+		if(!inlet && !worldObj.isRemote) {
+			checkForAdjacentTank();
+		}
 	}
 	
 	// MultiblockTileEntityBase
@@ -54,13 +58,24 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
 	{
+		super.onMachineAssembled(multiblockControllerBase);
 		checkForAdjacentTank();
+		
+		// Re-render on the client
+		if(worldObj.isRemote) {
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
 	}
 	
 	@Override
 	public void onMachineBroken()
 	{
+		super.onMachineBroken();
 		pumpDestination = null;
+		
+		if(worldObj.isRemote) {
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
 	}
 	
 	// TileEntity
