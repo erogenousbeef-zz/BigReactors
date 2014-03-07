@@ -721,7 +721,11 @@ public class BigReactors {
 		BRRegistry.registerReactorFluidToSolidMapping(fluidCyanite.getName(), cyaniteStack);
 
 		// TODO: Make a proper blutonium fluid
-		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blutoniumStack, new FluidStack(fluidYellorium, 1000)));
+		Fluid fluidBlutonium = fluidYellorium;
+		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blutoniumStack, new FluidStack(fluidBlutonium, 1000)));
+
+		ItemStack blockBlutonium = blockMetal.getItemStackForMaterial("Blutonium");
+		BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(blockBlutonium, new FluidStack(fluidBlutonium, 9000)));
 
 		BRConfig.CONFIGURATION.load();
 		boolean enableFantasyMetals = BRConfig.CONFIGURATION.get("General", "enableMetallurgyFantasyMetalsInTurbines", true, "If true, allows Metallurgy's fantasy metals to be used as part of turbine coils. Default: true").getBoolean(true);
