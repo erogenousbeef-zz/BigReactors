@@ -1122,13 +1122,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		fuelContainer.setCapacity(attachedFuelRods.size() * FuelCapacityPerFuelRod);
 
-		if(attachedCoolantPorts.size() > 0) {
-			coolantContainer.setCapacity(5000);
-		}
-		else {
-			coolantContainer.setCapacity(0);
-		}
-
 		// Calculate derived stats
 		
 		// Calculate heat transfer based on fuel rod environment
@@ -1171,6 +1164,16 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		
 		calculateReactorVolume();
+		
+		if(attachedCoolantPorts.size() > 0) {
+			int outerVolume = StaticUtils.ExtraMath.Volume(minCoord, maxCoord) - reactorVolume;
+			coolantContainer.setCapacity(Math.max(0, Math.min(50000, outerVolume * 100)));
+		}
+		else {
+			coolantContainer.setCapacity(0);
+		}
+
+		
 	}
 
 	@Override
