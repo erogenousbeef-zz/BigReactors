@@ -298,7 +298,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		radiationHelper.tick(isActive());
 
 		// If we can, poop out waste and inject new fuel.
-		refuelAndEjectWaste(false);
+		if(wasteEjection == WasteEjectionSetting.kAutomatic) {
+			ejectWaste(false);
+		}
+		
+		refuel();
 
 		// Heat Transfer: Fuel Pool <> Reactor Environment
 		float tempDiff = fuelHeat - reactorHeat;
@@ -881,28 +885,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	public WasteEjectionSetting getWasteEjection() {
 		return this.wasteEjection;
 	}
-	
-	/**
-	 * Eject waste from the reactor into the access ports.
-	 * @param dumpAll If true, any remaining waste will be emptied out of the fuel container after dumping.
-	 */
-	public void ejectWaste(boolean dumpAll) {
-		int wasteAmt = fuelContainer.getWasteAmount();
-		int freeFuelSpace = fuelContainer.getCapacity() - fuelContainer.getTotalAmount();
-		
-		refuelAndEjectWaste(true);
-		
-		if(dumpAll) {
-			fuelContainer.setWaste(null);
-		}
-		
-		markReferenceCoordDirty();
-		markReferenceCoordForUpdate();
-	}
 
-	protected void refuelAndEjectWaste(boolean force) {
+	protected void refuel() {
 		int freeFuelSpace = fuelContainer.getCapacity() - fuelContainer.getTotalAmount();
 
+		if(freeFuelSpace <= 0)
+			return;
+		
 		// Discover which fuel input we're actually going to consume.
 		// Criteria: Must match fluid type, minimum input size per unit
 		ItemStack inputItem = null;
@@ -947,109 +936,118 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			}
 		}
 
-		ItemStack wasteOutput = null;
-		Fluid wasteType = fuelContainer.getWasteType();
-		int wasteIngotsToEject = 0;
-		
-		if(wasteType != null)
-		{
-			if(wasteEjection == WasteEjectionSetting.kAutomatic || force)
-			{
-				wasteOutput = BRRegistry.getReactorSolidForFluid(wasteType.getName());
-				if(wasteOutput != null)
-					wasteOutput = wasteOutput.copy();
-
-				wasteIngotsToEject = fuelContainer.getWasteAmount() / AmountPerIngot;
-			}
-		}
-
-		freeFuelSpace += wasteIngotsToEject * AmountPerIngot;
-
-		// Cap input based on free fuel space
-		if(inputItem != null && freeFuelSpace < inputItem.stackSize * inputFluid.amount) {
-			inputItem.stackSize = freeFuelSpace / inputFluid.amount;
-			if(inputItem.stackSize <= 0) {
-				inputItem = null;
-				inputFluid = null;
-			}
-		}
-		
-		// Unable to refuel and unable to eject waste
-		if( (inputFluid == null || inputItem == null) && wasteIngotsToEject <= 0) {
+		if(inputItem == null || inputFluid == null) {
 			return;
 		}
-
-		// Ok, we know how much waste to distribute and how much fuel to consume. Let's modify items.
-		FluidStack fuelAdded = null;
-		if(inputFluid != null)
-		{
-			fuelAdded = new FluidStack(inputFluid, 0);
-		}
 		
-		int wasteItemsDistributed = 0;
+		// Cap input based on free fuel space
+		if(freeFuelSpace < (inputItem.stackSize * inputFluid.amount)) {
+			inputItem.stackSize = freeFuelSpace / inputFluid.amount;
 
+			if(inputItem.stackSize <= 0) {
+				// Not enough space!
+				return;
+			}
+		}
+
+		// Ok, we know how much fuel to consume in total, and from which item type. Let's rock.
+		FluidStack fuelAdded = new FluidStack(inputFluid, 0);
+		
 		for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 			if(port == null || !port.isConnected()) { continue; }
 
-			if((inputItem == null || inputItem.stackSize <= 0) && (wasteOutput == null || wasteOutput.stackSize <= 0)) {
+			if(inputItem == null || inputItem.stackSize <= 0) {
 				break;
 			}
-			
-			if(inputItem != null && inputItem.stackSize > 0)
+
+			// Is this the appropriate type of fuel to inject?
+			ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
+			if(fuelStack != null && fuelStack.isItemEqual(inputItem))
 			{
-				// Consume inputs
-				ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
-				if(fuelStack != null && fuelStack.isItemEqual(inputItem))
+				if(fuelStack.stackSize >= inputItem.stackSize)
 				{
-					if(fuelStack.stackSize >= inputItem.stackSize)
-					{
-						fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, inputItem.stackSize);
-						fuelAdded.amount += inputItem.stackSize * inputFluid.amount;
-						inputItem = null;
-						inputFluid = null;
-					}
-					else
-					{
-						fuelAdded.amount += fuelStack.stackSize * inputFluid.amount;
-						inputItem.stackSize -= fuelStack.stackSize;
-						fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelStack.stackSize);
-					}
+					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, inputItem.stackSize);
+					fuelAdded.amount += inputItem.stackSize * inputFluid.amount;
+					inputItem = null;
+				}
+				else
+				{
+					fuelAdded.amount += fuelStack.stackSize * inputFluid.amount;
+					inputItem.stackSize -= fuelStack.stackSize;
+					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelStack.stackSize);
 					
-					port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
+					if(inputItem.stackSize <= 0) {
+						inputItem = null;
+					}
 				}
 				
-				if(wasteOutput != null && wasteOutput.stackSize > 0) {
-					wasteItemsDistributed += tryDistributeItems(port, wasteOutput, false);
-					
-					if(wasteOutput.stackSize <= 0)
-					{
-						wasteOutput = null;
-					}
-				}
+				port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
 			}			
-		} // End distribution loop over all access ports
-		
-		// If we have waste leftover and we have multiple ports, distribute again so we hit the input ports.
-		if(wasteOutput != null && wasteOutput.stackSize > 0) {
-			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-				if(port == null || !port.isConnected()) { continue; }
+		} // End consumption loop over all access ports
 
-				if(wasteOutput == null || wasteOutput.stackSize <= 0) {
-					break;
-				}
-
-				wasteItemsDistributed += tryDistributeItems(port, wasteOutput, true);
-			}
-		}
-
-		// Okay... let's modify the fuel container now
+		// And now modify the fuel container
 		if(fuelAdded != null && fuelAdded.amount > 0) {
 			fuelContainer.addFuel(fuelAdded);
 		}
-		
-		if(wasteItemsDistributed > 0) {
-			fuelContainer.drainWaste(wasteItemsDistributed * AmountPerIngot);
+	}
+	
+	/**
+	 * Attempt to eject waste contained in the reactor
+	 * @param dumpAll If true, any waste remaining after ejection will be discarded.
+	 */
+	public void ejectWaste(boolean dumpAll)
+	{
+		int numIngots = fuelContainer.getWasteAmount() / AmountPerIngot;
+		if(numIngots <= 0 && !dumpAll) {
+			return;
 		}
+
+		if(numIngots > 0) {
+			Fluid fuelType = fuelContainer.getWasteType();
+			if(fuelType != null) {
+				ItemStack ingotsToDistribute = BRRegistry.getReactorSolidForFluid(fuelType.getName());
+				if(ingotsToDistribute == null) {
+					BRLog.warning("Unable to eject items for waste type %s, dumping all waste instead", fuelType.getName());
+					dumpAll = true;
+				}
+				else {
+					ingotsToDistribute = ingotsToDistribute.copy();
+					ingotsToDistribute.stackSize = numIngots;
+
+					int ingotsDistributed = 0;
+					for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+						if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
+						if(port == null || !port.isConnected()) { continue; }
+						
+						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, false);
+						if(ingotsToDistribute.stackSize <= 0) {
+							ingotsToDistribute = null;
+						}
+					}
+
+					if(ingotsToDistribute != null && ingotsToDistribute.stackSize > 0)
+					{
+						for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+							if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
+							if(port == null || !port.isConnected()) { continue; }
+							
+							ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
+						}
+						
+					}
+
+					fuelContainer.drainWaste(ingotsDistributed * AmountPerIngot);
+				}
+			}
+		}
+
+		if(dumpAll)
+		{
+			fuelContainer.setWaste(null);
+		}
+
+		markReferenceCoordForUpdate();
+		markReferenceCoordDirty();
 	}
 	
 	/**
@@ -1058,33 +1056,34 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	 */
 	public void ejectFuel(boolean dumpAll) {
 		int numIngots = fuelContainer.getFuelAmount() / AmountPerIngot;
-		if(numIngots <= 0) {
+		if(numIngots <= 0 && !dumpAll) {
 			return;
 		}
 		
-		Fluid fuelType = fuelContainer.getFuelType();
-		if(fuelType == null) {
-			return;
-		}
-		
-		ItemStack ingotsToDistribute = BRRegistry.getReactorSolidForFluid(fuelType.getName());
-		if(ingotsToDistribute == null) {
-			BRLog.warning("Unable to eject items for fuel type %s, dumping all fuel instead", fuelType.getName());
-			dumpAll = true;
-		}
-		else {
-			ingotsToDistribute = ingotsToDistribute.copy();
-			ingotsToDistribute.stackSize = numIngots;
-			
-			int ingotsDistributed = 0;
-			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-				if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
-				if(port == null || !port.isConnected()) { continue; }
-				
-				ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
+		if(numIngots > 0)
+		{
+			Fluid fuelType = fuelContainer.getFuelType();
+			if(fuelType != null) {
+				ItemStack ingotsToDistribute = BRRegistry.getReactorSolidForFluid(fuelType.getName());
+				if(ingotsToDistribute == null) {
+					BRLog.warning("Unable to eject items for fuel type %s, dumping all fuel instead", fuelType.getName());
+					dumpAll = true;
+				}
+				else {
+					ingotsToDistribute = ingotsToDistribute.copy();
+					ingotsToDistribute.stackSize = numIngots;
+					
+					int ingotsDistributed = 0;
+					for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+						if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
+						if(port == null || !port.isConnected()) { continue; }
+						
+						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
+					}
+					
+					fuelContainer.drainFuel(ingotsDistributed * AmountPerIngot);
+				}
 			}
-			
-			fuelContainer.drainFuel(ingotsDistributed * AmountPerIngot);
 		}
 
 		if(dumpAll)
