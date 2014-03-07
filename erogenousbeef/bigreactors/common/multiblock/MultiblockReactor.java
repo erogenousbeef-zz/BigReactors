@@ -893,7 +893,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			return;
 		
 		// Discover which fuel input we're actually going to consume.
-		// Criteria: Must match fluid type, minimum input size per unit
+		// Criteria: Must match fluid type, maximum input size without exceeding available space.
 		ItemStack inputItem = null;
 		FluidStack inputFluid = null;
 		Fluid currentFuelType = fuelContainer.getFuelType();
@@ -927,9 +927,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					else
 						inputItem = contents.copy();
 				}
-				else if(inputFluid.amount > mappedFluid.amount)
+				else if(mappedFluid.amount < freeFuelSpace && inputFluid.amount < mappedFluid.amount)
 				{
-					// Smaller amount of fluid per item, slurp this up first.
+					// More fluid per item, but we can still take at least 1. Slurp this up first.
 					inputItem = contents.copy();
 					inputFluid = mappedFluid.copy();
 				}
