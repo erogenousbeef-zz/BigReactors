@@ -1,12 +1,21 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.3.0A)
+Next Release (Anticipated Version: 0.3.1A)
 ------------------------------------------
 
-
-Current Release (0.3.0rc3)
+Current Release (0.3.0A)
 --------------------------------
+- Bugfix: Fuel rods no longer visually "overflow" with fuel when one or more fuel rods are broken on a reactor with fuel inside
+- Bugfix: Fuel rods now update their visual states when they should, instead of randomly/infrequently
+- Bugfix: Turbine power taps now light up when compatible wires are placed next to them
+- Bugfix: Cyanite reprocessors can again be managed with itemducts and other automation tools (e.g. AE)
+- Bugfix: Potential fix for a rare crash due to cross-mod interference with some Minecraft GUI code
+- Bugfix: Turbine computer port actually has a recipe now
+
+Older Releases
+--------------
+### Release 0.3.0rc3
 - Enhancement: Turbine and reactor fluid/coolant ports set to "outlet" mode will now automatically attempt to pump fluids into nearby fluid pipes/containers
 - Enhancement: Yellorium and blutonium blocks can now be used to fuel reactors.
 - Enhancement: Polish translation now available! Thanks, kostek00!
@@ -17,8 +26,6 @@ Current Release (0.3.0rc3)
 - Bugfix: TE Pyrotheum can be placed in reactor cores again
 - Bugfix: "Dump all fuel" option now actually works
 
-Older Releases
---------------
 ### Release 0.3.0rc2
 - Enhancement: Russian translation, thanks to Vladimir Gendel!
 - Enhancement: Glass can now be used inside a reactor. It's not a very good moderator or heat conductor, but is useful for corralling fluids.
