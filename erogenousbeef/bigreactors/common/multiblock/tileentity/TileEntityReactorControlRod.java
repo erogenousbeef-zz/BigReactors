@@ -211,8 +211,8 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 			NBTTagCompound localData = packet.getCompoundTag("reactorControlRod");
 			this.readLocalDataFromNBT(localData);
 			
-			if(this.worldObj != null) {
-				this.worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
+			if(worldObj != null && worldObj.isRemote) {
+				this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
 		}
 	}

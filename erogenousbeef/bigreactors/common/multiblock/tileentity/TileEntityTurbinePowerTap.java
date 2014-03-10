@@ -19,9 +19,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 	// INeighborUpdatableEntity
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
-		if(isConnected()) {
-			checkForConnections(world, x, y, z);
-		}
+		checkForConnections(world, x, y, z);
 	}
 	
 	public boolean isAttachedToPowerNetwork() {
@@ -79,7 +77,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		boolean isConnected = (rfNetwork != null);
 		if(wasConnected != isConnected && worldObj.isRemote) {
 			// Re-render on clients
-			world.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
+			world.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 
