@@ -50,12 +50,12 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 		FluidStack data = null;
 		
 		if(slot == SLOT_OUTLET) {
-			data = BRRegistry.getReactorMappingForWaste(itemstack);
-		}
-		else if(slot == SLOT_INLET) {
 			data = BRRegistry.getReactorMappingForFuel(itemstack);
 		}
-		
+		else if(slot == SLOT_INLET) {
+			data = BRRegistry.getReactorMappingForWaste(itemstack);
+		}
+
 		return data != null;
 	}
 
