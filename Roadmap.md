@@ -50,7 +50,6 @@ TODO - 0.4: The Fueling Update
 - Change reactor icon selection mechanism to be like turbines and reorganize metadata to not use metadata entries so wastefully
 
 ### Gameplay
-- (DONE) Rewrite fertilization mechanics to be more sane/useful and expose fertility via control rod UI
 - Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
 ### Reactor Mechanics
