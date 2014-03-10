@@ -306,7 +306,7 @@ public class BigReactors {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', "ingotGold" }));
 				}
 				
-				if(Loader.isModLoaded("ComputerCraft")) {
+				if(Loader.isModLoaded("ComputerCraft") || Loader.isModLoaded("OpenComputers")) {
 					reactorPartStack = BigReactors.blockReactorPart.getComputerPortItemStack();
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', "ingotGold", 'P', "reactorRedstonePort" }));
 				}
@@ -358,7 +358,7 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(turbineFluidPort, new Object[] { "H H", "IVI", "HPH", 'H', "turbineHousing", 'I', ironOrSteelIngot, 'V', Item.bucketEmpty, 'P', Block.pistonBase}));
 				GameRegistry.addRecipe(new ShapedOreRecipe(turbineBearing, new Object[] { "HRH", "DDD", "HRH", 'H', "turbineHousing", 'D', Item.diamond, 'R', "turbineRotorShaft"}));
 
-				if(Loader.isModLoaded("ComputerCraft")) {
+				if(Loader.isModLoaded("ComputerCraft") || Loader.isModLoaded("OpenComputers")) {
 					ItemStack turbineComputerPort = blockTurbinePart.getItemStack("computerPort");
 					
 				}
