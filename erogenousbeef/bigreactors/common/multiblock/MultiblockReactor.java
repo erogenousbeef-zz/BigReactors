@@ -197,7 +197,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			currentFuelRod = attachedFuelRods.iterator();
 
 			if(worldObj.isRemote) {
-				worldObj.markBlockForRenderUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
+				worldObj.markBlockForUpdate(fuelRod.xCoord, fuelRod.yCoord, fuelRod.zCoord);
 			}
 		}
 		
