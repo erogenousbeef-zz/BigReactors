@@ -311,7 +311,7 @@ public class BigReactors {
 				
 				if(Loader.isModLoaded("ComputerCraft")) {
 					reactorPartStack = BigReactors.blockReactorPart.getComputerPortItemStack();
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', "ingotGold", 'P', "reactorRedstonePort" }));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, new Object[] { "CRC", "GPG", "CRC", 'C', "reactorCasing", 'R', Item.redstone, 'G', "ingotGold", 'P', Item.redstoneRepeater }));
 				}
 			}
 			
@@ -363,6 +363,7 @@ public class BigReactors {
 
 				if(Loader.isModLoaded("ComputerCraft")) {
 					ItemStack turbineComputerPort = blockTurbinePart.getItemStack("computerPort");
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineComputerPort, new Object[] { "HRH", "GPG", "HRH", 'H', "turbineHousing", 'G', "ingotGold", 'R', "turbineRotorShaft"}));
 					
 				}
 			}
