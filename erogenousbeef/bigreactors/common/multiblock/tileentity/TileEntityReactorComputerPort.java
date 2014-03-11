@@ -1,8 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import cpw.mods.fml.common.Optional.Interface;
-import cpw.mods.fml.common.Optional.InterfaceList;
-import cpw.mods.fml.common.Optional.Method;
+import cpw.mods.fml.common.Optional;
 import dan200.computer.api.IComputerAccess;
 import dan200.computer.api.ILuaContext;
 import dan200.computer.api.IPeripheral;
@@ -15,10 +13,10 @@ import li.cil.oc.api.network.SimpleComponent;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.Fluid;
 
-@InterfaceList({
-		@Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
-		@Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
-		@Interface(iface = "dan200.computer.api.IPeripheral", modid = "ComputerCraft")
+@Optional.InterfaceList({
+		@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
+		@Optional.Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
+		@Optional.Interface(iface = "dan200.computer.api.IPeripheral", modid = "ComputerCraft")
 })
 public class TileEntityReactorComputerPort extends TileEntityReactorPart implements IPeripheral, SimpleComponent, ManagedPeripheral {
 
@@ -213,7 +211,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	// ComputerCraft
 	
 	@Override
-	@Method(modid = "ComputerCraft")
+	@Optional.Method(modid = "ComputerCraft")
 	public String getType() {
 		return "BigReactors-Reactor";
 	}
@@ -231,45 +229,45 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	}
 	
 	@Override
-	@Method(modid = "ComputerCraft")
+	@Optional.Method(modid = "ComputerCraft")
 	public Object[] callMethod(IComputerAccess computer, ILuaContext context,
 							   int method, Object[] arguments) throws Exception {
 		return callMethod(method, arguments);
 	}
 	
 	@Override
-	@Method(modid = "ComputerCraft")
+	@Optional.Method(modid = "ComputerCraft")
 	public boolean canAttachToSide(int side) {
 		if(side < 2 || side > 5) { return false; }
 		return true;
 	}
 	
 	@Override
-	@Method(modid = "ComputerCraft")
+	@Optional.Method(modid = "ComputerCraft")
 	public void attach(IComputerAccess computer) {
 	}
 
 	@Override
-	@Method(modid = "ComputerCraft")
+	@Optional.Method(modid = "ComputerCraft")
 	public void detach(IComputerAccess computer) {
 	}
 	
 	// OpenComputers
 	
 	@Override
-	@Method(modid = "OpenComputers")
+	@Optional.Method(modid = "OpenComputers")
 	public String getComponentName() {
 		return "br_reactor";
 	}
 
 	@Override
-	@Method(modid = "OpenComputers")
+	@Optional.Method(modid = "OpenComputers")
 	public String[] methods() {
 		return getMethodNames();
 	}
 	
 	@Override
-	@Method(modid = "OpenComputers")
+	@Optional.Method(modid = "OpenComputers")
 	public Object[] invoke(final String method, final Context context,
 						   final Arguments args) throws Exception {
 		final Object[] arguments = new Object[args.count()];
