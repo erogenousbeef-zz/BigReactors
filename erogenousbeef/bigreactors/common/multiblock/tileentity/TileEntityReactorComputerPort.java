@@ -13,6 +13,9 @@ import li.cil.oc.api.network.SimpleComponent;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.Fluid;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Optional.InterfaceList({
 		@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
 		@Optional.Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
@@ -46,6 +49,21 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		doEjectWaste			// No arguments
 	}
 	
+	public static final String[] methodNames = new String[ComputerMethod.values().length];
+	static {
+		ComputerMethod[] methods = ComputerMethod.values();
+		for(ComputerMethod method : methods) {
+			methodNames[method.ordinal()] = method.toString();
+		}
+	}
+
+	public static final Map<String, Integer> methodIds = new HashMap<String, Integer>();
+	static {
+		for (int i = 0; i < methodNames.length; ++i) {
+			methodIds.put(methodNames[i], i);
+		}
+	}
+
 	public static final int numMethods = ComputerMethod.values().length;
 	
 	public Object[] callMethod(int method, Object[] arguments) throws Exception {
@@ -217,14 +235,8 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	}
 	
 	@Override
-	// Not @Optional, also used for OpenComputers.
+	@Optional.Method(modid = "ComputerCraft")
 	public String[] getMethodNames() {
-		ComputerMethod[] methods = ComputerMethod.values();
-		String[] methodNames = new String[methods.length];
-		for(ComputerMethod method : methods) {
-			methodNames[method.ordinal()] = method.toString();
-		}
-	
 		return methodNames;
 	}
 	
@@ -257,13 +269,15 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	@Override
 	@Optional.Method(modid = "OpenComputers")
 	public String getComponentName() {
+		// Convention for OC names is a) lower case, b) valid variable names,
+		// so this can be used as `component.br_reactor.setActive(true)` e.g.
 		return "br_reactor";
 	}
 
 	@Override
 	@Optional.Method(modid = "OpenComputers")
 	public String[] methods() {
-		return getMethodNames();
+		return methodNames;
 	}
 	
 	@Override
@@ -274,8 +288,8 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		for (int i = 0; i < args.count(); ++i) {
 			arguments[i] = args.checkAny(i);
 		}
-		final int methodId = java.util.Arrays.asList(methods()).indexOf(method);
-		if (methodId < 0) {
+		final Integer methodId = methodIds.get(method);
+		if (methodId == null) {
 			throw new NoSuchMethodError();
 		}
 		return callMethod(methodId, arguments);
