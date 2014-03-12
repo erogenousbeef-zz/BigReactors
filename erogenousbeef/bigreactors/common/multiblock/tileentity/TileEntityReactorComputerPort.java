@@ -48,8 +48,10 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
 		doEjectWaste			// No arguments
 	}
-	
-	public static final String[] methodNames = new String[ComputerMethod.values().length];
+
+	public static final int numMethods = ComputerMethod.values().length;
+
+	public static final String[] methodNames = new String[numMethods];
 	static {
 		ComputerMethod[] methods = ComputerMethod.values();
 		for(ComputerMethod method : methods) {
@@ -59,13 +61,11 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 
 	public static final Map<String, Integer> methodIds = new HashMap<String, Integer>();
 	static {
-		for (int i = 0; i < methodNames.length; ++i) {
+		for (int i = 0; i < numMethods; ++i) {
 			methodIds.put(methodNames[i], i);
 		}
 	}
 
-	public static final int numMethods = ComputerMethod.values().length;
-	
 	public Object[] callMethod(int method, Object[] arguments) throws Exception {
 		if(method < 0 || method >= numMethods) {
 			throw new IllegalArgumentException("Invalid method number");
