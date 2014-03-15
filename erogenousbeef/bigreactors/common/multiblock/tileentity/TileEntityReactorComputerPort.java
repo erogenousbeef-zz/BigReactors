@@ -1,20 +1,33 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fluids.Fluid;
+import cpw.mods.fml.common.Optional;
 import dan200.computer.api.IComputerAccess;
 import dan200.computer.api.ILuaContext;
 import dan200.computer.api.IPeripheral;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.common.CoordTriplet;
+import li.cil.oc.api.network.Arguments;
+import li.cil.oc.api.network.Context;
+import li.cil.oc.api.network.ManagedPeripheral;
+import li.cil.oc.api.network.SimpleComponent;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fluids.Fluid;
 
-public class TileEntityReactorComputerPort extends TileEntityReactorPart implements IPeripheral {
+import java.util.HashMap;
+import java.util.Map;
+
+@Optional.InterfaceList({
+		@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
+		@Optional.Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
+		@Optional.Interface(iface = "dan200.computer.api.IPeripheral", modid = "ComputerCraft")
+})
+public class TileEntityReactorComputerPort extends TileEntityReactorPart implements IPeripheral, SimpleComponent, ManagedPeripheral {
 
 	public enum ComputerMethod {
 		getConnected,			// No arguments
 		getActive,				// No arguments
 		getFuelTemperature,		// No arguments
-		getCasingTemperature,	// No arguments	
+		getCasingTemperature,	// No arguments
 		getEnergyStored, 		// No arguments
 		getFuelAmount,  		// No arguments
 		getWasteAmount, 		// No arguments
@@ -35,28 +48,25 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
 		doEjectWaste			// No arguments
 	}
-	
-	public static final int numMethods = ComputerMethod.values().length; 
-	
-	@Override
-	public String getType() {
-		return "BigReactors-Reactor";
-	}
 
-	@Override
-	public String[] getMethodNames() {
+	public static final int numMethods = ComputerMethod.values().length;
+
+	public static final String[] methodNames = new String[numMethods];
+	static {
 		ComputerMethod[] methods = ComputerMethod.values();
-		String[] methodNames = new String[methods.length];
 		for(ComputerMethod method : methods) {
 			methodNames[method.ordinal()] = method.toString();
 		}
-
-		return methodNames;
 	}
 
-	@Override
-	public Object[] callMethod(IComputerAccess computer, ILuaContext context,
-			int method, Object[] arguments) throws Exception {
+	public static final Map<String, Integer> methodIds = new HashMap<String, Integer>();
+	static {
+		for (int i = 0; i < numMethods; ++i) {
+			methodIds.put(methodNames[i], i);
+		}
+	}
+
+	public Object[] callMethod(int method, Object[] arguments) throws Exception {
 		if(method < 0 || method >= numMethods) {
 			throw new IllegalArgumentException("Invalid method number");
 		}
@@ -194,20 +204,6 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		default: throw new Exception("Method unimplemented - yell at Beef");
 		}
 	}
-
-	@Override
-	public boolean canAttachToSide(int side) {
-		if(side < 2 || side > 5) { return false; }
-		return true;
-	}
-
-	@Override
-	public void attach(IComputerAccess computer) {
-	}
-
-	@Override
-	public void detach(IComputerAccess computer) {
-	}
 	
 	private TileEntityReactorControlRod getControlRodFromArguments(MultiblockReactor reactor, Object[] arguments, int index) throws Exception {
 		if(!(arguments[index] instanceof Double)) {
@@ -228,5 +224,74 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		}
 		
 		return (TileEntityReactorControlRod)te;
+	}
+	
+	// ComputerCraft
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public String getType() {
+		return "BigReactors-Reactor";
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public String[] getMethodNames() {
+		return methodNames;
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public Object[] callMethod(IComputerAccess computer, ILuaContext context,
+							   int method, Object[] arguments) throws Exception {
+		return callMethod(method, arguments);
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public boolean canAttachToSide(int side) {
+		if(side < 2 || side > 5) { return false; }
+		return true;
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public void attach(IComputerAccess computer) {
+	}
+
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public void detach(IComputerAccess computer) {
+	}
+	
+	// OpenComputers
+	
+	@Override
+	@Optional.Method(modid = "OpenComputers")
+	public String getComponentName() {
+		// Convention for OC names is a) lower case, b) valid variable names,
+		// so this can be used as `component.br_reactor.setActive(true)` e.g.
+		return "br_reactor";
+	}
+
+	@Override
+	@Optional.Method(modid = "OpenComputers")
+	public String[] methods() {
+		return methodNames;
+	}
+	
+	@Override
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] invoke(final String method, final Context context,
+						   final Arguments args) throws Exception {
+		final Object[] arguments = new Object[args.count()];
+		for (int i = 0; i < args.count(); ++i) {
+			arguments[i] = args.checkAny(i);
+		}
+		final Integer methodId = methodIds.get(method);
+		if (methodId == null) {
+			throw new NoSuchMethodError();
+		}
+		return callMethod(methodId, arguments);
 	}
 }
