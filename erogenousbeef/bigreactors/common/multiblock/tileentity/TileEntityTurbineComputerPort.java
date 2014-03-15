@@ -1,13 +1,26 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import net.minecraftforge.fluids.FluidTankInfo;
+import cpw.mods.fml.common.Optional;
 import dan200.computer.api.IComputerAccess;
 import dan200.computer.api.ILuaContext;
 import dan200.computer.api.IPeripheral;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import li.cil.oc.api.network.Arguments;
+import li.cil.oc.api.network.Context;
+import li.cil.oc.api.network.ManagedPeripheral;
+import li.cil.oc.api.network.SimpleComponent;
+import net.minecraftforge.fluids.FluidTankInfo;
 
+import java.util.HashMap;
+import java.util.Map;
+
+@Optional.InterfaceList({
+		@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
+		@Optional.Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
+		@Optional.Interface(iface = "dan200.computer.api.IPeripheral", modid = "ComputerCraft")
+})
 public class TileEntityTurbineComputerPort extends
-		TileEntityTurbinePartStandard implements IPeripheral {
+		TileEntityTurbinePartStandard implements IPeripheral, SimpleComponent, ManagedPeripheral {
 
 	public enum ComputerMethod {
 		getConnected,			// No arguments
@@ -29,28 +42,25 @@ public class TileEntityTurbineComputerPort extends
 		setActive,				// Required Arg: integer (active)
 		setFluidFlowRateMax,	// Required Arg: integer (active)
 	}
-	
-	public static final int numMethods = ComputerMethod.values().length; 	
-	
-	@Override
-	public String getType() {
-		return "BigReactors-Turbine";
-	}
 
-	@Override
-	public String[] getMethodNames() {
+	public static final int numMethods = ComputerMethod.values().length;
+
+	public static final String[] methodNames = new String[numMethods];
+	static {
 		ComputerMethod[] methods = ComputerMethod.values();
-		String[] methodNames = new String[methods.length];
 		for(ComputerMethod method : methods) {
 			methodNames[method.ordinal()] = method.toString();
 		}
-
-		return methodNames;
 	}
 
-	@Override
-	public Object[] callMethod(IComputerAccess computer, ILuaContext context,
-			int method, Object[] arguments) throws Exception {
+	public static final Map<String, Integer> methodIds = new HashMap<String, Integer>();
+	static {
+		for (int i = 0; i < numMethods; ++i) {
+			methodIds.put(methodNames[i], i);
+		}
+	}
+
+	public Object[] callMethod(int method, Object[] arguments) throws Exception {
 		if(method < 0 || method >= numMethods) {
 			throw new IllegalArgumentException("Invalid method number");
 		}
@@ -150,18 +160,73 @@ public class TileEntityTurbineComputerPort extends
 		
 		return null;
 	}
-
+	
+	// ComputerCraft
+	
 	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public String getType() {
+		return "BigReactors-Turbine";
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public String[] getMethodNames() {
+		return methodNames;
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public Object[] callMethod(IComputerAccess computer, ILuaContext context,
+							   int method, Object[] arguments) throws Exception {
+		return callMethod(method, arguments);
+	}
+	
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
 	public boolean canAttachToSide(int side) {
 		if(side < 2 || side > 5) { return false; }
 		return true;
 	}
-
+	
 	@Override
+	@Optional.Method(modid = "ComputerCraft")
 	public void attach(IComputerAccess computer) {
 	}
-
+	
 	@Override
+	@Optional.Method(modid = "ComputerCraft")
 	public void detach(IComputerAccess computer) {
+	}
+	
+	// OpenComputers
+	
+	@Override
+	@Optional.Method(modid = "OpenComputers")
+	public String getComponentName() {
+		// Convention for OC names is a) lower case, b) valid variable names,
+		// so this can be used as `component.br_turbine.setActive(true)` e.g.
+		return "br_turbine";
+	}
+	
+	@Override
+	@Optional.Method(modid = "OpenComputers")
+	public String[] methods() {
+		return methodNames;
+	}
+	
+	@Override
+	@Optional.Method(modid = "OpenComputers")
+	public Object[] invoke(final String method, final Context context,
+						   final Arguments args) throws Exception {
+		final Object[] arguments = new Object[args.count()];
+		for (int i = 0; i < args.count(); ++i) {
+			arguments[i] = args.checkAny(i);
+		}
+		final Integer methodId = methodIds.get(method);
+		if (methodId == null) {
+			throw new NoSuchMethodError();
+		}
+		return callMethod(methodId, arguments);
 	}
 }
