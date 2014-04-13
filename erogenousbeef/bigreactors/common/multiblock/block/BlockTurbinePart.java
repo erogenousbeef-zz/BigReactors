@@ -116,7 +116,14 @@ public class BlockTurbinePart extends BlockContainer {
 			TileEntityTurbinePartBase part = (TileEntityTurbinePartBase)te;
 			MultiblockTurbine turbine = part.getTurbine();
 			
-			if(!part.isConnected() || turbine == null || !turbine.isAssembled()) {
+			if(metadata == METADATA_FLUIDPORT) {
+				if(te instanceof TileEntityTurbineFluidPort && ((TileEntityTurbineFluidPort)te).getFlowDirection() == FluidFlow.Out) {
+					if(!turbine.isAssembled() || part.getOutwardsDir().ordinal() == side)
+						return _subIcons[SUBICON_FLUIDPORT_OUTPUT];
+				}
+				return getIcon(side, metadata);
+			}
+			else if(!part.isConnected() || turbine == null || !turbine.isAssembled()) {
 				return getIcon(side, metadata);
 			}
 			else {
@@ -137,11 +144,6 @@ public class BlockTurbinePart extends BlockContainer {
 					else if(metadata == METADATA_POWERTAP) {
 						if(te instanceof TileEntityTurbinePowerTap && ((TileEntityTurbinePowerTap)te).isAttachedToPowerNetwork()) {
 							subIcon = SUBICON_POWERTAP_ACTIVE;
-						}
-					}
-					else if(metadata == METADATA_FLUIDPORT) {
-						if(te instanceof TileEntityTurbineFluidPort && ((TileEntityTurbineFluidPort)te).getFlowDirection() == FluidFlow.Out) {
-							subIcon = SUBICON_FLUIDPORT_OUTPUT;
 						}
 					}
 				}
@@ -263,10 +265,26 @@ public class BlockTurbinePart extends BlockContainer {
 		if(player.isSneaking()) {
 			return false;
 		}
-
+		
+		int metadata = world.getBlockMetadata(x, y, z);
+		
+		if(metadata == METADATA_FLUIDPORT && (player.getCurrentEquippedItem() == null || StaticUtils.Inventory.isPlayerHoldingWrench(player))) {
+			TileEntity te = world.getBlockTileEntity(x, y, z);
+			if(te instanceof TileEntityTurbineFluidPort) {
+				TileEntityTurbineFluidPort fluidPort = (TileEntityTurbineFluidPort)te; 
+				FluidFlow flow = fluidPort.getFlowDirection();
+				fluidPort.setFluidFlowDirection(flow == FluidFlow.In ? FluidFlow.Out : FluidFlow.In);
+				return true;
+			}
+		}
+		
+		if(world.isRemote) {
+			return true;
+		}
+		
 		// If the player's hands are empty and they rightclick on a multiblock, they get a 
 		// multiblock-debugging message if the machine is not assembled.
-		if(!world.isRemote && player.getCurrentEquippedItem() == null) {
+		if(player.getCurrentEquippedItem() == null) {
 			TileEntity te = world.getBlockTileEntity(x, y, z);
 			if(te instanceof IMultiblockPart) {
 				MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
@@ -284,18 +302,6 @@ public class BlockTurbinePart extends BlockContainer {
 			}
 		}
 		
-		int metadata = world.getBlockMetadata(x, y, z);
-		
-		if(metadata == METADATA_FLUIDPORT && (player.getCurrentEquippedItem() == null || StaticUtils.Inventory.isPlayerHoldingWrench(player))) {
-			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof TileEntityTurbineFluidPort) {
-				TileEntityTurbineFluidPort fluidPort = (TileEntityTurbineFluidPort)te; 
-				FluidFlow flow = fluidPort.getFlowDirection();
-				fluidPort.setFluidFlowDirection(flow == FluidFlow.In ? FluidFlow.Out : FluidFlow.In);
-				return true;
-			}
-		}
-		
 		// Does this machine even have a GUI?
 		if(metadata != METADATA_CONTROLLER) { return false; }
 
@@ -310,9 +316,7 @@ public class BlockTurbinePart extends BlockContainer {
 			return false;
 		}
 		
-		if(!world.isRemote) {
-			player.openGui(BRLoader.instance, 0, world, x, y, z);
-		}
+		player.openGui(BRLoader.instance, 0, world, x, y, z);
 		return true;
 	}
 
