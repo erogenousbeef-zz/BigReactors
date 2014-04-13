@@ -4,8 +4,19 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.1A)
 ------------------------------------------
 
-Current Release (0.3.0A)
+Current Release (0.3.1A)
 --------------------------------
+- Forge: Big Reactors now requires Forge version 953 or higher.
+- Enhancement: Brazilian Portuguese translation, thanks Kevin8082!
+- Enhancement: OpenComputers, versions 335 and higher for 1.6.4, is now supported via the Reactor and Turbine computer ports. Thanks fnuecke!
+- Upgrade: Big Reactors is now compatible with ComputerCraft 1.6 (CC 1.5 support has been dropped)
+- Bugfix: Reactors no longer fail to operate if cryotheum freezes water inside them during operation
+- Bugfix: Turbine fluid ports now properly show whether they're inlets or outlets while a turbine is not assembled
+- Bugfix: Turbine fluid ports can now be toggled between inlet/outlet mode while a turbine is disassembled via the usual methods (empty hand, wrench)
+
+Older Releases
+--------------
+### Release 0.3.0A
 - Bugfix: Fuel rods no longer visually "overflow" with fuel when one or more fuel rods are broken on a reactor with fuel inside
 - Bugfix: Fuel rods now update their visual states when they should, instead of randomly/infrequently
 - Bugfix: Turbine power taps now light up when compatible wires are placed next to them
@@ -13,8 +24,6 @@ Current Release (0.3.0A)
 - Bugfix: Potential fix for a rare crash due to cross-mod interference with some Minecraft GUI code
 - Bugfix: Turbine computer port actually has a recipe now
 
-Older Releases
---------------
 ### Release 0.3.0rc3
 - Enhancement: Turbine and reactor fluid/coolant ports set to "outlet" mode will now automatically attempt to pump fluids into nearby fluid pipes/containers
 - Enhancement: Yellorium and blutonium blocks can now be used to fuel reactors.
