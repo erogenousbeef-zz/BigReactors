@@ -1,9 +1,9 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import cpw.mods.fml.common.Optional;
-import dan200.computer.api.IComputerAccess;
-import dan200.computer.api.ILuaContext;
-import dan200.computer.api.IPeripheral;
+import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.core.common.CoordTriplet;
 import li.cil.oc.api.network.Arguments;
@@ -249,13 +249,6 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	
 	@Override
 	@Optional.Method(modid = "ComputerCraft")
-	public boolean canAttachToSide(int side) {
-		if(side < 2 || side > 5) { return false; }
-		return true;
-	}
-	
-	@Override
-	@Optional.Method(modid = "ComputerCraft")
 	public void attach(IComputerAccess computer) {
 	}
 
@@ -293,5 +286,11 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			throw new NoSuchMethodError();
 		}
 		return callMethod(methodId, arguments);
+	}
+
+	@Override
+	@Optional.Method(modid = "ComputerCraft")
+	public boolean equals(IPeripheral other) {
+		return hashCode() == other.hashCode();
 	}
 }
