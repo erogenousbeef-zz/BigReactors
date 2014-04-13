@@ -117,9 +117,16 @@ public class BlockTurbinePart extends BlockContainer {
 			MultiblockTurbine turbine = part.getTurbine();
 			
 			if(metadata == METADATA_FLUIDPORT) {
-				if(te instanceof TileEntityTurbineFluidPort && ((TileEntityTurbineFluidPort)te).getFlowDirection() == FluidFlow.Out) {
+				if(te instanceof TileEntityTurbineFluidPort) {
 					if(!turbine.isAssembled() || part.getOutwardsDir().ordinal() == side)
-						return _subIcons[SUBICON_FLUIDPORT_OUTPUT];
+					{
+						if(((TileEntityTurbineFluidPort)te).getFlowDirection() == FluidFlow.Out)
+							return _subIcons[SUBICON_FLUIDPORT_OUTPUT];
+						else
+							return _icons[METADATA_FLUIDPORT];
+					}
+					else if(turbine.isAssembled() && part.getOutwardsDir().ordinal() != side)
+						return _subIcons[SUBICON_HOUSING_FACE];
 				}
 				return getIcon(side, metadata);
 			}
