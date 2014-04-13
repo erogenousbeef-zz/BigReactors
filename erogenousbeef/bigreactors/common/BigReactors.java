@@ -207,6 +207,14 @@ public class BigReactors {
 			if(OreDictionary.getOres("ingotGold").size() <= 0) {
 				OreDictionary.registerOre("ingotGold", Item.ingotGold);
 			}
+			
+			if(OreDictionary.getOres("blockSnow").size() <= 0) {
+				OreDictionary.registerOre("blockSnow", Block.snow);
+			}
+			
+			if(OreDictionary.getOres("blockIce").size() <= 0) {
+				OreDictionary.registerOre("blockIce", Block.ice);
+			}
 
 			if(OreDictionary.getOreID(new ItemStack(Block.glass)) < 0) {
 				OreDictionary.registerOre("glass", Block.glass);
@@ -767,6 +775,8 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorBlock("blockEmerald",		0.55f, 0.85f, 1.50f, IHeatEntity.conductivityEmerald);
 		BRRegistry.registerReactorInteriorBlock("blockGraphite",	0.10f, 0.50f, 2.00f, IHeatEntity.conductivityGold); // Graphite: a great moderator!
 		BRRegistry.registerReactorInteriorBlock("glass",			0.20f, 0.25f, 1.10f, IHeatEntity.conductivityGlass);
+		BRRegistry.registerReactorInteriorBlock("blockIce",			0.33f, 0.33f, 1.15f, IHeatEntity.conductivityWater);
+		BRRegistry.registerReactorInteriorBlock("blockSnow",		0.15f, 0.33f, 1.05f, IHeatEntity.conductivityWater / 2f);
 		
 		// Mod blocks
 		BRRegistry.registerReactorInteriorBlock("blockCopper", 		0.50f, 0.75f, 1.40f, IHeatEntity.conductivityCopper);
