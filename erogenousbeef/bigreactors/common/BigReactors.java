@@ -81,7 +81,7 @@ public class BigReactors {
 	public static final String MODEL_TEXTURE_DIRECTORY = TEXTURE_DIRECTORY + "models/";
 
 	public static final String LANGUAGE_PATH = RESOURCE_PATH + "languages/";
-	private static final String[] LANGUAGES_SUPPORTED = new String[] { "en_US" };
+	private static final String[] LANGUAGES_SUPPORTED = new String[] { "de_DE", "en_US", "nl_NL", "pl_PL", "pt_BR", "ru_RU", "zh_CN" };
 	
 	public static final int BLOCK_ID_PREFIX = 1750;
 	
