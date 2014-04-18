@@ -118,7 +118,7 @@ public class BlockTurbinePart extends BlockContainer {
 			
 			if(metadata == METADATA_FLUIDPORT) {
 				if(te instanceof TileEntityTurbineFluidPort) {
-					if(!turbine.isAssembled() || part.getOutwardsDir().ordinal() == side)
+					if(turbine == null || !turbine.isAssembled() || part.getOutwardsDir().ordinal() == side)
 					{
 						if(((TileEntityTurbineFluidPort)te).getFlowDirection() == FluidFlow.Out)
 							return _subIcons[SUBICON_FLUIDPORT_OUTPUT];
