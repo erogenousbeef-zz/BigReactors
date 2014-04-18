@@ -42,6 +42,11 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	{
 		super.onMachineAssembled(multiblockControllerBase);
 		checkForAdjacentTank();
+		
+		if(!this.worldObj.isRemote) { 
+			// Force a connection to neighboring objects
+			this.onInventoryChanged();
+		}
 	}
 	
 	@Override
