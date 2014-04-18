@@ -1,11 +1,22 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.3.1A)
+Next Release (Anticipated Version: 0.3.3A)
 ------------------------------------------
 
-Current Release (0.3.1A)
+Current Release (0.3.2A)
 --------------------------------
+- Enhancement: Swedish translation, thanks erucolindo!
+- Upgrade: German translation is now current for 0.3, thanks Vexatos!
+- Bugfix: Alternate translations can now actually be used. Thanks Vexatos!
+- Bugfix: Reactor/Turbine computer ports can now connect to Computercraft 1.6 computers and modems. This was broken in 0.3.1A.
+- Bugfix: Fixed crashes related to teleporting near a turbine fluid port (introduced in 0.3.1A)
+- Bugfix: Added some code so that chunk boundary handling is sliiiiightly nicer and should fail not quite as often. Still, putting ports on the boundary of non-chunkloaded chunks is still wonky. Blame minecraft.
+- Did some behind-the-scenes upgrades so automated building is nicer, thanks AbrarSyed!
+
+Older Releases
+--------------
+### Release 0.3.2A
 - Forge: Big Reactors now requires Forge version 953 or higher.
 - Enhancement: Brazilian Portuguese translation, thanks Kevin8082!
 - Enhancement: OpenComputers, versions 335 and higher for 1.6.4, is now supported via the Reactor and Turbine computer ports. Thanks fnuecke!
@@ -14,8 +25,6 @@ Current Release (0.3.1A)
 - Bugfix: Turbine fluid ports now properly show whether they're inlets or outlets while a turbine is not assembled
 - Bugfix: Turbine fluid ports can now be toggled between inlet/outlet mode while a turbine is disassembled via the usual methods (empty hand, wrench)
 
-Older Releases
---------------
 ### Release 0.3.0A
 - Bugfix: Fuel rods no longer visually "overflow" with fuel when one or more fuel rods are broken on a reactor with fuel inside
 - Bugfix: Fuel rods now update their visual states when they should, instead of randomly/infrequently
