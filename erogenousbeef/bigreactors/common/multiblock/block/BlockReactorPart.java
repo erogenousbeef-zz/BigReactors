@@ -32,8 +32,10 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
 
-public class BlockReactorPart extends BlockContainer implements IConnectableRedNet {
+public class BlockReactorPart extends BlockContainer implements IConnectableRedNet, IPeripheralProvider {
 	
 	public static final int CASING_METADATA_BASE = 0;	// Requires 5 "block types" to do properly.
 	public static final int CASING_CORNER = 1;
@@ -497,5 +499,16 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
 		return;
+	}
+	
+	// IPeripheralProvider
+	@Override
+	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		
+		if(te instanceof TileEntityReactorComputerPort)
+			return (IPeripheral)te;
+		
+		return null;
 	}
 }
