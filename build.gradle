@@ -1,0 +1,44 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+version = "0.3.2A"
+group= "erogenousbeef.bigreactors" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "BigReactors"
+
+minecraft {
+	version = "1.6.4-9.11.1.964"
+	
+	replace "@VERSION@", project.version
+	replaceIn "BRConfig.java"
+}
+
+processResources
+{
+	inputs.property "version", project.version
+	inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info and other info files
+    from(sourceSets.main.resources.srcDirs) {
+        exclude '**/*.info'
+    }
+}
