@@ -20,6 +20,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
@@ -36,7 +38,7 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class BlockTurbinePart extends BlockContainer {
+public class BlockTurbinePart extends BlockContainer implements IPeripheralProvider {
 
 	public static final int METADATA_HOUSING = 0;
 	public static final int METADATA_CONTROLLER = 1;
@@ -479,4 +481,14 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     	
 		return super.getCollisionBoundingBoxFromPool(world, x, y, z);
     }
+
+	@Override
+	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		
+		if(te instanceof TileEntityTurbineComputerPort)
+			return (IPeripheral)te;
+		
+		return null;
+	}
 }

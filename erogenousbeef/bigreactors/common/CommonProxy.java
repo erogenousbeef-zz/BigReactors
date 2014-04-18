@@ -18,6 +18,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import dan200.computercraft.api.ComputerCraftAPI;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
@@ -196,6 +197,11 @@ public class CommonProxy {
 		if(Loader.isModLoaded("MineFactoryReloaded")) {
 			FactoryRegistry.registerLaserOre(2, yelloriteOre.copy());
 			FactoryRegistry.addLaserPreferredOre(9, yelloriteOre.copy()); // Register yellorite with cyan, becuz.
+		}
+		
+		if(Loader.isModLoaded("ComputerCraft")) {
+			ComputerCraftAPI.registerPeripheralProvider(BigReactors.blockReactorPart);
+			ComputerCraftAPI.registerPeripheralProvider(BigReactors.blockTurbinePart);
 		}
 		
 		// Easter Egg - Check if today is valentine's day. If so, change all particles to hearts.
