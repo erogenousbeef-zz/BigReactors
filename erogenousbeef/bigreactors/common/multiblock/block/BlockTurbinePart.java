@@ -217,7 +217,7 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 				int neighborBlockId = blockAccess.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
 				// See if we're a turbine part
 				if(neighborBlockId != myBlockId && neighborBlockId != BigReactors.blockMultiblockGlass.blockID
-						&& neighborBlockId != BigReactors.blockMultiblockCreativePart.blockID) {
+						&& (BigReactors.blockMultiblockCreativePart != null && neighborBlockId != BigReactors.blockMultiblockCreativePart.blockID)) {
 					// One of these things is not like the others...
 					iconIdx = i;
 					break;
