@@ -39,7 +39,7 @@ public class ItemIngot extends ItemBase
 	@Override
 	public String getUnlocalizedName(ItemStack itemStack)
 	{
-		int idx = Math.max(TYPES.length, itemStack.getItemDamage());
+		int idx = Math.min(TYPES.length-1, itemStack.getItemDamage());
 		return "item." + TYPES[idx];
 	}
 
