@@ -221,7 +221,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		}
 		else if(button.id == 5) {
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown() }));
+						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown(), false }));
 		}
 	}
 	

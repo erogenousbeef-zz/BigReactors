@@ -15,6 +15,7 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjecti
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
 import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
@@ -60,11 +61,17 @@ public abstract class TileEntityReactorPartBase extends
 			boolean isFuelButton = data.readBoolean();
 			boolean dumpAll = data.readBoolean();
 			
+			CoordTriplet destination = null;
+			if(data.readBoolean())
+			{
+				destination = new CoordTriplet(data.readInt(), data.readInt(), data.readInt());
+			}
+			
 			if(isFuelButton) {
-				getReactorController().ejectFuel(dumpAll);
+				getReactorController().ejectFuel(dumpAll, destination);
 			}
 			else {
-				getReactorController().ejectWaste(dumpAll);
+				getReactorController().ejectWaste(dumpAll, destination);
 			}
 		}
 		

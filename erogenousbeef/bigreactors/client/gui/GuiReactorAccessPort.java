@@ -102,7 +102,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 		else if(button.id == 2 || button.id == 3) {
 			boolean fuel = button.id == 2;
 			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
-						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, fuel, isShiftKeyDown() }));
+						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, fuel, isShiftKeyDown(), true, _port.xCoord, _port.yCoord, _port.zCoord }));
 		}
 	}
 	

@@ -46,7 +46,8 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		setActive,				// Required Arg: integer (active)
 		setControlRodLevel,		// Required Args: fuel rod index, integer (insertion)
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
-		doEjectWaste			// No arguments
+		doEjectWaste,			// No arguments
+		doEjectFuel				// No arguments
 	}
 
 	public static final int numMethods = ComputerMethod.values().length;
@@ -199,8 +200,12 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			return null;
 		// "do" methods - void return, no inputs
 		case doEjectWaste:
-			reactor.ejectWaste(false);
+			reactor.ejectWaste(false, null);
 			return null;
+		case doEjectFuel:
+			reactor.ejectFuel(false, null);
+			return null;
+
 		default: throw new Exception("Method unimplemented - yell at Beef");
 		}
 	}

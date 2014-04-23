@@ -299,7 +299,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// If we can, poop out waste and inject new fuel.
 		if(wasteEjection == WasteEjectionSetting.kAutomatic) {
-			ejectWaste(false);
+			ejectWaste(false, null);
 		}
 		
 		refuel();
@@ -994,8 +994,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	/**
 	 * Attempt to eject waste contained in the reactor
 	 * @param dumpAll If true, any waste remaining after ejection will be discarded.
+	 * @param destination If set, waste will only be ejected to ports with coordinates matching this one.
 	 */
-	public void ejectWaste(boolean dumpAll)
+	public void ejectWaste(boolean dumpAll, CoordTriplet destination)
 	{
 		int numIngots = fuelContainer.getWasteAmount() / AmountPerIngot;
 		if(numIngots <= 0 && !dumpAll) {
@@ -1018,14 +1019,18 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 						if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
 						if(port == null || !port.isConnected()) { continue; }
-						
-						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, false);
+						if(destination != null && (destination.x != port.xCoord || destination.y != port.yCoord || destination.z != port.zCoord))
+						{
+							continue;
+						}
+
+						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, destination == null);
 						if(ingotsToDistribute.stackSize <= 0) {
 							ingotsToDistribute = null;
 						}
 					}
 
-					if(ingotsToDistribute != null && ingotsToDistribute.stackSize > 0)
+					if(ingotsToDistribute != null && ingotsToDistribute.stackSize > 0 && destination == null)
 					{
 						for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 							if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
@@ -1033,7 +1038,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 							
 							ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
 						}
-						
 					}
 
 					fuelContainer.drainWaste(ingotsDistributed * AmountPerIngot);
@@ -1053,8 +1057,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	/**
 	 * Eject fuel contained in the reactor.
 	 * @param dumpAll If true, any remaining fuel will simply be lost.
+	 * @param destination If not null, then fuel will only be distributed to a port matching these coordinates.
 	 */
-	public void ejectFuel(boolean dumpAll) {
+	public void ejectFuel(boolean dumpAll, CoordTriplet destination) {
 		int numIngots = fuelContainer.getFuelAmount() / AmountPerIngot;
 		if(numIngots <= 0 && !dumpAll) {
 			return;
@@ -1077,6 +1082,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					for(TileEntityReactorAccessPort port : attachedAccessPorts) {
 						if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
 						if(port == null || !port.isConnected()) { continue; }
+						if(destination != null && (destination.x != port.xCoord || destination.y != port.yCoord || destination.z != port.zCoord))
+						{
+							continue;
+						}
 						
 						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
 					}
