@@ -455,6 +455,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		else {
 			this.greaterThan = true;
 			this.activeOnPulse = false;
+			this.outputLevel = 0;
 
 			// We do this so the state of the fields is accurate for the following two methods
 			updateSubSettingTextFields(selectedType);
@@ -590,7 +591,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 				else if(val2 > 100) { val2 = 100; }
 			}
 			// pack into high-order bits
-			this.outputLevel = (val2 >> 8) & 0xFF00;
+			this.outputLevel = (val2 << 8) & 0xFF00;
 
 			this.subInputRodSettingOff.setText(Integer.toString(val2));
 		}
