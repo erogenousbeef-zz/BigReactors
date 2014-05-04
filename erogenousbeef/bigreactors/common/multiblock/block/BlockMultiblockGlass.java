@@ -36,7 +36,7 @@ public class BlockMultiblockGlass extends BlockContainer {
 		super(par1, par2Material);
 		
 		setStepSound(soundGlassFootstep);
-		setHardness(4.0f);
+		setHardness(2.0f);
 		setUnlocalizedName("multiblockGlass");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "multiblockGlass");
 		setCreativeTab(BigReactors.TAB);
