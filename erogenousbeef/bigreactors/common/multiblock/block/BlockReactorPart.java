@@ -96,7 +96,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		super(id, material);
 		
 		setStepSound(soundMetalFootstep);
-		setHardness(4.0f);
+		setHardness(2.0f);
 		setUnlocalizedName("blockReactorPart");
 		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorPart");
 		setCreativeTab(BigReactors.TAB);

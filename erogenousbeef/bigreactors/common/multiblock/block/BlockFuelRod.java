@@ -24,7 +24,7 @@ public class BlockFuelRod extends BlockContainer {
 	public BlockFuelRod(int id, Material material) {
 		super(id, material);
 		
-		setHardness(4f);
+		setHardness(2f);
 		setLightValue(0.9f);
 		setLightOpacity(1);
 		setCreativeTab(BigReactors.TAB);
