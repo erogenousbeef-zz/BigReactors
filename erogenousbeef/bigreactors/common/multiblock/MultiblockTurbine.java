@@ -230,7 +230,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		energyGeneratedLastTick = data.readFloat();
 		maxIntakeRate = data.readInt();
 		setActive(data.readBoolean());
-		ventStatus = VentStatus.values()[data.readInt()];
+		setVentStatus(VentStatus.values()[data.readInt()], false);
 		fluidConsumedLastTick = data.readInt();
 		rotorEfficiencyLastTick = data.readFloat();
 
@@ -290,8 +290,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		if(packetType == Packets.MultiblockTurbineVentUpdate) {
 			int idx = data.readInt();
 			if(idx >= 0 && idx < VentStatus.values().length) {
-				ventStatus = VentStatus.values()[idx];
-				markReferenceCoordDirty();
+				setVentStatus(VentStatus.values()[idx], true);
 			}
 		}
 
@@ -762,7 +761,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(data.hasKey("ventStatus")) {
-			ventStatus = VentStatus.values()[data.getInteger("ventStatus")];
+			setVentStatus(VentStatus.values()[data.getInteger("ventStatus")], false);
 		}
 		
 		if(data.hasKey("rotorEnergy")) {
@@ -1096,6 +1095,12 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	public VentStatus getVentSetting() {
 		return ventStatus;
+	}
+	
+	public void setVentStatus(VentStatus newStatus, boolean markReferenceCoordDirty) {
+		ventStatus = newStatus;
+		if(markReferenceCoordDirty)
+			markReferenceCoordDirty();
 	}
 	
 	protected void markReferenceCoordDirty() {
