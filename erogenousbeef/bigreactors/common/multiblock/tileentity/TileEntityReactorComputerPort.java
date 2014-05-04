@@ -36,6 +36,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		getNumberOfControlRods,	// No arguments
 		getControlRodLevel, 	// Required Arg: control rod index
 		getEnergyProducedLastTick, // No arguments
+		getHotFluidProducedLastTick, // No arguments
 		getCoolantAmount,		// No arguments
 		getCoolantType,			// No arguments
 		getHotFluidAmount,		// No arguments
@@ -123,6 +124,12 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		case getEnergyProducedLastTick:
 			return new Object[] { reactor.getEnergyGeneratedLastTick() };
 		
+		case getHotFluidProducedLastTick:
+			if(reactor.isPassivelyCooled())
+				return new Object[] { 0f };
+			else
+				return new Object[] { reactor.getEnergyGeneratedLastTick() };
+			
 		case isActivelyCooled:
 			return new Object[] { !reactor.isPassivelyCooled() };
 
