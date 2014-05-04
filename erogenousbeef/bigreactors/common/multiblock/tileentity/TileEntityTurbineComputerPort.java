@@ -5,6 +5,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine.VentStatus;
 import li.cil.oc.api.network.Arguments;
 import li.cil.oc.api.network.Context;
 import li.cil.oc.api.network.ManagedPeripheral;
@@ -41,6 +42,9 @@ public class TileEntityTurbineComputerPort extends
 		getRotorMass,			// No arguments
 		setActive,				// Required Arg: integer (active)
 		setFluidFlowRateMax,	// Required Arg: integer (active)
+		setVentNone,			// No arguments
+		setVentOverflow,		// No arguments
+		setVentAll,				// No arguments
 	}
 
 	public static final int numMethods = ComputerMethod.values().length;
@@ -153,6 +157,15 @@ public class TileEntityTurbineComputerPort extends
 			}
 			int newRate = (int)Math.round((Double)arguments[0]);
 			turbine.setMaxIntakeRate(newRate);
+			break;
+		case setVentNone:
+			turbine.setVentStatus(VentStatus.DoNotVent, true);
+			break;
+		case setVentOverflow:
+			turbine.setVentStatus(VentStatus.VentOverflow, true);
+			break;
+		case setVentAll:
+			turbine.setVentStatus(VentStatus.VentAll, true);
 			break;
 		default:
 			throw new Exception("Method unimplemented - yell at Beef");
