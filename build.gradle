@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.3.2A"
+version = "0.3.3A"
 group= "erogenousbeef.bigreactors" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 

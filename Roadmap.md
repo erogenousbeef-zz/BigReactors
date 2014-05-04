@@ -16,6 +16,8 @@ Known Issues
 ------------
 - WR-CBE receivers do not activate redstone ports in input mode correctly if they are placed directly next to the input port. Workaround: Place one tile's worth of redstone (or another mod's redstone wire) between the receiver and the input port.
 
+- Setting the dormantChunkCacheSize Forge setting to something other than 0 (which is the default) will cause Big Reactors to break in strange and unusual ways. This setting is not supported.
+
 TODO - 0.3: The Coolant Update
 ------------------------------
 ### Graphics

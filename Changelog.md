@@ -4,8 +4,21 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.3.3A)
 ------------------------------------------
 
-Current Release (0.3.2A)
+Current Release (0.3.3A)
 --------------------------------
+- Bugfix: Disabling creative parts no longer causes client crashes when turbines are assembled
+- Bugfix: Corrupted metadata on Ingots no longer causes crashes
+- Bugfix: Passive reactors were cooling off (and generating energy) very slightly too fast. This has been fixed.
+- Bugfix: On Reactor Redstone Ports, the "While off" setting for control rod insertion was being ignored. This has been fixed.
+- Enhancement: When using the eject fuel/waste buttons on an access port, fuel/waste now only appears in the access port whose GUI is open
+- Enhancement: Reactor Power Tap crafting recipe can now be disabled in the config via the enableReactorPowerTapRecipe setting
+- Enhancement: Reactor's Computer Port now exposes getHotFluidProducedLastTick(), which returns 0 when passively cooled and the mB of hot fluid produced when actively cooled.
+- Enhancement: Turbine's Computer Port can now manipulate vent settings via setVentNone(), setVentOverflow(), and setVentAll(). No arguments required.
+- Enhancement: Spanish translation, thanks k3936!
+
+Older Releases
+--------------
+### Release 0.3.2A
 - Enhancement: Swedish translation, thanks erucolindo!
 - Upgrade: German translation is now current for 0.3, thanks Vexatos!
 - Bugfix: Alternate translations can now actually be used. Thanks Vexatos!
@@ -14,9 +27,8 @@ Current Release (0.3.2A)
 - Bugfix: Added some code so that chunk boundary handling is sliiiiightly nicer and should fail not quite as often. Still, putting ports on the boundary of non-chunkloaded chunks is still wonky. Blame minecraft.
 - Did some behind-the-scenes upgrades so automated building is nicer, thanks AbrarSyed!
 
-Older Releases
---------------
-### Release 0.3.2A
+
+### Release 0.3.1A
 - Forge: Big Reactors now requires Forge version 953 or higher.
 - Enhancement: Brazilian Portuguese translation, thanks Kevin8082!
 - Enhancement: OpenComputers, versions 335 and higher for 1.6.4, is now supported via the Reactor and Turbine computer ports. Thanks fnuecke!
