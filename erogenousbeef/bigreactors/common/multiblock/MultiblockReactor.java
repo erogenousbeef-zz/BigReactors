@@ -1158,7 +1158,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		// Get external surface area
 		xSize += 2;
 		ySize += 2;
-		zSize += 3;
+		zSize += 2;
 		
 		surfaceArea = 2 * (xSize * ySize + xSize * zSize + ySize * zSize);
 		reactorHeatLossCoefficient = reactorHeatLossConductivity * surfaceArea;
