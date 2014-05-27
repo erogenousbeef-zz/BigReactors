@@ -4,7 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedstonePort;
@@ -246,7 +246,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	 */
 	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir) {
 		// This is because of bugs in vanilla redstone wires
-		int blockId = world.getBlockId(x, y, z);
+		int blockId = world.getBlock(x, y, z);
 		return isReceivingRedstonePowerFrom(world, x, y, z, dir, blockId);
 	}
 	
@@ -257,7 +257,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	 * then pass in south.
 	 */
 	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir, int neighborBlockId) {
-		if(neighborBlockId == Block.redstoneWire.blockID) {
+		if(neighborBlockId == Block.redstoneWire) {
 			// Use metadata because of vanilla redstone wire bugs
 			return world.getBlockMetadata(x, y, z) > 0;
 		}

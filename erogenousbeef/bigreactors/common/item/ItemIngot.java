@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common.item;
 import java.util.List;
 
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class ItemIngot extends ItemBase
@@ -13,9 +14,9 @@ public class ItemIngot extends ItemBase
 
 	public static final String[] MATERIALS = { "Yellorium", "Cyanite", "Graphite", "Blutonium" };
 
-	public ItemIngot(int id)
+	public ItemIngot()
 	{
-		super("ingot", id);
+		super("ingot");
 		this.setHasSubtypes(true);
 		this.setMaxDamage(0);
 	}
@@ -42,9 +43,8 @@ public class ItemIngot extends ItemBase
 		int idx = Math.min(TYPES.length-1, itemStack.getItemDamage());
 		return "item." + TYPES[idx];
 	}
-
 	@Override
-	public void getSubItems(int par1, CreativeTabs creativeTabs, List list)
+	public void getSubItems(Item par1, CreativeTabs creativeTabs, List list)
 	{
 		for (int i = 0; i < TYPES.length; i++)
 		{

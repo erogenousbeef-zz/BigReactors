@@ -4,32 +4,35 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 
 public class BlockBROre extends Block {
-	private Icon iconYellorite;
+	private IIcon iconYellorite;
 
-	public BlockBROre(int id)
+	//TODO: string id
+	public BlockBROre()
 	{
-		super(id, Material.rock);
+		super( Material.rock);
 		this.setCreativeTab(BigReactors.TAB);
-		this.setUnlocalizedName("brOre");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "oreYellorite");
+		this.setBlockName(BRLoader.MOD_ID+".brOre");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "oreYellorite");
 		this.setHardness(2f);
 	}
 
 	@Override
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		return this.iconYellorite;
 	}
 
 	@Override
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.iconYellorite = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "oreYellorite");
 	}
@@ -41,7 +44,7 @@ public class BlockBROre extends Block {
 	}
 
 	@Override
-	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		par3List.add(new ItemStack(par1, 1, 0));
 	}

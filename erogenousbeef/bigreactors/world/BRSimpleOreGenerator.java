@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderEnd;
@@ -17,9 +18,8 @@ import net.minecraft.world.gen.feature.WorldGenMinable;
  */
 public class BRSimpleOreGenerator extends WorldGenMinable {
 
-	protected int blockToGenerate;
-	protected int blockToGenerateMetadata;
-	protected int blockToReplace;
+	protected Block blockToGenerate;
+	protected Block blockToReplace;
 	
 	protected int minClustersPerChunk;
 	protected int maxClustersPerChunk;
@@ -29,22 +29,21 @@ public class BRSimpleOreGenerator extends WorldGenMinable {
 	// For now, we never generate in those dimensions.
 	protected Set<Integer> dimensionBlacklist;
 	
-	public BRSimpleOreGenerator(int blockToGenerate, int blockMetadata, int blockToReplace, int clustersPerChunk, int maxY, int maxOrePerCluster) {
-		super(blockToGenerate, blockMetadata, maxOrePerCluster, blockToReplace);
+	public BRSimpleOreGenerator(Block blockToGenerate, Block blockToReplace, int clustersPerChunk, int maxY, int maxOrePerCluster) {
+		super(blockToGenerate, maxOrePerCluster, blockToReplace);
 		this.minClustersPerChunk = maxClustersPerChunk = clustersPerChunk;
 		this.minY = 0;
 		this.maxY = maxY;
 		
 		// this is only used for equality checks
 		this.blockToGenerate = blockToGenerate;
-		this.blockToGenerateMetadata = blockMetadata;
 		this.blockToReplace = blockToReplace;
 
 		dimensionBlacklist = new CopyOnWriteArraySet<Integer>();
 	}
 	
-	public BRSimpleOreGenerator(int blockToGenerate, int blockMetadata, int blockToReplace, int minClustersPerChunk, int maxClustersPerChunk, int minY, int maxY, int maxOrePerCluster) {
-		this(blockToGenerate, blockMetadata, blockToReplace, maxClustersPerChunk, maxY, maxOrePerCluster);
+	public BRSimpleOreGenerator(Block blockToGenerate, Block blockToReplace, int minClustersPerChunk, int maxClustersPerChunk, int minY, int maxY, int maxOrePerCluster) {
+		this(blockToGenerate, blockToReplace, maxClustersPerChunk, maxY, maxOrePerCluster);
 		this.minClustersPerChunk = minClustersPerChunk;
 		this.minY = minY;
 	}
@@ -103,10 +102,10 @@ public class BRSimpleOreGenerator extends WorldGenMinable {
 	public boolean equals(Object o) {
 		if(o instanceof BRSimpleOreGenerator) {
 			BRSimpleOreGenerator other = (BRSimpleOreGenerator)o;
-			if(this.blockToGenerate >= 0) {
-				return this.blockToGenerate == other.blockToGenerate && this.blockToGenerateMetadata == other.blockToGenerateMetadata;
+			if(this.blockToGenerate != null) {
+				return this.blockToGenerate == other.blockToGenerate;
 			}
-			else if(other.blockToGenerate >= 0) {
+			else if(other.blockToGenerate != null) {
 				return false;
 			}
 			else {

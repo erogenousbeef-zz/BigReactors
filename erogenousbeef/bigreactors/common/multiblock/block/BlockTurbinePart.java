@@ -3,21 +3,24 @@ package erogenousbeef.bigreactors.common.multiblock.block;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatMessageComponent;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -80,22 +83,22 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 		"fluidPort.outlet"
 	};
 	
-	private Icon[] _icons = new Icon[_subBlocks.length];
-	private Icon[] _subIcons = new Icon[_subIconNames.length];
+	private IIcon[] _icons = new IIcon[_subBlocks.length];
+	private IIcon[] _subIcons = new IIcon[_subIconNames.length];
 	
-	public BlockTurbinePart(int blockID, Material material) {
-		super(blockID, material);
+	public BlockTurbinePart( Material material) {
+		super(material);
 
-		setStepSound(soundMetalFootstep);
+		setStepSound(soundTypeMetal);
 		setHardness(2.0f);
-		setUnlocalizedName("blockTurbinePart");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbinePart");
+		setBlockName(BRLoader.MOD_ID+".blockTurbinePart");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbinePart");
 		setCreativeTab(BigReactors.TAB);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		// Base icons
 		for(int i = 0; i < _subBlocks.length; ++i) {
@@ -110,8 +113,8 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 	}
 
 	@Override
-    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
-		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
 		int metadata = blockAccess.getBlockMetadata(x,y,z);
 
 		if(te instanceof TileEntityTurbinePartBase) {
@@ -208,16 +211,16 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 			ForgeDirection[] dirsToCheck = StaticUtils.neighborsBySide[side];
 			ForgeDirection dir;
 
-			int myBlockId = blockAccess.getBlockId(x,y,z);
+			Block myBlock = blockAccess.getBlock(x,y,z);
 			int iconIdx = -1;
 
 			for(int i = 0; i < dirsToCheck.length; i++) {
 				dir = dirsToCheck[i];
 				
-				int neighborBlockId = blockAccess.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+				Block neighborBlock = blockAccess.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
 				// See if we're a turbine part
-				if(neighborBlockId != myBlockId && neighborBlockId != BigReactors.blockMultiblockGlass.blockID
-						&& (BigReactors.blockMultiblockCreativePart != null && neighborBlockId != BigReactors.blockMultiblockCreativePart.blockID)) {
+				if(neighborBlock != myBlock && neighborBlock != BigReactors.blockMultiblockGlass
+						&& (BigReactors.blockMultiblockCreativePart != null && neighborBlock != BigReactors.blockMultiblockCreativePart)) {
 					// One of these things is not like the others...
 					iconIdx = i;
 					break;
@@ -229,13 +232,13 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 	}
 
 	@Override
-	public Icon getIcon(int side, int metadata) {
+	public IIcon getIcon(int side, int metadata) {
 		metadata = Math.max(0, Math.min(metadata, _subBlocks.length-1));
 		return _icons[metadata];
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world, int var1) {
 		// We use the metadata-driven version. Not this one.
 		return null;
 	}
@@ -259,13 +262,12 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 			return new TileEntityTurbinePartStandard();
 		}
 	}
-
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) {
+		TileEntity te = world.getTileEntity(x, y, z);
 		// Signal power taps when their neighbors change, etc.
 		if(te instanceof INeighborUpdatableEntity) {
-			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlockID);
+			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlock);
 		}
 	}
 	
@@ -278,7 +280,7 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 		int metadata = world.getBlockMetadata(x, y, z);
 		
 		if(metadata == METADATA_FLUIDPORT && (player.getCurrentEquippedItem() == null || StaticUtils.Inventory.isPlayerHoldingWrench(player))) {
-			TileEntity te = world.getBlockTileEntity(x, y, z);
+			TileEntity te = world.getTileEntity(x, y, z);
 			if(te instanceof TileEntityTurbineFluidPort) {
 				TileEntityTurbineFluidPort fluidPort = (TileEntityTurbineFluidPort)te; 
 				FluidFlow flow = fluidPort.getFlowDirection();
@@ -294,17 +296,17 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 		// If the player's hands are empty and they rightclick on a multiblock, they get a 
 		// multiblock-debugging message if the machine is not assembled.
 		if(player.getCurrentEquippedItem() == null) {
-			TileEntity te = world.getBlockTileEntity(x, y, z);
+			TileEntity te = world.getTileEntity(x, y, z);
 			if(te instanceof IMultiblockPart) {
 				MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
 
 				if(controller == null) {
-					player.sendChatToPlayer(ChatMessageComponent.createFromText(String.format("SERIOUS ERROR - server part @ %d, %d, %d has no controller!", x, y, z)));
+					player.addChatMessage(new ChatComponentText(String.format("SERIOUS ERROR - server part @ %d, %d, %d has no controller!", x, y, z)));
 				}
 				else {
 					Exception e = controller.getLastValidationException();
 					if(e != null) {
-						player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage() + " - controller " + Integer.toString(controller.hashCode())));
+						player.addChatMessage(new ChatComponentText(String.format(e.getMessage() + " - controller " + Integer.toString(controller.hashCode()))));
 						return true;
 					}
 				}
@@ -315,7 +317,7 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 		if(metadata != METADATA_CONTROLLER) { return false; }
 
 		// Check to see if machine is assembled
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(!(te instanceof IMultiblockPart)) {
 			return false;
 		}
@@ -360,22 +362,22 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 			throw new IllegalArgumentException("Unable to find a block with the name " + name);
 		}
 		
-		return new ItemStack(blockID, 1, metadata);
+		return new ItemStack(this, 1, metadata);
 	}
 	
 	@Override
-	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		for(int i = 0; i < _subBlocks.length; i++) {
-			par3List.add(new ItemStack(blockID, 1, i));
+			par3List.add(new ItemStack(this, 1, i));
 		}
 	}
 	
 	@Override
-	public void breakBlock(World world, int x, int y, int z, int blockId, int meta)
+	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
 	{
 		// Drop everything inside inventory blocks
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof IInventory)
 		{
 			IInventory inventory = ((IInventory)te);
@@ -401,7 +403,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 						amountToDrop = itemstack.stackSize;
 					}
 					itemstack.stackSize -= amountToDrop;
-					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.itemID, amountToDrop, itemstack.getItemDamage()));
+					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.getItem(), amountToDrop, itemstack.getItemDamage()));
 					if(itemstack.getTagCompound() != null)
 					{
 						entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound());
@@ -415,7 +417,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 			}
 		}
 
-		super.breakBlock(world, x, y, z, blockId, meta);
+		super.breakBlock(world, x, y, z, block, meta);
 	}
 	
     /**
@@ -426,7 +428,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     {
     	int metadata = world.getBlockMetadata(x, y, z);
     	if(metadata == METADATA_BEARING) {
-        	TileEntity te = world.getBlockTileEntity(x, y, z);
+        	TileEntity te = world.getTileEntity(x, y, z);
     		if(te instanceof TileEntityTurbinePartStandard) {
     			// Rotor bearing found!
     			TileEntityTurbinePartStandard bearing = (TileEntityTurbinePartStandard)te;
@@ -470,7 +472,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     {
     	int metadata = world.getBlockMetadata(x, y, z);
     	if(metadata == METADATA_BEARING) {
-        	TileEntity te = world.getBlockTileEntity(x, y, z);
+        	TileEntity te = world.getTileEntity(x, y, z);
         	if(te instanceof TileEntityTurbineRotorBearing) {
         		TileEntityTurbineRotorBearing bearing = (TileEntityTurbineRotorBearing)te;
         		if(bearing.isConnected() && bearing.getTurbine().isActive()) {
@@ -484,7 +486,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 
 	@Override
 	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		
 		if(te instanceof TileEntityTurbineComputerPort)
 			return (IPeripheral)te;

@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class CreativeTabBR extends net.minecraft.creativetab.CreativeTabs {
@@ -12,5 +13,10 @@ public class CreativeTabBR extends net.minecraft.creativetab.CreativeTabs {
 	public ItemStack getIconItemStack()
 	{
 		return new ItemStack(BigReactors.blockYelloriteOre, 1, 0);
+	}
+
+	@Override
+	public Item getTabIconItem() {
+		return null;
 	}
 }

@@ -8,7 +8,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
@@ -122,8 +122,8 @@ public class StaticUtils {
 
 		public static IInventory checkForDoubleChest(World worldObj, IInventory te, int x, int y, int z) {
 			for(ForgeDirection dir : chestDirections) {
-				if(worldObj.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == Block.chest.blockID) {
-					TileEntity otherTe = worldObj.getBlockTileEntity(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+				if(worldObj.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == Block.chest) {
+					TileEntity otherTe = worldObj.getTileEntity(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
 					if(otherTe instanceof IInventory) {
 						return new InventoryLargeChest("Large Chest", te, (IInventory)otherTe);
 					}

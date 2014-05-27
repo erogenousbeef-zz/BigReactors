@@ -12,7 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemConduit;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -148,7 +148,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 																new Object[] { xCoord, yCoord, zCoord, referenceSide, slot });
 			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
 			
-			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlockId(this.xCoord, this.yCoord, this.zCoord));
+			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
 		}
 	}
 
@@ -225,7 +225,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		if(worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this)
+		if(worldObj.getTileEntity(xCoord, yCoord, zCoord) != this)
 		{
 			return false;
 		}
@@ -305,7 +305,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			int rotatedSide = this.getRotatedSide(dir.ordinal());
 			if(invExposures[rotatedSide][0] != fromSlot) { continue; }
 			
-			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 			if(te instanceof IItemConduit) {
 				IItemConduit conduit = (IItemConduit)te;
 				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
@@ -327,7 +327,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 				}
 				else {
 					IInventory inv = (IInventory)te;
-					if(worldObj.getBlockId(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest.blockID) {
+					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest) {
 						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 					}
 					helper = new InventoryHelper(inv);

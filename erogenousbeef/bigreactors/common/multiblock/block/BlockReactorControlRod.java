@@ -2,10 +2,10 @@ package erogenousbeef.bigreactors.common.multiblock.block;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -15,14 +15,14 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorC
 
 public class BlockReactorControlRod extends BlockContainer {
 
-	protected Icon topIcon;
+	protected IIcon topIcon;
 	
-	public BlockReactorControlRod(int id, Material material) {
-		super(id, material);
+	public BlockReactorControlRod(Material material) {
+		super(material);
 		
 		this.setHardness(2.0f);
-		this.setUnlocalizedName("blockReactorControlRod");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorControlRod");
+		this.setBlockName(BRLoader.MOD_ID+".blockReactorControlRod");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorControlRod");
 		this.setCreativeTab(BigReactors.TAB);
 	}
 
@@ -38,7 +38,7 @@ public class BlockReactorControlRod extends BlockContainer {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "tile.blockReactorPart.casingDefault");
 		this.topIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
@@ -46,7 +46,7 @@ public class BlockReactorControlRod extends BlockContainer {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		if(side == 1) { return this.topIcon; }
 		

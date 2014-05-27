@@ -2,13 +2,14 @@ package erogenousbeef.bigreactors.common.multiblock.block;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 
@@ -17,19 +18,19 @@ public class BlockFuelRod extends BlockContainer {
 	public static int renderId;
 
 	@SideOnly(Side.CLIENT)
-	private Icon iconFuelRodSide;
+	private IIcon iconFuelRodSide;
 	@SideOnly(Side.CLIENT)
-	private Icon iconFuelRodTopBottom;
+	private IIcon iconFuelRodTopBottom;
 	
-	public BlockFuelRod(int id, Material material) {
-		super(id, material);
+	public BlockFuelRod(Material material) {
+		super(material);
 		
 		setHardness(2f);
-		setLightValue(0.9f);
+		setLightLevel(0.9f);
 		setLightOpacity(1);
 		setCreativeTab(BigReactors.TAB);
-		setUnlocalizedName("yelloriumFuelRod");
-		setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "yelloriumFuelRod");
+		setBlockName(BRLoader.MOD_ID+".yelloriumFuelRod");
+		setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "yelloriumFuelRod");
 	}
 
 	@Override
@@ -39,23 +40,22 @@ public class BlockFuelRod extends BlockContainer {
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		if(side == 0 || side == 1) { return this.iconFuelRodTopBottom; }
 		
 		return this.iconFuelRodSide;
 	}
-	
 	@SideOnly(Side.CLIENT)
 	@Override
-	public Icon getBlockTexture(IBlockAccess iblockaccess, int x, int y, int z, int side) {
+	public IIcon getIcon(IBlockAccess iblockaccess, int x, int y, int z, int side) {
 		if(side == 0 || side == 1) { return this.iconFuelRodTopBottom; }
 		else { return this.iconFuelRodSide; }
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.iconFuelRodSide = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "fuelRod.side");
 		this.iconFuelRodTopBottom = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "fuelRod.end");
@@ -65,7 +65,7 @@ public class BlockFuelRod extends BlockContainer {
 	public boolean isOpaqueCube() { return false; }
 	
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world, int var1) {
 		return null;
 	}
 
@@ -79,7 +79,7 @@ public class BlockFuelRod extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(World world, int x, int y, int z, Random par5Random)
     {
-    	TileEntity te = world.getBlockTileEntity(x, y, z);
+    	TileEntity te = world.getTileEntity(x, y, z);
     	if(te instanceof TileEntityReactorFuelRod) {
     		TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)te;
     		MultiblockReactor reactor = fuelRod.getReactorController();

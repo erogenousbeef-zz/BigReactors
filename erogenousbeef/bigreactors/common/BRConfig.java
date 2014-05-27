@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.common;
 
 import java.io.File;
 
-import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.common.Loader;
 
 public class BRConfig {

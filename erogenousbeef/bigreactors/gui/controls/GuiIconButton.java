@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 
 import org.lwjgl.opengl.GL11;
 
@@ -12,7 +12,7 @@ import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 
-	protected Icon icon;
+	protected IIcon icon;
 	
 	protected String[] tooltip;
 	
@@ -22,18 +22,18 @@ public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 		tooltip = null;
 	}
 
-	public GuiIconButton(int buttonId, int x, int y, int width, int height, Icon icon) {
+	public GuiIconButton(int buttonId, int x, int y, int width, int height, IIcon icon) {
 		this(buttonId, x, y, width, height);
 		this.icon = icon;
 		tooltip = null;
 	}
 
-	public GuiIconButton(int buttonId, int x, int y, int width, int height, Icon icon, String[] tooltip) {
+	public GuiIconButton(int buttonId, int x, int y, int width, int height, IIcon icon, String[] tooltip) {
 		this(buttonId, x, y, width, height, icon);
 		this.tooltip = tooltip;
 	}
 	
-	public void setIcon(Icon icon) {
+	public void setIcon(IIcon icon) {
 		this.icon = icon;
 	}
 
@@ -42,14 +42,16 @@ public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
      */
     public void drawButton(Minecraft par1Minecraft, int par2, int par3)
     {
-        if (this.drawButton)
+    	//TODO: old value drawButton
+        if (this.visible)
         {
             FontRenderer fontrenderer = par1Minecraft.fontRenderer;
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             // Draw the border
-            this.field_82253_i = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
-            int k = this.getHoverState(this.field_82253_i);
+            //TODO: test old value field_82253_i
+            this.field_146123_n = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+            int k = this.getHoverState(this.field_146123_n);
             int borderColor = k == 2 ? 0xFF5555AA : 0xFF000000;
         	this.drawRect(this.xPosition, this.yPosition, this.xPosition+this.width, this.yPosition+this.height, borderColor);
             
@@ -76,7 +78,7 @@ public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 	
 	@Override
 	public String[] getTooltip() {
-		if(this.drawButton) {
+		if(this.visible) {
 			return tooltip;
 		}
 		else {
@@ -86,6 +88,6 @@ public class GuiIconButton extends GuiButton implements IBeefTooltipControl {
 
 	@Override
 	public boolean isVisible() {
-		return drawButton;
+		return this.visible;
 	}
 }

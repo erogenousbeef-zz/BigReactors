@@ -283,7 +283,7 @@ public class CommonProxy {
 	
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
-	public void registerIcons(TextureStitchEvent.Pre event) {
+	public void registerBlockIcons(TextureStitchEvent.Pre event) {
 	}
 	
 	@SideOnly(Side.CLIENT)

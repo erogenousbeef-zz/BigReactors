@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
@@ -70,7 +70,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 			// See if our adjacent non-reactor coordinate has a TE
 			rfNetwork = null;
 
-			TileEntity te = world.getBlockTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
+			TileEntity te = world.getTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(!(te instanceof TileEntityReactorPowerTap)) {
 				// Skip power taps, as they implement these APIs and we don't want to shit energy back and forth
 				if(te instanceof IEnergyHandler) {

@@ -9,12 +9,13 @@ import java.util.Set;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -280,7 +281,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 			// Radiate from that control rod
 			TileEntityReactorFuelRod source  = currentFuelRod.next();
-			TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod)worldObj.getBlockTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
+			TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod)worldObj.getTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
 			if(source != null && sourceControlRod != null)
 			{
 				RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
@@ -507,40 +508,39 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	protected void isBlockGoodForInterior(World world, int x, int y, int z) throws MultiblockValidationException {
 		if(world.isAirBlock(x, y, z)) { return; } // Air is OK
 
-		Material material = world.getBlockMaterial(x, y, z);
+		Material material = world.getBlock(x, y, z).getMaterial();
 		if(material == net.minecraft.block.material.MaterialLiquid.water) {
 			return;
 		}
 		
-		int blockId = world.getBlockId(x, y, z);
-		if(blockId == Block.blockIron.blockID || blockId == Block.blockGold.blockID || blockId == Block.blockDiamond.blockID || blockId == Block.blockEmerald.blockID) {
+		Block block = world.getBlock(x, y, z);
+		if(block == Blocks.iron_block || block == Blocks.gold_block || block == Blocks.diamond_block || block == Blocks.emerald_block) {
 			return;
 		}
 		
 		// Permit registered moderator blocks
 		int metadata = world.getBlockMetadata(x, y, z);
-		int oreId = OreDictionary.getOreID(new ItemStack(blockId, 1, metadata));
+		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
 
 		if(oreId >= 0 && BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreId)) != null) {
 			return;
 		}
 		
 		// Permit TE fluids
-		if(blockId > 0 && blockId < Block.blocksList.length) {
-			Block blockClass = Block.blocksList[blockId];
-			if(blockClass instanceof IFluidBlock) {
-				Fluid fluid = ((IFluidBlock)blockClass).getFluid();
+		if(block!=null) {
+			if(block instanceof IFluidBlock) {
+				Fluid fluid = ((IFluidBlock)block).getFluid();
 				String fluidName = fluid.getName();
 				if(BRRegistry.getReactorInteriorFluidData(fluidName) != null) { return; }
 
 				throw new MultiblockValidationException(String.format("%d, %d, %d - The fluid %s is not valid for the reactor's interior", x, y, z, fluidName));
 			}
 			else {
-				throw new MultiblockValidationException(String.format("%d, %d, %d - %s is not valid for the reactor's interior", x, y, z, blockClass.getLocalizedName()));
+				throw new MultiblockValidationException(String.format("%d, %d, %d - %s is not valid for the reactor's interior", x, y, z, block.getLocalizedName()));
 			}
 		}
 		else {
-			throw new MultiblockValidationException(String.format("%d, %d, %d - Unrecognized block with ID %d, not valid for the reactor's interior", x, y, z, blockId));
+			throw new MultiblockValidationException(String.format("%d, %d, %d - Unrecognized block with ID %d, not valid for the reactor's interior", x, y, z, block));
 		}
 	}
 	
@@ -551,9 +551,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		data.setFloat("fuelHeat", fuelHeat);
 		data.setFloat("storedEnergy", this.energyStored);
 		data.setInteger("wasteEjection2", this.wasteEjection.ordinal());
-		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
-		data.setCompoundTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
-		data.setCompoundTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
+		data.setTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
+		data.setTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
+		data.setTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -615,9 +615,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		data.setFloat("heat", this.reactorHeat);
 		data.setBoolean("isActive", this.isActive());
 		data.setFloat("fuelHeat", fuelHeat);
-		data.setCompoundTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
-		data.setCompoundTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
-		data.setCompoundTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
+		data.setTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
+		data.setTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
+		data.setTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
 	}
 
 	@Override
@@ -1418,7 +1418,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		CoordTriplet referenceCoord = getReferenceCoord();
 		if(referenceCoord == null) { return; }
 
-		TileEntity saveTe = worldObj.getBlockTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		TileEntity saveTe = worldObj.getTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
 	}
 }

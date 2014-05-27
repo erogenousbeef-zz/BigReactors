@@ -10,7 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
 import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
 import cpw.mods.fml.relauncher.Side;
@@ -290,7 +290,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			return null;
 		}
 		
-		return this.worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+		return this.worldObj.getTileEntity(coord.x, coord.y, coord.z);
 	}
 	
 	protected void setControlRodInsertion(int channel, CoordTriplet coordTriplet, int newValue) {
@@ -300,7 +300,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			return;
 		}
 		
-		TileEntity te = this.worldObj.getBlockTileEntity(coordTriplet.x, coordTriplet.y, coordTriplet.z);
+		TileEntity te = this.worldObj.getTileEntity(coordTriplet.x, coordTriplet.y, coordTriplet.z);
 		if(te instanceof TileEntityReactorControlRod) {
 			((TileEntityReactorControlRod)te).setControlRodInsertion((short)newValue);
 		}
@@ -376,7 +376,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 					
 					if(doValidation) {
 						if(coord != null) {
-							TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+							TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
 							if(!(te instanceof TileEntityReactorControlRod)) {
 								throw new IOException("Invalid TileEntity for RedNet Port settings at " + coord.toString());
 							}
@@ -432,7 +432,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			redNetwork = null;
 			redNetConnectable = null;
 
-			Block b = Block.blocksList[worldObj.getBlockId(x + out.offsetX, y + out.offsetY, z + out.offsetZ)];
+			Block b = Block.blocksList[worldObj.getBlock(x + out.offsetX, y + out.offsetY, z + out.offsetZ)];
 			if(!(b instanceof BlockReactorPart)) {
 				if(b instanceof IRedNetNetworkContainer) {
 					redNetwork = (IRedNetNetworkContainer)b;

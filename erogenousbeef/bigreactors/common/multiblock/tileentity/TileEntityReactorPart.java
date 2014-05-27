@@ -68,7 +68,7 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 			this.onAttached(multiblockController);
 		}
 		
-		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+		if(getBlockType() == BigReactors.blockReactorPart) {
 			int metadata = this.getBlockMetadata();
 			if(BlockReactorPart.isCasing(metadata)) {
 				this.setCasingMetadataBasedOnWorldPosition();
@@ -91,7 +91,7 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 
 		if(this.worldObj.isRemote) { return; }
 		
-		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+		if(getBlockType() == BigReactors.blockReactorPart) {
 			int metadata = this.getBlockMetadata();
 			if(BlockReactorPart.isCasing(metadata)) {
 				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CASING_METADATA_BASE, 2);
@@ -106,7 +106,7 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 	public void onMachineActivated() {
 		if(this.worldObj.isRemote) { return; }
 		
-		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+		if(getBlockType() == BigReactors.blockReactorPart) {
 			int metadata = this.getBlockMetadata();
 			if(BlockReactorPart.isController(metadata)) {
 				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_ACTIVE, 2);
@@ -118,7 +118,7 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 	public void onMachineDeactivated() {
 		if(this.worldObj.isRemote) { return; }
 
-		if(getBlockType().blockID == BigReactors.blockReactorPart.blockID) {
+		if(getBlockType() == BigReactors.blockReactorPart) {
 			int metadata = this.getBlockMetadata();
 			if(BlockReactorPart.isController(metadata)) {
 				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);

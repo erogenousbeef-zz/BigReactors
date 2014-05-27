@@ -4,12 +4,14 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.registry.GameRegistry;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 
@@ -22,25 +24,25 @@ public class BlockBRMetal extends Block {
 	
 	private static final String[] _subBlocks = new String[] { "blockYellorium", "blockCyanite", "blockGraphite", "blockBlutonium" };
 	private static final String[] _materials = new String[] { "Yellorium", "Cyanite", "Graphite", "Blutonium" };
-	private Icon[] _icons = new Icon[_subBlocks.length];
+	private IIcon[] _icons = new IIcon[_subBlocks.length];
 	private static final int NUM_BLOCKS = _subBlocks.length;
 	
-	public BlockBRMetal(int id) {
-		super(id, Material.iron);
+	public BlockBRMetal() {
+		super(Material.iron);
 		this.setCreativeTab(BigReactors.TAB);
-		this.setUnlocalizedName("brMetal");
+		this.setBlockName(BRLoader.MOD_ID+".brMetal");
 		this.setHardness(2f);
 	}
 
 	@Override
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		metadata = Math.max(0, Math.min(3, metadata));
 		return _icons[metadata];
 	}
 	
 	@Override
-	public void registerIcons(IconRegister iconRegister)
+	public void registerBlockIcons(IIconRegister iconRegister)
 	{
 		for(int i = 0; i < NUM_BLOCKS; i++) {
 			_icons[i] = iconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
@@ -54,7 +56,7 @@ public class BlockBRMetal extends Block {
 	}
 
 	@Override
-	public void getSubBlocks(int id, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubBlocks(Item id, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		for(int i = 0; i < NUM_BLOCKS; i++) {
 			par3List.add(new ItemStack(id, 1, i));
@@ -70,18 +72,18 @@ public class BlockBRMetal extends Block {
 			}
 		}
 		
-		return new ItemStack(blockID, 1, i);
+		return new ItemStack(this, 1, i);
 	}
 	
 	public void registerOreDictEntries() {
 		for(int i = 0; i < NUM_BLOCKS; i++) {
-			OreDictionary.registerOre(_subBlocks[i], new ItemStack(blockID, 1, i));
+			OreDictionary.registerOre(_subBlocks[i], new ItemStack(this, 1, i));
 		}
 	}
 
 	public void registerIngotRecipes(ItemIngot ingotItem) {
 		for(int i = 0; i < NUM_BLOCKS; i++) {
-			ItemStack block = new ItemStack(blockID, 1, i);
+			ItemStack block = new ItemStack(this, 1, i);
 			ItemStack ingot = ingotItem.getIngotItemStackForMaterial(_materials[i]);
 			GameRegistry.addShapelessRecipe(block, ingot, ingot, ingot, ingot, ingot, ingot, ingot, ingot, ingot);
 			ingot.stackSize = 9;

@@ -51,7 +51,8 @@ public class InventoryHelper {
 				if (canAdd(add, candidateSlot)) {
 					quantitytoadd -= add.stackSize;
 					inventory.setInventorySlotContents(candidateSlot, add);
-					inventory.onInventoryChanged();
+					//inventory.onInventoryChanged();
+					//TODO: WTF???
 				}
 			} else if (StaticUtils.Inventory.areStacksEqual(s, stack)) {
 				ItemStack add = stack.copy();
@@ -62,7 +63,7 @@ public class InventoryHelper {
 					s.stackSize += add.stackSize;
 					quantitytoadd -= add.stackSize;
 					inventory.setInventorySlotContents(candidateSlot, s);
-					inventory.onInventoryChanged();
+					//inventory.onInventoryChanged();
 				}
 			}
 			if (quantitytoadd == 0) {

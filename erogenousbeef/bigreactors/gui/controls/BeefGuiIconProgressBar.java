@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 
@@ -13,7 +13,7 @@ public abstract class BeefGuiIconProgressBar extends BeefGuiVerticalProgressBar 
 		
 	}
 	
-	protected abstract Icon getProgressBarIcon();
+	protected abstract IIcon getProgressBarIcon();
 	protected abstract ResourceLocation getResourceLocation();
 	
 	@Override

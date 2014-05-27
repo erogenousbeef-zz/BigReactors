@@ -56,10 +56,10 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
-	public void registerIcons(TextureStitchEvent.Pre event) {
+	public void registerBlockIcons(TextureStitchEvent.Pre event) {
 		if(event.map.textureType == BeefIconManager.TERRAIN_TEXTURE) {
 			BigReactors.registerNonBlockFluidIcons(event.map);
-			GuiIcons.registerIcons(event.map);
+			GuiIcons.registerBlockIcons(event.map);
 		}
 		// else if(event.map.textureType == BeefIconManager.ITEM_TEXTURE) { }
 	}

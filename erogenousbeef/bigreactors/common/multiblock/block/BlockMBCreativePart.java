@@ -4,16 +4,18 @@ import java.util.List;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityReactorCreativeCoolantPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.creative.TileEntityTurbineCreativeSteamGenerator;
@@ -31,23 +33,23 @@ public class BlockMBCreativePart extends BlockContainer {
 	
 	private static final int SUBICON_CREATIVE_COOLANT_OUTLET = 0;
 	
-	private Icon[] icons = new Icon[subBlocks.length];
-	private Icon[] subIcons = new Icon[subIconNames.length];
+	private IIcon[] icons = new IIcon[subBlocks.length];
+	private IIcon[] subIcons = new IIcon[subIconNames.length];
 	
-	public BlockMBCreativePart(int par1, Material par2Material) {
-		super(par1, par2Material);
+	public BlockMBCreativePart( Material par2Material) {
+		super(par2Material);
 
-		setStepSound(soundMetalFootstep);
+		setStepSound(soundTypeMetal);
 		setHardness(1.0f);
-		setUnlocalizedName("blockMBCreativePart");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockMBCreativePart");
+		setBlockName(BRLoader.MOD_ID+".blockMBCreativePart");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockMBCreativePart");
 		setCreativeTab(BigReactors.TAB);
 	}
 
 	@Override
-    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		int metadata = blockAccess.getBlockMetadata(x, y, z);
-		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
 		
 		if(te instanceof RectangularMultiblockTileEntityBase) {
 			RectangularMultiblockTileEntityBase rte = (RectangularMultiblockTileEntityBase)te;
@@ -63,7 +65,7 @@ public class BlockMBCreativePart extends BlockContainer {
 	}
 	
 	@Override
-	public Icon getIcon(int side, int metadata) {
+	public IIcon getIcon(int side, int metadata) {
 		if(side == 0 || side == 1) { return blockIcon; }
 		metadata = metadata % icons.length;
 		return icons[metadata];
@@ -71,7 +73,7 @@ public class BlockMBCreativePart extends BlockContainer {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		
@@ -85,7 +87,7 @@ public class BlockMBCreativePart extends BlockContainer {
 	}
 	
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world, int var1) {
 		// Uses the metadata-driven version for efficiency
 		return null;
 	}	
@@ -110,7 +112,7 @@ public class BlockMBCreativePart extends BlockContainer {
 
 		ItemStack currentEquippedItem = player.getCurrentEquippedItem();
 		
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorCreativeCoolantPort) {
 			TileEntityReactorCreativeCoolantPort cp = (TileEntityReactorCreativeCoolantPort)te;
 			if(currentEquippedItem == null || StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
@@ -133,21 +135,21 @@ public class BlockMBCreativePart extends BlockContainer {
 	}
 
 	public ItemStack getReactorCoolantPort() {
-		return new ItemStack(blockID, 1, REACTOR_CREATIVE_COOLANT_PORT);
+		return new ItemStack(this, 1, REACTOR_CREATIVE_COOLANT_PORT);
 	}
 	
 	public ItemStack getTurbineFluidPort() {
-		return new ItemStack(blockID, 1, TURBINE_CREATIVE_FLUID_PORT);
+		return new ItemStack(this, 1, TURBINE_CREATIVE_FLUID_PORT);
 	}
 
 	@Override
-	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		par3List.add(getReactorCoolantPort());
 		par3List.add(getTurbineFluidPort());
 	}
 
-	private Icon getIconFromTileEntity(RectangularMultiblockTileEntityBase rte, int metadata) {
+	private IIcon getIconFromTileEntity(RectangularMultiblockTileEntityBase rte, int metadata) {
 		if(rte instanceof TileEntityReactorCreativeCoolantPort) {
 			if(!((TileEntityReactorCreativeCoolantPort)rte).isInlet()) {
 				return subIcons[SUBICON_CREATIVE_COOLANT_OUTLET];

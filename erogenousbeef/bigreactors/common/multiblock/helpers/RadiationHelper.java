@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
@@ -122,7 +122,7 @@ public class RadiationHelper {
 	}
 	
 	private void performIrradiation(World world, RadiationData data, RadiationPacket radiation, int x, int y, int z) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof IRadiationModerator) {
 			((IRadiationModerator)te).moderateRadiation(data, radiation);
 		}
@@ -130,7 +130,7 @@ public class RadiationHelper {
 			moderateByAir(data, radiation);
 		}
 		else {
-			int blockID = world.getBlockId(x, y, z);
+			int blockID = world.getBlock(x, y, z);
 			if(blockID > 0 && blockID < Block.blocksList.length) {
 				Block b = Block.blocksList[blockID];
 				
@@ -157,16 +157,16 @@ public class RadiationHelper {
 	private void moderateByBlock(RadiationData data, RadiationPacket radiation, int blockID, int metadata) {
 		ReactorInteriorData moderatorData = null;
 
-		if(blockID == Block.blockIron.blockID) {
+		if(blockID == Block.blockIron) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockIron");
 		}
-		else if(blockID == Block.blockGold.blockID) {
+		else if(blockID == Block.blockGold) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockGold");
 		}
-		else if(blockID == Block.blockDiamond.blockID) {
+		else if(blockID == Block.blockDiamond) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
 		}
-		else if(blockID == Block.blockEmerald.blockID) {
+		else if(blockID == Block.blockEmerald) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
 		}
 		else {

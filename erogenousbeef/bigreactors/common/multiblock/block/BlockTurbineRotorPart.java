@@ -2,16 +2,19 @@ package erogenousbeef.bigreactors.common.multiblock.block;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 
@@ -25,16 +28,17 @@ public class BlockTurbineRotorPart extends BlockContainer {
 															  "blade",
 															};
 
-	private Icon[] _icons = new Icon[_subBlocks.length];
-	private Icon[] _subIcons = new Icon[1];
+	private IIcon[] _icons = new IIcon[_subBlocks.length];
+	private IIcon[] _subIcons = new IIcon[1];
 
-	public BlockTurbineRotorPart(int blockID, Material material) {
-		super(blockID, material);
+	//TODO: String blockid
+	public BlockTurbineRotorPart(Material material) {
+		super(material);
 
-		setStepSound(soundMetalFootstep);
+		setStepSound(soundTypeMetal);//TODO: old soundMetalFootstep;
 		setHardness(2.0f);
-		setUnlocalizedName("blockTurbineRotorPart");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbineRotorPart");
+		setBlockName(BRLoader.MOD_ID+".blockTurbineRotorPart");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbineRotorPart");
 		setCreativeTab(BigReactors.TAB);
 	}
 	
@@ -43,10 +47,9 @@ public class BlockTurbineRotorPart extends BlockContainer {
 	public int getRenderType() {
 		return renderId;
 	}
-	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		// Base icons
 		for(int i = 0; i < _subBlocks.length; ++i) {
@@ -57,16 +60,16 @@ public class BlockTurbineRotorPart extends BlockContainer {
 	}
 	
 	@Override
-	public Icon getIcon(int side, int metadata) {
+	public IIcon getIcon(int side, int metadata) {
 		return _icons[metadata];
 	}
 
-	public Icon getRotorConnectorIcon() {
+	public IIcon getRotorConnectorIcon() {
 		return _subIcons[0];
 	}
 	
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world, int var1) {
 		return null;
 	}
 
@@ -106,19 +109,19 @@ public class BlockTurbineRotorPart extends BlockContainer {
 			throw new IllegalArgumentException("Unable to find a block with the name " + name);
 		}
 		
-		return new ItemStack(blockID, 1, metadata);
+		return new ItemStack(this, 1, metadata);
 	}
 	
 	@Override
-	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		for(int i = 0; i < _subBlocks.length; i++) {
-			par3List.add(new ItemStack(blockID, 1, i));
+			par3List.add(new ItemStack(this, 1, i));
 		}
 	}
 	
-	public int getRotorMass(int blockId, int metadata) {
-		if(this.blockID == blockId) {
+	public int getRotorMass(Block block, int metadata) {
+		if(this == block) {
 			switch(metadata) {
 			// TODO: add masses when you add non-standard turbine parts
 			default:

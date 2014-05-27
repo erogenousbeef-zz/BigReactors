@@ -38,7 +38,7 @@ public class ServerPacketHandler implements IPacketHandler {
 				x = data.readInt();
 				y = data.readInt();
 				z = data.readInt();
-				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				TileEntity te = ((EntityPlayer)player).worldObj.getTileEntity(x, y, z);
 				if(te instanceof IMultiblockNetworkHandler) {
 					((IMultiblockNetworkHandler)te).onNetworkPacket(packetType, data);
 				}
@@ -56,7 +56,7 @@ public class ServerPacketHandler implements IPacketHandler {
 				x = data.readInt();
 				y = data.readInt();
 				z = data.readInt();
-				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				TileEntity te = ((EntityPlayer)player).worldObj.getTileEntity(x, y, z);
 				if(te != null & te instanceof IBeefGuiEntity) {
 					String buttonName = data.readUTF();
 					((IBeefGuiEntity)te).onReceiveGuiButtonPress(buttonName, data);
@@ -75,7 +75,7 @@ public class ServerPacketHandler implements IPacketHandler {
 				x = data.readInt();
 				y = data.readInt();
 				z = data.readInt();
-				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				TileEntity te = ((EntityPlayer)player).worldObj.getTileEntity(x, y, z);
 				if(te instanceof TileEntityReactorControlRod) {
 					String newName = data.readUTF();
 					((TileEntityReactorControlRod)te).setName(newName);
@@ -91,7 +91,7 @@ public class ServerPacketHandler implements IPacketHandler {
 				y = data.readInt();
 				z = data.readInt();
 				
-				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				TileEntity te = ((EntityPlayer)player).worldObj.getTileEntity(x, y, z);
 				if(te instanceof TileEntityReactorRedNetPort) {
 					((TileEntityReactorRedNetPort)te).decodeSettings(data, true);
 				}
@@ -108,7 +108,7 @@ public class ServerPacketHandler implements IPacketHandler {
 				y = data.readInt();
 				z = data.readInt();
 				
-				TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+				TileEntity te = ((EntityPlayer)player).worldObj.getTileEntity(x, y, z);
 				if(te instanceof TileEntityReactorRedstonePort) {
 					int newCircuit = data.readInt();
 					int newLevel = data.readInt();

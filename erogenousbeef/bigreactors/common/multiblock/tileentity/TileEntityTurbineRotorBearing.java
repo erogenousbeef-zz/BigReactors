@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -93,7 +93,7 @@ public class TileEntityTurbineRotorBearing extends
 					bladeCoord.copy(currentCoord);
 					bladeCoord.translate(bladeDir);
 					bladeLength = 0;
-					while(worldObj.getBlockId(bladeCoord.x, bladeCoord.y, bladeCoord.z) == BigReactors.blockTurbineRotorPart.blockID && bladeLength < 32) {
+					while(worldObj.getBlock(bladeCoord.x, bladeCoord.y, bladeCoord.z) == BigReactors.blockTurbineRotorPart && bladeLength < 32) {
 						bladeLength++;
 						bladeCoord.translate(bladeDir);
 					}

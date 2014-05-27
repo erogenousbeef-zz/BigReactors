@@ -329,7 +329,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			return "-- ALL --";
 		}
 		else {
-			TileEntity te = port.worldObj.getBlockTileEntity(location.x, location.y, location.z);
+			TileEntity te = port.worldObj.getTileEntity(location.x, location.y, location.z);
 			if( te instanceof TileEntityReactorControlRod ) {
 				TileEntityReactorControlRod rod = (TileEntityReactorControlRod)te;
 				if( rod.getName().equals("")) {

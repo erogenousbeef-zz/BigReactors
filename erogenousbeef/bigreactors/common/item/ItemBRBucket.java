@@ -2,8 +2,10 @@ package erogenousbeef.bigreactors.common.item;
 
 import java.util.List;
 
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -13,36 +15,36 @@ import erogenousbeef.bigreactors.common.BigReactors;
 
 public class ItemBRBucket extends ItemBucket {
 
-	private int _fluidId;
+	private Block _fluid;
 	
-	public ItemBRBucket(int id, int fluidId) {
-		super(id, fluidId);
+	public ItemBRBucket( Block fluid) {
+		super( fluid);
 		setCreativeTab(BigReactors.TAB);
-		_fluidId = fluidId;
+		_fluid = fluid;
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void registerIcons(IconRegister iconRegistry) {
+	public void registerIcons(IIconRegister iconRegistry) {
 		this.itemIcon = iconRegistry.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 	}
 
 	@Override
 	public boolean tryPlaceContainedLiquid(World world, int x, int y, int z) {
-		if(_fluidId <= 0) {
+		if(_fluid ==null) {
 			return false;
 		}
-		else if(!world.isAirBlock(x, y, z) && world.getBlockMaterial(x, y, z).isSolid()) {
+		else if(!world.isAirBlock(x, y, z) && world.getBlock(x, y, z).getMaterial().isSolid()) {
 			return false;
 		}
 		else {
-			world.setBlock(x, y, z, _fluidId, 0, 3);
+			world.setBlock(x, y, z, _fluid, 0, 3);
 			return true;
 		}
 	}
 	
 	@Override
-	public void getSubItems(int itemId, CreativeTabs creativeTab, List subTypes) {
-		subTypes.add(new ItemStack(itemId, 1, 0));
+	public void getSubItems(Item item, CreativeTabs creativeTab, List subTypes) {
+		subTypes.add(new ItemStack(item, 1, 0));
 	}
 }

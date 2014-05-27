@@ -7,12 +7,13 @@ import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -538,11 +539,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		// Air is ok
 		if(world.isAirBlock(x, y, z)) { return; }
 
-		int blockId = world.getBlockId(x, y, z);
+		Block block = world.getBlock(x, y, z);
 		int metadata = world.getBlockMetadata(x,y,z);
 
 		// Coil windings below here:
-		if(getCoilPartData(x, y, z, blockId, metadata) != null) { 
+		if(getCoilPartData(x, y, z, block, metadata) != null) { 
 			foundCoils.add(new CoordTriplet(x,y,z));
 			return;
 		}
@@ -733,8 +734,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
-		data.setCompoundTag("inputTank", tanks[TANK_INPUT].writeToNBT(new NBTTagCompound()));
-		data.setCompoundTag("outputTank", tanks[TANK_OUTPUT].writeToNBT(new NBTTagCompound()));
+		data.setTag("inputTank", tanks[TANK_INPUT].writeToNBT(new NBTTagCompound()));
+		data.setTag("outputTank", tanks[TANK_OUTPUT].writeToNBT(new NBTTagCompound()));
 		data.setBoolean("active", active);
 		data.setFloat("energy", energyStored);
 		data.setInteger("ventStatus", ventStatus.ordinal());
@@ -1007,16 +1008,16 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	}
 	
 	private CoilPartData getCoilPartData(int x, int y, int z) {
-		return getCoilPartData(x, y, z, worldObj.getBlockId(x,y,z), worldObj.getBlockMetadata(x, y, z));
+		return getCoilPartData(x, y, z, worldObj.getBlock(x,y,z), worldObj.getBlockMetadata(x, y, z));
 	}
 	
-	private CoilPartData getCoilPartData(int x, int y, int z, int blockID, int metadata) {
+	private CoilPartData getCoilPartData(int x, int y, int z, Block block, int metadata) {
 		// Allow vanilla iron and gold blocks
-		if(blockID == Block.blockIron.blockID) { return BRRegistry.getCoilPartData("blockIron"); }
-		if(blockID == Block.blockGold.blockID) { return BRRegistry.getCoilPartData("blockGold"); }
+		if(block == Blocks.iron_block) { return BRRegistry.getCoilPartData("blockIron"); }
+		if(block == Blocks.gold_block) { return BRRegistry.getCoilPartData("blockGold"); }
 		
 		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
-		int oreId = OreDictionary.getOreID(new ItemStack(blockID, 1, metadata));
+		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
 
 		// Not oredicted? Buzz off.
 		if(oreId < 0) { return null; }
@@ -1047,18 +1048,18 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		for(int x = minInterior.x; x <= maxInterior.x; x++) {
 			for(int y = minInterior.y; y <= maxInterior.y; y++) {
 				for(int z = minInterior.z; z <= maxInterior.z; z++) {
-					int blockId = worldObj.getBlockId(x, y, z);
+					Block block = worldObj.getBlock(x, y, z);
 					int metadata = worldObj.getBlockMetadata(x, y, z);
 					CoilPartData coilData = null;
 
-					if(blockId == BigReactors.blockTurbineRotorPart.blockID) {
-						rotorMass += BigReactors.blockTurbineRotorPart.getRotorMass(blockId, metadata);
+					if(block == BigReactors.blockTurbineRotorPart) {
+						rotorMass += BigReactors.blockTurbineRotorPart.getRotorMass(block, metadata);
 						if(BlockTurbineRotorPart.isRotorBlade(metadata)) {
 							bladeSurfaceArea += 1;
 						}
 					}
 					
-					coilData = getCoilPartData(x, y, z, blockId, metadata); 
+					coilData = getCoilPartData(x, y, z, block, metadata); 
 					if(coilData != null) {
 						coilEfficiency += coilData.efficiency;
 						coilBonus += coilData.bonus;
@@ -1111,7 +1112,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 		rpmUpdateTracker.onExternalUpdate();
 		
-		TileEntity saveTe = worldObj.getBlockTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
+		TileEntity saveTe = worldObj.getTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
 		worldObj.markBlockForUpdate(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 	}

@@ -1,6 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class RotorInfo {
 	// Location of bearing

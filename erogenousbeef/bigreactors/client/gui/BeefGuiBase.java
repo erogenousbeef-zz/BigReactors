@@ -68,7 +68,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 		}
 	}
 
-	public FontRenderer getFontRenderer() { return this.fontRenderer; }
+	public FontRenderer getFontRenderer() { return this.fontRendererObj; }
 	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float gameTicks, int mouseX, int mouseY) {
@@ -104,7 +104,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 				if(tooltip != null) {
 					// This prevents weird rendering issues with NEI
 					GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-					func_102021_a(Arrays.asList(tooltip), absoluteX, absoluteY); // Draws hovering text
+					drawHoveringText(Arrays.asList(tooltip), absoluteX, absoluteY,this.fontRendererObj); // Draws hovering text
 					GL11.glPopAttrib();
 					break;
 				}

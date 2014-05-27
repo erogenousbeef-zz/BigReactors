@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.interfaces;
 
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 
 public interface INeighborUpdatableEntity {
@@ -12,6 +13,6 @@ public interface INeighborUpdatableEntity {
 	 * @param z Tile Entity's zcoord
 	 * @param neighborBlockID Block ID of the block that changed
 	 */
-	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID);
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlockID);
 
 }

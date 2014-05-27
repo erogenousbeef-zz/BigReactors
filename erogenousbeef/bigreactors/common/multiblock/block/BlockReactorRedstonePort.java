@@ -4,13 +4,13 @@ import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
 import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
 import cpw.mods.fml.relauncher.Side;
@@ -21,7 +21,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 
 public class BlockReactorRedstonePort extends BlockContainer implements IConnectableRedNet {
 
-	protected Icon blockIconLit;
+	protected IIcon blockIconLit;
 	
 	public static final int META_REDSTONE_LIT = 1;
 	public static final int META_REDSTONE_UNLIT = 0;
@@ -29,13 +29,13 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	protected final static int REDSTONE_VALUE_OFF = 0;  // corresponds to no power
 	protected final static int REDSTONE_VALUE_ON  = 15; // corresponds to strong power
 	
-	public BlockReactorRedstonePort(int id, Material material) {
-		super(id, material);
+	public BlockReactorRedstonePort(Material material) {
+		super(material);
 		
 		setStepSound(soundMetalFootstep);
 		setHardness(2.0f);
-		setUnlocalizedName("blockReactorRedstonePort");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
+		setBlockName(BRLoader.MOD_ID+".blockReactorRedstonePort");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		setCreativeTab(BigReactors.TAB);
 	}
 	
@@ -50,7 +50,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	}
 	
 	@Override
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		if(side == 0 || side == 1) { return BigReactors.blockReactorPart.getIcon(side, BlockReactorPart.CASING_METADATA_BASE); }
 
@@ -62,7 +62,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".unlit");
 		this.blockIconLit = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".lit");
@@ -81,7 +81,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 			return false;
 		}
 
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedstonePort) {
 			if(!((TileEntityReactorRedstonePort)te).isConnected()) { return false; }
 			
@@ -103,7 +103,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
     @SideOnly(Side.CLIENT)
     public void randomDisplayTick(World world, int x, int y, int z, Random par5Random)
     {
-    	TileEntity te = world.getBlockTileEntity(x, y, z);
+    	TileEntity te = world.getTileEntity(x, y, z);
         if (te instanceof TileEntityReactorRedstonePort)
         {
         	TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
@@ -134,7 +134,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
     	super.onNeighborBlockChange(world, x, y,z, neighborBlockID);
 
-    	TileEntity te = world.getBlockTileEntity(x, y, z);
+    	TileEntity te = world.getTileEntity(x, y, z);
     	if(te instanceof TileEntityReactorRedstonePort) {
     		((TileEntityReactorRedstonePort)te).onNeighborBlockChange(x, y, z, neighborBlockID);
     	}
@@ -153,7 +153,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
 		if(side == 0 || side == 1) { return REDSTONE_VALUE_OFF; }
 
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedstonePort) {
 			TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
 			if(port.isOutput())
@@ -169,7 +169,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
 			int z, ForgeDirection side) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedstonePort) {
 			TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
 			if(port.isConnected()) {
@@ -200,7 +200,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IConnect
 	@Override
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedstonePort) {
 			TileEntityReactorRedstonePort port = (TileEntityReactorRedstonePort)te;
 			port.onRedNetUpdate(inputValue);

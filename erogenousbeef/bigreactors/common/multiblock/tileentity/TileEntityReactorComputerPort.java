@@ -230,7 +230,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		
 		CoordTriplet coord = reactor.getControlRodLocations()[rodIndex];
 		
-		TileEntity te = worldObj.getBlockTileEntity(coord.x, coord.y, coord.z);
+		TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
 		if(!(te instanceof TileEntityReactorControlRod)) {
 			throw new Exception("Encountered an invalid tile entity when seeking a control rod. That's weird.");
 		}

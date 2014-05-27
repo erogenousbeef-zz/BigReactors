@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemConduit;
@@ -153,7 +153,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		if(worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this)
+		if(worldObj.getTileEntity(xCoord, yCoord, zCoord) != this)
 		{
 			return false;
 		}
@@ -253,7 +253,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		for(ForgeDirection dir : dirsToCheck) {
 			if(itemToDistribute == null) { return null; }
 
-			TileEntity te = this.worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 			if(te instanceof IItemConduit) {
 				IItemConduit conduit = (IItemConduit)te;
 				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
@@ -275,7 +275,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				}
 				else {
 					IInventory inv = (IInventory)te;
-					if(worldObj.getBlockId(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest.blockID) {
+					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest) {
 						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 					}
 					helper = new InventoryHelper(inv);

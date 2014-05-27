@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.utils;
 
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class SidedInventoryHelper extends InventoryHelper {
 

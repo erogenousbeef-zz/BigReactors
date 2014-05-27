@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.gui;
 
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 
 import org.lwjgl.opengl.GL11;
 
@@ -92,7 +92,7 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 		GL11.glDisable(GL11.GL_BLEND);
 	}
 	
-    protected static void drawTexturedModelRectFromIcon(int x, int y, Icon icon, int width, int height)
+    protected static void drawTexturedModelRectFromIcon(int x, int y, IIcon icon, int width, int height)
     {
         Tessellator tessellator = Tessellator.instance;
         tessellator.startDrawingQuads();

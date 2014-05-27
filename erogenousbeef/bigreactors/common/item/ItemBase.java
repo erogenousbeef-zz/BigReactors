@@ -1,21 +1,21 @@
 package erogenousbeef.bigreactors.common.item;
 
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.Item;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BigReactors;
 
 public class ItemBase extends Item {
-	protected Icon[] icons;
+	protected IIcon[] icons;
 
-	public ItemBase(String name, int id)
+	public ItemBase(String name)
 	{
-		super(id);
+		super();
 		this.setUnlocalizedName(name);
 		this.setCreativeTab(BigReactors.TAB);
-		icons = new Icon[getNumberOfSubItems()];
+		icons = new IIcon[getNumberOfSubItems()];
 	}
 
 	protected int getNumberOfSubItems() {
@@ -25,10 +25,9 @@ public class ItemBase extends Item {
 	protected String[] getSubItemNames() {
 		return null;
 	}
-	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister iconRegister)
+	public void registerIcons(IIconRegister iconRegister)
 	{
 		String[] subItemNames = getSubItemNames();
 		if(subItemNames != null) {
@@ -44,7 +43,7 @@ public class ItemBase extends Item {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public Icon getIconFromDamage(int damage)
+	public IIcon getIconFromDamage(int damage)
 	{
 		if(icons.length > damage && !this.isDamageable()) {
 			return icons[damage];

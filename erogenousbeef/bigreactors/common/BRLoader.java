@@ -113,9 +113,9 @@ public class BRLoader {
     
     private ItemStack fillBucket(World world, MovingObjectPosition block)
     {
-            int blockId = world.getBlockId(block.blockX, block.blockY, block.blockZ);
-            if(blockId == BigReactors.fluidCyaniteStill.blockID) return new ItemStack(BigReactors.fluidCyaniteBucketItem);
-            else if(blockId == BigReactors.fluidYelloriumStill.blockID) return new ItemStack(BigReactors.fluidYelloriumBucketItem);
+            int blockId = world.getBlock(block.blockX, block.blockY, block.blockZ);
+            if(blockId == BigReactors.fluidCyaniteStill) return new ItemStack(BigReactors.fluidCyaniteBucketItem);
+            else if(blockId == BigReactors.fluidYelloriumStill) return new ItemStack(BigReactors.fluidYelloriumBucketItem);
             else return null;
     }
 }

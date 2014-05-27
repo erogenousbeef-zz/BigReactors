@@ -2,7 +2,7 @@ package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 
 import org.lwjgl.opengl.GL11;
 
@@ -12,14 +12,14 @@ import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiIcon extends BeefGuiControlBase implements IBeefTooltipControl {
 
-	protected Icon icon;
+	protected IIcon icon;
 	protected String[] tooltip;
 
 	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY) {
 		this(container, absoluteX, absoluteY, 16, 16);
 	}
 	
-	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY, int sizeX, int sizeY, Icon icon, String[] tooltip) {
+	public BeefGuiIcon(BeefGuiBase container, int absoluteX, int absoluteY, int sizeX, int sizeY, IIcon icon, String[] tooltip) {
 		this(container, absoluteX, absoluteY, sizeX, sizeY);
 		this.icon = icon;
 		this.tooltip = tooltip;

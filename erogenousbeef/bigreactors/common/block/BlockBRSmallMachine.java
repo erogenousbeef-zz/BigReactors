@@ -2,22 +2,24 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
@@ -41,21 +43,21 @@ public class BlockBRSmallMachine extends BlockContainer {
 		"cyaniteReprocessor"
 	};
 	
-	private Icon[] _icons = new Icon[_subBlocks.length];
-	private Icon[] _activeIcons = new Icon[_subBlocks.length];
-	private Icon[] _inventorySideIcons = new Icon[3];
-	private Icon[] _fluidSideIcons = new Icon[2];
-	
-	public BlockBRSmallMachine(int id, Material material) {
-		super(id, material);
-		setStepSound(soundMetalFootstep);
+	private IIcon[] _icons = new IIcon[_subBlocks.length];
+	private IIcon[] _activeIcons = new IIcon[_subBlocks.length];
+	private IIcon[] _inventorySideIcons = new IIcon[3];
+	private IIcon[] _fluidSideIcons = new IIcon[2];
+	//TODO: STRING ID
+	public BlockBRSmallMachine(Material material) {
+		super(material);
+		setStepSound(soundTypeMetal);//TODO old soundMetalFootstep
 		setHardness(1.0f);
-		setUnlocalizedName("blockBRSmallMachine");
-		setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockBRSmallMachine");
+		setBlockName(BRLoader.MOD_ID+".blockBRSmallMachine");
+		setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockBRSmallMachine");
 		setCreativeTab(BigReactors.TAB);
 	}
 	
-	public Icon getIconFromTileEntity(TileEntity te, int metadata, int side) {
+	public IIcon getIconFromTileEntity(TileEntity te, int metadata, int side) {
 		if(metadata < 0) { return blockIcon; }
 
 		if(te instanceof TileEntityBeefBase)
@@ -103,15 +105,14 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 	
 	@Override
-	public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side)
+	public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side)
 	{
-		TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
 		int metadata = blockAccess.getBlockMetadata(x, y, z);
 		return this.getIconFromTileEntity(te, metadata, side);
 	}
-	
 	@Override
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		// This is used when rendering in-inventory. 4 == front here.
 		if(side == 4) {
@@ -119,10 +120,9 @@ public class BlockBRSmallMachine extends BlockContainer {
 		}
 		return this.blockIcon;
 	}
-	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		
@@ -141,7 +141,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 	
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world,int var1) {
 		return null;
 	}
 
@@ -174,18 +174,17 @@ public class BlockBRSmallMachine extends BlockContainer {
 	}
 
 	public ItemStack getCyaniteReprocessorItemStack() {
-		return new ItemStack(this.blockID, 1, META_CYANITE_REPROCESSOR);
+		return new ItemStack(this, 1, META_CYANITE_REPROCESSOR);
 	}
-	
 	@Override
-	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
-	{
-		par3List.add(this.getCyaniteReprocessorItemStack());
+	public void getSubBlocks(Item p_149666_1_, CreativeTabs p_149666_2_,
+			List p_149666_3_) {
+		p_149666_3_.add(this.getCyaniteReprocessorItemStack());
 	}
 
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te == null) { return false; }
 
 		if(entityPlayer.isSneaking()) {
@@ -239,7 +238,7 @@ public class BlockBRSmallMachine extends BlockContainer {
 	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
 		if(entity == null) { return; }
 		
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		
 		// ???
 		if(stack.getTagCompound() != null)
@@ -269,12 +268,11 @@ public class BlockBRSmallMachine extends BlockContainer {
 			return ForgeDirection.NORTH;
 		}
 	}
-	
 	@Override
-	public void breakBlock(World world, int x, int y, int z, int blockId, int meta)
+	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
 	{
 		// Drop everything inside inventory blocks
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof IInventory)
 		{
 			IInventory inventory = ((IInventory)te);
@@ -300,7 +298,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 						amountToDrop = itemstack.stackSize;
 					}
 					itemstack.stackSize -= amountToDrop;
-					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.itemID, amountToDrop, itemstack.getItemDamage()));
+					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.getItem(), amountToDrop, itemstack.getItemDamage()));
 					if(itemstack.getTagCompound() != null)
 					{
 						entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound());
@@ -314,6 +312,6 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 			}
 		}
 
-		super.breakBlock(world, x, y, z, blockId, meta);
+		super.breakBlock(world, x, y, z, block, meta);
 	}
 }

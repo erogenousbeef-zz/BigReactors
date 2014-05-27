@@ -3,7 +3,7 @@ package erogenousbeef.bigreactors.client;
 import java.util.HashMap;
 
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import erogenousbeef.bigreactors.common.BigReactors;
 
 /**
@@ -19,16 +19,16 @@ public class BeefIconManager {
 	public static final int ITEM_TEXTURE = 1;
 	
 	private HashMap<String, Integer> nameToIdMap;
-	private HashMap<Integer, Icon> idToIconMap;
+	private HashMap<Integer, IIcon> idToIconMap;
 	
 	protected String[] iconNames = null;
 	
 	public BeefIconManager() {
 		nameToIdMap = new HashMap<String, Integer>();
-		idToIconMap = new HashMap<Integer, Icon>();
+		idToIconMap = new HashMap<Integer, IIcon>();
 	}
 	
-	public void registerIcons(TextureMap textureMap) {
+	public void registerBlockIcons(TextureMap textureMap) {
 		if(iconNames == null) { return; }
 
 		for(int i = 0; i < iconNames.length; i++) {
@@ -39,7 +39,7 @@ public class BeefIconManager {
 	
 	protected String getPath() { return ""; }
 	
-	public Icon getIcon(String name) {
+	public IIcon getIcon(String name) {
 		if(name == null || name.isEmpty()) { return null; }
 		
 		Integer id = nameToIdMap.get(name);
@@ -50,7 +50,7 @@ public class BeefIconManager {
 		return idToIconMap.get(id);
 	}
 	
-	public Icon getIcon(int id) {
+	public IIcon getIcon(int id) {
 		return idToIconMap.get(id);
 	}
 	

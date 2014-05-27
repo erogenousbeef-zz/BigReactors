@@ -6,9 +6,9 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import org.lwjgl.opengl.GL11;
 
@@ -57,7 +57,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z,
 			Block block, int modelId, RenderBlocks renderer) {
 		int metadata = world.getBlockMetadata(x, y, z);
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		
 		if(te instanceof TileEntityTurbineRotorPart) {
 			TileEntityTurbineRotorPart rotorPart = (TileEntityTurbineRotorPart)te;
@@ -81,7 +81,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	}
 
 	@Override
-	public boolean shouldRender3DInInventory() {
+	public boolean shouldRender3DInInventory(int var1) {
 		return true;
 	}
 
@@ -139,7 +139,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 	}
 
 	private void renderBladeFromWorld(RenderBlocks renderer, IBlockAccess world, int x, int y, int z, Block block, int metadata) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		ForgeDirection rotorDir = ForgeDirection.UNKNOWN;
 		if(te instanceof TileEntityTurbineRotorPart) {
 			TileEntityTurbineRotorPart rotorPart = (TileEntityTurbineRotorPart)te;
@@ -155,8 +155,8 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 			// First check, surrounding area.
 			ForgeDirection[] dirsToCheck = ForgeDirection.VALID_DIRECTIONS;
 			for(ForgeDirection dir : dirsToCheck) {
-				int neighborBlockId = world.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
-				if(neighborBlockId == block.blockID) {
+				Block neighborBlock = world.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
+				if(neighborBlock == block) {
 					// Blade or rotor?!
 					int neighborMetadata = world.getBlockMetadata(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
 					if(BlockTurbineRotorPart.isRotorShaft(neighborMetadata)) {
@@ -179,7 +179,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 				int curZ = z + dir.offsetZ;
 				
 				int dist = 0;
-				while(world.getBlockId(curX, curY, curZ) == block.blockID && dist < 32) { // only go up to 32 blocks in any direction without finding a rotor, for sanity
+				while(world.getBlock(curX, curY, curZ) == block && dist < 32) { // only go up to 32 blocks in any direction without finding a rotor, for sanity
 					int curMeta = world.getBlockMetadata(curX, curY, curZ);
 					if(BlockTurbineRotorPart.isRotorShaft(curMeta)) {
 						// Huz ZAH!
@@ -256,7 +256,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		ForgeDirection retDir = ForgeDirection.UP;
 		
 		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
-			if(world.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == block.blockID &&
+			if(world.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == block &&
 					BlockTurbineRotorPart.isRotorShaft(world.getBlockMetadata(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ))) {
 				retDir = dir;
 				break;
@@ -276,7 +276,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		
 		for(int i = 0; i < dirsToCheck.length; i++) {
 			ForgeDirection dir = dirsToCheck[i];
-			if(world.getBlockId(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == block.blockID &&
+			if(world.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == block &&
 					BlockTurbineRotorPart.isRotorBlade(world.getBlockMetadata(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ))) {
 				ret[i] = true;
 			}
@@ -359,7 +359,7 @@ public class RotorSimpleRenderer implements ISimpleBlockRenderingHandler {
 		double[] u = {0D, 0D, 16D, 16D};
 		double[] v = {0D, 16D, 16D, 0D};
 
-		Icon icon = BigReactors.blockTurbineRotorPart.getRotorConnectorIcon();
+		IIcon icon = BigReactors.blockTurbineRotorPart.getRotorConnectorIcon();
 		for(int i = 0; i < 4; i++) {
 			u[i] = icon.getInterpolatedU(u[i]);
 			v[i] = icon.getInterpolatedV(v[i]);

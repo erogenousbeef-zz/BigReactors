@@ -3,7 +3,7 @@ package erogenousbeef.bigreactors.gui.controls;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 
 import org.lwjgl.opengl.GL11;
 
@@ -14,13 +14,13 @@ public class GuiSelectableButton extends GuiButton implements IBeefTooltipContro
 
 	private boolean selected;
 	private int selectedColor;
-	private Icon icon;
+	private IIcon icon;
 	
 	private BeefGuiBase window;
 	private int relativeX;
 	private int relativeY;
 	
-	public GuiSelectableButton(int id, int x, int y, Icon icon, int selectedColor, BeefGuiBase containingWindow) {
+	public GuiSelectableButton(int id, int x, int y, IIcon icon, int selectedColor, BeefGuiBase containingWindow) {
 		super(id, x, y, 24, 24, "");
 		selected = false;
 		this.icon = icon;

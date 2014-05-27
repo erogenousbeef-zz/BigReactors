@@ -1,22 +1,22 @@
 package erogenousbeef.bigreactors.gui.controls.grab;
 
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 
 public class RedNetConfigGrabbable implements IBeefGuiGrabbable {
 
 	protected String name;
-	protected Icon icon;
+	protected IIcon icon;
 	protected TileEntityReactorRedNetPort.CircuitType circuitType;
 	
-	public RedNetConfigGrabbable(String name, Icon icon, TileEntityReactorRedNetPort.CircuitType circuitType) {
+	public RedNetConfigGrabbable(String name, IIcon icon, TileEntityReactorRedNetPort.CircuitType circuitType) {
 		this.name = name;
 		this.icon = icon;
 		this.circuitType = circuitType;
 	}
 	
 	@Override
-	public Icon getIcon() {
+	public IIcon getIcon() {
 		return icon;
 	}
 	

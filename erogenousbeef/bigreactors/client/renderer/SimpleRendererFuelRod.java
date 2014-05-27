@@ -4,7 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fluids.Fluid;
 
@@ -88,7 +88,7 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         
         // Render internal bits, if we can
         TileEntity te;
-        te = world.getBlockTileEntity(x, y, z);
+        te = world.getTileEntity(x, y, z);
         if(te instanceof TileEntityReactorFuelRod) {
         	TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)te;
         	if(fuelRod.isConnected()) {
@@ -101,7 +101,7 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         			// Okay, we're connected and have some kind of fluid inside. Let's do this.
         	        float fluidColumnOffsetFromCenter = -1f;
         	        float red, green, blue;
-        	        Icon iconSide, iconBottom;
+        	        IIcon iconSide, iconBottom;
         	        iconSide = iconBottom = null;
         	        red = green = blue = 1f;
 
@@ -228,7 +228,7 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 	}
 
 	@Override
-	public boolean shouldRender3DInInventory() {
+	public boolean shouldRender3DInInventory(int var1) {
 		return true;
 	}
 

@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,10 +12,10 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatMessageComponent;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
 import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
 import cpw.mods.fml.relauncher.Side;
@@ -92,23 +92,23 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public static boolean isComputerPort(int metadata) { return metadata == COMPUTERPORT; }
 	public static boolean isCoolantPort(int metadata) { return metadata == COOLANTPORT; }
 	
-	public BlockReactorPart(int id, Material material) {
-		super(id, material);
+	public BlockReactorPart(Material material) {
+		super(material);
 		
 		setStepSound(soundMetalFootstep);
 		setHardness(2.0f);
-		setUnlocalizedName("blockReactorPart");
-		this.setTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorPart");
+		setBlockName(BRLoader.MOD_ID+".blockReactorPart");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorPart");
 		setCreativeTab(BigReactors.TAB);
 	}
 
 	@Override
-    public Icon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+    public IIcon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		// TODO: Put all icon selection in here
 		int metadata = blockAccess.getBlockMetadata(x,y,z);
 
 		if(isCoolantPort(metadata)) {
-			TileEntity te = blockAccess.getBlockTileEntity(x, y, z);
+			TileEntity te = blockAccess.getTileEntity(x, y, z);
 
 			if(te instanceof TileEntityReactorCoolantPort) {
 				TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
@@ -145,7 +145,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	
 	
 	@Override
-	public Icon getIcon(int side, int metadata)
+	public IIcon getIcon(int side, int metadata)
 	{
 		// Casing block
 		switch(metadata) {
@@ -197,7 +197,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void registerIcons(IconRegister par1IconRegister)
+	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		
@@ -218,7 +218,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	
 	// We do this to skip DISABLED
 	@SideOnly(Side.CLIENT)
-	public Icon getRedNetConfigIcon(TileEntityReactorRedNetPort.CircuitType circuitType) {
+	public IIcon getRedNetConfigIcon(TileEntityReactorRedNetPort.CircuitType circuitType) {
 		if(circuitType == TileEntityReactorRedNetPort.CircuitType.DISABLED) { return null; }
 		else {
 			return _redNetPortConfigIcons[circuitType.ordinal() - 1];
@@ -256,7 +256,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		// Signal power taps when their neighbors change, etc.
 		if(te instanceof INeighborUpdatableEntity) {
 			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlockID);
@@ -278,7 +278,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 				
 				if(isCoolantPort(metadata) && (StaticUtils.Inventory.isPlayerHoldingWrench(player) || currentEquippedItem == null)) {
 					// Use wrench to change inlet/outlet state
-					TileEntity te = world.getBlockTileEntity(x, y, z);
+					TileEntity te = world.getTileEntity(x, y, z);
 					if(te instanceof TileEntityReactorCoolantPort) {
 						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
 						cp.setInlet(!cp.isInlet());
@@ -286,7 +286,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 					}
 				}
 				else if(currentEquippedItem == null) {
-					TileEntity te = world.getBlockTileEntity(x, y, z);
+					TileEntity te = world.getTileEntity(x, y, z);
 					if(te instanceof IMultiblockPart) {
 						MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
 						if(controller != null) {
@@ -359,31 +359,31 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	}
 	
 	public ItemStack getReactorCasingItemStack() {
-		return new ItemStack(this.blockID, 1, CASING_METADATA_BASE);
+		return new ItemStack(this, 1, CASING_METADATA_BASE);
 	}
 	
 	public ItemStack getReactorControllerItemStack() {
-		return new ItemStack(this.blockID, 1, CONTROLLER_METADATA_BASE);
+		return new ItemStack(this, 1, CONTROLLER_METADATA_BASE);
 	}
 	
 	public ItemStack getReactorPowerTapItemStack() {
-		return new ItemStack(this.blockID, 1, POWERTAP_METADATA_BASE);
+		return new ItemStack(this, 1, POWERTAP_METADATA_BASE);
 	}
 	
 	public ItemStack getAccessPortItemStack() {
-		return new ItemStack(this.blockID, 1, ACCESSPORT_INLET);
+		return new ItemStack(this, 1, ACCESSPORT_INLET);
 	}
 	
 	public ItemStack getRedNetPortItemStack() {
-		return new ItemStack(this.blockID, 1, REDNETPORT);
+		return new ItemStack(this, 1, REDNETPORT);
 	}
 	
 	public ItemStack getComputerPortItemStack() {
-		return new ItemStack(this.blockID, 1, COMPUTERPORT);
+		return new ItemStack(this, 1, COMPUTERPORT);
 	}
 	
 	public ItemStack getCoolantPortItemStack() {
-		return new ItemStack(this.blockID, 1, COOLANTPORT);
+		return new ItemStack(this, 1, COOLANTPORT);
 	}
 	
 	@Override
@@ -402,7 +402,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public void breakBlock(World world, int x, int y, int z, int blockId, int meta)
 	{
 		// Drop everything inside inventory blocks
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof IInventory)
 		{
 			IInventory inventory = ((IInventory)te);
@@ -449,7 +449,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
 			int z, ForgeDirection side) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedNetPort) {
 			return RedNetConnectionType.CableAll;
 		}
@@ -460,7 +460,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	@Override
 	public int[] getOutputValues(World world, int x, int y, int z,
 			ForgeDirection side) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedNetPort) {
 			return ((TileEntityReactorRedNetPort)te).getOutputValues();
 		}
@@ -477,7 +477,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	@Override
 	public int getOutputValue(World world, int x, int y, int z,
 			ForgeDirection side, int subnet) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedNetPort) {
 			return ((TileEntityReactorRedNetPort)te).getValueForChannel(subnet);
 		}
@@ -488,7 +488,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	@Override
 	public void onInputsChanged(World world, int x, int y, int z,
 			ForgeDirection side, int[] inputValues) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedNetPort) {
 			((TileEntityReactorRedNetPort)te).onInputValuesChanged(inputValues);
 		}
@@ -504,7 +504,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	// IPeripheralProvider
 	@Override
 	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
-		TileEntity te = world.getBlockTileEntity(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
 		
 		if(te instanceof TileEntityReactorComputerPort)
 			return (IPeripheral)te;

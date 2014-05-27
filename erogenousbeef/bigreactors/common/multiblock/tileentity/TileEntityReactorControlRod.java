@@ -171,7 +171,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	@Override
 	public void isGoodForTop() throws MultiblockValidationException {
 		// Check that the space below us is a fuel rod
-		TileEntity teBelow = this.worldObj.getBlockTileEntity(xCoord, yCoord - 1, zCoord);
+		TileEntity teBelow = this.worldObj.getTileEntity(xCoord, yCoord - 1, zCoord);
 		if(!(teBelow instanceof TileEntityReactorFuelRod)) {
 			throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face, atop a column of fuel rods", xCoord, yCoord, zCoord));
 		}
