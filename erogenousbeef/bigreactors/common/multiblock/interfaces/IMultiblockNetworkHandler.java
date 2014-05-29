@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.interfaces;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -15,6 +17,6 @@ public interface IMultiblockNetworkHandler {
 	 * @param data The DataInputStream with the data
 	 * @throws An IOException if there's trouble handling a packet
 	 */
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException;
+	public void onNetworkPacket(int packetType, ByteBuf data);
 	
 }

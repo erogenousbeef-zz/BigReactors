@@ -1,10 +1,13 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import welfare93.bigreactors.packet.MainPacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.client.ClientProxy;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
@@ -12,7 +15,6 @@ import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.bigreactors.gui.GuiConstants;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public class GuiReactorAccessPort extends BeefGuiBase {
@@ -39,7 +41,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 		int xCenter = guiLeft + this.xSize / 2;
 		int yCenter = this.ySize / 2;
 
-		int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
+		int metadata = _port.getWorldObj().getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
 		
 		ejectFuel = new GuiIconButton(2, guiLeft + xSize - 97, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("fuelEject"), new String[] { GuiConstants.LITECYAN_TEXT + "Eject Fuel", "", "Ejects fuel contained in the", "reactor, placing ingots in the", "reactor's access ports.", "", "SHIFT: Dump excess fuel."});
 		ejectWaste = new GuiIconButton(3, guiLeft + xSize - 77, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"), new String[] { GuiConstants.LITECYAN_TEXT + "Eject Waste", "", "Ejects waste contained in the", "reactor, placing ingots in the", "reactor's access ports.", "", "SHIFT: Dump excess waste."});
@@ -71,7 +73,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	}
 	
 	protected void updateIcons() {
-		int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
+		int metadata = _port.getWorldObj().getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
 		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
 			btnInlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.INLET_ON));
 			btnOutlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OUTLET_OFF));
@@ -90,19 +92,26 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 0 || button.id == 1) {
-			int metadata = _port.worldObj.getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
+			int metadata = _port.getWorldObj().getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
 			int newMetadata = button.id == 0 ? BlockReactorPart.ACCESSPORT_INLET : BlockReactorPart.ACCESSPORT_OUTLET;
 			
 			if(newMetadata != metadata) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.AccessPortButton,
-						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, (byte)newMetadata }));
+				ByteBuf a=Unpooled.buffer();
+				a.writeByte(newMetadata);
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.AccessPortButton,_port.xCoord, _port.yCoord, _port.zCoord,a));
 			}
 		}
 		
 		else if(button.id == 2 || button.id == 3) {
 			boolean fuel = button.id == 2;
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
-						new Object[] { _port.xCoord, _port.yCoord, _port.zCoord, fuel, isShiftKeyDown(), true, _port.xCoord, _port.yCoord, _port.zCoord }));
+			ByteBuf a=Unpooled.buffer();
+			a.writeBoolean(fuel);
+			a.writeBoolean(isShiftKeyDown());
+			a.writeBoolean(true);
+			a.writeInt(_port.xCoord);
+			a.writeInt(_port.yCoord);
+			a.writeInt(_port.zCoord);
+			BRLoader.packethandler.sendToServer(new MainPacket(Packets.ReactorEjectButton,_port.xCoord, _port.yCoord, _port.zCoord,a));
 		}
 	}
 	

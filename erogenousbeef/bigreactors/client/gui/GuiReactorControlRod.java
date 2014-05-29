@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.inventory.Container;
@@ -7,12 +9,13 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.input.Keyboard;
 
-import cpw.mods.fml.common.network.PacketDispatcher;
+import welfare93.bigreactors.packet.MainPacket;
+import welfare93.bigreactors.packet.PacketHandler;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
@@ -57,7 +60,7 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		
 		rodNameLabel = new BeefGuiLabel(this, "Name:", leftX, topY + 6);
 		
-		rodName = new GuiTextField(fontRenderer, leftX + 4 + rodNameLabel.getWidth(), topY, 100, 20);
+		rodName = new GuiTextField(this.getFontRenderer(), leftX + 4 + rodNameLabel.getWidth(), topY, 100, 20);
 		rodName.setCanLoseFocus(true);
 		rodName.setMaxStringLength(32);
 		rodName.setText(entity.getName());
@@ -137,8 +140,10 @@ public class GuiReactorControlRod extends BeefGuiBase {
 			btnCmd = "rodRetract";
 			break;
 		case 2:
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ControlRodSetName,
-					new Object[] { entity.xCoord, entity.yCoord, entity.zCoord, this.rodName.getText() }));
+
+			ByteBuf a=Unpooled.buffer();
+			PacketHandler.encodeString(this.rodName.getText(),a);
+			BRLoader.packethandler.sendToServer(new MainPacket(Packets.ControlRodSetName,entity.xCoord, entity.yCoord, entity.zCoord,a));
 			this.rodName.setFocused(false);
 			return;
 		case 1:
@@ -146,15 +151,16 @@ public class GuiReactorControlRod extends BeefGuiBase {
 			btnCmd = "rodInsert";
 			break;
 		}
-		
-		PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
-				new Object[] { entity.xCoord, entity.yCoord, entity.zCoord, btnCmd }));
+
+		ByteBuf a=Unpooled.buffer();
+		PacketHandler.encodeString(btnCmd, a);
+		BRLoader.packethandler.sendToServer(new MainPacket(Packets.BeefGuiButtonPress,entity.xCoord, entity.yCoord, entity.zCoord,a));
 	}
 	
 	@Override
 	protected void keyTyped(char inputChar, int keyCode) {
         if (keyCode == Keyboard.KEY_ESCAPE ||
-        		(!this.rodName.isFocused() && keyCode == this.mc.gameSettings.keyBindInventory.keyCode)) {
+        		(!this.rodName.isFocused() && keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode())) {
             this.mc.thePlayer.closeScreen();
         }
 

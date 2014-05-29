@@ -4,25 +4,25 @@ import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.List;
 
+import welfare93.bigreactors.handlers.TickHandler;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
-import powercrystals.minefactoryreloaded.api.FactoryRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import dan200.computercraft.api.ComputerCraftAPI;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
-import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class CommonProxy {
 
@@ -31,11 +31,9 @@ public class CommonProxy {
 
 	public void init() {
 		BigReactors.registerTileEntities();
-		
-		NetworkRegistry.instance().registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
-		BigReactors.tickHandler = new BigReactorsTickHandler();
-		TickRegistry.registerTickHandler(BigReactors.tickHandler, Side.SERVER);
-		TickRegistry.registerTickHandler(new MultiblockServerTickHandler(), Side.SERVER);
+
+		FMLCommonHandler.instance().bus().register(new TickHandler());
+		NetworkRegistry.INSTANCE.registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
 		
 		sendInterModAPIMessages();
 	}
@@ -60,7 +58,7 @@ public class CommonProxy {
 		}
 
 		if(Loader.isModLoaded("ThermalExpansion")) {
-			ItemStack sandStack = new ItemStack(Block.sand, 1);
+			ItemStack sandStack = new ItemStack(Blocks.sand, 1);
 			ItemStack doubleYellorium = ingotYellorium.copy();
 			doubleYellorium.stackSize = 2;
 
@@ -145,31 +143,7 @@ public class CommonProxy {
 			doubledYelloriumDust.stackSize = 2;
 		}
 		
-		if(Loader.isModLoaded("AppliedEnergistics")) {
-			appeng.api.IGrinderRecipeManager grinderRM = appeng.api.Util.getGrinderRecipeManage();
-
-			if(grinderRM != null) {
-				if(yelloriteOre != null && dustYellorium != null) {
-					grinderRM.addRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy(), 4);
-				}
-			
-				if(ingotYellorium != null && dustYellorium != null) {
-					grinderRM.addRecipe(ingotYellorium.copy(), dustYellorium.copy(), 2);
-				}
-
-				if(ingotCyanite != null && dustCyanite != null) {
-					grinderRM.addRecipe(ingotCyanite.copy(), dustCyanite.copy(), 2);
-				}
-
-				if(ingotGraphite != null && dustGraphite != null) {
-					grinderRM.addRecipe(ingotGraphite.copy(), dustGraphite.copy(), 2);
-				}
-
-				if(ingotBlutonium != null && dustBlutonium != null) {
-					grinderRM.addRecipe(ingotBlutonium.copy(), dustBlutonium.copy(), 2);
-				}
-			}
-		}
+		
 		
 		if(Loader.isModLoaded("Mekanism")) {
 			if(yelloriteOre != null && doubledYelloriumDust != null) {
@@ -192,11 +166,6 @@ public class CommonProxy {
 			if(ingotBlutonium != null && dustBlutonium != null) {
 				addMekanismCrusherRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
 			}
-		}
-		
-		if(Loader.isModLoaded("MineFactoryReloaded")) {
-			FactoryRegistry.registerLaserOre(2, yelloriteOre.copy());
-			FactoryRegistry.addLaserPreferredOre(9, yelloriteOre.copy()); // Register yellorite with cyan, becuz.
 		}
 		
 		if(Loader.isModLoaded("ComputerCraft")) {
@@ -263,17 +232,17 @@ public class CommonProxy {
 	protected void addPulverizerRecipe(ItemStack from, ItemStack to, int energy) {
 		NBTTagCompound message = new NBTTagCompound();
 		message.setInteger("energy", energy);
-		message.setCompoundTag("input", from.writeToNBT(new NBTTagCompound()));
-		message.setCompoundTag("primaryOutput",to.writeToNBT(new NBTTagCompound()));
+		message.setTag("input", from.writeToNBT(new NBTTagCompound()));
+		message.setTag("primaryOutput",to.writeToNBT(new NBTTagCompound()));
 		sendInterModMessage("ThermalExpansion", "PulverizerRecipe", message);
 	}
 	
 	protected void addInductionSmelterRecipe(ItemStack firstInput, ItemStack secondInput, ItemStack output, int energy) {
 		NBTTagCompound message = new NBTTagCompound();
 		message.setInteger("energy", energy);
-		message.setCompoundTag("primaryInput", firstInput.writeToNBT(new NBTTagCompound()));
-		message.setCompoundTag("secondaryInput", secondInput.writeToNBT(new NBTTagCompound()));
-		message.setCompoundTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
+		message.setTag("primaryInput", firstInput.writeToNBT(new NBTTagCompound()));
+		message.setTag("secondaryInput", secondInput.writeToNBT(new NBTTagCompound()));
+		message.setTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
 		sendInterModMessage("ThermalExpansion", "SmelterRecipe", message);
 	}
 	
@@ -282,12 +251,12 @@ public class CommonProxy {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent 
 	public void registerBlockIcons(TextureStitchEvent.Pre event) {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent 
 	public void setIcons(TextureStitchEvent.Post event) {
 	}
 }

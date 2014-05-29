@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -45,7 +46,6 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 		
 		if(!this.worldObj.isRemote) { 
 			// Force a connection to neighboring objects
-			this.onInventoryChanged();
 		}
 	}
 	
@@ -69,7 +69,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 			flowSetting = FluidFlow.values()[data.getInteger("flowSetting")];
 		}
 	}
-	
+	/*
 	@Override
 	public void encodeDescriptionPacket(NBTTagCompound data) {
 		super.encodeDescriptionPacket(data);
@@ -83,7 +83,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 			flowSetting = FluidFlow.values()[data.getInteger("flowSetting")];
 		}
 	}
-
+*/
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
 		if(!isConnected() || from != getOutwardsDir()) { return 0; }
@@ -156,7 +156,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	// INeighborUpdatableEntity
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z,
-			int neighborBlockID) {
+			Block neighborBlockID) {
 		if(!world.isRemote) {
 			checkForAdjacentTank();
 		}

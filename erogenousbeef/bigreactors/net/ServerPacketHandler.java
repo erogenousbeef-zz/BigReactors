@@ -1,5 +1,5 @@
 package erogenousbeef.bigreactors.net;
-
+/*
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -123,4 +123,4 @@ public class ServerPacketHandler implements IPacketHandler {
 			
 		}
 	}
-}
+}*/

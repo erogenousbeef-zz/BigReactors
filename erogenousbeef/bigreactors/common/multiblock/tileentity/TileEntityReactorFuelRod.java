@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -168,7 +169,7 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 			}
 			else {
 				
-				int blockID, metadata;
+				Block blockID; int metadata;
 				blockID = worldObj.getBlock(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
 				metadata = worldObj.getBlockMetadata(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
 				heatTransferRate += getConductivityFromBlock(blockID, metadata);
@@ -178,19 +179,19 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		return heatTransferRate;
 	}
 	
-	private float getConductivityFromBlock(int blockID, int metadata) {
+	private float getConductivityFromBlock(Block blockID, int metadata) {
 		ReactorInteriorData interiorData = null;
 		
-		if(blockID == Block.blockIron) {
+		if(blockID == Blocks.iron_block) {
 			interiorData = BRRegistry.getReactorInteriorBlockData("blockIron");
 		}
-		else if(blockID == Block.blockGold) {
+		else if(blockID == Blocks.gold_block) {
 			interiorData = BRRegistry.getReactorInteriorBlockData("blockGold");
 		}
-		else if(blockID == Block.blockDiamond) {
+		else if(blockID == Blocks.diamond_block) {
 			interiorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
 		}
-		else if(blockID == Block.blockEmerald) {
+		else if(blockID == Blocks.emerald_block) {
 			interiorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
 		}
 		else {
@@ -198,10 +199,9 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 			if(oreID >= 0) {
 				interiorData = BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreID));
 			}
-			else if(blockID < Block.blocksList.length) {
-				Block b = Block.blocksList[blockID];
-				if(b instanceof IFluidBlock) {
-					Fluid fluid = ((IFluidBlock)b).getFluid();
+			else {
+				if(blockID instanceof IFluidBlock) {
+					Fluid fluid = ((IFluidBlock)blockID).getFluid();
 					if(fluid != null) {
 						interiorData = BRRegistry.getReactorInteriorFluidData(fluid.getName());
 					}

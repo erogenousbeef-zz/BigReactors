@@ -1,5 +1,5 @@
 package erogenousbeef.core.multiblock;
-
+/*
 import java.util.EnumSet;
 
 import net.minecraft.world.World;
@@ -14,7 +14,7 @@ import cpw.mods.fml.common.TickType;
  * CLIENT ticks only run on the client, at the start/end of each game loop.
  * SERVER and WORLD ticks only run on the server.
  * WORLDLOAD ticks run only on the server, and only when worlds are loaded.
- */
+ 
 public class MultiblockServerTickHandler implements IScheduledTickHandler {
 
 	@Override
@@ -47,4 +47,4 @@ public class MultiblockServerTickHandler implements IScheduledTickHandler {
 	public int nextTickSpacing() {
 		return 1;
 	}
-}
+}*/

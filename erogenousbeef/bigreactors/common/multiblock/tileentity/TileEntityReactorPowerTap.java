@@ -1,15 +1,17 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import welfare93.bigreactors.energy.IEnergyHandler;
+import welfare93.bigreactors.energy.IEnergyHandlerOutput;
+import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler, INeighborUpdatableEntity {
-	IEnergyHandler 	rfNetwork;
+public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandlerOutput, INeighborUpdatableEntity {
+	IEnergyHandlerOutput 	rfNetwork;
 	
 	public TileEntityReactorPowerTap() {
 		super();
@@ -40,7 +42,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 		
 		// Force a connection to the power taps
-		this.onInventoryChanged();
 	}
 
 	// Custom PowerTap methods
@@ -66,7 +67,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			if(!(te instanceof TileEntityReactorPowerTap)) {
 				// Skip power taps, as they implement these APIs and we don't want to shit energy back and forth
 				if(te instanceof IEnergyHandler) {
-					rfNetwork = (IEnergyHandler)te;
+					rfNetwork = (IEnergyHandlerOutput)te;
 				}
 			}
 			
@@ -92,52 +93,61 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		if(rfNetwork == null) {
 			return units;
 		}
-		
+
 		ForgeDirection approachDirection = getOutwardsDir().getOpposite();
-		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, (int)units, false);
+		int energyConsumed = rfNetwork.addEnergy(units);
 		units -= energyConsumed;
 		
 		return units;
 	}
 	
-	// Thermal Expansion
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive,
-			boolean simulate) {
-		return 0;
-	}
-
-	@Override
-	public int extractEnergy(ForgeDirection from, int maxExtract,
-			boolean simulate) {
-		if(!this.isConnected())
-			return 0;
-
-		if(from == getOutwardsDir()) {
-			return this.getReactorController().extractEnergy(from, maxExtract, simulate);
-		}
-
-		return 0;
-	}
-
-	@Override
-	public boolean canInterface(ForgeDirection from) {
-		return from == getOutwardsDir();
-	}
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
-		if(!this.isConnected())
-			return 0;
-
-		return this.getReactorController().getEnergyStored(from);
+		if(!this.isConnected()) { return 0; }
+		
+		return getReactorController().getEnergyStored(from);
 	}
 
 	@Override
 	public int getMaxEnergyStored(ForgeDirection from) {
-		if(!this.isConnected())
-			return 0;
+		if(!this.isConnected()) { return 0; }
 
-		return this.getReactorController().getMaxEnergyStored(from);
+		return getReactorController().getMaxEnergyStored(from);
+	}
+
+	@Override
+	public double getOfferedEnergy() {
+		if(!this.isConnected()) { return 0; }
+		return getReactorController().getEnergyStored();
+	}
+
+	@Override
+	public void drawEnergy(double amount) {
+		getReactorController().removeEnergy((int)amount);
+		
+	}
+
+	@Override
+	public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection direction) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int addEnergy(int energy) {
+		return getReactorController().addEnergy(energy);
+	}
+
+	@Override
+	public int removeEnergy(int energy) {
+		return getReactorController().removeEnergy(energy);
+	}
+
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z,
+			Block neighborBlockID) {
+		// TODO Auto-generated method stub
+		
 	}
 }

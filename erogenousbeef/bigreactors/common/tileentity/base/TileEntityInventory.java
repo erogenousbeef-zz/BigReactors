@@ -1,23 +1,26 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import buildcraft.api.transport.IPipeTile;
-import cofh.api.transport.IItemConduit;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
@@ -50,12 +53,12 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		// Inventories
 		_inventories = new ItemStack[getSizeInventory()];
 		if(tag.hasKey("Items")) {
-			NBTTagList tagList = tag.getTagList("Items");
+			NBTTagList tagList = tag.getTagList("Items",1);
 			for(int i = 0; i < tagList.tagCount(); i++) {
-				NBTTagCompound itemTag = (NBTTagCompound)tagList.tagAt(i);
+				NBTTagCompound itemTag = (NBTTagCompound)tagList.getCompoundTagAt(i);
 				int slot = itemTag.getByte("Slot") & 0xff;
 				if(slot >= 0 && slot <= _inventories.length) {
-					ItemStack itemStack = new ItemStack(0,0,0);
+					ItemStack itemStack = new ItemStack(Blocks.air,0,0);
 					itemStack.readFromNBT(itemTag);
 					_inventories[slot] = itemStack;
 				}
@@ -64,9 +67,9 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		
 		resetInventoryExposures();
 		if(tag.hasKey("invExposures")) {
-			NBTTagList exposureList = tag.getTagList("invExposures");
+			NBTTagList exposureList = tag.getTagList("invExposures",1);
 			for(int i = 0; i < exposureList.tagCount(); i++) {
-				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.tagAt(i);
+				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.getCompoundTagAt(i);
 				int exposureIdx = exposureTag.getInteger("exposureIdx");
 				invExposures[exposureIdx][0] = exposureTag.getInteger("direction");
 			}
@@ -144,9 +147,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		
 		if(!this.worldObj.isRemote) {
 			// Send unrotated, as the rotation will be re-applied on the client
-			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineInventoryExposureUpdate,
-																new Object[] { xCoord, yCoord, zCoord, referenceSide, slot });
-			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+			ByteBuf a=Unpooled.buffer();
+			a.writeInt(referenceSide);
+			a.writeInt(slot);
+			MainPacket b=new MainPacket(Packets.SmallMachineInventoryExposureUpdate, xCoord, yCoord, zCoord, a);
+			BRLoader.packethandler.sendToAllAround(b, new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 			
 			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
 		}
@@ -210,13 +215,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		}
 	}
 
-	@Override
-	public abstract String getInvName();
 	
-	@Override
-	public boolean isInvNameLocalized() {
-		return false;
-	}
 
 	@Override
 	public int getInventoryStackLimit() {
@@ -232,13 +231,6 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		return entityplayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64D;
 	}
 
-	@Override
-	public void openChest() {
-	}
-
-	@Override
-	public void closeChest() {
-	}
 
 	@Override
 	public abstract boolean isItemValidForSlot(int slot, ItemStack itemstack);
@@ -306,11 +298,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			if(invExposures[rotatedSide][0] != fromSlot) { continue; }
 			
 			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te instanceof IItemConduit) {
+			/*if(te instanceof IItemConduit) {
 				IItemConduit conduit = (IItemConduit)te;
 				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
-			}
-			else if(te instanceof IPipeTile) {
+			}*/
+			if(te instanceof IPipeTile) {
 				IPipeTile pipe = (IPipeTile)te;
 				if(pipe.isPipeConnected(dir.getOpposite())) {
 					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
@@ -327,7 +319,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 				}
 				else {
 					IInventory inv = (IInventory)te;
-					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest) {
+					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Blocks.chest) {
 						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 					}
 					helper = new InventoryHelper(inv);

@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.chunk.IChunkProvider;
 import erogenousbeef.core.common.BeefCoreLog;
@@ -101,7 +98,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 		if(isMultiblockSaveDelegate() && isConnected()) {
 			NBTTagCompound multiblockData = new NBTTagCompound();
 			this.controller.writeToNBT(multiblockData);
-			data.setCompoundTag("multiblockData", multiblockData);
+			data.setTag("multiblockData", multiblockData);
 		}
 	}
 		
@@ -152,7 +149,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 		super.validate();
 		MultiblockRegistry.onPartAdded(this.worldObj, this);
 	}
-
+/*
 	// Network Communication
 	@Override
 	public Packet getDescriptionPacket() {
@@ -173,7 +170,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 	 * Decode this data in decodeDescriptionPacket.
 	 * @param packetData An NBT compound tag into which you should write your custom description data.
 	 * @see erogenousbeef.core.multiblock.MultiblockTileEntityBase#decodeDescriptionPacket(NBTTagCompound)
-	 */
+	 *
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
 		if(this.isMultiblockSaveDelegate() && isConnected()) {
 			NBTTagCompound tag = new NBTTagCompound();
@@ -187,7 +184,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 	 * Encoded in encodeDescriptionPacket.
 	 * @param packetData The NBT data from the tile entity's description packet.
 	 * @see erogenousbeef.core.multiblock.MultiblockTileEntityBase#encodeDescriptionPacket(NBTTagCompound)
-	 */
+	 *
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		if(packetData.hasKey("multiblockData")) {
 			NBTTagCompound tag = packetData.getCompoundTag("multiblockData");
@@ -200,7 +197,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 			}
 		}
 	}
-
+*/
 	@Override
 	public boolean hasMultiblockSaveData() {
 		return this.cachedMultiblockData != null;

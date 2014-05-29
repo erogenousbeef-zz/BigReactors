@@ -1,20 +1,20 @@
 package erogenousbeef.core.multiblock;
-
+/*
 import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
 import cpw.mods.fml.common.IScheduledTickHandler;
-import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Type;
 
 public class MultiblockClientTickHandler implements IScheduledTickHandler {
-
 	@Override
-	public void tickStart(EnumSet<TickType> type, Object... tickData) {
-		if(type.contains(TickType.CLIENT)) {
+	@SubscribeEvent
+	public void tickStart(EnumSet<Type> type, Object... tickData) {
+		if(type.contains(Type.CLIENT)) {
 			MultiblockRegistry.tickStart(Minecraft.getMinecraft().theWorld);
 		}
 	}
-
 	@Override
 	public void tickEnd(EnumSet<TickType> type, Object... tickData) {
 		if(type.contains(TickType.CLIENT)) {
@@ -37,4 +37,4 @@ public class MultiblockClientTickHandler implements IScheduledTickHandler {
 		return 1;
 	}
 
-}
+}*/

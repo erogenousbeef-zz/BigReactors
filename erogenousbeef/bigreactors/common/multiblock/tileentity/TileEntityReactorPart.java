@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
@@ -201,11 +202,10 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 		}
 		return null;
 	}
-
 	// Only refresh if we're switching functionality
 	// Warning: dragonz!
 	@Override
-    public boolean shouldRefresh(int oldID, int newID, int oldMeta, int newMeta, World world, int x, int y, int z)
+    public boolean shouldRefresh(Block oldID, Block newID, int oldMeta, int newMeta, World world, int x, int y, int z)
     {
 		if(oldID != newID) {
 			return true;
@@ -227,4 +227,23 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 		}
 		return true;
     }
+	public String getInventoryName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean hasCustomInventoryName() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public void openInventory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void closeInventory() {
+		// TODO Auto-generated method stub
+		
+	}
 }

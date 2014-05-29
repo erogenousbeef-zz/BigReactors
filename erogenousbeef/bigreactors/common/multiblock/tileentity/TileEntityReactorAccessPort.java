@@ -1,11 +1,14 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -15,7 +18,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import buildcraft.api.transport.IPipeTile;
-import cofh.api.transport.IItemConduit;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IReactorFuel;
@@ -50,12 +52,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		super.readFromNBT(tag);
 		_inventories = new ItemStack[getSizeInventory()];
 		if(tag.hasKey("Items")) {
-			NBTTagList tagList = tag.getTagList("Items");
+			NBTTagList tagList = tag.getTagList("Items",1);
 			for(int i = 0; i < tagList.tagCount(); i++) {
-				NBTTagCompound itemTag = (NBTTagCompound)tagList.tagAt(i);
+				NBTTagCompound itemTag = (NBTTagCompound)tagList.getCompoundTagAt(i);
 				int slot = itemTag.getByte("Slot") & 0xff;
 				if(slot >= 0 && slot <= _inventories.length) {
-					ItemStack itemStack = new ItemStack(0,0,0);
+					ItemStack itemStack = new ItemStack(Blocks.air,0,0);
 					itemStack.readFromNBT(itemTag);
 					_inventories[slot] = itemStack;
 				}
@@ -102,7 +104,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			{
 				ItemStack itemstack = _inventories[slot];
 				_inventories[slot] = null;
-				onInventoryChanged();
 				return itemstack;
 			}
 			ItemStack newStack = _inventories[slot].splitStack(amount);
@@ -111,7 +112,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				_inventories[slot] = null;
 			}
 
-			onInventoryChanged();
 			return newStack;
 		}
 		else
@@ -133,18 +133,9 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			itemstack.stackSize = getInventoryStackLimit();
 		}
 		
-		onInventoryChanged();
 	}
 
-	@Override
-	public String getInvName() {
-		return "Access Port";
-	}
 
-	@Override
-	public boolean isInvNameLocalized() {
-		return false;
-	}
 
 	@Override
 	public int getInventoryStackLimit() {
@@ -160,13 +151,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		return entityplayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64D;
 	}
 
-	@Override
-	public void openChest() {
-	}
-
-	@Override
-	public void closeChest() {
-	}
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
@@ -217,7 +201,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	// IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(int packetType, ByteBuf data) {
 		if(packetType == Packets.AccessPortButton) {
 			byte newMetadata = data.readByte();
 			
@@ -254,11 +238,11 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			if(itemToDistribute == null) { return null; }
 
 			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te instanceof IItemConduit) {
+			/*if(te instanceof IItemConduit) {
 				IItemConduit conduit = (IItemConduit)te;
 				itemToDistribute = conduit.sendItems(itemToDistribute, dir.getOpposite());
-			}
-			else if(te instanceof IPipeTile) {
+			}*/
+			 if(te instanceof IPipeTile) {
 				IPipeTile pipe = (IPipeTile)te;
 				if(pipe.isPipeConnected(dir.getOpposite())) {
 					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
@@ -275,7 +259,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				}
 				else {
 					IInventory inv = (IInventory)te;
-					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Block.chest) {
+					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Blocks.chest) {
 						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 					}
 					helper = new InventoryHelper(inv);
@@ -295,6 +279,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
 		}
 		
-		onInventoryChanged();
 	}
+
 }

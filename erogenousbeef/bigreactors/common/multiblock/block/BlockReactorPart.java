@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.multiblock.block;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -9,15 +10,16 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatMessageComponent;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
+//import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
+//import powercrystals.minefactoryreloaded.api.rednet.RedNetConnectionType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
@@ -34,8 +36,8 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
-
-public class BlockReactorPart extends BlockContainer implements IConnectableRedNet, IPeripheralProvider {
+//implements IConnectableRedNet, IPeripheralProvider
+public class BlockReactorPart extends BlockContainer implements IPeripheralProvider   {
 	
 	public static final int CASING_METADATA_BASE = 0;	// Requires 5 "block types" to do properly.
 	public static final int CASING_CORNER = 1;
@@ -79,10 +81,10 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 		"coolantPort.outlet"
 	};
 	
-	private Icon[] _icons = new Icon[_subBlocks.length];
-	private Icon[] _redNetPortConfigIcons = new Icon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
+	private IIcon[] _icons = new IIcon[_subBlocks.length];
+	private IIcon[] _redNetPortConfigIcons = new IIcon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
 	
-	private Icon[] _subIcons = new Icon[_subIconNames.length];
+	private IIcon[] _subIcons = new IIcon[_subIconNames.length];
 	
 	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
 	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
@@ -95,15 +97,14 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public BlockReactorPart(Material material) {
 		super(material);
 		
-		setStepSound(soundMetalFootstep);
+		setStepSound(soundTypeMetal);
 		setHardness(2.0f);
 		setBlockName(BRLoader.MOD_ID+".blockReactorPart");
 		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockReactorPart");
 		setCreativeTab(BigReactors.TAB);
 	}
-
 	@Override
-    public IIcon getBlockTexture(IBlockAccess blockAccess, int x, int y, int z, int side) {
+    public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side) {
 		// TODO: Put all icon selection in here
 		int metadata = blockAccess.getBlockMetadata(x,y,z);
 
@@ -226,7 +227,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world,int var) {
 		// Uses the metadata-driven version for efficiency
 		return null;
 	}	
@@ -255,7 +256,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	
 	
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlockID) {
 		TileEntity te = world.getTileEntity(x, y, z);
 		// Signal power taps when their neighbors change, etc.
 		if(te instanceof INeighborUpdatableEntity) {
@@ -292,12 +293,12 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 						if(controller != null) {
 							Exception e = controller.getLastValidationException();
 							if(e != null) {
-								player.sendChatToPlayer(ChatMessageComponent.createFromText(e.getMessage()));
+								player.addChatComponentMessage(new ChatComponentText(e.getMessage()));
 								return true;
 							}
 						}
 						else {
-							player.sendChatToPlayer(ChatMessageComponent.createFromText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block."));
+							player.addChatComponentMessage(new ChatComponentText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block."));
 							return true;
 						}
 					}
@@ -385,9 +386,8 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	public ItemStack getCoolantPortItemStack() {
 		return new ItemStack(this, 1, COOLANTPORT);
 	}
-	
 	@Override
-	public void getSubBlocks(int par1, CreativeTabs par2CreativeTabs, List par3List)
+	public void getSubBlocks(Item par1, CreativeTabs par2CreativeTabs, List par3List)
 	{
 		par3List.add(getReactorCasingItemStack());
 		par3List.add(getReactorControllerItemStack());
@@ -399,7 +399,7 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 	}
 	
 	@Override
-	public void breakBlock(World world, int x, int y, int z, int blockId, int meta)
+	public void breakBlock(World world, int x, int y, int z, Block blockId, int meta)
 	{
 		// Drop everything inside inventory blocks
 		TileEntity te = world.getTileEntity(x, y, z);
@@ -428,7 +428,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 						amountToDrop = itemstack.stackSize;
 					}
 					itemstack.stackSize -= amountToDrop;
-					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.itemID, amountToDrop, itemstack.getItemDamage()));
+					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.getItem(), amountToDrop, itemstack.getItemDamage()));
 					if(itemstack.getTagCompound() != null)
 					{
 						entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound());
@@ -444,7 +444,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 
 		super.breakBlock(world, x, y, z, blockId, meta);
 	}
-	
+	/*
 	// IConnectableRedNet
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
@@ -499,7 +499,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
 		return;
-	}
+	}*/
 	
 	// IPeripheralProvider
 	@Override

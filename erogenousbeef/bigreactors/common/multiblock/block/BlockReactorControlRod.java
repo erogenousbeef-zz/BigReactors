@@ -27,7 +27,7 @@ public class BlockReactorControlRod extends BlockContainer {
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world) {
+	public TileEntity createNewTileEntity(World world,int var1) {
 		return null;
 	}
 

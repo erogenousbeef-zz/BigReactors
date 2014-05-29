@@ -1,10 +1,13 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.client.ClientProxy;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine.VentStatus;
@@ -17,7 +20,6 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiRpmBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 
@@ -220,8 +222,9 @@ public class GuiTurbineController extends BeefGuiBase {
 		if(button.id == 0 || button.id == 1) {
 			boolean setActive = button.id == 0;
 			if(setActive != turbine.isActive()) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockActivateButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, setActive }));
+				ByteBuf a=Unpooled.buffer();
+				a.writeBoolean(setActive);
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.MultiblockTurbineGovernorUpdate,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 			}
 		}
 		
@@ -242,8 +245,9 @@ public class GuiTurbineController extends BeefGuiBase {
 			newMax = Math.max(0, Math.min(turbine.getMaxIntakeRateMax(), turbine.getMaxIntakeRate() + newMax));
 
 			if(newMax != turbine.getMaxIntakeRate()) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockTurbineGovernorUpdate,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newMax }));
+				ByteBuf a=Unpooled.buffer();
+				a.writeInt(newMax);
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.MultiblockTurbineGovernorUpdate,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 			}
 		}
 		
@@ -262,8 +266,9 @@ public class GuiTurbineController extends BeefGuiBase {
 			}
 			
 			if(newStatus != turbine.getVentSetting()) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockTurbineVentUpdate,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus.ordinal() }));
+				ByteBuf a=Unpooled.buffer();
+				a.writeInt(newStatus.ordinal());
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.MultiblockTurbineVentUpdate,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 			}
 		}
 	}

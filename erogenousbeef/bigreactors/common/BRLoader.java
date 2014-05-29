@@ -2,13 +2,15 @@ package erogenousbeef.bigreactors.common;
 
 import java.util.Arrays;
 
+import li.cil.oc.api.Items;
+import welfare93.bigreactors.packet.MainPacket;
+import welfare93.bigreactors.packet.PacketHandler;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.Event.Result;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -20,22 +22,16 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
-import erogenousbeef.bigreactors.client.ClientPacketHandler;
-import erogenousbeef.bigreactors.net.ConnectionHandler;
-import erogenousbeef.bigreactors.net.ServerPacketHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import erogenousbeef.core.multiblock.MultiblockEventHandler;
 
 
 @Mod(modid = BigReactors.CHANNEL, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = BRConfig.MINECRAFT_VERSION)
-@NetworkMod(clientSideRequired = true, serverSideRequired = false, connectionHandler = ConnectionHandler.class, 
-			clientPacketHandlerSpec = @SidedPacketHandler(channels = { BigReactors.CHANNEL }, packetHandler = ClientPacketHandler.class),
-			serverPacketHandlerSpec = @SidedPacketHandler(channels = { BigReactors.CHANNEL }, packetHandler = ServerPacketHandler.class))
+
 public class BRLoader {
 
 	public static final String MOD_ID = "BigReactors";
-	
+	public static final PacketHandler packethandler=new PacketHandler();
 	@Instance(MOD_ID)
 	public static BRLoader instance;
 
@@ -89,16 +85,19 @@ public class BRLoader {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent evt) {
 		proxy.postInit();
+		packethandler.initialise();
+		packethandler.registerPacket(MainPacket.class);
+	        packethandler.postInitialise();
 	}
 	
 	// GAME EVENT HANDLERS
 	// FORGE EVENT HANDLERS
 
 	// Handle bucketing of reactor fluids
-	@ForgeSubscribe
+	@SubscribeEvent 
     public void onBucketFill(FillBucketEvent e)
     {
-            if(e.current.itemID != Item.bucketEmpty.itemID)
+            if(e.current.getItem() != net.minecraft.init.Items.bucket)
             {
                     return;
             }
@@ -107,15 +106,15 @@ public class BRLoader {
             {
                     e.world.setBlockToAir(e.target.blockX, e.target.blockY, e.target.blockZ);
                     e.result = filledBucket;
-                    e.setResult(Result.ALLOW);
+                    e.setResult(cpw.mods.fml.common.eventhandler.Event.Result.ALLOW);
             }
     }
     
     private ItemStack fillBucket(World world, MovingObjectPosition block)
     {
-            int blockId = world.getBlock(block.blockX, block.blockY, block.blockZ);
-            if(blockId == BigReactors.fluidCyaniteStill) return new ItemStack(BigReactors.fluidCyaniteBucketItem);
-            else if(blockId == BigReactors.fluidYelloriumStill) return new ItemStack(BigReactors.fluidYelloriumBucketItem);
+            Block blockd = world.getBlock(block.blockX, block.blockY, block.blockZ);
+            if(blockd == BigReactors.fluidCyaniteStill) return new ItemStack(BigReactors.fluidCyaniteBucketItem);
+            else if(blockd == BigReactors.fluidYelloriumStill) return new ItemStack(BigReactors.fluidYelloriumBucketItem);
             else return null;
     }
 }

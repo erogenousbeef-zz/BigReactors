@@ -18,7 +18,7 @@ public abstract class BeefGuiIconProgressBar extends BeefGuiVerticalProgressBar 
 	
 	@Override
 	protected void drawProgressBar(Tessellator tessellator, TextureManager renderEngine, int barMinX, int barMaxX, int barMinY, int barMaxY, int zLevel) {
-		Icon progressBarIcon = getProgressBarIcon();
+		IIcon progressBarIcon = getProgressBarIcon();
 		if(progressBarIcon == null) {
 			return;
 		}

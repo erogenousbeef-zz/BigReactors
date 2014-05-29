@@ -134,7 +134,6 @@ public class BigReactors {
 	public static int userWorldGenVersion = 0;
 
 	public static BREventHandler eventHandler = null;
-	public static BigReactorsTickHandler tickHandler = null;
 	public static BRWorldGenerator worldGenerator = null;
 	
 	private static boolean registeredTileEntities = false;
@@ -202,7 +201,7 @@ public class BigReactors {
 
 			if(enableWorldGen) {
 				worldGenerator = new BRWorldGenerator();
-				GameRegistry.registerWorldGenerator(worldGenerator);
+				GameRegistry.registerWorldGenerator(worldGenerator,5);//TODO: WTF
 			}
 			
 			// Patch up vanilla being stupid - most mods already do this, so it's usually a no-op
@@ -500,6 +499,7 @@ public class BigReactors {
 			registerYelloriumAsUranium = BRConfig.CONFIGURATION.get("Recipes", "registerYelloriumAsUranium", true, "If set, yellorium will be registered in the ore dictionary as ingotUranium as well as ingotYellorium. Otherwise, it will only be registered as ingotYellorium. (Default: true)").getBoolean(true);
 			BigReactors.ingotGeneric = new ItemIngot();
 
+			GameRegistry.registerItem(BigReactors.ingotGeneric, "bigreactorsIngot");
 			// Register all generic ingots & dusts
 			String itemName;
 			for(int i = 0; i < ItemIngot.TYPES.length; i++) {

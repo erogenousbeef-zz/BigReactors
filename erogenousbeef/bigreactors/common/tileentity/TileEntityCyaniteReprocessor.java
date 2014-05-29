@@ -1,11 +1,15 @@
 package erogenousbeef.bigreactors.common.tileentity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -38,10 +42,6 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 		return NUM_SLOTS;
 	}
 
-	@Override
-	public String getInvName() {
-		return "Cyanite Reprocessor";
-	}
 
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
@@ -160,4 +160,17 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 		else
 			return FLUIDTANK_NONE;
 	}
+
+	@Override
+	public int addEnergy(int energy) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int removeEnergy(int energy) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

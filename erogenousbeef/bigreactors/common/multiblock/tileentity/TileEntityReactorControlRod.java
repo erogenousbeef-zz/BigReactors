@@ -1,24 +1,27 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.FluidStack;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorControlRod;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorControlRod;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
@@ -104,7 +107,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	}
 	
 	@Override
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) {
 		if(buttonName.equals("rodInsert")) {
 			setControlRodInsertion((short)(this.controlRodInsertion + 10));
 		}
@@ -117,10 +120,11 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	protected void sendControlRodUpdate() {
 		if(this.worldObj == null || this.worldObj.isRemote) { return; }
 
-		Packet p = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ControlRodUpdate,
-				new Object[] { xCoord, yCoord, zCoord, controlRodInsertion });
-		
-		PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, p);
+
+		ByteBuf a=Unpooled.buffer();
+		a.writeShort(controlRodInsertion);
+		BRLoader.packethandler.sendToAllAround(new MainPacket(Packets.ControlRodUpdate,xCoord, yCoord, zCoord,a),new TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
+
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -194,15 +198,15 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	@Override
 	public void onMachineDeactivated() {
 	}
-	
+	/*
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packet) {
 		super.encodeDescriptionPacket(packet);
 		NBTTagCompound localData = new NBTTagCompound();
 		this.writeLocalDataToNBT(localData);
 		packet.setCompoundTag("reactorControlRod", localData);
-	}
-	
+	}*/
+	/*
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packet) {
 		super.decodeDescriptionPacket(packet);
@@ -216,7 +220,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 			}
 		}
 	}
-	
+	*/
 	public void setName(String newName) {
 		if(this.name.equals(newName)) { return; }
 		
@@ -229,4 +233,5 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	public String getName() {
 		return this.name;
 	}
+
 }

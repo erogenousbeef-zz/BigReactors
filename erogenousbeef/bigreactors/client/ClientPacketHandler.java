@@ -1,5 +1,5 @@
 package erogenousbeef.bigreactors.client;
-
+/*
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
-import erogenousbeef.bigreactors.net.PacketWrapper;
+
 import erogenousbeef.bigreactors.net.Packets;
 
 public class ClientPacketHandler implements IPacketHandler {
@@ -196,4 +196,4 @@ public class ClientPacketHandler implements IPacketHandler {
 		break;
 		}
 	}
-}
+}*/

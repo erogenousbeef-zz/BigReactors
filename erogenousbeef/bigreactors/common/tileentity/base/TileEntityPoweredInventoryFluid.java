@@ -1,11 +1,15 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.packet.Packet;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -13,10 +17,9 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class TileEntityPoweredInventoryFluid extends
@@ -60,9 +63,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		tankExposure[side.ordinal()] = tankIdx;
 		
 		if(!this.worldObj.isRemote) {
-			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineFluidExposureUpdate,
-																new Object[] { xCoord, yCoord, zCoord, side.ordinal(), tankIdx });
-			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+			ByteBuf a=Unpooled.buffer();
+			a.writeInt(side.ordinal());
+			a.writeInt(tankIdx);
+			BRLoader.packethandler.sendToAllAround(new MainPacket(Packets.SmallMachineFluidExposureUpdate,xCoord,yCoord,zCoord,a),new TargetPoint(worldObj.provider.dimensionId,xCoord,yCoord,zCoord,50));
 			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
 		}
 		
@@ -91,9 +95,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		}
 
 		if(tag.hasKey("fluids")) {
-			NBTTagList tagList = tag.getTagList("fluids");
+			NBTTagList tagList = tag.getTagList("fluids",1);
 			for(int i = 0; i < tagList.tagCount(); i++) {
-				NBTTagCompound fluidTag = (NBTTagCompound) tagList.tagAt(i);
+				NBTTagCompound fluidTag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 				int fluidIdx = fluidTag.getInteger("tagIdx");
 				FluidStack newFluid = FluidStack.loadFluidStackFromNBT(fluidTag);
 				tanks[fluidIdx].setFluid(newFluid);
@@ -102,9 +106,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		
 		resetFluidExposures();
 		if(tag.hasKey("fluidExposures")) {
-			NBTTagList exposureList = tag.getTagList("fluidExposures");
+			NBTTagList exposureList = tag.getTagList("fluidExposures",1);
 			for(int i = 0; i < exposureList.tagCount(); i++) {
-				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.tagAt(i);
+				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.getCompoundTagAt(i);
 				int exposureIdx = exposureTag.getInteger("exposureIdx");
 				tankExposure[exposureIdx] = exposureTag.getInteger("direction");
 			}

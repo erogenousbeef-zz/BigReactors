@@ -1,13 +1,14 @@
 package erogenousbeef.bigreactors.common;
 
+import welfare93.bigreactors.handlers.TickHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.world.ChunkDataEvent;
 
 public class BREventHandler {
 
-	@ForgeSubscribe
+	@SubscribeEvent 
 	public void chunkSave(ChunkDataEvent.Save saveEvent) {
 		if(BigReactors.enableWorldGen) {
 			NBTTagCompound saveData = saveEvent.getData();
@@ -17,7 +18,7 @@ public class BREventHandler {
 		}
 	}
 	
-	@ForgeSubscribe
+	@SubscribeEvent 
 	public void chunkLoad(ChunkDataEvent.Load loadEvent) {
 		if(!BigReactors.enableWorldRegeneration || !BigReactors.enableWorldGen) {
 			return;
@@ -34,7 +35,7 @@ public class BREventHandler {
 		}
 		
 		ChunkCoordIntPair coordPair = loadEvent.getChunk().getChunkCoordIntPair();
-		BigReactors.tickHandler.addRegenChunk(loadEvent.world.provider.dimensionId, coordPair);
+		TickHandler.instance.addRegenChunk(loadEvent.world.provider.dimensionId, coordPair);
 	}
 	
 }

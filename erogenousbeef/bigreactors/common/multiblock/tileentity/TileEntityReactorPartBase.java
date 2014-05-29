@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -40,7 +42,7 @@ public abstract class TileEntityReactorPartBase extends
 
 	// IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(int packetType, ByteBuf data) {
 		if(!this.isConnected()) {
 			return;
 		}

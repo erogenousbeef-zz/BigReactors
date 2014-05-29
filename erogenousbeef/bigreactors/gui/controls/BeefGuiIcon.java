@@ -33,7 +33,7 @@ public class BeefGuiIcon extends BeefGuiControlBase implements IBeefTooltipContr
 		tooltip = null;
 	}
 
-	public void setIcon(Icon icon) {
+	public void setIcon(IIcon icon) {
 		this.icon = icon;
 	}
 	

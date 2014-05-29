@@ -1,5 +1,5 @@
 package erogenousbeef.bigreactors.common;
-
+/*
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -89,3 +89,4 @@ public class BigReactorsTickHandler implements IScheduledTickHandler {
 		return 1;
 	}
 }
+*/

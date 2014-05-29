@@ -37,7 +37,7 @@ public class GuiCyaniteReprocessor extends BeefGuiSmallMachineBase {
 		int leftX = guiLeft + 8;
 		int topY = guiTop + 6;
 		
-		titleString = new BeefGuiLabel(this, _entity.getInvName(), leftX, topY);
+		titleString = new BeefGuiLabel(this, _entity.getInventoryName(), leftX, topY);
 		topY += titleString.getHeight() + 8;
 		
 		fluidBar = new BeefGuiFluidBar(this, guiLeft + 8, guiTop + 16, _entity, 0);

@@ -114,7 +114,7 @@ public abstract class FluidHelper {
 		for(int i = 0; i < tankNames.length; i++) {
 			stack = fluids[i];
 			if(stack != null) {
-				destination.setCompoundTag(tankNames[i], stack.writeToNBT(new NBTTagCompound()));
+				destination.setTag(tankNames[i], stack.writeToNBT(new NBTTagCompound()));
 			}
 		}
 		

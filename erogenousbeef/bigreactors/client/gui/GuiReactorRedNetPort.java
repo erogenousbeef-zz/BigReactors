@@ -1,14 +1,18 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
-import cpw.mods.fml.common.network.PacketDispatcher;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -20,7 +24,6 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiRedNetChannelSelector;
 import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabbable;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.core.common.CoordTriplet;
 
@@ -144,8 +147,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		this.subSettingForwardBtn 	= new GuiButton(1, guiLeft + 178, guiTop + 114, 20, 20, ">");
 		this.subSettingBackBtn 		= new GuiButton(2, guiLeft + 154, guiTop + 114, 20, 20, "<");
-		this.subSettingForwardBtn.drawButton = false;
-		this.subSettingBackBtn.drawButton = false;
+		this.subSettingForwardBtn.visible = false;
+		this.subSettingBackBtn.visible = false;
 		
 		this.buttonList.add(commitBtn);
 		this.buttonList.add(subSettingForwardBtn);
@@ -224,13 +227,9 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 0) {
-			Object[] packetData = getUpdatePacketData();
-			
-			PacketDispatcher.sendPacketToServer(
-					PacketWrapper.createPacket(BigReactors.CHANNEL,
-							Packets.RedNetSetData,
-							packetData)
-				);
+
+			BRLoader.packethandler.sendToServer(new MainPacket(Packets.RedNetSetData,port.xCoord, port.yCoord, port.zCoord,getUpdatePacketData()));
+
 		}
 		
 		if(button.id == 1 || button.id == 2) {
@@ -238,38 +237,33 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		}
 	}
 	
-	private Object[] getUpdatePacketData() {
-		List<Object> packetData = new LinkedList<Object>();
-		
-		packetData.add(port.xCoord);
-		packetData.add(port.yCoord);
-		packetData.add(port.zCoord);
-
+	private ByteBuf getUpdatePacketData() {
+		ByteBuf packetData = Unpooled.buffer();
 		for(int i = 0; i < TileEntityReactorRedNetPort.numChannels; i++) {
 			if(hasSettingChanged(i)) {
 				CircuitType circuitType = grabTargets[i].getCircuitType();
-				packetData.add(i);
-				packetData.add(circuitType.ordinal());
+				packetData.writeInt(i);
+				packetData.writeInt(circuitType.ordinal());
 				if(TileEntityReactorRedNetPort.canBeToggledBetweenPulseAndNormal(circuitType)) {
-					packetData.add(pulseActivated[i]);
+					packetData.writeBoolean(pulseActivated[i]);
 				}
 
 				if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(circuitType)) {
 					CoordTriplet coord = this.subSettingCoords[i];
 					if(coord == null) {
-						packetData.add(false);
+						packetData.writeBoolean(false);
 					}
 					else {
-						packetData.add(true);
-						packetData.add(coord.x);
-						packetData.add(coord.y);
-						packetData.add(coord.z);
+						packetData.writeBoolean(true);
+						packetData.writeInt(coord.x);
+						packetData.writeInt(coord.y);
+						packetData.writeInt(coord.z);
 					}
 				}
 			}
 		}
 		
-		return packetData.toArray();
+		return packetData;
 	}
 
 	@Override
@@ -302,23 +296,23 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		
 		if(TileEntityReactorRedNetPort.circuitTypeHasSubSetting(currentCircuitType)) {
 			subSettingString.setLabelText("Control Rod: ");
-			subSettingForwardBtn.drawButton = true;
-			subSettingBackBtn.drawButton = true;
+			subSettingForwardBtn.visible = true;
+			subSettingBackBtn.visible = true;
 		}
 		else if(TileEntityReactorRedNetPort.isInput(currentCircuitType) && TileEntityReactorRedNetPort.canBeToggledBetweenPulseAndNormal(currentCircuitType)) {
 			subSettingString.setLabelText("Activates On:");
-			subSettingForwardBtn.drawButton = true;
-			subSettingBackBtn.drawButton = true;
+			subSettingForwardBtn.visible = true;
+			subSettingBackBtn.visible = true;
 		}
 		else if(currentCircuitType == CircuitType.inputEjectWaste) {
 			subSettingString.setLabelText("Activates On:");
-			subSettingForwardBtn.drawButton = false;
-			subSettingBackBtn.drawButton = false;
+			subSettingForwardBtn.visible = false;
+			subSettingBackBtn.visible = false;
 		}
 		else {
 			subSettingString.setLabelText("");
-			subSettingForwardBtn.drawButton = false;
-			subSettingBackBtn.drawButton = false;
+			subSettingForwardBtn.visible = false;
+			subSettingBackBtn.visible = false;
 		}
 
 		updateSubSettingValueText();
@@ -329,7 +323,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			return "-- ALL --";
 		}
 		else {
-			TileEntity te = port.worldObj.getTileEntity(location.x, location.y, location.z);
+			TileEntity te = port.getWorldObj().getTileEntity(location.x, location.y, location.z);
 			if( te instanceof TileEntityReactorControlRod ) {
 				TileEntityReactorControlRod rod = (TileEntityReactorControlRod)te;
 				if( rod.getName().equals("")) {

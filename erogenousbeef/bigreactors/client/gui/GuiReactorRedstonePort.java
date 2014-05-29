@@ -1,5 +1,8 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +14,8 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.input.Keyboard;
 
-import cpw.mods.fml.common.network.PacketDispatcher;
+import welfare93.bigreactors.packet.MainPacket;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
@@ -19,7 +23,6 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.GuiSelectableButton;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public class GuiReactorRedstonePort extends BeefGuiBase {
@@ -137,7 +140,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		subInputRodSettingLabel = new BeefGuiLabel(this, "While On", leftX, topY);
 		subInputRodSettingOffLabel = new BeefGuiLabel(this, "While Off", leftX + xSize/2, topY);
 		
-		subOutputValue = new GuiTextField(this.fontRenderer, leftX, topY, 60, 12);
+		subOutputValue = new GuiTextField(this.getFontRenderer(), leftX, topY, 60, 12);
 		subOutputValue.setCanLoseFocus(true);
 		subOutputValue.setMaxStringLength(7);
 		subOutputValue.setText("0");
@@ -147,7 +150,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		
 		topY += subInputRodSettingLabel.getHeight() + 2;
 		
-		subInputRodSetting = new GuiTextField(this.fontRenderer, leftX, topY, 32, 12);
+		subInputRodSetting = new GuiTextField(this.getFontRenderer(), leftX, topY, 32, 12);
 		subInputRodSetting.setCanLoseFocus(true);
 		subInputRodSetting.setMaxStringLength(3);
 		subInputRodSetting.setText("0");
@@ -155,7 +158,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 
 		subInputRodSettingPctLabel = new BeefGuiLabel(this, "%", leftX + 34, topY + 2);
 
-		subInputRodSettingOff = new GuiTextField(this.fontRenderer, leftX + xSize/2, topY, 32, 12);
+		subInputRodSettingOff = new GuiTextField(this.getFontRenderer(), leftX + xSize/2, topY, 32, 12);
 		subInputRodSettingOff.setCanLoseFocus(true);
 		subInputRodSettingOff.setMaxStringLength(3);
 		subInputRodSettingOff.setText("0");
@@ -252,8 +255,8 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 	}
 	
 	private void updateSubSettingInputButton(CircuitType selectedSetting) {
-		subInputButton.drawButton = true;
-		subInputButton2.drawButton = false;
+		subInputButton.visible = true;
+		subInputButton2.visible = false;
 		switch(selectedSetting) {
 		case inputActive:
 			subInputButton.enabled = true;
@@ -267,7 +270,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 		case inputSetControlRod:
 			subInputButton.enabled = true;
 			if(this.activeOnPulse) {
-				subInputButton2.drawButton = true;
+				subInputButton2.visible = true;
 				if(this.greaterThan) {
 					if(this.retract) {
 						subInputButton.displayString = "Retract on Pulse";
@@ -303,7 +306,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			}
 			break;
 		default:
-			subInputButton.drawButton = false;
+			subInputButton.visible = false;
 		}
 	}
 
@@ -381,16 +384,12 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			CircuitType newCircuitType = getUserSelectedCircuitType();
 			int actualOutputLevel = this.outputLevel;
 			if(newCircuitType == CircuitType.inputSetControlRod && this.greaterThan && this.retract) { actualOutputLevel *= -1; }
-			
-			PacketDispatcher.sendPacketToServer(
-					PacketWrapper.createPacket(BigReactors.CHANNEL,
-							Packets.RedstoneSetData,
-							new Object[] {
-								port.xCoord, port.yCoord, port.zCoord, newCircuitType.ordinal(),
-								actualOutputLevel, this.greaterThan, this.activeOnPulse
-							}
-					)
-			);
+			ByteBuf a=Unpooled.buffer();
+			a.writeInt(newCircuitType.ordinal());
+			a.writeInt(actualOutputLevel);
+			a.writeBoolean(this.greaterThan);
+			a.writeBoolean(this.activeOnPulse);
+			BRLoader.packethandler.sendToServer(new MainPacket(Packets.RedstoneSetData,port.xCoord,port.yCoord,port.zCoord,a));
 		}
 		else if(clickedButton.id == 1) {
 			for(Entry<CircuitType, GuiSelectableButton> pair : btnMap.entrySet()) {
@@ -505,7 +504,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 										this.subOutputValue.isFocused();
 		
         if (keyCode == Keyboard.KEY_ESCAPE ||
-        		(!isAnyTextboxFocused && keyCode == this.mc.gameSettings.keyBindInventory.keyCode)) {
+        		(!isAnyTextboxFocused && keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode())) {
             this.mc.thePlayer.closeScreen();
         }
 

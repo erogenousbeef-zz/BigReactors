@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -37,7 +38,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			checkForAdjacentTank();
 		}
 	}
-	
+	/*
 	// MultiblockTileEntityBase
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
@@ -54,7 +55,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			setInlet(packetData.getBoolean("inlet"));
 		}
 	}
-	
+	*/
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
 	{
@@ -167,7 +168,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	// INeighborUpdatableEntity
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z,
-			int neighborBlockID) {
+			Block neighborBlockID) {
 		checkForAdjacentTank();
 	}
 

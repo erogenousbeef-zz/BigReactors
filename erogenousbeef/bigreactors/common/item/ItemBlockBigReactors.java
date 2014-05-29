@@ -1,11 +1,12 @@
 package erogenousbeef.bigreactors.common.item;
 
+import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
 public class ItemBlockBigReactors extends ItemBlock {
 
-		public ItemBlockBigReactors(int id) {
+		public ItemBlockBigReactors(Block id) {
 			super(id);
 			setHasSubtypes(true);
 		}

@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -98,7 +99,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		}
 	}
 	
-	public void onNeighborBlockChange(int x, int y, int z, int neighborBlockID) {
+	public void onNeighborBlockChange(int x, int y, int z, Block neighborBlockID) {
 		if(!this.isConnected()) { return; }
 
 		if(this.isInput()) {
@@ -246,7 +247,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	 */
 	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir) {
 		// This is because of bugs in vanilla redstone wires
-		int blockId = world.getBlock(x, y, z);
+		Block blockId = world.getBlock(x, y, z);
 		return isReceivingRedstonePowerFrom(world, x, y, z, dir, blockId);
 	}
 	
@@ -256,8 +257,8 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	 * If the block towards which this block is emitting power lies north,
 	 * then pass in south.
 	 */
-	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir, int neighborBlockId) {
-		if(neighborBlockId == Block.redstoneWire) {
+	private boolean isReceivingRedstonePowerFrom(World world, int x, int y, int z, ForgeDirection dir, Block neighborBlockId) {
+		if(neighborBlockId == Blocks.redstone_wire) {
 			// Use metadata because of vanilla redstone wire bugs
 			return world.getBlockMetadata(x, y, z) > 0;
 		}
@@ -271,7 +272,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	// Only refresh if we're switching functionality
 	// Warning: dragonz!
 	@Override
-    public boolean shouldRefresh(int oldID, int newID, int oldMeta, int newMeta, World world, int x, int y, int z)
+    public boolean shouldRefresh(Block oldID, Block newID, int oldMeta, int newMeta, World world, int x, int y, int z)
     {
 		if(oldID != newID) {
 			return true;
@@ -337,7 +338,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		super.writeToNBT(data);
 		this.writeData(data);
 	}
-	
+	/*
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		super.decodeDescriptionPacket(data);
@@ -352,7 +353,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		data.setBoolean("greaterThan", this.greaterThan);
 		data.setBoolean("activeOnPulse", this.activeOnPulse);
 	}
-	
+	*/
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not as part of the frame", xCoord, yCoord, zCoord));

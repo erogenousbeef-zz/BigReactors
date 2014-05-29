@@ -1,18 +1,24 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import welfare93.bigreactors.energy.IEnergyHandler;
+import welfare93.bigreactors.energy.IEnergyHandlerInput;
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -22,10 +28,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
-import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 import erogenousbeef.bigreactors.api.IHeatEntity;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -43,7 +47,6 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorC
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
@@ -52,7 +55,7 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo, IMultipleFluidHandler {
+public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandlerInput, IReactorFuelInfo, IMultipleFluidHandler {
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4 * AmountPerIngot; // 4 ingots per rod
 	
@@ -109,7 +112,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	
 	public MultiblockReactor(World world) {
 		super(world);
-
+		
 		// Game stuff
 		active = false;
 		reactorHeat = 0f;
@@ -657,7 +660,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		onFuelStatusChanged();
 	}
 
-	protected Packet getUpdatePacket() {
+	protected MainPacket getUpdatePacket() {
 		Fluid fuelType, wasteType, coolantType, vaporType;
 		fuelType = fuelContainer.getFuelType();
 		wasteType = fuelContainer.getWasteType();
@@ -671,30 +674,27 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		vaporTypeID = vaporType == null ? -1 : vaporType.getID();
 		
 		CoordTriplet coord = getReferenceCoord();
-
-		return PacketWrapper.createPacket(BigReactors.CHANNEL,
-				 Packets.ReactorControllerFullUpdate,
-				 new Object[] { coord.x,
-								coord.y,
-								coord.z,
-								this.active,
-								this.reactorHeat,
-								energyStored,
-								this.energyGeneratedLastTick,
-								this.fuelConsumedLastTick,
-								this.fuelHeat,
-								fuelTypeID,
-								fuelContainer.getFuelAmount(),
-								wasteTypeID,
-								fuelContainer.getWasteAmount(),
-								radiationHelper.getFertility(),
-								coolantTypeID,
-								coolantContainer.getCoolantAmount(),
-								vaporTypeID,
-								coolantContainer.getVaporAmount()});
+		ByteBuf value=Unpooled.buffer();
+		value.writeBoolean(this.active);
+		value.writeFloat(this.reactorHeat);
+		value.writeFloat(energyStored);
+		value.writeFloat(this.energyGeneratedLastTick);
+		value.writeFloat(this.fuelConsumedLastTick);
+		value.writeFloat(this.fuelHeat);
+		value.writeInt(fuelTypeID);
+		value.writeInt(fuelContainer.getFuelAmount());
+		value.writeInt(wasteTypeID);
+		value.writeInt(fuelContainer.getWasteAmount());
+		value.writeFloat(radiationHelper.getFertility());
+		value.writeInt(coolantTypeID);
+		value.writeInt(coolantContainer.getCoolantAmount());
+		value.writeInt(vaporTypeID);
+		value.writeInt(coolantContainer.getVaporAmount());
+		MainPacket output=new MainPacket(Packets.ReactorControllerFullUpdate, coord.x, coord.y, coord.z, value);
+		return output;
 	}
 	
-	public void receiveReactorUpdate(DataInputStream data) throws IOException {
+	public void receiveReactorUpdate(ByteBuf data)  {
 		boolean active = data.readBoolean();
 		float heat = data.readFloat();
 		float storedEnergy = data.readFloat();
@@ -754,8 +754,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	 */
 	protected void sendIndividualUpdate(EntityPlayer player) {
 		if(this.worldObj.isRemote) { return; }
-
-		PacketDispatcher.sendPacketToPlayer(getUpdatePacket(), (Player)player);
+		BRLoader.packethandler.sendTo(getUpdatePacket(), (EntityPlayerMP)player);
 	}
 	
 	/**
@@ -766,10 +765,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(this.worldObj.isRemote) { return; }
 		if(this.updatePlayers.size() <= 0) { return; }
 		
-		Packet data = getUpdatePacket();
+		MainPacket data = getUpdatePacket();
 
 		for(EntityPlayer player : updatePlayers) {
-			PacketDispatcher.sendPacketToPlayer(data, (Player)player);
+			BRLoader.packethandler.sendTo(data, (EntityPlayerMP)player);
 		}
 	}
 	
@@ -867,15 +866,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(!this.worldObj.isRemote) {
 				if(this.updatePlayers.size() > 0) {
 					CoordTriplet coord = getReferenceCoord();
-					Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL,
-							 Packets.ReactorWasteEjectionSettingUpdate,
-							 new Object[] { coord.x,
-											coord.y,
-											coord.z,
-											this.wasteEjection.ordinal() });
+					ByteBuf a=Unpooled.buffer();
+					a.writeInt(this.wasteEjection.ordinal());
+					MainPacket updatePacket = new MainPacket(Packets.ReactorWasteEjectionSettingUpdate, coord.x, coord.y, coord.z, a);
 					
 					for(EntityPlayer player : updatePlayers) {
-						PacketDispatcher.sendPacketToPlayer(updatePacket, (Player)player);
+						BRLoader.packethandler.sendTo(updatePacket, (EntityPlayerMP)player);
 					}
 				}
 			}
@@ -1241,31 +1237,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		else { return (float)amtFuel / (float)(amtFuel+amtWaste); }
 	}
 
-	/** DO NOT USE **/
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive,
-			boolean simulate) {
-		int amtReceived = (int)Math.min(maxReceive, Math.floor(this.maxEnergyStored - this.energyStored));
-		if(!simulate) {
-			this.addStoredEnergy(amtReceived);
-		}
-		return amtReceived;
-	}
-
-	@Override
-	public int extractEnergy(ForgeDirection from, int maxExtract,
-			boolean simulate) {
-		int amtRemoved = (int)Math.min(maxExtract, this.energyStored);
-		if(!simulate) {
-			this.reduceStoredEnergy(amtRemoved);
-		}
-		return amtRemoved;
-	}
-
-	@Override
-	public boolean canInterface(ForgeDirection from) {
-		return false;
-	}
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
@@ -1420,5 +1391,51 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		TileEntity saveTe = worldObj.getTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
+	}
+
+	@Override
+	public double demandedEnergyUnits() {
+		// TODO Auto-generated method stub
+		
+		return Math.floor(this.maxEnergyStored - this.energyStored);
+	}
+
+	@Override
+	public double injectEnergyUnits(ForgeDirection directionFrom, double amount) {
+		int amtReceived = (int)Math.min(amount, Math.floor(this.maxEnergyStored - this.energyStored));
+			this.addStoredEnergy(amtReceived);
+		return amtReceived;
+	}
+
+	@Override
+	public int getMaxSafeInput() {
+		// TODO Auto-generated method stub
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public boolean acceptsEnergyFrom(TileEntity emitter,
+			ForgeDirection direction) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int addEnergy(int energy) {
+		int c=(int)Math.max(0, energyStored+energy-maxEnergyStored);
+		energyStored=Math.min(maxEnergyStored, energyStored+energy);
+		return c;
+	}
+
+	@Override
+	public int removeEnergy(int energy) {
+		if(energy>energyStored)
+		{
+			int c=(int)energyStored;
+			energyStored=0;
+			return c;
+		}
+		energyStored-=energy;
+		return energy;
 	}
 }

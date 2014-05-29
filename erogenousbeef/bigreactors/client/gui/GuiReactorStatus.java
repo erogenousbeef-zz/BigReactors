@@ -1,10 +1,13 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import welfare93.bigreactors.packet.MainPacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import erogenousbeef.bigreactors.client.ClientProxy;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
@@ -18,7 +21,6 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiIcon;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.FloatAverager;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -85,7 +87,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		btnWasteManual = new GuiIconButton(4, guiLeft + 22, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteManual_off"));
 		btnWasteEject = new GuiIconButton(5, guiLeft + 50, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"));
 
-		btnWasteEject.drawButton = false;
+		btnWasteEject.visible = false;
 
 		btnWasteAutoEject.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Auto-Eject Waste", "Waste in the core will be ejected", "as soon as possible" });
 		btnWasteManual.setTooltip(new String[] { GuiConstants.LITECYAN_TEXT + "Do Not Auto-Eject Waste", GuiConstants.VIOLET_TEXT + "Waste must be manually ejected.", "", "Ejection can be done from this", "screen, or via rednet,", "redstone or computer port signals."});
@@ -199,8 +201,9 @@ public class GuiReactorStatus extends BeefGuiBase {
 		if(button.id == 0 || button.id == 1) {
 			boolean newSetting = button.id == 0;
 			if(newSetting != reactor.isActive()) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.MultiblockActivateButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newSetting }));
+				ByteBuf a=Unpooled.buffer();
+				a.writeBoolean(newSetting);
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.MultiblockActivateButton,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 			}
 		}
 		else if(button.id >= 2 && button.id <= 4) {
@@ -215,13 +218,17 @@ public class GuiReactorStatus extends BeefGuiBase {
 			}
 			
 			if(reactor.getWasteEjection() != newEjectionSetting) {
-				PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorWasteEjectionSettingUpdate, 
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, newEjectionSetting.ordinal() } ));
+				ByteBuf a=Unpooled.buffer();
+				a.writeInt(newEjectionSetting.ordinal());
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.ReactorWasteEjectionSettingUpdate,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 			}
 		}
 		else if(button.id == 5) {
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.ReactorEjectButton,
-						new Object[] { saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown(), false }));
+			ByteBuf a=Unpooled.buffer();
+			a.writeBoolean(false);
+			a.writeBoolean(isShiftKeyDown());
+			a.writeBoolean(false);
+			BRLoader.packethandler.sendToServer(new MainPacket(Packets.ReactorEjectButton,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 		}
 	}
 	
@@ -259,13 +266,13 @@ public class GuiReactorStatus extends BeefGuiBase {
 		case kAutomatic:
 			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_ON));
 			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_MANUAL_OFF));
-			btnWasteEject.drawButton = false;
+			btnWasteEject.visible = false;
 			break;
 		case kManual:
 		default:
 			btnWasteAutoEject.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_EJECT_OFF));
 			btnWasteManual.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.WASTE_MANUAL_ON));
-			btnWasteEject.drawButton = true;
+			btnWasteEject.visible = true;
 			break;
 		}
 	}

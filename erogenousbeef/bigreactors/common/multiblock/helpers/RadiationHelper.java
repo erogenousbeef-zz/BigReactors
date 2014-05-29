@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -130,12 +131,11 @@ public class RadiationHelper {
 			moderateByAir(data, radiation);
 		}
 		else {
-			int blockID = world.getBlock(x, y, z);
-			if(blockID > 0 && blockID < Block.blocksList.length) {
-				Block b = Block.blocksList[blockID];
+			Block blockID = world.getBlock(x, y, z);
+			if(blockID!=null) {
 				
-				if(b instanceof IFluidBlock) {
-					moderateByFluid(data, radiation, ((IFluidBlock)b).getFluid());
+				if(blockID instanceof IFluidBlock) {
+					moderateByFluid(data, radiation, ((IFluidBlock)blockID).getFluid());
 				}
 				else {
 					// Go by block id
@@ -154,19 +154,19 @@ public class RadiationHelper {
 		applyModerationFactors(data, radiation, airData);
 	}
 	
-	private void moderateByBlock(RadiationData data, RadiationPacket radiation, int blockID, int metadata) {
+	private void moderateByBlock(RadiationData data, RadiationPacket radiation, Block blockID, int metadata) {
 		ReactorInteriorData moderatorData = null;
 
-		if(blockID == Block.blockIron) {
+		if(blockID == Blocks.iron_block) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockIron");
 		}
-		else if(blockID == Block.blockGold) {
+		else if(blockID == Blocks.gold_block) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockGold");
 		}
-		else if(blockID == Block.blockDiamond) {
+		else if(blockID == Blocks.diamond_block) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
 		}
-		else if(blockID == Block.blockEmerald) {
+		else if(blockID == Blocks.emerald_block) {
 			moderatorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
 		}
 		else {

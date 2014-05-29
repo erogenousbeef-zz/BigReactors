@@ -1,15 +1,16 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import welfare93.bigreactors.energy.IEnergyHandlerOutput;
+import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import cofh.api.energy.IEnergyHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard implements IEnergyHandler, INeighborUpdatableEntity {
+public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard implements IEnergyHandlerOutput, INeighborUpdatableEntity {
 
-	IEnergyHandler 	rfNetwork;
+	IEnergyHandlerOutput	rfNetwork;
 	
 	public TileEntityTurbinePowerTap() {
 		super();
@@ -18,7 +19,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 
 	// INeighborUpdatableEntity
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlockID) {
 		checkForConnections(world, x, y, z);
 	}
 	
@@ -35,7 +36,6 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		
 		if(!this.worldObj.isRemote) { 
 			// Force a connection to neighboring objects
-			this.onInventoryChanged();
 		}
 	}
 	
@@ -48,7 +48,6 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		
 		if(!this.worldObj.isRemote) { 
 			// Force a connection to neighboring objects
-			this.onInventoryChanged();
 		}
 	}
 	
@@ -73,8 +72,8 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 			TileEntity te = world.getTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(!(te instanceof TileEntityReactorPowerTap)) {
 				// Skip power taps, as they implement these APIs and we don't want to shit energy back and forth
-				if(te instanceof IEnergyHandler) {
-					rfNetwork = (IEnergyHandler)te;
+				if(te instanceof IEnergyHandlerOutput) {
+					rfNetwork = (IEnergyHandlerOutput)te;
 				}
 			}
 		}
@@ -95,7 +94,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		}
 
 		ForgeDirection approachDirection = getOutwardsDir().getOpposite();
-		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, (int)units, false);
+		int energyConsumed = rfNetwork.addEnergy(units);
 		units -= energyConsumed;
 		
 		return units;
@@ -104,27 +103,8 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 
 	// IEnergyHandler
 
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive,
-			boolean simulate) {
-		// HAHA NO
-		return 0;
-	}
 
-	@Override
-	public int extractEnergy(ForgeDirection from, int maxExtract,
-			boolean simulate) {
-		if(!this.isConnected()) { return 0; }
 
-		return getTurbine().extractEnergy(from, maxExtract, simulate);
-	}
-
-	@Override
-	public boolean canInterface(ForgeDirection from) {
-		if(!this.isConnected()) { return false; }
-
-		return from == getOutwardsDir();
-	}
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
@@ -138,6 +118,34 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		if(!this.isConnected()) { return 0; }
 
 		return getTurbine().getMaxEnergyStored(from);
+	}
+
+	@Override
+	public double getOfferedEnergy() {
+		if(!this.isConnected()) { return 0; }
+		return getTurbine().getEnergyStored();
+	}
+
+	@Override
+	public void drawEnergy(double amount) {
+		getTurbine().removeEnergy((int)amount);
+		
+	}
+
+	@Override
+	public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection direction) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public int addEnergy(int energy) {
+		return getTurbine().addEnergy(energy);
+	}
+
+	@Override
+	public int removeEnergy(int energy) {
+		return getTurbine().removeEnergy(energy);
 	}
 
 }

@@ -1,13 +1,18 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import scala.PartialFunction.Unlifted;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import welfare93.bigreactors.packet.MainPacket;
+import welfare93.bigreactors.packet.PacketHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraftforge.common.util.ForgeDirection;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
@@ -75,8 +80,10 @@ public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 	protected void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		if(button.id >= EXPOSURE_BUTTON_ID_BASE && button.id < EXPOSURE_BUTTON_ID_BASE + 6) {
-			PacketDispatcher.sendPacketToServer(PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.BeefGuiButtonPress,
-						new Object[] { _entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id - EXPOSURE_BUTTON_ID_BASE }));
+			ByteBuf a=Unpooled.buffer();
+			PacketHandler.encodeString("changeInvSide", a);
+			a.writeInt(button.id- EXPOSURE_BUTTON_ID_BASE);
+			BRLoader.packethandler.sendToServer(new MainPacket(Packets.BeefGuiButtonPress, _entity.xCoord, _entity.yCoord, _entity.zCoord, a));
 			return;
 		}
 	}

@@ -1,11 +1,12 @@
 package erogenousbeef.bigreactors.client;
 
+import welfare93.bigreactors.handlers.TickHandler;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.renderer.RotorSimpleRenderer;
@@ -17,7 +18,6 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorBearing;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
-import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
@@ -37,8 +37,7 @@ public class ClientProxy extends CommonProxy {
 	public void init()
 	{
 		super.init();
-
-		TickRegistry.registerTickHandler(new MultiblockClientTickHandler(), Side.CLIENT);
+		FMLCommonHandler.instance().bus().register(new TickHandler());
 		
 		BlockFuelRod.renderId = RenderingRegistry.getNextAvailableRenderId();
 		ISimpleBlockRenderingHandler fuelRodISBRH = new SimpleRendererFuelRod();
@@ -55,9 +54,9 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent 
 	public void registerBlockIcons(TextureStitchEvent.Pre event) {
-		if(event.map.textureType == BeefIconManager.TERRAIN_TEXTURE) {
+		if(event.map.getTextureType() == BeefIconManager.TERRAIN_TEXTURE) {
 			BigReactors.registerNonBlockFluidIcons(event.map);
 			GuiIcons.registerBlockIcons(event.map);
 		}
@@ -66,7 +65,7 @@ public class ClientProxy extends CommonProxy {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent 
 	public void setIcons(TextureStitchEvent.Post event) {
 		BigReactors.setNonBlockFluidIcons();
 	}

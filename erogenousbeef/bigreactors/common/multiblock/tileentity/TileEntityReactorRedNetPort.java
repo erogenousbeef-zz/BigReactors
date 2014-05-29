@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -11,8 +13,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import powercrystals.minefactoryreloaded.api.rednet.IConnectableRedNet;
-import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
@@ -53,8 +53,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 
 	public final static int numChannels = 16;
 	
-	IRedNetNetworkContainer redNetwork;
-	IConnectableRedNet redNetConnectable;
+	//IRedNetNetworkContainer redNetwork;
+	//IConnectableRedNet redNetConnectable;
 
 	int ticksSinceLastUpdate;
 	
@@ -73,8 +73,8 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			oldValue[i] = 0;
 		}
 		
-		redNetwork = null;
-		redNetConnectable = null;
+		//redNetwork = null;
+		//redNetConnectable = null;
 
 		ticksSinceLastUpdate = 0;
 	}
@@ -86,7 +86,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 
 		if(this.worldObj.isRemote) { return; } 
 		
-		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+		//checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 
 		if(this.worldObj.isRemote) { return; } 
 		
-		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
+		/*checkForConnections(this.worldObj, xCoord, yCoord, zCoord);*/
 	}
 
 	@Override
@@ -115,12 +115,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		super.writeToNBT(par1NBTTagCompound);
 		encodeSettings(par1NBTTagCompound);
 	}
-	
+	/*
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
 		super.encodeDescriptionPacket(packetData);
 		encodeSettings(packetData);
-	}
+	}*/
 	
 	@Override
 	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
@@ -128,12 +128,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		super.readFromNBT(par1NBTTagCompound);
 		decodeSettings(par1NBTTagCompound);
 	}
-	
+	/*
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		super.decodeDescriptionPacket(packetData);
 		decodeSettings(packetData);
-	}
+	}*/
 
 	// RedNet API
 	public int[] getOutputValues() {
@@ -232,13 +232,13 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	
 	// Public RedNet helpers for GUI & updates
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
-		checkForConnections(world, x, y, z);
+		/*checkForConnections(world, x, y, z);*/
 	}
 	
 	/**
 	 * Updates the connected RedNet network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
-	 */
+	 *//*
 	public void onMultiblockServerTick() {
 		if(!this.isConnected()) { return; }
 
@@ -256,7 +256,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		}
 
 		ticksSinceLastUpdate = 0;
-	}
+	}*/
 
 	public CircuitType getChannelCircuitType(int channel) {
 		if(channel < 0 || channel >= numChannels) { return CircuitType.DISABLED; }
@@ -353,7 +353,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 
 	// Decodes setting changes from an update packet
-	public void decodeSettings(DataInputStream data, boolean doValidation) throws IOException {
+	public void decodeSettings(ByteBuf data, boolean doValidation)  {
 		int channel;
 		for(;;) {
 			try {
@@ -378,7 +378,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 						if(coord != null) {
 							TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
 							if(!(te instanceof TileEntityReactorControlRod)) {
-								throw new IOException("Invalid TileEntity for RedNet Port settings at " + coord.toString());
 							}
 						}
 					}
@@ -386,7 +385,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 					coordMappings[channel] = coord;
 				}
 			}
-			catch(EOFException e) {
+			catch(Exception e) {
 				// Expected, halt execution
 				// And send the update to all nearby clients
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -407,9 +406,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 	
 	protected void decodeSettings(NBTTagCompound source) {
-		NBTTagList tagArray = source.getTagList("redNetConfig");
+		NBTTagList tagArray = source.getTagList("redNetConfig",1);
 		for(int i = 0; i < tagArray.tagCount(); i++) {
-			decodeSetting( (NBTTagCompound)tagArray.tagAt(i) );
+			decodeSetting( (NBTTagCompound)tagArray.getCompoundTagAt(i) );
 		}
 	}
 	
@@ -419,7 +418,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	 * @param x
 	 * @param y
 	 * @param z
-	 */
+	 *//*
 	protected void checkForConnections(World world, int x, int y, int z) {
 		ForgeDirection out = getOutwardsDir();
 
@@ -432,7 +431,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			redNetwork = null;
 			redNetConnectable = null;
 
-			Block b = Block.blocksList[worldObj.getBlock(x + out.offsetX, y + out.offsetY, z + out.offsetZ)];
+			Block b = worldObj.getBlock(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(!(b instanceof BlockReactorPart)) {
 				if(b instanceof IRedNetNetworkContainer) {
 					redNetwork = (IRedNetNetworkContainer)b;
@@ -442,7 +441,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 				}
 			}
 		}
-	}
+	}*/
 
 	// Static Helpers
 	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
@@ -455,4 +454,17 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 
 	public static boolean isInput(CircuitType type) { return type.ordinal() >= minInputEnumValue && type.ordinal() <= maxInputEnumValue; }
 	public static boolean isOutput(CircuitType type) { return type.ordinal() >= minOutputEnumValue && type.ordinal() <= maxOutputEnumValue; }
+
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z,
+			Block neighborBlockID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMultiblockServerTick() {
+		// TODO Auto-generated method stub
+		
+	}
 }

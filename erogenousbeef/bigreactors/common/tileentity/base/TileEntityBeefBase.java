@@ -1,5 +1,8 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,20 +10,17 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 
 public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiEntity {
@@ -61,8 +61,9 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 
 		forwardFace = newDirection;
 		if(!worldObj.isRemote) {
-			Packet updatePacket = PacketWrapper.createPacket(BigReactors.CHANNEL, Packets.SmallMachineRotationUpdate, new Object[] { xCoord, yCoord, zCoord, newDirection.ordinal() });
-			PacketDispatcher.sendPacketToAllAround(xCoord, yCoord, zCoord, 50, worldObj.provider.dimensionId, updatePacket);
+			ByteBuf a=Unpooled.buffer();
+			a.writeInt(newDirection.ordinal());
+			BRLoader.packethandler.sendToAllAround(new MainPacket(Packets.SmallMachineRotationUpdate,xCoord,yCoord,zCoord,a), new TargetPoint(worldObj.provider.dimensionId,xCoord,yCoord,zCoord,50));
 		}
 	}
 	
@@ -91,6 +92,7 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	}
 	
 	// Network Communication
+	/*
 	@Override
 	public Packet getDescriptionPacket()
 	{
@@ -103,7 +105,7 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	@Override
 	public void onDataPacket(INetworkManager network, Packet132TileEntityData packet) {
 		this.readFromNBT(packet.data);
-	}
+	}*/
 	
 	@Override
 	public void updateEntity() {
@@ -131,41 +133,24 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		updatePlayers.remove(player);
 	}
 	
-	protected Packet getUpdatePacket() {
+	protected MainPacket getUpdatePacket() {
 		NBTTagCompound childData = new NBTTagCompound();
 		onSendUpdate(childData);
-		
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream data = new DataOutputStream(bytes);
-		try
-		{
-			data.write(Packets.SmallMachineUIUpdate);
-			data.writeInt(this.xCoord);
-			data.writeInt(this.yCoord);
-			data.writeInt(this.zCoord);
-
-			// Taken from Packet.java
-            byte[] abyte = CompressedStreamTools.compress(childData);
-            data.writeShort((short)abyte.length);
-            data.write(abyte);
-		}
-		catch (IOException e)
-		{
+		ByteBuf a=Unpooled.buffer();
+        byte[] abyte;
+		try {
+			abyte = CompressedStreamTools.compress(childData);
+	        a.writeShort((short)abyte.length);
+	        a.writeBytes(abyte);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		Packet250CustomPayload newPacket = new Packet250CustomPayload();
-		newPacket.channel = BigReactors.CHANNEL;
-		newPacket.data = bytes.toByteArray();
-		newPacket.length = newPacket.data.length;
-		
-		return newPacket;
+		return new MainPacket(Packets.SmallMachineUIUpdate,xCoord,yCoord,zCoord,a);
 	}
 	
 	private void sendUpdatePacketToClient(EntityPlayer recipient) {
 		if(this.worldObj.isRemote) { return; }
-
-		PacketDispatcher.sendPacketToPlayer(getUpdatePacket(), (Player)recipient);
+		BRLoader.packethandler.sendTo(getUpdatePacket(), (EntityPlayerMP)recipient);
 		
 	}
 	
@@ -173,10 +158,10 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		if(this.worldObj.isRemote) { return; }
 		if(this.updatePlayers.size() <= 0) { return; }
 		
-		Packet data = getUpdatePacket();
+		MainPacket data = getUpdatePacket();
 
 		for(EntityPlayer player : updatePlayers) {
-			PacketDispatcher.sendPacketToPlayer(data, (Player)player);
+			BRLoader.packethandler.sendTo(getUpdatePacket(), (EntityPlayerMP)player);
 		}
 	}
 	

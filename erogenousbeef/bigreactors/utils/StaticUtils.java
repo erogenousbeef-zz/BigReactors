@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.utils;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
@@ -54,7 +55,7 @@ public class StaticUtils {
 			{
 				if(stack.getItem().hasContainerItem())
 				{
-					return stack.getItem().getContainerItemStack(stack);
+					return stack.getItem().getContainerItem(stack);
 				}
 				else
 				{
@@ -76,7 +77,7 @@ public class StaticUtils {
 			if(player.inventory.getCurrentItem() == null) { 
 				return false;
 			}
-			Item currentItem = Item.itemsList[player.inventory.getCurrentItem().itemID];
+			Item currentItem = player.inventory.getCurrentItem().getItem();
 			return currentItem instanceof IToolWrench;
 		}
 		
@@ -122,7 +123,7 @@ public class StaticUtils {
 
 		public static IInventory checkForDoubleChest(World worldObj, IInventory te, int x, int y, int z) {
 			for(ForgeDirection dir : chestDirections) {
-				if(worldObj.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == Block.chest) {
+				if(worldObj.getBlock(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ) == Blocks.chest) {
 					TileEntity otherTe = worldObj.getTileEntity(x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
 					if(otherTe instanceof IInventory) {
 						return new InventoryLargeChest("Large Chest", te, (IInventory)otherTe);

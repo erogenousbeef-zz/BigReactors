@@ -1,9 +1,9 @@
 package erogenousbeef.core.multiblock;
 
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.event.EventPriority;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -14,7 +14,7 @@ import net.minecraftforge.event.world.WorldEvent;
  * process any blocks that are in chunks which are still loading.
  */
 public class MultiblockEventHandler {
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent (priority = EventPriority.NORMAL)
 	public void onChunkLoad(ChunkEvent.Load loadEvent) {
 		Chunk chunk = loadEvent.getChunk();
 		World world = loadEvent.world;
@@ -22,7 +22,7 @@ public class MultiblockEventHandler {
 	}
 
 	// Cleanup, for nice memory usageness
-	@ForgeSubscribe(priority = EventPriority.NORMAL)
+	@SubscribeEvent(priority = EventPriority.NORMAL)
 	public void onWorldUnload(WorldEvent.Unload unloadWorldEvent) {
 		MultiblockRegistry.onWorldUnloaded(unloadWorldEvent.world);
 	}

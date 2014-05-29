@@ -1,16 +1,22 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import welfare93.bigreactors.energy.IEnergyHandler;
+import welfare93.bigreactors.energy.IEnergyHandlerOutput;
+import welfare93.bigreactors.packet.MainPacket;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -20,9 +26,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.oredict.OreDictionary;
-import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
@@ -37,7 +41,6 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
-import erogenousbeef.bigreactors.net.PacketWrapper;
 import erogenousbeef.bigreactors.net.Packets;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
@@ -46,7 +49,7 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
+public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandlerOutput, IMultipleFluidHandler, ISlotlessUpdater {
 
 	public enum VentStatus {
 		VentOverflow,
@@ -166,10 +169,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	protected void sendIndividualUpdate(EntityPlayer player) {
 		if(this.worldObj.isRemote) { return; }
 
-		PacketDispatcher.sendPacketToPlayer(getUpdatePacket(), (Player)player);
+		BRLoader.packethandler.sendTo(getUpdatePacket(), (EntityPlayerMP)player);
 	}
 
-	protected Packet getUpdatePacket() {
+	protected MainPacket getUpdatePacket() {
 		// Capture compacted fluid data first
 		int inputFluidID, inputFluidAmt, outputFluidID, outputFluidAmt;
 		
@@ -196,24 +199,23 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 
 		CoordTriplet referenceCoord = getReferenceCoord();
-		return PacketWrapper.createPacket(BigReactors.CHANNEL,
-				 Packets.MultiblockTurbineFullUpdate,
-				 new Object[] { referenceCoord.x,
-								referenceCoord.y,
-								referenceCoord.z, 
-								inputFluidID,
-								inputFluidAmt,
-								outputFluidID,
-								outputFluidAmt,
-								energyStored,
-								rotorEnergy,
-								energyGeneratedLastTick,
-								maxIntakeRate,
-								active,
-								ventStatus.ordinal(),
-								fluidConsumedLastTick,
-								rotorEfficiencyLastTick
-		});
+		CoordTriplet coord = getReferenceCoord();
+		ByteBuf value=Unpooled.buffer();
+		value.writeInt(inputFluidID);
+		value.writeInt(inputFluidAmt);
+		value.writeInt(outputFluidID);
+		value.writeInt(outputFluidAmt);
+		value.writeFloat(energyStored);
+		value.writeFloat(rotorEnergy);
+		value.writeFloat(energyGeneratedLastTick);
+		value.writeInt(maxIntakeRate);
+		value.writeBoolean(active);
+		value.writeInt(ventStatus.ordinal());
+		value.writeInt(fluidConsumedLastTick);
+		value.writeFloat(rotorEfficiencyLastTick);
+		MainPacket output=new MainPacket(Packets.MultiblockTurbineFullUpdate, referenceCoord.x, referenceCoord.y, referenceCoord.z, value);
+		return output;
+		
 	}
 
 	/**
@@ -221,7 +223,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	 * @param data The data input stream containing the update data.
 	 * @throws IOException
 	 */
-	public void onReceiveUpdatePacket(DataInputStream data) throws IOException {
+	public void onReceiveUpdatePacket(ByteBuf data){
 		int inputFluidID = data.readInt();
 		int inputFluidAmt = data.readInt();
 		int outputFluidID = data.readInt();
@@ -270,14 +272,14 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	protected void sendTickUpdate() {
 		if(this.updatePlayers.size() <= 0) { return; }
 		
-		Packet data = getUpdatePacket();
+		MainPacket data = getUpdatePacket();
 
 		for(EntityPlayer player : updatePlayers) {
-			PacketDispatcher.sendPacketToPlayer(data, (Player)player);
+			BRLoader.packethandler.sendTo(data, (EntityPlayerMP)player);
 		}
 	}
 
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(int packetType, ByteBuf data) {
 		// Client->Server Packets
 		if(packetType == Packets.MultiblockActivateButton) {
 			boolean nowActive = data.readBoolean();
@@ -855,27 +857,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	// IEnergyHandler
 
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-		// haha no
-		return 0;
-	}
 
-	@Override
-	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-		int energyExtracted = Math.min((int)energyStored, maxExtract);
-		
-		if(!simulate) {
-			energyStored -= energyExtracted;
-		}
-		
-		return energyExtracted;
-	}
 
-	@Override
-	public boolean canInterface(ForgeDirection from) {
-		return true;
-	}
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
@@ -1132,4 +1115,40 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	}
 	
 	public boolean hasGlass() { return attachedGlass.size() > 0; }
+
+
+	@Override
+	public double getOfferedEnergy() {
+		return energyStored;
+	}
+
+	@Override
+	public void drawEnergy(double amount) {
+		energyStored -= amount;
+		
+	}
+
+	@Override
+	public boolean emitsEnergyTo(TileEntity receiver, ForgeDirection direction) {
+		return true;
+	}
+
+	@Override
+	public int addEnergy(int energy) {
+		int c=(int)Math.max(0, energyStored+energy-maxEnergyStored);
+		energyStored=Math.min(maxEnergyStored, energyStored+energy);
+		return c;
+	}
+
+	@Override
+	public int removeEnergy(int energy) {
+		if(energy>energyStored)
+		{
+			int c=(int)energyStored;
+			energyStored=0;
+			return c;
+		}
+		energyStored-=energy;
+		return energy;
+	}
 }

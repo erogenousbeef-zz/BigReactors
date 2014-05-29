@@ -1,5 +1,5 @@
 package erogenousbeef.bigreactors.net;
-
+/*
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,21 +9,10 @@ import java.util.List;
 
 import net.minecraft.network.packet.Packet250CustomPayload;
 
-/**
- * @author AtomicStryker
- * 
- * Utility class offering convenience methods to deal with recurring Packet stuff.
- * Stolen shamelessly from PowerCrystalsCore.
- */
+
 public final class PacketWrapper
 {
-	/**
-	 * Create a new Packet250CustomPayload and encode the Objects you provide in it
-	 * 
-	 * @param channel String name of the packet channel to use
-	 * @param packetID Integer value to be prefixed to the data array so you can distinguish packets
-	 * @param input Object Array to be encoded to the packet byte array.
-	 */	
+
 	public static Packet250CustomPayload createPacket(String channel, int packetID, Object[] input)
 	{
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -54,12 +43,6 @@ public final class PacketWrapper
 		return packet;
 	}
 
-	/**
-	 * Decodes a (packet's) byte array as Object Array of Class Instances you provide
-	 * 
-	 * @param data byte array input
-	 * @param packetDataTypes array of class types to decode the byte array as
-	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object[] readPacketData(DataInputStream data, Class[] packetDataTypes)
 	{
@@ -174,3 +157,4 @@ public final class PacketWrapper
 		return result;
 	}
 }
+*/

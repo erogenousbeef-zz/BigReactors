@@ -1,11 +1,17 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+import welfare93.bigreactors.energy.EnergyStorage;
+import welfare93.bigreactors.energy.IEnergyHandlerInput;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
-import cofh.api.energy.EnergyStorage;
-import cofh.api.energy.IEnergyHandler;
 
-public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler {
+public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandlerInput {
 	public static float energyPerRF = 1f;
 	
 	// Internal power
@@ -92,7 +98,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 		super.writeToNBT(tag);
 		NBTTagCompound energyTag = new NBTTagCompound();
 		this.energyStorage.writeToNBT(energyTag);
-		tag.setCompoundTag("energyStorage", energyTag);
+		tag.setTag("energyStorage", energyTag);
 		tag.setInteger("cycledTicks", cycledTicks);
 	}
 	
@@ -136,7 +142,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 		super.onSendUpdate(updateTag);
 		NBTTagCompound energyTag = new NBTTagCompound();
 		this.energyStorage.writeToNBT(energyTag);
-		updateTag.setCompoundTag("energyStorage", energyTag);
+		updateTag.setTag("energyStorage", energyTag);
 		updateTag.setInteger("cycledTicks", this.cycledTicks);
 	}
 	
@@ -147,24 +153,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 		this.cycledTicks = updateTag.getInteger("cycledTicks");
 	}
 	
-	/* IEnergyHandler */
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
 
-		return energyStorage.receiveEnergy(maxReceive, simulate);
-	}
-
-	@Override
-	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-
-		return energyStorage.extractEnergy(maxExtract, simulate);
-	}
-
-	@Override
-	public boolean canInterface(ForgeDirection from) {
-
-		return true;
-	}
 
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
@@ -177,4 +166,96 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 
 		return energyStorage.getMaxEnergyStored();
 	}
+
+	@Override
+	public double demandedEnergyUnits() {
+		return energyStorage.getMaxEnergyStored()-energyStorage.getEnergyStored();
+	}
+
+	@Override
+	public double injectEnergyUnits(ForgeDirection directionFrom, double amount) {
+		// TODO Auto-generated method stub
+		return energyStorage.receiveEnergy(amount,true);
+	}
+
+	@Override
+	public int getMaxSafeInput() {
+		// TODO Auto-generated method stub
+		return Integer.MAX_VALUE;
+	}
+
+	@Override
+	public boolean acceptsEnergyFrom(TileEntity emitter,
+			ForgeDirection direction) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public String getInventoryName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasCustomInventoryName() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void openInventory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void closeInventory() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
+
+	@Override
+	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int addEnergy(int energy) {
+
+		return energyStorage.addEnergy(energy);
+	}
+
+	@Override
+	public int removeEnergy(int energy) {
+		return energyStorage.removeEnergy(energy);
+	}
+
+	@Override
+	public GuiScreen getGUI(EntityPlayer player) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Container getContainer(EntityPlayer player) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getSizeInventory() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

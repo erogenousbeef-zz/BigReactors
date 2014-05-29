@@ -39,12 +39,12 @@ public class GuiSelectableButton extends GuiButton implements IBeefTooltipContro
 
 	@Override
 	public void drawButton(Minecraft minecraft, int par2, int par3) {
-        if (this.drawButton)
+        if (visible)
         {
             minecraft.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
-            this.field_82253_i = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+            this.field_146123_n = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
             
-            int k = this.getHoverState(this.field_82253_i);
+            int k = this.getHoverState(this.field_146123_n);
             int borderColor = this.selected ? this.selectedColor : 0xFF000000;
             int bgColor = 0xFF565656; // disabled
             if(k == 1) {
@@ -77,6 +77,6 @@ public class GuiSelectableButton extends GuiButton implements IBeefTooltipContro
 
 	@Override
 	public boolean isVisible() {
-		return drawButton;
+		return visible;
 	}
 }
