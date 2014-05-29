@@ -1,5 +1,9 @@
 BigReactors
 ===========
+Changes agains main version
+-------------
+Machines use IC2 EU (not RF)
+For minecraft forge 1.7.2.x 
 
 What is this?
 -------------
