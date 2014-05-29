@@ -5,29 +5,37 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
 apply plugin: 'forge'
 
-version = "0.3.3A"
+version = "0.3.3F"
 group= "erogenousbeef.bigreactors" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 
 minecraft {
-	version = "1.6.4-9.11.1.964"
-	
-	replace "@VERSION@", project.version
-	replaceIn "BRConfig.java"
+    version = "1.7.2-10.12.1.1098"
+
+replace "@VERSION@", project.version
+replaceIn "BRConfig.java"
 }
 
+dependencies {
+    compile 'com.mod-buildcraft:buildcraft:6.0.15:api' // adds buildcraft to the dev env
+    compile 'net.industrial-craft:industrialcraft-2:2.1.477-experimental:api'
+}
 processResources
 {
-	inputs.property "version", project.version
-	inputs.property "mcversion", project.minecraft.version
+inputs.property "version", project.version
+inputs.property "mcversion", project.minecraft.version
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
