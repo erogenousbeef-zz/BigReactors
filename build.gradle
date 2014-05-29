@@ -29,8 +29,8 @@ replaceIn "BRConfig.java"
 }
 
 dependencies {
-    compile 'com.mod-buildcraft:buildcraft:6.0.15:api' // adds buildcraft to the dev env
-    compile 'net.industrial-craft:industrialcraft-2:2.1.477-experimental:api'
+    compile files("../libs/buildcraft-6.0.15-api.jar")
+    compile files("../libs/industrialcraft-2-2.1.477-experimental-api.jar")
 }
 processResources
 {
