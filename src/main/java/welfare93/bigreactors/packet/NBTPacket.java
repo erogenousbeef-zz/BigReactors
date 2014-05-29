@@ -1,5 +1,5 @@
 package welfare93.bigreactors.packet;
-
+/*
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,3 +65,4 @@ public class NBTPacket extends Packet{
 	}
 
 }
+*/
