@@ -338,7 +338,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		super.writeToNBT(data);
 		this.writeData(data);
 	}
-	/*
+	
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		super.decodeDescriptionPacket(data);
@@ -353,7 +353,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		data.setBoolean("greaterThan", this.greaterThan);
 		data.setBoolean("activeOnPulse", this.activeOnPulse);
 	}
-	*/
+	
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not as part of the frame", xCoord, yCoord, zCoord));

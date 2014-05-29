@@ -198,15 +198,14 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	@Override
 	public void onMachineDeactivated() {
 	}
-	/*
+	
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packet) {
 		super.encodeDescriptionPacket(packet);
 		NBTTagCompound localData = new NBTTagCompound();
 		this.writeLocalDataToNBT(localData);
-		packet.setCompoundTag("reactorControlRod", localData);
-	}*/
-	/*
+		packet.setTag("reactorControlRod", localData);
+	}
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packet) {
 		super.decodeDescriptionPacket(packet);
@@ -220,7 +219,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 			}
 		}
 	}
-	*/
+	
 	public void setName(String newName) {
 		if(this.name.equals(newName)) { return; }
 		

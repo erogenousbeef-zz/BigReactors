@@ -38,7 +38,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			checkForAdjacentTank();
 		}
 	}
-	/*
+	
 	// MultiblockTileEntityBase
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
@@ -55,7 +55,6 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			setInlet(packetData.getBoolean("inlet"));
 		}
 	}
-	*/
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
 	{

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.chunk.IChunkProvider;
 import erogenousbeef.core.common.BeefCoreLog;
@@ -149,18 +152,17 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 		super.validate();
 		MultiblockRegistry.onPartAdded(this.worldObj, this);
 	}
-/*
+
 	// Network Communication
 	@Override
 	public Packet getDescriptionPacket() {
 		NBTTagCompound packetData = new NBTTagCompound();
 		encodeDescriptionPacket(packetData);
-		return new Packet132TileEntityData(xCoord, yCoord, zCoord, 0, packetData);
+		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, packetData);
 	}
-	
 	@Override
-	public void onDataPacket(INetworkManager network, Packet132TileEntityData packet) {
-		decodeDescriptionPacket(packet.data);
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+		decodeDescriptionPacket(pkt.func_148857_g());
 	}
 	
 	///// Things to override in most implementations (IMultiblockPart)
@@ -170,12 +172,12 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 	 * Decode this data in decodeDescriptionPacket.
 	 * @param packetData An NBT compound tag into which you should write your custom description data.
 	 * @see erogenousbeef.core.multiblock.MultiblockTileEntityBase#decodeDescriptionPacket(NBTTagCompound)
-	 *
+	 */
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
 		if(this.isMultiblockSaveDelegate() && isConnected()) {
 			NBTTagCompound tag = new NBTTagCompound();
 			getMultiblockController().formatDescriptionPacket(tag);
-			packetData.setCompoundTag("multiblockData", tag);
+			packetData.setTag("multiblockData", tag);
 		}
 	}
 	
@@ -184,7 +186,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 	 * Encoded in encodeDescriptionPacket.
 	 * @param packetData The NBT data from the tile entity's description packet.
 	 * @see erogenousbeef.core.multiblock.MultiblockTileEntityBase#encodeDescriptionPacket(NBTTagCompound)
-	 *
+	 */
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		if(packetData.hasKey("multiblockData")) {
 			NBTTagCompound tag = packetData.getCompoundTag("multiblockData");
@@ -197,7 +199,7 @@ public abstract class MultiblockTileEntityBase extends IMultiblockPart {
 			}
 		}
 	}
-*/
+
 	@Override
 	public boolean hasMultiblockSaveData() {
 		return this.cachedMultiblockData != null;

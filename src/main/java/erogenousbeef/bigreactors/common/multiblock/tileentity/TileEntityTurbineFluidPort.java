@@ -69,7 +69,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 			flowSetting = FluidFlow.values()[data.getInteger("flowSetting")];
 		}
 	}
-	/*
+	
 	@Override
 	public void encodeDescriptionPacket(NBTTagCompound data) {
 		super.encodeDescriptionPacket(data);
@@ -83,7 +83,6 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 			flowSetting = FluidFlow.values()[data.getInteger("flowSetting")];
 		}
 	}
-*/
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
 		if(!isConnected() || from != getOutwardsDir()) { return 0; }

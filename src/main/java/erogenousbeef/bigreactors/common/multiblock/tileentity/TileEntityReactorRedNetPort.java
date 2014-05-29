@@ -115,12 +115,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		super.writeToNBT(par1NBTTagCompound);
 		encodeSettings(par1NBTTagCompound);
 	}
-	/*
+	
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
 		super.encodeDescriptionPacket(packetData);
 		encodeSettings(packetData);
-	}*/
+	}
 	
 	@Override
 	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
@@ -128,12 +128,11 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		super.readFromNBT(par1NBTTagCompound);
 		decodeSettings(par1NBTTagCompound);
 	}
-	/*
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		super.decodeDescriptionPacket(packetData);
 		decodeSettings(packetData);
-	}*/
+	}
 
 	// RedNet API
 	public int[] getOutputValues() {

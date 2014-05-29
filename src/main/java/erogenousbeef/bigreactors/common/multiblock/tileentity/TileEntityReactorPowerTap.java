@@ -1,10 +1,13 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import ic2.api.energy.event.EnergyTileLoadEvent;
+import ic2.api.energy.event.EnergyTileUnloadEvent;
 import welfare93.bigreactors.energy.IEnergyHandler;
 import welfare93.bigreactors.energy.IEnergyHandlerOutput;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
@@ -24,7 +27,21 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			checkForConnections(world, x, y, z);
 		}
 	}
-	
+	@Override
+	public void invalidate() {
+		super.invalidate();
+		if(!this.worldObj.isRemote)MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+	}
+	@Override
+	public void onChunkUnload() {
+		super.onChunkUnload();
+		if(!this.worldObj.isRemote)MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+	}
+	@Override
+	public void validate() {
+		super.validate();
+		MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+	}
 	// IMultiblockPart
 	@Override
 	public void onAttached(MultiblockControllerBase newController) {
