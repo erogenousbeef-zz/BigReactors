@@ -19,7 +19,7 @@ import erogenousbeef.core.common.CoordTriplet;
  * should derive from this and implement their game logic in certain abstract methods.
  */
 public abstract class MultiblockTileEntityBase extends IMultiblockPart {
-	private MultiblockControllerBase controller;
+	public MultiblockControllerBase controller;
 	private boolean visited;
 	
 	private boolean saveMultiblockData;

@@ -43,10 +43,14 @@ public abstract class TileEntityReactorPartBase extends
 	// IMultiblockNetworkHandler
 	@Override
 	public void onNetworkPacket(int packetType, ByteBuf data) {
+
 		if(!this.isConnected()) {
 			return;
 		}
 
+		if(packetType == Packets.ReactorControllerFullUpdate) {
+			getReactorController().receiveReactorUpdate(data);
+		}
 		/// Client->Server packets
 		
 		if(packetType == Packets.MultiblockActivateButton) {
@@ -79,9 +83,6 @@ public abstract class TileEntityReactorPartBase extends
 		
 		/// Server->Client packets
 		
-		if(packetType == Packets.ReactorControllerFullUpdate) {
-			getReactorController().receiveReactorUpdate(data);
-		}
 	}
 	
 	// IMultiblockGuiHandler

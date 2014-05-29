@@ -16,6 +16,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 import erogenousbeef.bigreactors.common.BRLoader;
@@ -92,20 +95,19 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	}
 	
 	// Network Communication
-	/*
 	@Override
 	public Packet getDescriptionPacket()
 	{
 		NBTTagCompound tagCompound = new NBTTagCompound();
 		this.writeToNBT(tagCompound);
 		
-		return new Packet132TileEntityData(xCoord, yCoord, zCoord, 0, tagCompound);
+		return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tagCompound);
 	}
-
 	@Override
-	public void onDataPacket(INetworkManager network, Packet132TileEntityData packet) {
-		this.readFromNBT(packet.data);
-	}*/
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt) {
+	// TODO Auto-generated method stub
+	super.onDataPacket(net, pkt);
+}
 	
 	@Override
 	public void updateEntity() {

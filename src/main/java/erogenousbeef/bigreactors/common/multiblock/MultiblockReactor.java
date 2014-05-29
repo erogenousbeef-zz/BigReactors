@@ -11,7 +11,9 @@ import java.util.Set;
 
 import welfare93.bigreactors.energy.IEnergyHandler;
 import welfare93.bigreactors.energy.IEnergyHandlerInput;
+import welfare93.bigreactors.packet.AbstractPacket;
 import welfare93.bigreactors.packet.MainPacket;
+import welfare93.bigreactors.packet.NPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -757,6 +759,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		BRLoader.packethandler.sendTo(getUpdatePacket(), (EntityPlayerMP)player);
 	}
 	
+	
+
 	/**
 	 * Send an update to any clients with GUIs open
 	 * @param energyGenerated 
