@@ -31,7 +31,7 @@ replaceIn "BRConfig.java"
 dependencies {
     compile files("../libs/buildcraft-6.0.15-api.jar")
     compile files("../libs/industrialcraft-2-2.1.477-experimental-api.jar")  
-    compile files("../libs/frycomputerapi.jar")
+    compile files("../libs/OpenComputers-MC1.7.2-1.2.12.144-api.jar")
 }
 processResources
 {
