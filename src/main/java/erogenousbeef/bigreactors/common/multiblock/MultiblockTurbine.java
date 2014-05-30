@@ -996,8 +996,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	private CoilPartData getCoilPartData(int x, int y, int z, Block block, int metadata) {
 		// Allow vanilla iron and gold blocks
-		if(block == Blocks.iron_block) { return BRRegistry.getCoilPartData("blockIron"); }
-		if(block == Blocks.gold_block) { return BRRegistry.getCoilPartData("blockGold"); }
+		if(block.equals(Blocks.gold_block)) 
+		{ return BRRegistry.getCoilPartData("blockGold"); }
+		if(block == Blocks.iron_block) 
+		{ return BRRegistry.getCoilPartData("blockIron"); }
 		
 		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
 		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));

@@ -30,7 +30,7 @@ public class BeefGuiPowerBar extends BeefGuiTextureProgressBar implements
 		int energyMax = _entity.getMaxEnergyStored(ForgeDirection.UNKNOWN);
 		float fullness = (float)energyStored / (float)energyMax * 100f;
 		return new String[] { "Energy Buffer", 
-				String.format("%d / %d RF", energyStored, energyMax),
+				String.format("%d / %d EU", energyStored, energyMax),
 				String.format("%2.1f%% full", fullness)
 		};
 	}

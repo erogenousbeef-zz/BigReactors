@@ -123,12 +123,12 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 	@Override
 	public double getOfferedEnergy() {
 		if(!this.isConnected()) { return 0; }
-		return getTurbine().getEnergyStored();
+		return Math.min(getTurbine().getEnergyStored(),8192);
 	}
 
 	@Override
 	public void drawEnergy(double amount) {
-		getTurbine().removeEnergy((int)amount);
+		getTurbine().removeEnergy((int)Math.ceil(amount));
 		
 	}
 

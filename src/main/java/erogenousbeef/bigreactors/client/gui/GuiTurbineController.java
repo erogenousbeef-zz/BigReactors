@@ -164,7 +164,7 @@ public class GuiTurbineController extends BeefGuiBase {
 		}
 		
 		speedString.setLabelText(String.format("%.1f RPM", turbine.getRotorSpeed()));
-		energyGeneratedString.setLabelText(String.format("%.0f RF/t", turbine.getEnergyGeneratedLastTick()));
+		energyGeneratedString.setLabelText(String.format("%.0f EU/t", turbine.getEnergyGeneratedLastTick()));
 		governorString.setLabelText(String.format("Max Flow: %d mB/t", turbine.getMaxIntakeRate()));
 		
 		if(turbine.isActive()) {
@@ -224,7 +224,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			if(setActive != turbine.isActive()) {
 				ByteBuf a=Unpooled.buffer();
 				a.writeBoolean(setActive);
-				BRLoader.packethandler.sendToServer(new MainPacket(Packets.MultiblockTurbineGovernorUpdate,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
+				BRLoader.packethandler.sendToServer(new MainPacket(Packets.MultiblockActivateButton,saveDelegate.x, saveDelegate.y, saveDelegate.z,a));
 			}
 		}
 		

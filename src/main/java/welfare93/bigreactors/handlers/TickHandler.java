@@ -6,7 +6,10 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
+import com.sun.org.apache.bcel.internal.generic.GOTO;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -43,15 +46,17 @@ public class TickHandler {
 	@SubscribeEvent
 	public void onClientTick(ClientTickEvent event) {
 
+		EntityClientPlayerMP b=Minecraft.getMinecraft().thePlayer;
+		if(b==null) return;
 		if(event.phase==Phase.START)
 		{
 			if(event.side==Side.SERVER || event.side==Side.CLIENT)
-				MultiblockRegistry.tickStart(Minecraft.getMinecraft().thePlayer.worldObj);
+				MultiblockRegistry.tickStart(b.worldObj);
 		}
 		else if(event.phase==Phase.END)
 		{
 			if(event.side==Side.SERVER || event.side==Side.CLIENT)
-				{MultiblockRegistry.tickEnd(Minecraft.getMinecraft().thePlayer.worldObj);}
+				{MultiblockRegistry.tickEnd(b.worldObj);}
 		}
 		
 	}

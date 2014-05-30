@@ -136,12 +136,12 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	@Override
 	public double getOfferedEnergy() {
 		if(!this.isConnected()) { return 0; }
-		return getReactorController().getEnergyStored();
+		return Math.min(getReactorController().getEnergyStored(),8192);
 	}
 
 	@Override
 	public void drawEnergy(double amount) {
-		getReactorController().removeEnergy((int)amount);
+		getReactorController().removeEnergy((int)Math.ceil(amount));
 		
 	}
 
