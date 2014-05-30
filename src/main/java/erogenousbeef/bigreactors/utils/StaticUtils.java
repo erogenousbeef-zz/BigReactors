@@ -243,7 +243,7 @@ public class StaticUtils {
 				number *= -1;
 			}
 			
-			if(number <= 0.00001f) { return "0.00 RF"; }
+			if(number <= 0.00001f) { return "0.00 EU"; }
 			
 			int power = (int)Math.floor(Math.log10(number));
 
@@ -252,10 +252,10 @@ public class StaticUtils {
 			float divisor = letterIdx * 1000f;
 			
 			if(divisor > 0) {
-				return String.format("%s%." + Integer.toString(decimalPoints) + "f %sRF", prefix, number/divisor, sizePrefixes[letterIdx]);
+				return String.format("%s%." + Integer.toString(decimalPoints) + "f %sEU", prefix, number/divisor, sizePrefixes[letterIdx]);
 			}
 			else {
-				return String.format("%s%." + Integer.toString(decimalPoints) + "f RF", prefix, number);
+				return String.format("%s%." + Integer.toString(decimalPoints) + "f EU", prefix, number);
 			}
 		}
 		
