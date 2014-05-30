@@ -178,7 +178,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		outputString.setLabelText(getFormattedOutputString());
 		if(reactor.isPassivelyCooled()) {
-			outputString.setLabelTooltip(String.format("%.2f flux per tick", reactor.getEnergyGeneratedLastTick()));
+			outputString.setLabelTooltip(String.format("%.2f EU per tick", reactor.getEnergyGeneratedLastTick()));
 		}
 		else {
 			outputString.setLabelTooltip(String.format("%.0f millibuckets per tick", reactor.getEnergyGeneratedLastTick()));
