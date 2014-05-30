@@ -39,7 +39,8 @@ public class TickHandler {
 		else if(event.phase==Phase.END)
 		{
 			if(event.side==Side.SERVER || event.side==Side.CLIENT)
-				{MultiblockRegistry.tickEnd(event.world);tickEnd(event.type, event.world);}
+				{MultiblockRegistry.tickEnd(event.world);
+				tickEnd(event.type, event.world);}
 		}
 		
 	}
