@@ -26,13 +26,13 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import erogenousbeef.core.multiblock.MultiblockEventHandler;
 
 
-@Mod(modid = BigReactors.CHANNEL, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = BRConfig.MINECRAFT_VERSION)
+@Mod(modid = BRLoader.MOD_ID, name = BigReactors.NAME, version = BRConfig.VERSION)
 
 public class BRLoader {
 
 	public static final String MOD_ID = "BigReactors";
 	public static final PacketHandler packethandler=new PacketHandler();
-	@Instance(MOD_ID)
+    @Instance(value = MOD_ID)
 	public static BRLoader instance;
 
 	@SidedProxy(clientSide = "erogenousbeef.bigreactors.client.ClientProxy", serverSide = "erogenousbeef.bigreactors.common.CommonProxy")

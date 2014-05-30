@@ -11,7 +11,7 @@ public class BRConfig {
 	 * These are replaced by Gradle when built.
 	 */
 	public static final String VERSION = "@VERSION@";
-	public static final String MINECRAFT_VERSION = "[1.6.4,)";
+	public static final String MINECRAFT_VERSION = "[1.7.2,)";
 
 	public static final int WORLDGEN_VERSION = 1; // Bump this when changing world generation so the world regens
 
