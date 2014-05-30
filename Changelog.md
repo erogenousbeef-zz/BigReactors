@@ -1,8 +1,82 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.3.0A)
+Next Release (Anticipated Version: 0.3.3A)
 ------------------------------------------
+
+Current Release (0.3.3A)
+--------------------------------
+- Bugfix: Disabling creative parts no longer causes client crashes when turbines are assembled
+- Bugfix: Corrupted metadata on Ingots no longer causes crashes
+- Bugfix: Passive reactors were cooling off (and generating energy) very slightly too fast. This has been fixed.
+- Bugfix: On Reactor Redstone Ports, the "While off" setting for control rod insertion was being ignored. This has been fixed.
+- Enhancement: When using the eject fuel/waste buttons on an access port, fuel/waste now only appears in the access port whose GUI is open
+- Enhancement: Reactor Power Tap crafting recipe can now be disabled in the config via the enableReactorPowerTapRecipe setting
+- Enhancement: Reactor's Computer Port now exposes getHotFluidProducedLastTick(), which returns 0 when passively cooled and the mB of hot fluid produced when actively cooled.
+- Enhancement: Turbine's Computer Port can now manipulate vent settings via setVentNone(), setVentOverflow(), and setVentAll(). No arguments required.
+- Enhancement: Spanish translation, thanks k3936!
+
+Older Releases
+--------------
+### Release 0.3.2A
+- Enhancement: Swedish translation, thanks erucolindo!
+- Upgrade: German translation is now current for 0.3, thanks Vexatos!
+- Bugfix: Alternate translations can now actually be used. Thanks Vexatos!
+- Bugfix: Reactor/Turbine computer ports can now connect to Computercraft 1.6 computers and modems. This was broken in 0.3.1A.
+- Bugfix: Fixed crashes related to teleporting near a turbine fluid port (introduced in 0.3.1A)
+- Bugfix: Added some code so that chunk boundary handling is sliiiiightly nicer and should fail not quite as often. Still, putting ports on the boundary of non-chunkloaded chunks is still wonky. Blame minecraft.
+- Did some behind-the-scenes upgrades so automated building is nicer, thanks AbrarSyed!
+
+
+### Release 0.3.1A
+- Forge: Big Reactors now requires Forge version 953 or higher.
+- Enhancement: Brazilian Portuguese translation, thanks Kevin8082!
+- Enhancement: OpenComputers, versions 335 and higher for 1.6.4, is now supported via the Reactor and Turbine computer ports. Thanks fnuecke!
+- Upgrade: Big Reactors is now compatible with ComputerCraft 1.6 (CC 1.5 support has been dropped)
+- Bugfix: Reactors no longer fail to operate if cryotheum freezes water inside them during operation
+- Bugfix: Turbine fluid ports now properly show whether they're inlets or outlets while a turbine is not assembled
+- Bugfix: Turbine fluid ports can now be toggled between inlet/outlet mode while a turbine is disassembled via the usual methods (empty hand, wrench)
+
+### Release 0.3.0A
+- Bugfix: Fuel rods no longer visually "overflow" with fuel when one or more fuel rods are broken on a reactor with fuel inside
+- Bugfix: Fuel rods now update their visual states when they should, instead of randomly/infrequently
+- Bugfix: Turbine power taps now light up when compatible wires are placed next to them
+- Bugfix: Cyanite reprocessors can again be managed with itemducts and other automation tools (e.g. AE)
+- Bugfix: Potential fix for a rare crash due to cross-mod interference with some Minecraft GUI code
+- Bugfix: Turbine computer port actually has a recipe now
+
+### Release 0.3.0rc3
+- Enhancement: Turbine and reactor fluid/coolant ports set to "outlet" mode will now automatically attempt to pump fluids into nearby fluid pipes/containers
+- Enhancement: Yellorium and blutonium blocks can now be used to fuel reactors.
+- Enhancement: Polish translation now available! Thanks, kostek00!
+- Change: Size of a reactor's active coolant tanks is now based on the size of its casing. 100 mB per casing block, maximum 50 buckets.
+- Change: Waste ejection has been simplified. The only options are now "auto-eject" or "do not auto-eject".
+- Bugfix: Fixed a crash which could occur when breaking a reactor via a control rod while the reactor is running
+- Bugfix: Mariculture's Titanium actually supported for turbine coils now
+- Bugfix: TE Pyrotheum can be placed in reactor cores again
+- Bugfix: "Dump all fuel" option now actually works
+
+### Release 0.3.0rc2
+- Enhancement: Russian translation, thanks to Vladimir Gendel!
+- Enhancement: Glass can now be used inside a reactor. It's not a very good moderator or heat conductor, but is useful for corralling fluids.
+- Enhancement: Invar and enderium blocks can now be used as turbine coil parts.
+- Enhancement: TE, Mekanism and Metallurgy metals can now be used inside a reactor, similar to iron/gold/diamond/emerald blocks.
+- Enhancement: Redstone Arsenal's fluxed electrum blocks can now be used in reactors and turbine coils.
+- Enhancement: 3 new methods added to Turbine Computercraft API
+- Enhancement: More-expensive coil parts now extract more rotor energy per tick instead of just being more efficient at converting rotor energy. This means you need fewer coil parts when using very expensive blocks.
+- Balance: Cryotheum's heat transfer, moderation capability and heat efficiency have been significantly boosted
+- Config: Metallurgy's fantasy metals can be disallowed as coil parts in the config if you feel them unbalanced. Set "enableMetallurgyFantasyMetals" to false.
+- Config: Added "comedy" option. If enabled, allows MFR's sewage, meat blocks and fluid meat/pink-slime to be used as a slight upgrade to water inside a reactor. Disabled by default.
+- Bugfix: Rotor turbines no longer become invisible if a turbine is broken while activated
+- Bugfix: Control rods no longer cause fertility to skyrocket when inserted. (Thanks XXX!)
+- Bugfix: Rotors no longer render incorrectly when bearings are on the top, east or south sides of the reactor.
+- Bugfix: Hi-rez GUI icons no longer render at insane sizes
+- Bugfix: Can now switch the direction of reactor coolant ports with both empty hands and a wrench, and it no longer spams chat messages
+- Bugfix: Reactor coolant ports no longer delay their render update when not part of a reactor, so the visual switch between inlet/outlet happens instantly
+- Bugfix: Reactors no longer occasionally "go haywire" and superfill themselves with fuel during chunk loading on SMP servers
+- Bugfix: Turbines no longer randomly go super-overspeed during chunk loading on SMP servers
+
+### Release 0.3.0rc1
 - Core: Full rewrite of internal reactor mechanics. Substantially more efficient on servers.
 - Core: Big Reactors and BeefCore now log to their own channels, for server admins' convenience.
 - Feature: Reactors now have fluid inlet/outlet ports available to convert them to active cooling.
@@ -18,15 +92,12 @@ Next Release (Anticipated Version: 0.3.0A)
 - UI: Reactor UI redone, tooltips on EVERYTHING! English only, currently.
 - Bugfix: Fixed a rare crash that could occur with itemducts attached to reactor access ports set to "out" mode.
 
-Current Release (0.2.15A)
---------------------------------
+### Release 0.2.15A
 - Core: Changed how block attachment is tracked to a much more robust system
 - Bugfix: Fixed crashes that could occur when logging into chunks with lots of machines, on a low-spec computer running a large modpack.
 - Bugfix: Fixed some potential spontaneous-disassembly bugs.
 - Bugfix: Fixed a client crash that could occur when right-clicking the reactor to get debug output, in rare cases.
 
-Older Releases
---------------
 ### Release 0.2.14A
 - Enhancement: The empty-hand right-click validation tool now has more-informative error messages.
 - Bugfix: Fixed a compatibility glitch between BR and Railcraft. Reactors should no longer mysteriously disassemble when BR is used alongside Railcraft.

@@ -16,9 +16,10 @@ Known Issues
 ------------
 - WR-CBE receivers do not activate redstone ports in input mode correctly if they are placed directly next to the input port. Workaround: Place one tile's worth of redstone (or another mod's redstone wire) between the receiver and the input port.
 
+- Setting the dormantChunkCacheSize Forge setting to something other than 0 (which is the default) will cause Big Reactors to break in strange and unusual ways. This setting is not supported.
+
 TODO - 0.3: The Coolant Update
 ------------------------------
-
 ### Graphics
 - Cool particle effects when the reactor is on! (requires making my own particle, bleah)
 
@@ -31,6 +32,7 @@ TODO - 0.3: The Coolant Update
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
 - Different types of coolant with different transference properties
+- Add "special steam" mode for people who complain about Power Converters/Railcraft steam
 
 ### Reactor meltdowns (may slip to 0.4)
 - Add option to enable reactor meltdowns to config
@@ -50,7 +52,6 @@ TODO - 0.4: The Fueling Update
 - Change reactor icon selection mechanism to be like turbines and reorganize metadata to not use metadata entries so wastefully
 
 ### Gameplay
-- (DONE) Rewrite fertilization mechanics to be more sane/useful and expose fertility via control rod UI
 - Finish the RTG for mid/early-game power. Refactor the TE framework to operate via composition.
 
 ### Reactor Mechanics
@@ -95,6 +96,7 @@ Wishlist
 
 ### Interoperability
 - Add MFR compatibility for drinking BR fluids with a straw
+- Some way of extracting fuel from thaumcraft nodes?
 
 ### More stuff with liquids
 - Add nasty side effects for going near pools of yellorium

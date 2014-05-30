@@ -1,0 +1,53 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'forge'
+
+version = "0.3.3F"
+group= "erogenousbeef.bigreactors" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "BigReactors"
+
+minecraft {
+    version = "1.7.2-10.12.1.1098"
+
+replace "@VERSION@", project.version
+replaceIn "BRConfig.java"
+}
+
+dependencies {
+    compile files("../libs/buildcraft-6.0.15-api.jar")
+    compile files("../libs/industrialcraft-2-2.1.477-experimental-api.jar")  
+    compile files("../libs/OpenComputers-MC1.7.2-1.2.12.144-api.jar")
+}
+processResources
+{
+inputs.property "version", project.version
+inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/*.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info and other info files
+    from(sourceSets.main.resources.srcDirs) {
+        exclude '**/*.info'
+    }
+}
