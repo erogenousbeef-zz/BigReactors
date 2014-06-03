@@ -209,6 +209,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			break;
 		case inputSetControlRod:
 			// This doesn't make sense for pulsing
+			newValue = Math.min(100, Math.max(0, newValue)); // Clamp to 0..100
+			if(newValue == oldValue[channel]) { return; }
+
 			if(coordMappings[channel] != null) {
 				setControlRodInsertion(channel, coordMappings[channel], newValue);
 			}
