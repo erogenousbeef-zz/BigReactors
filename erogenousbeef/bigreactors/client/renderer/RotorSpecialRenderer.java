@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.client.renderer;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -9,6 +10,7 @@ import net.minecraftforge.common.ForgeDirection;
 
 import org.lwjgl.opengl.GL11;
 
+import erogenousbeef.bigreactors.client.ClientProxy;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
@@ -42,10 +44,11 @@ public class RotorSpecialRenderer extends TileEntitySpecialRenderer {
 		}
 		
 		float angle = bearing.getAngle();
+		long elapsedTime = Minecraft.getSystemTime() - ClientProxy.lastRenderTime;
 		
 		float speed = turbine.getRotorSpeed();
 		if(speed > 0.001f) {
-			angle += speed / 400f;
+			angle += speed * ((float)elapsedTime / 60000f) * 360f; // RPM * time in minutes * 360 degrees per rotation
 			angle = angle % 360f;
 			bearing.setAngle(angle);
 		}
