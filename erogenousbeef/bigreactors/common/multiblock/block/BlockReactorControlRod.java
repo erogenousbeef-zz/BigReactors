@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common.multiblock.block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
@@ -71,4 +72,10 @@ public class BlockReactorControlRod extends BlockContainer {
 		}
 		return true;
 	}
+	
+	@Override
+    public boolean canCreatureSpawn(EnumCreatureType type, World world, int x, int y, int z)
+    {
+		return false;
+    }
 }
