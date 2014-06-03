@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.client;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.client.registry.ClientRegistry;
@@ -22,7 +23,8 @@ import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
 	public static BeefGuiIconManager GuiIcons;
-
+	public static long lastRenderTime = Minecraft.getSystemTime();
+	
 	public ClientProxy() {
 		GuiIcons = new BeefGuiIconManager();
 	}
@@ -39,7 +41,8 @@ public class ClientProxy extends CommonProxy {
 		super.init();
 
 		TickRegistry.registerTickHandler(new MultiblockClientTickHandler(), Side.CLIENT);
-		
+		TickRegistry.registerTickHandler(new BRRenderTickHandler(), Side.CLIENT);
+
 		BlockFuelRod.renderId = RenderingRegistry.getNextAvailableRenderId();
 		ISimpleBlockRenderingHandler fuelRodISBRH = new SimpleRendererFuelRod();
 		RenderingRegistry.registerBlockHandler(BlockFuelRod.renderId, fuelRodISBRH);
