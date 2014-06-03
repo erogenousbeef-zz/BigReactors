@@ -132,7 +132,7 @@ public class CoolantContainer extends FluidHelper {
 		}
 		
 		Fluid existingVaporType = getVaporType();
-		if(existingVaporType != null && getVaporType().getID() != existingVaporType.getID()) {
+		if(existingVaporType != null && !newVaporType.getName().equals(existingVaporType.getName())) {
 			// Can't vaporize anything with incompatible vapor in the vapor tank
 			return rfAbsorbed;
 		}
