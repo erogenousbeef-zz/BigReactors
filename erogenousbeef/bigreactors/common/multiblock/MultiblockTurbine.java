@@ -63,7 +63,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public static final int TANK_OUTPUT = 1;
 	public static final int NUM_TANKS = 2;
 	public static final int FLUID_NONE = -1;
-	public static final int TANK_SIZE = 2000;
+	public static final int TANK_SIZE = 4000;
+	public static final int MAX_PERMITTED_FLOW = 2000;
+
 	private FluidTank[] tanks;
 	
 	static final float maxEnergyStored = 1000000f; // 1 MegaRF
@@ -145,7 +147,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		active = false;
 		ventStatus = VentStatus.VentOverflow;
 		rotorEnergy = 0f;
-		maxIntakeRate = TANK_SIZE;
+		maxIntakeRate = MAX_PERMITTED_FLOW;
 		
 		bladeSurfaceArea = 0;
 		rotorMass = 0;
@@ -982,12 +984,12 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public int getMaxIntakeRate() { return maxIntakeRate; }
 
 	public void setMaxIntakeRate(int newRate) {
-		maxIntakeRate = Math.min(TANK_SIZE, Math.max(0, newRate));
+		maxIntakeRate = Math.min(MAX_PERMITTED_FLOW, Math.max(0, newRate));
 		markReferenceCoordDirty();
 	}
 	
 	// for GUI use
-	public int getMaxIntakeRateMax() { return TANK_SIZE; }
+	public int getMaxIntakeRateMax() { return MAX_PERMITTED_FLOW; }
 	
 	// ISlotlessUpdater
 	@Override
