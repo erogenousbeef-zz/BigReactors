@@ -1069,10 +1069,21 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			} // end y
 		} // end x loop - looping over interior
 		
-		inductionEfficiency = (coilEfficiency * 0.33f) / coilSize;
-		inductionEnergyExponentBonus = Math.max(1f, (coilBonus / coilSize));
 		frictionalDrag = rotorMass * rotorDragCoefficient;
-		inductorDragCoefficient = (coilDragCoefficient / coilSize) * inductorBaseDragCoefficient;
+
+		if(coilSize <= 0)
+		{
+			// Uh. No coil? Fine.
+			inductionEfficiency = 0f;
+			inductionEnergyExponentBonus = 1f;
+			inductorDragCoefficient = 0f;
+		}
+		else
+		{
+			inductionEfficiency = (coilEfficiency * 0.33f) / coilSize;
+			inductionEnergyExponentBonus = Math.max(1f, (coilBonus / coilSize));
+			inductorDragCoefficient = (coilDragCoefficient / coilSize) * inductorBaseDragCoefficient;
+		}
 	}
 	
 	public float getRotorSpeed() {
