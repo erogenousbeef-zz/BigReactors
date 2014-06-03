@@ -1024,7 +1024,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 							continue;
 						}
 
-						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, destination == null);
+						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, destination != null);
 						if(ingotsToDistribute.stackSize <= 0) {
 							ingotsToDistribute = null;
 						}
