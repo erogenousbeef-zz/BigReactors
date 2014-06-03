@@ -6,6 +6,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Icon;
@@ -136,4 +137,10 @@ public class BlockTurbineRotorPart extends BlockContainer {
 	public static boolean isRotorShaft(int metadata) {
 		return metadata == METADATA_SHAFT;
 	}
+	
+	@Override
+    public boolean canCreatureSpawn(EnumCreatureType type, World world, int x, int y, int z)
+    {
+		return false;
+    }
 }
