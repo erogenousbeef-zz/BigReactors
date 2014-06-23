@@ -38,8 +38,10 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		getEnergyProducedLastTick, // No arguments
 		getHotFluidProducedLastTick, // No arguments
 		getCoolantAmount,		// No arguments
+		getCoolantAmountMax,	// No arguments
 		getCoolantType,			// No arguments
 		getHotFluidAmount,		// No arguments
+		getHotFluidAmountMax,	// No arguments
 		getHotFluidType,		// No arguments
 		getFuelReactivity,		// No arguments
 		getFuelConsumedLastTick,// No arguments
@@ -136,6 +138,9 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		case getCoolantAmount:
 			return new Object[] { reactor.getCoolantContainer().getCoolantAmount() };
 			
+		case getCoolantAmountMax:
+			return new Object[] { reactor.getCoolantContainer().getCapacity() };
+
 		case getCoolantType: {
 			Fluid fluidType = reactor.getCoolantContainer().getCoolantType();
 			if(fluidType == null) {
@@ -148,7 +153,10 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 
 		case getHotFluidAmount:
 			return new Object[] { reactor.getCoolantContainer().getVaporAmount() };
-			
+		
+		case getHotFluidAmountMax:
+			return new Object[] { reactor.getCoolantContainer().getCapacity() };
+
 		case getHotFluidType: {
 			Fluid fluidType = reactor.getCoolantContainer().getVaporType();
 			if(fluidType == null) {
