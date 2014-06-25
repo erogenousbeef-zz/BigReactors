@@ -18,4 +18,5 @@ public final class Packets {
 	public static final int MultiblockTurbineFullUpdate = 14;
 	public static final int MultiblockTurbineGovernorUpdate = 15;
 	public static final int MultiblockTurbineVentUpdate = 16;
+	public static final int MultiblockTurbineInductorEngagedUpdate = 17;
 }

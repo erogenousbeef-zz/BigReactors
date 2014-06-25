@@ -74,7 +74,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	float energyStored;
 	boolean active;
 	float rotorEnergy;
-	
+	boolean inductorEngaged;
+
 	// Player settings
 	VentStatus ventStatus;
 	int maxIntakeRate;
@@ -145,6 +146,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		energyStored = 0f;
 		active = false;
+		inductorEngaged = true;
 		ventStatus = VentStatus.VentOverflow;
 		rotorEnergy = 0f;
 		maxIntakeRate = MAX_PERMITTED_FLOW;
@@ -213,7 +215,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 								active,
 								ventStatus.ordinal(),
 								fluidConsumedLastTick,
-								rotorEfficiencyLastTick
+								rotorEfficiencyLastTick,
+								inductorEngaged
 		});
 	}
 
@@ -235,6 +238,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		setVentStatus(VentStatus.values()[data.readInt()], false);
 		fluidConsumedLastTick = data.readInt();
 		rotorEfficiencyLastTick = data.readFloat();
+		setInductorEngaged(data.readBoolean(), false);
 
 		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
 			tanks[TANK_INPUT].setFluid(null);
@@ -294,6 +298,11 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			if(idx >= 0 && idx < VentStatus.values().length) {
 				setVentStatus(VentStatus.values()[idx], true);
 			}
+		}
+		if(packetType == Packets.MultiblockTurbineInductorEngagedUpdate)
+		{
+			boolean engaged = data.readBoolean();
+			setInductorEngaged(engaged, true);
 		}
 
 		// Server->Client Packets
@@ -657,7 +666,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 			// Yay for derivation. We're assuming delta-Time is always 1, as we're always calculating for 1 tick.
 			// RFs available to coils
-			float inductionTorque = rotorSpeed * inductorDragCoefficient * coilSize;
+			float inductionTorque = inductorEngaged ? rotorSpeed * inductorDragCoefficient * coilSize : 0f;
 			float energyToGenerate = (float)Math.pow(inductionTorque, inductionEnergyExponentBonus) * inductionEfficiency;
 			if(energyToGenerate > 0f) {
 				// Efficiency curve. Rotors are 50% less efficient when not near 900/1800 RPMs.
@@ -742,6 +751,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		data.setInteger("ventStatus", ventStatus.ordinal());
 		data.setFloat("rotorEnergy", rotorEnergy);
 		data.setInteger("maxIntakeRate", maxIntakeRate);
+		data.setBoolean("inductorEngaged", inductorEngaged);
 	}
 
 	@Override
@@ -777,6 +787,10 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		if(data.hasKey("maxIntakeRate")) {
 			maxIntakeRate = data.getInteger("maxIntakeRate");
+		}
+		
+		if(data.hasKey("inductorEngaged")) {
+			setInductorEngaged(data.getBoolean("inductorEngaged"), false);
 		}
 	}
 
@@ -1116,6 +1130,16 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			markReferenceCoordDirty();
 	}
 	
+	public boolean getInductorEngaged() {
+		return inductorEngaged;
+	}
+	
+	public void setInductorEngaged(boolean engaged, boolean markReferenceCoordDirty) {
+		inductorEngaged = engaged;
+		if(markReferenceCoordDirty)
+			markReferenceCoordDirty();
+	}
+
 	protected void markReferenceCoordDirty() {
 		if(worldObj == null || worldObj.isRemote) { return; }
 
