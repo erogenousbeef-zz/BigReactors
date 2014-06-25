@@ -40,11 +40,13 @@ public class TileEntityTurbineComputerPort extends
 		getNumberOfBlades,		// No arguments
 		getBladeEfficiency,		// No arguments
 		getRotorMass,			// No arguments
+		getInductorEngaged,		// No arguments
 		setActive,				// Required Arg: integer (active)
 		setFluidFlowRateMax,	// Required Arg: integer (active)
 		setVentNone,			// No arguments
 		setVentOverflow,		// No arguments
 		setVentAll,				// No arguments
+		setInductorEngaged,		// Required Arg: integer (active)
 	}
 
 	public static final int numMethods = ComputerMethod.values().length;
@@ -139,6 +141,8 @@ public class TileEntityTurbineComputerPort extends
 			return new Object[] { turbine.getRotorEfficiencyLastTick() * 100f };
 		case getRotorMass:
 			return new Object[] { turbine.getRotorMass() };
+		case getInductorEngaged:
+			return new Object[] { turbine.getInductorEngaged() };
 		case setActive:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
@@ -166,6 +170,15 @@ public class TileEntityTurbineComputerPort extends
 			break;
 		case setVentAll:
 			turbine.setVentStatus(VentStatus.VentAll, true);
+			break;
+		case setInductorEngaged:
+			if(arguments.length < 1) {
+				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
+			}
+			if(!(arguments[0] instanceof Boolean)) {
+				throw new IllegalArgumentException("Invalid argument 0, expected Boolean");
+			}
+			turbine.setInductorEngaged((Boolean)arguments[0], true);
 			break;
 		default:
 			throw new Exception("Method unimplemented - yell at Beef");
