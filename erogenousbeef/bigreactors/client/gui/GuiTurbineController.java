@@ -48,6 +48,7 @@ public class GuiTurbineController extends BeefGuiBase {
 	private BeefGuiIcon rpmIcon;
 	private BeefGuiRpmBar rpmBar;
 
+	private BeefGuiIcon governorIcon;
 	private BeefGuiLabel governorString;
 	private GuiIconButton btnGovernorUp;
 	private GuiIconButton btnGovernorDown;
@@ -113,13 +114,14 @@ public class GuiTurbineController extends BeefGuiBase {
 		rpmIcon = new BeefGuiIcon(this, guiLeft + 93, guiTop + 4, 16, 16, ClientProxy.GuiIcons.getIcon("rpm"), new String[] { GuiConstants.LITECYAN_TEXT + "Rotor Speed" });
 		rpmBar = new BeefGuiRpmBar(this, guiLeft + 92, guiTop + 22, turbine, "Rotor Speed", new String[] {"Rotors perform best at", "900 or 1800 RPM.", "", "Rotors kept overspeed for too", "long may fail.", "", "Catastrophically."});
 	
-		governorString = new BeefGuiLabel(this, "", guiLeft + 72, guiTop + 134);
-		btnGovernorUp   = new GuiIconButton(2, guiLeft + 130, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("upArrow"),   new String[] { GuiConstants.LITECYAN_TEXT + "Increase Max Flow Rate", "", "Higher flow rates will increase", "rotor speed.", "", "SHIFT: +10 mB", "CTRL: +100mB", "CTRL+SHIFT: +1000mB"});
-		btnGovernorDown = new GuiIconButton(3, guiLeft + 150, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("downArrow"), new String[] { GuiConstants.LITECYAN_TEXT + "Decrease Max Flow Rate", "", "Lower flow rates will decrease", "rotor speed.",  "", "SHIFT: -10 mB", "CTRL: -100mB", "CTRL+SHIFT: -1000mB"});
+		governorIcon = new BeefGuiIcon(this, guiLeft + 102, guiTop + 107, 16, 16, ClientProxy.GuiIcons.getIcon("flowRate"), new String[] { GuiConstants.LITECYAN_TEXT + "Flow Rate Governor", "", "Controls the maximum rate at", "which hot fluids are drawn", "from the turbine's intake tank", "and passed over the turbines.", "", "Effectively, the max rate at which", "the turbine will process fluids."});
+		governorString = new BeefGuiLabel(this, "", guiLeft + 122, guiTop + 112);
+		btnGovernorUp   = new GuiIconButton(2, guiLeft + 120, guiTop + 125, 18, 18, ClientProxy.GuiIcons.getIcon("upArrow"),   new String[] { GuiConstants.LITECYAN_TEXT + "Increase Max Flow Rate", "", "Higher flow rates will", "increase rotor speed.", "", "SHIFT: +10 mB", "CTRL: +100mB", "CTRL+SHIFT: +1000mB"});
+		btnGovernorDown = new GuiIconButton(3, guiLeft + 140, guiTop + 125, 18, 18, ClientProxy.GuiIcons.getIcon("downArrow"), new String[] { GuiConstants.LITECYAN_TEXT + "Decrease Max Flow Rate", "", "Lower flow rates will", "decrease rotor speed.",  "", "SHIFT: -10 mB", "CTRL: -100mB", "CTRL+SHIFT: -1000mB"});
 
-		inductorIcon = new BeefGuiIcon(this, leftX, guiTop + 105, 16, 16, ClientProxy.GuiIcons.getIcon("rotorEfficiency"), new String[] { GuiConstants.LITECYAN_TEXT + "Induction Coils", "", "Metal coils inside the turbine", "extract energy from the rotor", "and convert it into RF.", "", "These controls engage/disengage", "the coils."});
-		btnInductorOn = new GuiIconButton(7, guiLeft + 24, guiTop + 104, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Activate Coils", "", "Engages the induction coils.", "Energy will be extracted from", "the rotor and converted to RF." });
-		btnInductorOff = new GuiIconButton(8, guiLeft + 44, guiTop + 104, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Coils", "", "Disengages the induction coils.", "Energy will NOT be extracted from", "the rotor." });
+		inductorIcon = new BeefGuiIcon(this, leftX, guiTop + 105, 16, 16, ClientProxy.GuiIcons.getIcon("coil"), new String[] { GuiConstants.LITECYAN_TEXT + "Induction Coils", "", "Metal coils inside the turbine", "extract energy from the rotor", "and convert it into RF.", "", "These controls engage/disengage", "the coils."});
+		btnInductorOn = new GuiIconButton(7, guiLeft + 24, guiTop + 104, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Engage Coils", "", "Engages the induction coils.", "Energy will be extracted from", "the rotor and converted to RF.", "", "Energy extraction exerts drag", "on the rotor, slowing it down." });
+		btnInductorOff = new GuiIconButton(8, guiLeft + 44, guiTop + 104, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Disengage Coils", "", "Disengages the induction coils.", "Energy will NOT be extracted from", "the rotor, allowing it to", "spin faster." });
 		
 		btnActivate = new GuiIconButton(0, guiLeft + 4, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Activate Turbine", "", "Enables flow of intake fluid to rotor.", "Fluid flow will spin up the rotor." });
 		btnDeactivate = new GuiIconButton(1, guiLeft + 24, guiTop + 144, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"), new String[] { GuiConstants.LITECYAN_TEXT + "Deactivate Turbine", "", "Disables flow of intake fluid to rotor.", "The rotor will spin down." });
@@ -144,6 +146,7 @@ public class GuiTurbineController extends BeefGuiBase {
 		registerControl(waterIcon);
 		registerControl(rpmIcon);
 		registerControl(rpmBar);
+		registerControl(governorIcon);
 		registerControl(governorString);
 		registerControl(btnGovernorUp);
 		registerControl(btnGovernorDown);
@@ -174,7 +177,7 @@ public class GuiTurbineController extends BeefGuiBase {
 		
 		speedString.setLabelText(String.format("%.1f RPM", turbine.getRotorSpeed()));
 		energyGeneratedString.setLabelText(String.format("%.0f RF/t", turbine.getEnergyGeneratedLastTick()));
-		governorString.setLabelText(String.format("Max Flow: %d mB/t", turbine.getMaxIntakeRate()));
+		governorString.setLabelText(String.format("%d mB/t", turbine.getMaxIntakeRate()));
 		
 		if(turbine.isActive()) {
 			if(turbine.getRotorEfficiencyLastTick() < 1f) {
