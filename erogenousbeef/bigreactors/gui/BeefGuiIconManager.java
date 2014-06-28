@@ -38,6 +38,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int VENT_NONE_OFF = 31;
 	public static final int VENT_NONE_ON = 32;
 	public static final int ROTOR_EFFICIENCY = 33;
+	public static final int FLOW_RATE = 34;
+	public static final int COIL = 35;
 
 	public BeefGuiIconManager() {
 		super();
@@ -75,7 +77,9 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"ventOverflowOn",
 				"ventNoneOff",
 				"ventNoneOn",
-				"rotorEfficiency"
+				"rotorEfficiency",
+				"flowRate",
+				"coil"
 		};
 	}
 	
