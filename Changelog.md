@@ -1,11 +1,31 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.3.3A)
+Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.3.3A)
+Current Release (0.3.4A)
 --------------------------------
+- Bugfix: Fixed rare crash when the Forge fluid registry has not finished initializing (race condition)
+- Bugfix: Reactors properly prioritize ejecting waste to outlet ports when outlets are available
+- Bugfix: RedNet inputs for control rod insertion are now properly clamped to [0,100] range.
+- Bugfix: Creative coolant inlets now completely fill reactor coolant tanks each tick
+- Bugfix: Rotors' visible RPMs now match value shown in UI, regardless of framerate
+- Bugfix: Turbines no longer hit "NaN" RPM if no coils are attached to the rotor
+- Bugfix: Reactor and turbine blocks are now marked as invalid for monster spawning. Mobs should no longer spawn on or in reactors and turbines
+- Balance: Hardness of blocks has been adjusted. Blocks should no longer take forever to break.
+- Balance: Turbine fluid intake tank expanded to 4000mB to permit better buffering of fluids. Processing rate still limited to 2000mB/t.
+- Enhancement: Recipe for creating cyanite ingots from yellorium ingots and sand added. Can be disabled via enableCyaniteFromYelloriumRecipe setting.
+- Enhancement: Turbine height limits may now be independently configured via maxTurbineHeight config value
+- Enhancement: Reactor Computercraft API now permits querying of maximum amount of hot fluid and coolant permitted in their respective tanks. getCoolantAmountMax() and getHotFluidAmountMax()
+- Enhancement: Turbine coils may now be engaged/disengaged via a "clutch" in the GUI. This allows turbines to spin up to operating speed faster.
+- Enhancement: Turbine "clutch" may be controlled via Turbine ComputerCraft API: getInductorEngaged() and setInductorEngaged(boolean)
+- Enhancement: Turbine GUI reorganized. Tooltips clarified and tooltips for flow rate governor added.
+- Optimization: Waste ejection code rewritten for efficiency and clarity. Should be somewhat faster now.
+
+Older Releases
+--------------
+### Release 0.3.3A
 - Bugfix: Disabling creative parts no longer causes client crashes when turbines are assembled
 - Bugfix: Corrupted metadata on Ingots no longer causes crashes
 - Bugfix: Passive reactors were cooling off (and generating energy) very slightly too fast. This has been fixed.
@@ -16,8 +36,6 @@ Current Release (0.3.3A)
 - Enhancement: Turbine's Computer Port can now manipulate vent settings via setVentNone(), setVentOverflow(), and setVentAll(). No arguments required.
 - Enhancement: Spanish translation, thanks k3936!
 
-Older Releases
---------------
 ### Release 0.3.2A
 - Enhancement: Swedish translation, thanks erucolindo!
 - Upgrade: German translation is now current for 0.3, thanks Vexatos!

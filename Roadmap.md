@@ -18,35 +18,27 @@ Known Issues
 
 - Setting the dormantChunkCacheSize Forge setting to something other than 0 (which is the default) will cause Big Reactors to break in strange and unusual ways. This setting is not supported.
 
-TODO - 0.3: The Coolant Update
+TODO - 0.4: The Exotic Coolant Update
 ------------------------------
-### Graphics
-- Cool particle effects when the reactor is on! (requires making my own particle, bleah)
+### Internals
+- Coolant fluid pairs can be registered in a registry, allowing different types of fluids to be used as coolants
 
 ### Multiblock Turbine
 - Optional explosion during severe overspeed conditions
 - Redstone port.
 - Different types of rotors and blades, made of different metals
 
-### Advanced coolant add-ons
+### Heat Exchanger
+- Big multiblock machine which converts exotic coolants into steam
+- Absorbs heat from exotic coolants into heat buffer, transfers buffered heat to water tank to create steam
+- Has "special steam" modes which create compressed steam (x10 energy), ultradense steam (x100 energy) and steamium (x1000 energy)
+- Primary fluid inlet accepts all mapped fluid pairs from coolant registry
+
+### Multiblock Reactor
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
-- Multiblock heat exchanger allows conversion of superheated coolant + water -> steam + coolant
-- Different types of coolant with different transference properties
-- Add "special steam" mode for people who complain about Power Converters/Railcraft steam
+- Coolant inlet accepts all mapped fluid pairs from coolant registry
 
-### Reactor meltdowns (may slip to 0.4)
-- Add option to enable reactor meltdowns to config
-- When overheated, low chance of meltdown, based on heat.
-- When meltdown occurs:
--- Reactor disassembles
--- One or more fuel rod blocks convert to corium fluid at the reactor's bottom
--- Zero or more explosions near the reactor's top
-- Corium fluid acts like acid; slowly eats through materials beneath it.
-- Touching corium fluid swiftly kills the shit out of you.
-- Corium fluid eventually hardens into corium.
-- Touching corium damages and withers you.
-
-TODO - 0.4: The Fueling Update
+TODO - 0.5: The Fueling Update
 ------------------------------
 ### Core
 - Change reactor icon selection mechanism to be like turbines and reorganize metadata to not use metadata entries so wastefully
@@ -64,7 +56,19 @@ TODO - 0.4: The Fueling Update
 - Figure out how to do fuels/wastes with mixed composition?
 - "Moxine" ingots/fluids.
 
-TODO - 0.5: The Reprocessing Update
+### Reactor meltdowns
+- Add option to enable reactor meltdowns to config
+- When overheated, low chance of meltdown, based on heat.
+- When meltdown occurs:
+-- Reactor disassembles
+-- One or more fuel rod blocks convert to corium fluid at the reactor's bottom
+-- Zero or more explosions near the reactor's top
+- Corium fluid acts like acid; slowly eats through materials beneath it.
+- Touching corium fluid swiftly kills the shit out of you.
+- Corium fluid eventually hardens into corium.
+- Touching corium damages and withers you.
+
+TODO - 0.6: The Reprocessing Update
 -----------------------------------
 ### Multiblock Reprocessing
 - Electrode controllers & electrode stacks, discharge large amounts of electricity between nearby electrodes.
@@ -93,6 +97,7 @@ Wishlist
 ## User Interface/Graphics
 - Add a temperature gauge block and other "display blocks" that can be plugged into reactor
 - Add remote versions of above that read their inputs from RedNet
+- Cool particle effects when the reactor is on! (requires making my own particle, bleah)
 
 ### Interoperability
 - Add MFR compatibility for drinking BR fluids with a straw
