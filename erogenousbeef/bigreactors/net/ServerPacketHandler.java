@@ -34,6 +34,7 @@ public class ServerPacketHandler implements IPacketHandler {
 		case Packets.MultiblockTurbineFullUpdate:
 		case Packets.MultiblockTurbineGovernorUpdate:
 		case Packets.MultiblockTurbineVentUpdate:
+		case Packets.MultiblockTurbineInductorEngagedUpdate:
 			try {
 				x = data.readInt();
 				y = data.readInt();
