@@ -4,8 +4,13 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.3.4A)
+Current Release (0.3.4A2)
 --------------------------------
+- Bugfix: Proxy network code fixed. Coil clutch now works properly.
+
+Older Releases
+--------------
+### Release 0.3.4A
 - Bugfix: Fixed rare crash when the Forge fluid registry has not finished initializing (race condition)
 - Bugfix: Reactors properly prioritize ejecting waste to outlet ports when outlets are available
 - Bugfix: RedNet inputs for control rod insertion are now properly clamped to [0,100] range.
@@ -23,8 +28,6 @@ Current Release (0.3.4A)
 - Enhancement: Turbine GUI reorganized. Tooltips clarified and tooltips for flow rate governor added.
 - Optimization: Waste ejection code rewritten for efficiency and clarity. Should be somewhat faster now.
 
-Older Releases
---------------
 ### Release 0.3.3A
 - Bugfix: Disabling creative parts no longer causes client crashes when turbines are assembled
 - Bugfix: Corrupted metadata on Ingots no longer causes crashes
