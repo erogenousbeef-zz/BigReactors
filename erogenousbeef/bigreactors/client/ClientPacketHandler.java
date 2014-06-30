@@ -38,6 +38,7 @@ public class ClientPacketHandler implements IPacketHandler {
 		switch(packetType) {
 		case Packets.ReactorControllerFullUpdate:
 		case Packets.MultiblockTurbineFullUpdate:
+		case Packets.MultiblockTurbineInductorEngagedUpdate:
 		{
 			try {
 				x = data.readInt();
