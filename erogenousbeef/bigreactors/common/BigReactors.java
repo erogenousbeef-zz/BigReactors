@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common;
 
+import java.util.ArrayList;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -248,7 +250,12 @@ public class BigReactors {
 				ItemStack product;
 
 				if(registerYelloriteSmeltToUranium) {
-					product = OreDictionary.getOres("ingotUranium").get(0).copy();
+					ArrayList<ItemStack> candidateOres = OreDictionary.getOres("ingotUranium");
+					if(candidateOres == null || candidateOres.size() <= 0) {
+						BRLog.warning("Config value registerYelloriteSmeltToUranium is set to True, but there are no ores registered as ingotUranium in the ore dictionary! Falling back to using standard yellorium only.");
+						candidateOres = OreDictionary.getOres("ingotYellorium");
+					}
+					product = candidateOres.get(0).copy();
 				}
 				else {
 					product = OreDictionary.getOres("ingotYellorium").get(0).copy();
