@@ -764,6 +764,7 @@ public class BigReactors {
 
 		BRRegistry.registerCoilPart("blockCopper",		1.2f, 1f, 1.2f);	// TE, lots of mods
 		BRRegistry.registerCoilPart("blockOsmium",		1.2f, 1f, 1.2f);	// Mekanism
+		BRRegistry.registerCoilPart("blockLead",		1.35f, 1.01f, 1.3f);// TE, Mekanism, some others
 		BRRegistry.registerCoilPart("blockBrass",		1.4f, 1f, 1.2f);	// Metallurgy
 		BRRegistry.registerCoilPart("blockBronze",		1.4f, 1f, 1.2f);	// Mekanism, many others
 		BRRegistry.registerCoilPart("blockAluminum",	1.5f, 1f, 1.3f);	// TiCo, couple others
@@ -785,6 +786,7 @@ public class BigReactors {
 			BRRegistry.registerCoilPart("blockHaderoth",	3.0f, 1f, 2.0f);
 			BRRegistry.registerCoilPart("blockCelenegil",	3.3f, 1f, 2.25f);
 			BRRegistry.registerCoilPart("blockTartarite",	3.5f, 1f, 2.5f);
+			BRRegistry.registerCoilPart("blockManyullyn",	3.5f, 1f, 2.5f);
 		}
 		
 		BRRegistry.registerReactorInteriorBlock("blockIron",		0.50f, 0.75f, 1.40f, IHeatEntity.conductivityIron);
@@ -805,6 +807,7 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorBlock("blockSteel",	 	0.50f, 0.78f, 1.42f, IHeatEntity.conductivityIron);
 		BRRegistry.registerReactorInteriorBlock("blockInvar",	 	0.50f, 0.79f, 1.43f, IHeatEntity.conductivityIron);
 		BRRegistry.registerReactorInteriorBlock("blockSilver", 		0.51f, 0.79f, 1.43f, IHeatEntity.conductivitySilver);
+		BRRegistry.registerReactorInteriorBlock("blockLead",		0.75f, 0.75f, 1.75f, IHeatEntity.conductivitySilver);
 		BRRegistry.registerReactorInteriorBlock("blockElectrum", 	0.53f, 0.82f, 1.47f, 2.2f); // Between gold and emerald
 		BRRegistry.registerReactorInteriorBlock("blockElectrumFlux",0.54f, 0.83f, 1.48f, 2.4f); // Between gold and emerald
 		BRRegistry.registerReactorInteriorBlock("blockPlatinum", 	0.57f, 0.86f, 1.58f, IHeatEntity.conductivityEmerald);
@@ -819,6 +822,7 @@ public class BigReactors {
 			BRRegistry.registerReactorInteriorBlock("blockHaderoth", 	0.54f, 0.84f, 1.49f, IHeatEntity.conductivityEmerald);
 			BRRegistry.registerReactorInteriorBlock("blockCelenegil", 	0.54f, 0.84f, 1.49f, IHeatEntity.conductivityDiamond);
 			BRRegistry.registerReactorInteriorBlock("blockTartarite", 	0.65f, 0.90f, 1.62f, 4f); // Between diamond and graphene
+			BRRegistry.registerReactorInteriorBlock("blockManyullyn",	0.68f, 0.88f, 1.75f, 4.5f);
 		}
 
 		//Water: 0.33f, 0.5f, 1.33f
