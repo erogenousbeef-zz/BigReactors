@@ -19,9 +19,19 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 	// INeighborUpdatableEntity
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
-		checkForConnections(world, x, y, z);
+		if(isConnected()) {
+			checkForConnections(world, x, y, z);
+		}
 	}
-	
+
+	@Override
+	public void onNeighborTileChange(World world, int x, int y, int z,
+			int neighborX, int neighborY, int neighborZ) {
+		if(isConnected()) {
+			checkForConnections(world, x, y, z);
+		}
+	}
+
 	public boolean isAttachedToPowerNetwork() {
 		return rfNetwork != null;
 	}

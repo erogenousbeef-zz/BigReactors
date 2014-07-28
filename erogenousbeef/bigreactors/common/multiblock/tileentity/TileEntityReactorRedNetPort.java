@@ -234,7 +234,14 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 	
 	// Public RedNet helpers for GUI & updates
+	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
+		checkForConnections(world, x, y, z);
+	}
+	
+	@Override
+	public void onNeighborTileChange(World world, int x, int y, int z,
+			int neighborX, int neighborY, int neighborZ) {
 		checkForConnections(world, x, y, z);
 	}
 	

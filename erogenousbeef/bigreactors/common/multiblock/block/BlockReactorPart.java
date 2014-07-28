@@ -263,7 +263,17 @@ public class BlockReactorPart extends BlockContainer implements IConnectableRedN
 			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlockID);
 		}
 	}
-	
+
+	@Override
+	public void onNeighborTileChange(World world, int x, int y, int z, int neighborX, int neighborY, int neighborZ) {
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		// Signal power taps when their neighbors change, etc.
+		if(te instanceof INeighborUpdatableEntity) {
+			((INeighborUpdatableEntity)te).onNeighborTileChange(world, x, y, z, neighborX, neighborY, neighborZ);
+		}
+	}
+
+
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
 		if(player.isSneaking()) {

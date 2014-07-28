@@ -170,6 +170,14 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 		}
 	}
 	
+	@Override
+	public void onNeighborTileChange(World world, int x, int y, int z,
+			int neighborX, int neighborY, int neighborZ) {
+		if(!world.isRemote) {
+			checkForAdjacentTank();
+		}
+	}
+	
 	// Private Helpers
 	protected void checkForAdjacentTank()
 	{

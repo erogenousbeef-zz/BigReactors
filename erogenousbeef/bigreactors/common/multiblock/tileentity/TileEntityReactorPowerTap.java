@@ -17,12 +17,21 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		rfNetwork = null;
 	}
 	
+	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID) {
 		if(isConnected()) {
 			checkForConnections(world, x, y, z);
 		}
 	}
-	
+
+	@Override
+	public void onNeighborTileChange(World world, int x, int y, int z,
+			int neighborX, int neighborY, int neighborZ) {
+		if(isConnected()) {
+			checkForConnections(world, x, y, z);
+		}
+	}
+
 	// IMultiblockPart
 	@Override
 	public void onAttached(MultiblockControllerBase newController) {
