@@ -88,6 +88,10 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
 		if(!isConnected() || from != getOutwardsDir()) { return 0; }
 
+		if(flowSetting != FluidFlow.In) {
+			return 0;
+		}
+		
 		return getTurbine().fill(getTankIndex(), resource, doFill);
 	}
 
@@ -109,6 +113,10 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	@Override
 	public boolean canFill(ForgeDirection from, Fluid fluid) {
 		if(!isConnected() || from != getOutwardsDir()) { return false; }
+		
+		if(flowSetting != FluidFlow.In) {
+			return false;
+		}
 		
 		return getTurbine().canFill(getTankIndex(), fluid);
 	}
