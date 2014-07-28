@@ -248,7 +248,7 @@ public class StaticUtils {
 
 			int decimalPoints = 2 - (power % 3);
 			int letterIdx = Math.max(0, Math.min(sizePrefixes.length, power / 3));
-			float divisor = letterIdx * 1000f;
+			double divisor = Math.pow(1000f, letterIdx);
 			
 			if(divisor > 0) {
 				return String.format("%s%." + Integer.toString(decimalPoints) + "f %sRF", prefix, number/divisor, sizePrefixes[letterIdx]);
