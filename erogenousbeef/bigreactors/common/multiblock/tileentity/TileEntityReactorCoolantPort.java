@@ -65,6 +65,10 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 		if(worldObj.isRemote) {
 			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
+		else {
+			// Force adjacent objects to notice us.
+			this.onInventoryChanged();
+		}
 	}
 	
 	@Override
@@ -168,6 +172,12 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z,
 			int neighborBlockID) {
+		checkForAdjacentTank();
+	}
+	
+	@Override
+	public void onNeighborTileChange(World world, int x, int y, int z,
+			int neighborX, int neighborY, int neighborZ) {
 		checkForAdjacentTank();
 	}
 

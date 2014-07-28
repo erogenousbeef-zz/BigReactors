@@ -13,5 +13,17 @@ public interface INeighborUpdatableEntity {
 	 * @param neighborBlockID Block ID of the block that changed
 	 */
 	public void onNeighborBlockChange(World world, int x, int y, int z, int neighborBlockID);
+	
+	/**
+	 * Called from a Block class's onNeighborTileChange
+	 * @param world The world containing the TileEntity
+	 * @param x Tile entity's Xcoord
+	 * @param y Tile entity's Ycoord
+	 * @param z Tile entity's Zcoord
+	 * @param neighborX Changed neighbor's Xcoord
+	 * @param neighborY Changed neighbor's Ycoord
+	 * @param neighborZ Changed neighbor's Zcoord
+	 */
+	public void onNeighborTileChange(World world, int x, int y, int z, int neighborX, int neighborY, int neighborZ);
 
 }
