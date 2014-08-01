@@ -1,0 +1,55 @@
+# Big Reactors Language Properties - Spanish
+# @author Erogenous Beef and k3936
+
+itemGroup.BigReactors=Grandes Reactores
+
+# Blocks
+tile.brOre.0.name=Mena de Yelorio
+tile.brMetal.0.name=Bloque de Yelorio
+tile.brMetal.1.name=Bloque de Cyanite
+tile.brMetal.2.name=Bloque de Grafito
+tile.brMetal.3.name=Bloque de Blutonio
+tile.yelloriumFuelRod.name=Barra de Combustible de Yelorio
+tile.blockReactorControlRod.name=Barra de Control del Reactor
+tile.multiblockGlass.0.name=Cristal del Reactor
+tile.multiblockGlass.1.name=Cristal de la Turbine
+tile.blockReactorRedstonePort.name=Puerto de Redstone del Reactor
+tile.blockReactorPart.0.name=Caja del Reactor
+tile.blockReactorPart.1.name=Controlador del Reactor
+tile.blockReactorPart.2.name=Fuente de Alimentaci\u00F3n del Reactor
+tile.blockReactorPart.3.name=Puerto de Acceso al Reactor
+tile.blockReactorPart.4.name=Puerto de RedNet del Reactor
+tile.blockReactorPart.5.name=Puerto de Ordenador al Reactor
+tile.blockReactorPart.6.name=Puerto de Refrigerante al Reactor
+tile.blockRadiothermalGen.0=Generador RadioT\u00E9rmico
+tile.blockBRSmallMachine.0.name=Reprocesador de Cyanite
+tile.blockTurbinePart.0.name=Caja de la Turbina
+tile.blockTurbinePart.1.name=Controlador de la Turbina
+tile.blockTurbinePart.2.name=Fuente de Alimentación de la Turbina
+tile.blockTurbinePart.3.name=Puerto de Fluidos a la Turbina
+tile.blockTurbinePart.4.name=Cojinete del Rotor de la Turbina
+tile.blockTurbinePart.5.name=Puerto de Acceso de la Turbina
+tile.blockTurbineRotorPart.0.name=Eje del Rotor de la Turbina
+tile.blockTurbineRotorPart.1.name=Pala del Rotor de la Turbina
+tile.blockMBCreativePart.0.name=Puerto de Fluido del Reactor (Creativo)
+tile.blockMBCreativePart.1.name=Generador de Vapor para la Turbina (Creativo)
+
+# Items
+item.ingotYellorium.name=Lingote de Yelorio
+item.ingotCyanite.name=Lingote de Cyanite
+item.ingotGraphite.name=Barra de Grafito
+item.ingotBlutonium.name=Lingote de Blutonio
+item.dustYellorium.name=Polvo de Yelorio
+item.dustCyanite.name=Polvo de Cyanite
+item.dustBlutonium.name=Polvo de Blutonio
+item.dustGraphite.name=Polve de Grafito
+item.bucket.cyanite.name=Cubo de Cyanite Liquido
+item.bucket.yellorium.name=Cubo de Yelorio Liquido
+
+# Fluids
+fluid.tile.water=Agua
+fluid.tile.lava=Lava
+fluid.tile.yellorium=Yelorio Liquido
+fluid.tile.cyanite=Cyanite Liquido
+fluid.tile.blutonium=Blutonio Liquido
+fluid.steam=Vapor
