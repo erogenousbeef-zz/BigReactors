@@ -5,40 +5,61 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.0-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
 apply plugin: 'forge'
 
-version = "0.3.4A2"
-group= "erogenousbeef.bigreactors" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = "0.3.5A"
+group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 
 minecraft {
-	version = "1.6.4-9.11.1.964"
-	
-	replace "@VERSION@", project.version
-	replaceIn "BRConfig.java"
+    version = "1.7.10-10.13.0.1180"
+    runDir = "run"	
+
+    replaceIn "BRConfig.java"
+    replace "@VERSION@", project.version
+}
+
+repositories {
+    maven {
+        name = "OpenComputers"
+        url = "http://maven.cil.li/"
+    }
+}
+
+dependencies { //The first two were added because one of the mods below them (I suspect AE2) was auto-downloading the 1.7.2 versions. Hopefully can be fixed in the future and can remove these.
+    compile 'codechicken:CodeChickenLib:1.7.10-1.1.1.98:dev'
+    compile 'codechicken:ForgeMultipart:1.7.10-1.1.0.299:dev'
+    compile 'com.mod-buildcraft:buildcraft:6.0.17:dev'
+    compile 'appeng:appliedenergistics2:rv0-stable-10:dev'
+    compile 'li.cil.oc:OpenComputers:MC1.7.10-1.3.2.43'
 }
 
 processResources
 {
-	inputs.property "version", project.version
-	inputs.property "mcversion", project.minecraft.version
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
-        include '**/*.info'
+        include 'mcmod.info'
                 
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
         
-    // copy everything else, thats not the mcmod.info and other info files
+    // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
-        exclude '**/*.info'
+        exclude 'mcmod.info'
     }
 }
