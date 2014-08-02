@@ -10,15 +10,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
-
 import appeng.api.AEApi;
 import appeng.api.features.IGrinderRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import powercrystals.minefactoryreloaded.api.FactoryRegistry;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -26,6 +23,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
+import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class CommonProxy {
@@ -111,7 +109,22 @@ public class CommonProxy {
 				doubleIngot.stackSize = 2;
 				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
 			}
-		}
+		} // END: IsModLoaded - ThermalExpansion
+		
+		
+		if(Loader.isModLoaded("MineFactoryReloaded")) {
+			// Add yellorite to yellow focus list.
+            NBTTagCompound laserOreMsg = new NBTTagCompound();
+            yelloriteOre.writeToNBT(laserOreMsg);
+            laserOreMsg.setInteger("value", 2);
+            sendInterModMessage("MineFactoryReloaded", "registerLaserOre", laserOreMsg);
+            
+            // Make Yellorite the 'preferred' ore for lime focus
+            NBTTagCompound preferredOreMsg = new NBTTagCompound();
+            yelloriteOre.writeToNBT(preferredOreMsg);
+            preferredOreMsg.setInteger("value", 9);
+            sendInterModMessage("MineFactoryReloaded", "addLaserPreferredOre", preferredOreMsg);
+		} // END: IsModLoaded - MineFactoryReloaded
 	}
 
 	public void postInit() {
@@ -197,18 +210,6 @@ public class CommonProxy {
 			if(ingotBlutonium != null && dustBlutonium != null) {
 				addMekanismCrusherRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
 			}
-		}
-		
-		if(Loader.isModLoaded("MineFactoryReloaded")) {
-            NBTTagCompound laserOreMsg = new NBTTagCompound();
-            yelloriteOre.writeToNBT(laserOreMsg);
-            laserOreMsg.setInteger("value", 2);
-			FactoryRegistry.sendMessage("registerLaserOre", laserOreMsg);
-
-            NBTTagCompound preferredOreMsg = new NBTTagCompound();
-            yelloriteOre.writeToNBT(preferredOreMsg);
-            preferredOreMsg.setInteger("value", 9);
-			FactoryRegistry.sendMessage("addLaserPreferredOre", preferredOreMsg); // Register yellorite with cyan, becuz.
 		}
 		
 		if(Loader.isModLoaded("ComputerCraft")) {
