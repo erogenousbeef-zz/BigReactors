@@ -1,0 +1,55 @@
+# Big Reactors Language Properties - English
+# @author Erogenous Beef
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Yellorite Ore
+tile.brMetal.0.name=Yellorium Block
+tile.brMetal.1.name=Cyanite Block
+tile.brMetal.2.name=Graphite Block
+tile.brMetal.3.name=Blutonium Block
+tile.yelloriumFuelRod.name=Yellorium Fuel Rod
+tile.blockReactorControlRod.name=Reactor Control Rod
+tile.multiblockGlass.0.name=Reactor Glass
+tile.multiblockGlass.1.name=Turbine Glass
+tile.blockReactorRedstonePort.name=Reactor Redstone Port
+tile.blockReactorPart.0.name=Reactor Casing
+tile.blockReactorPart.1.name=Reactor Controller
+tile.blockReactorPart.2.name=Reactor Power Tap
+tile.blockReactorPart.3.name=Reactor Access Port
+tile.blockReactorPart.4.name=Reactor RedNet Port
+tile.blockReactorPart.5.name=Reactor Computer Port
+tile.blockReactorPart.6.name=Reactor Coolant Port
+tile.blockRadiothermalGen.0=Radiothermal Generator
+tile.blockBRSmallMachine.0.name=Cyanite Reprocesssor
+tile.blockTurbinePart.0.name=Turbine Housing
+tile.blockTurbinePart.1.name=Turbine Controller
+tile.blockTurbinePart.2.name=Turbine Power Port
+tile.blockTurbinePart.3.name=Turbine Fluid Port
+tile.blockTurbinePart.4.name=Turbine Rotor Bearing
+tile.blockTurbinePart.5.name=Turbine Computer Port
+tile.blockTurbineRotorPart.0.name=Turbine Rotor Shaft
+tile.blockTurbineRotorPart.1.name=Turbine Rotor Blade
+tile.blockMBCreativePart.0.name=Reactor Creative Coolant Port
+tile.blockMBCreativePart.1.name=Turbine Creative Steam Generator
+
+# Items
+item.ingotYellorium.name=Yellorium Ingot
+item.ingotCyanite.name=Cyanite Ingot
+item.ingotGraphite.name=Graphite Bar
+item.ingotBlutonium.name=Blutonium Ingot
+item.dustYellorium.name=Yellorium Dust
+item.dustCyanite.name=Cyanite Dust
+item.dustBlutonium.name=Blutonium Dust
+item.dustGraphite.name=Graphite Dust
+item.bucket.cyanite.name=Fluid Cyanite Bucket
+item.bucket.yellorium.name=Fluid Yellorium Bucket
+
+# Fluids
+fluid.tile.water=Water
+fluid.tile.lava=Lava
+fluid.tile.yellorium=Fluid Yellorium
+fluid.tile.cyanite=Fluid Cyanite
+fluid.tile.blutonium=Fluid Blutonium
+fluid.steam=Steam
