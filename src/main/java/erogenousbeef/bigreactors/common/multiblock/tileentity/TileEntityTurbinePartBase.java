@@ -9,6 +9,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
@@ -58,7 +59,7 @@ public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTil
 	///// Network communication - IMultiblockNetworkHandler
 
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(Type packetType, DataInputStream data) throws IOException {
 		if(!this.isConnected()) {
 			return;
 		}

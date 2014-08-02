@@ -43,8 +43,8 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorF
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.bigreactors.net.message.MultiblockNetworkHandlerMessageClient;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageClient;
 import erogenousbeef.bigreactors.net.message.ReactorWasteEjectionSettingMessage;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
@@ -665,8 +665,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		CoordTriplet coord = getReferenceCoord();
 
-        return new MultiblockNetworkHandlerMessageClient(
-                Packets.ReactorControllerFullUpdate,
+        return new MultiblockMessageClient(
+        		Type.ReactorStatus,
                 coord.x, coord.y, coord.z,
                 this.active, this.reactorHeat, energyStored,
                 this.energyGeneratedLastTick, this.fuelConsumedLastTick,

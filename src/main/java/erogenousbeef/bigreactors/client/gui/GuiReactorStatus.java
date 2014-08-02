@@ -18,8 +18,8 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.bigreactors.net.message.MultiblockNetworkHandlerMessageServer;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 
@@ -198,7 +198,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		if(button.id == 0 || button.id == 1) {
 			boolean newSetting = button.id == 0;
 			if(newSetting != reactor.isActive()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.MultiblockActivateButton, saveDelegate.x, saveDelegate.y, saveDelegate.z, newSetting));
+                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.ButtonActivate, saveDelegate.x, saveDelegate.y, saveDelegate.z, newSetting));
 			}
 		}
 		else if(button.id >= 2 && button.id <= 4) {
@@ -213,11 +213,11 @@ public class GuiReactorStatus extends BeefGuiBase {
 			}
 			
 			if(reactor.getWasteEjection() != newEjectionSetting) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.ReactorWasteEjectionSettingUpdate, saveDelegate.x, saveDelegate.y, saveDelegate.z, newEjectionSetting.ordinal()));
+                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateWasteEjectionSetting, saveDelegate.x, saveDelegate.y, saveDelegate.z, newEjectionSetting.ordinal()));
 			}
 		}
 		else if(button.id == 5) {
-            CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.ReactorEjectButton, saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown(), false));
+            CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.ButtonEject, saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown(), false));
 		}
 	}
 	

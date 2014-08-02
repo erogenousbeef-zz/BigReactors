@@ -25,7 +25,8 @@ import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
-import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -218,8 +219,8 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	// IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
-		if(packetType == Packets.AccessPortButton) {
+	public void onNetworkPacket(MultiblockMessage.Type packetType, DataInputStream data) throws IOException {
+		if(packetType == Type.UpdateAccessPort) {
 			byte newMetadata = data.readByte();
 			
 			if(newMetadata == BlockReactorPart.ACCESSPORT_INLET || newMetadata == BlockReactorPart.ACCESSPORT_OUTLET) {

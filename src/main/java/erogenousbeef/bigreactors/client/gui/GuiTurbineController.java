@@ -17,8 +17,8 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiRpmBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.bigreactors.net.message.MultiblockNetworkHandlerMessageServer;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
 import erogenousbeef.core.common.CoordTriplet;
 
 public class GuiTurbineController extends BeefGuiBase {
@@ -245,7 +245,7 @@ public class GuiTurbineController extends BeefGuiBase {
 		if(button.id == 0 || button.id == 1) {
 			boolean setActive = button.id == 0;
 			if(setActive != turbine.isActive()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.MultiblockActivateButton, saveDelegate.x, saveDelegate.y, saveDelegate.z, setActive));
+                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.ButtonActivate, saveDelegate.x, saveDelegate.y, saveDelegate.z, setActive));
             }
 		}
 		
@@ -266,7 +266,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			newMax = Math.max(0, Math.min(turbine.getMaxIntakeRateMax(), turbine.getMaxIntakeRate() + newMax));
 
 			if(newMax != turbine.getMaxIntakeRate()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.MultiblockTurbineGovernorUpdate, saveDelegate.x, saveDelegate.y, saveDelegate.z, newMax));
+                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateTurbineGovernor, saveDelegate.x, saveDelegate.y, saveDelegate.z, newMax));
 			}
 		}
 		
@@ -285,7 +285,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			}
 			
 			if(newStatus != turbine.getVentSetting()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.MultiblockTurbineVentUpdate, saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus.ordinal()));
+                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateTurbineVent, saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus.ordinal()));
 			}
 		}
 		
@@ -294,7 +294,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			boolean newStatus = button.id == 7;
 			if(newStatus != turbine.getInductorEngaged())
 			{
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.MultiblockTurbineInductorEngagedUpdate, saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus));
+                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateTurbineInductor, saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus));
 			}
 		}
 	}

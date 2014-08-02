@@ -37,8 +37,8 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.bigreactors.net.message.MultiblockNetworkHandlerMessageClient;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageClient;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
@@ -201,8 +201,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 		CoordTriplet referenceCoord = getReferenceCoord();
 
-        return new MultiblockNetworkHandlerMessageClient(
-                Packets.MultiblockTurbineFullUpdate,
+        return new MultiblockMessageClient(
+                Type.TurbineStatus,
                 referenceCoord.x, referenceCoord.y, referenceCoord.z,
                 inputFluidID, inputFluidAmt, outputFluidID, outputFluidAmt,
                 energyStored, rotorEnergy, energyGeneratedLastTick,
@@ -271,31 +271,31 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 	}
 
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(Type packetType, DataInputStream data) throws IOException {
 		// Client->Server Packets
-		if(packetType == Packets.MultiblockActivateButton) {
+		if(packetType == Type.ButtonActivate) {
 			boolean nowActive = data.readBoolean();
 			setActive(nowActive);
 		}
 
-		if(packetType == Packets.MultiblockTurbineGovernorUpdate) {
+		if(packetType == Type.UpdateTurbineGovernor) {
 			setMaxIntakeRate(data.readInt());
 		}
 		
-		if(packetType == Packets.MultiblockTurbineVentUpdate) {
+		if(packetType == Type.UpdateTurbineVent) {
 			int idx = data.readInt();
 			if(idx >= 0 && idx < VentStatus.values().length) {
 				setVentStatus(VentStatus.values()[idx], true);
 			}
 		}
-		if(packetType == Packets.MultiblockTurbineInductorEngagedUpdate)
+		if(packetType == Type.UpdateTurbineInductor)
 		{
 			boolean engaged = data.readBoolean();
 			setInductorEngaged(engaged, true);
 		}
 
 		// Server->Client Packets
-		if(packetType == Packets.MultiblockTurbineFullUpdate) {
+		if(packetType == Type.TurbineStatus) {
 			onReceiveUpdatePacket(data);
 		}
 		
