@@ -541,7 +541,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			}
 		}
 		else {
-			throw new MultiblockValidationException(String.format("%d, %d, %d - Unrecognized block found (%d), not valid for the reactor's interior", x, y, z, block.getLocalizedName()));
+			throw new MultiblockValidationException(String.format("%d, %d, %d - Null block found, not valid for the reactor's interior", x, y, z));
 		}
 	}
 	
