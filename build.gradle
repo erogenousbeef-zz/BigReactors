@@ -38,9 +38,7 @@ repositories {
 
 dependencies { //The first two were added because one of the mods below them (I suspect AE2) was auto-downloading the 1.7.2 versions. Hopefully can be fixed in the future and can remove these.
     compile 'codechicken:CodeChickenLib:1.7.10-1.1.1.98:dev'
-    compile 'codechicken:ForgeMultipart:1.7.10-1.1.0.299:dev'
     compile 'com.mod-buildcraft:buildcraft:6.0.17:dev'
-    compile 'appeng:appliedenergistics2:rv0-stable-10:dev'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.3.2.43'
 }
 
