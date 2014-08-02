@@ -1260,10 +1260,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return maxEnergyStored;
 	}
 
-	public int getMaxEnergyPerTick() {
-		return this.maxEnergyStored;
-	} //Apparently unused
-	
 	// Redstone helper
 	public void setAllControlRodInsertionValues(int newValue) {
 		if(this.assemblyState != AssemblyState.Assembled) { return; }
