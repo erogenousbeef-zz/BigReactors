@@ -180,12 +180,6 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	public void onNeighborTileChange(IBlockAccess world, int x, int y, int z, int neighborX, int neighborY, int neighborZ) {
 		checkForAdjacentTank();
 	}
-	
-	@Override
-	public void onNeighborTileChange(World world, int x, int y, int z,
-			int neighborX, int neighborY, int neighborZ) {
-		checkForAdjacentTank();
-	}
 
 	// Private Helpers
 	private int getConnectedTank() {
