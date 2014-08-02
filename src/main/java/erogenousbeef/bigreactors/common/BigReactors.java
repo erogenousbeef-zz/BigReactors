@@ -633,16 +633,13 @@ public class BigReactors {
 		BRConfig.CONFIGURATION.save();
 	}
 	
-	public static void registerFluids(int id, boolean require) { //TODO Verify that I'm correct in thinking that the setBlockID doesn't need to be replaced with setBlock.
+	public static void registerFluids(int id, boolean require) {
 		if(BigReactors.fluidYelloriumStill == null) {
 			BRConfig.CONFIGURATION.load();
-			
-			//int fluidYelloriumID = BRConfig.CONFIGURATION.getBlock("LiquidYelloriumStill", BigReactors.BLOCK_ID_PREFIX + 4).getInt();
 			
 			BigReactors.fluidYellorium = FluidRegistry.getFluid("yellorium");
 			if(fluidYellorium == null) {
 				fluidYellorium = new Fluid("yellorium");
-				//fluidYellorium.setBlockID(fluidYelloriumID);
 				fluidYellorium.setDensity(100);
 				fluidYellorium.setGaseous(false);
 				fluidYellorium.setLuminosity(10);
@@ -667,12 +664,9 @@ public class BigReactors {
 		if(BigReactors.fluidCyaniteStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			//int fluidCyaniteID = BRConfig.CONFIGURATION.getBlock("LiquidCyaniteStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt();
-			
 			BigReactors.fluidCyanite = FluidRegistry.getFluid("cyanite");
 			if(fluidCyanite == null) {
 				fluidCyanite = new Fluid("cyanite");
-				//fluidCyanite.setBlockID(fluidCyaniteID);
 				fluidCyanite.setDensity(100);
 				fluidCyanite.setGaseous(false);
 				fluidCyanite.setLuminosity(6);
