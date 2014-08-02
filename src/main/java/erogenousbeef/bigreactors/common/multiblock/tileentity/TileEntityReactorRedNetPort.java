@@ -258,7 +258,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		ForgeDirection out = getOutwardsDir();
 		
 		if(redNetwork != null) {
-				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out); //TODO See if this is the ForgeDirection that is needed.
+				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite());
 		}
 		
 		if(redNetInput != null) {

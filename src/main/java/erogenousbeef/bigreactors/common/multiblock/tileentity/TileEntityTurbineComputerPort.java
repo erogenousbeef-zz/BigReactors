@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Optional;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine.VentStatus;
 import li.cil.oc.api.network.Arguments;
@@ -207,7 +208,8 @@ public class TileEntityTurbineComputerPort extends
         try {
             return callMethod(method, arguments);
         } catch(Exception e) {
-            e.printStackTrace(); //TODO Log some things or something, as this no longer just throws "Exception"
+        	BRLog.info("Exception encountered when invoking computercraft method: %s", e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

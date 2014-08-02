@@ -166,14 +166,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(part instanceof TileEntityReactorControlRod) {
 			TileEntityReactorControlRod controlRod = (TileEntityReactorControlRod)part; 
 			attachedControlRods.add(controlRod);
-			
-			// TODO: Remove once 0.2 backwards compatibility is no longer needed
-			if(controlRod.getCachedFuel() != null) {
-				fuelContainer.addFuel(controlRod.getCachedFuel());
-				
-				// Make sure we re-save the control rod, so we don't repeatedly load up with fuel
-				worldObj.markTileEntityChunkModified(controlRod.xCoord, controlRod.yCoord, controlRod.zCoord, controlRod);
-			}
 		}
 
 		if(part instanceof TileEntityReactorPowerTap) {
