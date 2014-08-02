@@ -43,6 +43,9 @@ public class NetworkUtils {
         {
             buf.writeShort((Short) obj);
         }
+        else {
+            throw new IllegalArgumentException("Unrecognized class for network serialization");
+        }
     }
 
     public static DataInputStream toDataInputStream(ByteBuf buf) {
