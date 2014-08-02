@@ -82,7 +82,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	}
 
 	// Player updates via IBeefGuiEntity
-	// TODO REMOVEME
 	@Override
 	public void beginUpdatingPlayer(EntityPlayer player) {
 	}
