@@ -11,8 +11,8 @@ public class CommonPacketHandler {
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(BigReactors.CHANNEL.toLowerCase());
 
     public static void init() {
-        INSTANCE.registerMessage(MultiblockNetworkHandlerMessageServer.class, MultiblockNetworkHandlerMessageServer.class, 0, Side.SERVER);
-        INSTANCE.registerMessage(MultiblockNetworkHandlerMessageClient.class, MultiblockNetworkHandlerMessageClient.class, 1, Side.CLIENT);
+        INSTANCE.registerMessage(MultiblockMessageServer.Handler.class, MultiblockMessageServer.class, 0, Side.SERVER);
+        INSTANCE.registerMessage(MultiblockMessageClient.Handler.class, MultiblockMessageClient.class, 1, Side.CLIENT);
         INSTANCE.registerMessage(GuiButtonPressMessage.class, GuiButtonPressMessage.class, 2, Side.SERVER);
         INSTANCE.registerMessage(ControlRodSetNameMessage.class, ControlRodSetNameMessage.class, 3, Side.SERVER);
         INSTANCE.registerMessage(RedNetSetDataMessage.class, RedNetSetDataMessage.class, 4, Side.SERVER);

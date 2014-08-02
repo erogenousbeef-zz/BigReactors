@@ -71,7 +71,7 @@ import erogenousbeef.bigreactors.world.BRWorldGenerator;
 public class BigReactors {
 
 	public static final String NAME 	= "Big Reactors";
-	public static final String CHANNEL 	= "BigReactors";
+	public static final String CHANNEL 	= "bigreactors";
 	public static final String RESOURCE_PATH = "/assets/bigreactors/";
 	
 	public static final CreativeTabs TAB = new CreativeTabBR(CHANNEL);

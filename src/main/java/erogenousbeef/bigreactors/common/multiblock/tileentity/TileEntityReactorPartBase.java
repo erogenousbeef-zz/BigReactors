@@ -14,7 +14,8 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
-import erogenousbeef.bigreactors.net.Packets;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage;
+import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
@@ -40,24 +41,24 @@ public abstract class TileEntityReactorPartBase extends
 
 	// IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(int packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(MultiblockMessage.Type packetType, DataInputStream data) throws IOException {
 		if(!this.isConnected()) {
 			return;
 		}
 
 		/// Client->Server packets
 		
-		if(packetType == Packets.MultiblockActivateButton) {
+		if(packetType == Type.ButtonActivate) {
 			boolean newValue = data.readBoolean();
 			getReactorController().setActive(newValue);
 		}
 		
-		if(packetType == Packets.ReactorWasteEjectionSettingUpdate) {
+		if(packetType == Type.UpdateWasteEjectionSetting) {
 			int newSetting = data.readInt();
 			getReactorController().setWasteEjection(WasteEjectionSetting.values()[newSetting]);
 		}
 		
-		if(packetType == Packets.ReactorEjectButton) {
+		if(packetType == Type.ButtonEject) {
 			boolean isFuelButton = data.readBoolean();
 			boolean dumpAll = data.readBoolean();
 			
@@ -77,7 +78,7 @@ public abstract class TileEntityReactorPartBase extends
 		
 		/// Server->Client packets
 		
-		if(packetType == Packets.ReactorControllerFullUpdate) {
+		if(packetType == Type.ReactorStatus) {
 			getReactorController().receiveReactorUpdate(data);
 		}
 	}
