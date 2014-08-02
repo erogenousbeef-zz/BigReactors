@@ -1,20 +1,16 @@
 package erogenousbeef.bigreactors.common;
 
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import cpw.mods.fml.common.FMLLog;
 
 public class BRLog {
 
-    private static Logger log;
-	
-	public BRLog() {
-		log = LogManager.getLogger("BigReactors");
-	}
+	private static final String LOGCHANNEL = "BigReactors";
 	
     public static void log(Level level, String format, Object... data)
     {
-    	log.log(level, format, data);
+    	FMLLog.log(LOGCHANNEL, level,  format, data);
     }
 
     public static void fatal(String format, Object... data)
@@ -24,7 +20,7 @@ public class BRLog {
 
     public static void error(String format, Object... data)
     {
-        log(Level.ERROR, format, data);
+    	log(Level.ERROR, format, data);
     }
 
     public static void warning(String format, Object... data)
