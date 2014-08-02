@@ -18,7 +18,24 @@ Known Issues
 
 - Setting the dormantChunkCacheSize Forge setting to something other than 0 (which is the default) will cause Big Reactors to break in strange and unusual ways. This setting is not supported.
 
-TODO - 0.4: The Exotic Coolant Update
+TODO - 0.4: The 1.7.10 Update
+-----------------------------
+Well, 1.7.10 snuck up on us faster than expected, so this rushes to the top of the priority list!
+
+Parker8283 has done a fantastic job of updating BR to 1.7.10; the primary job left is testing his implementation. A major concern with 1.7.10 is that there are now asynchronous chunk loads. From the description I've read, tile entities are still added on the main thread, so there shouldn't be any serious problems - it's just the actual disk-to-NBT loading which is threaded out, and the world-population code should remain the same.
+
+I'm going to take this opportunity to do some technical cleanup, particularly around how reactors select icons. This should result in slightly faster rendering (especially on slower network connections) and will reduce the amount of network traffic that reactor assembly/disassembly generates by around 90%. (Seriously.)
+
+Remaining Technical Items:
+
+- Refactor BlockReactorPart, unify all opaque reactor parts under this block.
+  - Redstone Port cannot be unified this way, due to the Redstone API blowing goats
+  - Make texture selection work via state and eliminate all calls to setBlockMetadataWithNotify
+  - Make sure to re-render on client
+- Verify that tooltips still work
+- Verify that energy connections still work for power taps and don't cause crashes 
+
+TODO - 0.5: The Exotic Coolant Update
 ------------------------------
 ### Internals
 - Coolant fluid pairs can be registered in a registry, allowing different types of fluids to be used as coolants
@@ -38,7 +55,7 @@ TODO - 0.4: The Exotic Coolant Update
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Coolant inlet accepts all mapped fluid pairs from coolant registry
 
-TODO - 0.5: The Fueling Update
+TODO - 0.6: The Fueling Update
 ------------------------------
 ### Core
 - Change reactor icon selection mechanism to be like turbines and reorganize metadata to not use metadata entries so wastefully
@@ -68,7 +85,7 @@ TODO - 0.5: The Fueling Update
 - Corium fluid eventually hardens into corium.
 - Touching corium damages and withers you.
 
-TODO - 0.6: The Reprocessing Update
+TODO - 0.7: The Reprocessing Update
 -----------------------------------
 ### Multiblock Reprocessing
 - Electrode controllers & electrode stacks, discharge large amounts of electricity between nearby electrodes.
@@ -87,7 +104,7 @@ TODO - General
 - Change all UI strings to be in the localization file to allow for full localization
 
 ### Reactor Mechanics
-- Radiation refractor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
+- Radiation refactor: a passive internal block that refracts radiation (changes direction by up to 90deg), at the cost of some scattering
 
 Wishlist
 --------
