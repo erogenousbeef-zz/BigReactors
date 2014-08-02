@@ -1,0 +1,55 @@
+# Simplified Chinese Language Properties
+# @author crafteverywhere,ReventonC
+
+itemGroup.BigReactors=\u5927\u578B\u53CD\u5E94\u5806
+
+# Blocks
+tile.brOre.0.name=\u9ec4\u94c0\u77ff\u77f3
+tile.brMetal.0.name=\u9EC4\u94C0\u5757
+tile.brMetal.1.name=\u84DD\u6676\u5757
+tile.brMetal.2.name=\u77F3\u58A8\u5757
+tile.brMetal.3.name=\u84DD\u949A\u5757
+tile.yelloriumFuelRod.name=\u9ec4\u94c0\u71c3\u6599\u68d2
+tile.blockReactorControlRod.name=\u53cd\u5e94\u5806\u63a7\u5236\u68d2
+tile.multiblockGlass.0.name=\u53cd\u5e94\u5806\u73bb\u7483
+tile.multiblockGlass.1.name=\u6DA1\u8F6E\u673A\u73BB\u7483
+tile.blockReactorRedstonePort.name=\u53CD\u5E94\u5806\u7EA2\u77F3\u7AEF\u53E3
+tile.blockReactorPart.0.name=\u53cd\u5e94\u5806\u5916\u58f3
+tile.blockReactorPart.1.name=\u53cd\u5e94\u5806\u63a7\u5236\u5668
+tile.blockReactorPart.2.name=\u53cd\u5e94\u5806\u80fd\u91cf\u63a5\u53e3
+tile.blockReactorPart.3.name=\u53cd\u5e94\u5806\u8bbf\u95ee\u7aef\u53e3
+tile.blockReactorPart.4.name=\u53cd\u5e94\u5806\u7ea2\u77f3\u7f51\u7edc\u7aef\u53e3
+tile.blockReactorPart.5.name=\u53CD\u5E94\u5806\u7535\u8111\u7AEF\u53E3
+tile.blockReactorPart.6.name=\u53CD\u5E94\u5806\u51B7\u5374\u7AEF\u53E3
+tile.blockRadiothermalGen.0=\u653e\u5c04\u6027\u540c\u4f4d\u7d20\u70ed\u7535\u673a
+tile.blockBRSmallMachine.0.name=\u84dd\u6676\u518d\u52a0\u5de5\u673a
+tile.blockTurbinePart.0.name=\u6DA1\u8F6E\u673A\u5916\u58F3
+tile.blockTurbinePart.1.name=\u6DA1\u8F6E\u673A\u63A7\u5236\u5668
+tile.blockTurbinePart.2.name=\u6DA1\u8F6E\u673A\u80FD\u91CF\u7AEF\u53E3
+tile.blockTurbinePart.3.name=\u6DA1\u8F6E\u673A\u6DB2\u4F53\u7AEF\u53E3
+tile.blockTurbinePart.4.name=\u6DA1\u8F6E\u673A\u8F6C\u5B50\u8F74\u627F
+tile.blockTurbinePart.5.name=\u6DA1\u8F6E\u673A\u7535\u8111\u7AEF\u53E3
+tile.blockTurbineRotorPart.0.name=\u6DA1\u8F6E\u673A\u8F6C\u8F74
+tile.blockTurbineRotorPart.1.name=\u6DA1\u8F6E\u673A\u53F6\u7247
+tile.blockMBCreativePart.0.name=\u521B\u9020\u6A21\u5F0F\u51B7\u5374\u7AEF\u53E3
+tile.blockMBCreativePart.1.name=\u521B\u9020\u6A21\u5F0F\u6DA1\u8F6E\u84B8\u6C7D\u53D1\u751F\u5668
+
+# Items
+item.ingotYellorium.name=\u9ec4\u94c0\u952d
+item.ingotCyanite.name=\u84dd\u6676\u952d
+item.ingotGraphite.name=\u77f3\u58a8\u68d2
+item.ingotBlutonium.name=\u84DD\u949A\u952D
+item.dustYellorium.name=\u9ec4\u94c0\u7c89
+item.dustCyanite.name=\u84dd\u6676\u7c89
+item.dustBlutonium.name=\u84DD\u949A\u7C89
+item.dustGraphite.name=\u77f3\u58a8\u7c89
+item.bucket.cyanite.name=\u6db2\u6001\u84dd\u6676\u6876
+item.bucket.yellorium.name=\u6db2\u6001\u9ec4\u94c0\u6876
+
+# Fluids
+fluid.tile.water=\u6C34
+fluid.tile.lava=\u5CA9\u6D46
+fluid.tile.yellorium=\u6DB2\u6001\u9EC4\u94C0
+fluid.tile.cyanite=\u6DB2\u6001\u84DD\u6676
+fluid.tile.blutonium=\u6DB2\u6001\u84DD\u949A
+fluid.steam=\u84B8\u6C7D

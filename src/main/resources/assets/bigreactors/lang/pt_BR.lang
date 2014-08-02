@@ -1,0 +1,55 @@
+# Big Reactors Language Properties - Portugu\u00EAs
+# @author Kevn8082
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Min\u00E9rio de Yellorite
+tile.brMetal.0.name=Bloco de Yellorium
+tile.brMetal.1.name=Bloco de Cyanite
+tile.brMetal.2.name=Bloco de Grafite
+tile.brMetal.3.name=Bloco de Blutonium
+tile.yelloriumFuelRod.name=Haste de Combust\u00EDvel de Yellorium
+tile.blockReactorControlRod.name=Haste de Controle do Reator
+tile.multiblockGlass.0.name=Vidro do Reator
+tile.multiblockGlass.1.name=Vidro da Turbina
+tile.blockReactorRedstonePort.name=Porta de Redstone do Reator
+tile.blockReactorPart.0.name=Alojamento do Reator
+tile.blockReactorPart.1.name=Controlador do Reator
+tile.blockReactorPart.2.name=Porta de Energia do Reator
+tile.blockReactorPart.3.name=Porta de Acesso do Reator
+tile.blockReactorPart.4.name=Porta RedNet do Reator
+tile.blockReactorPart.5.name=Entrada de Computador do Reator
+tile.blockReactorPart.6.name=Porta de Refrigera\u00E7\u00E3o do Reator
+tile.blockRadiothermalGen.0=Gerador Radiotermal
+tile.blockBRSmallMachine.0.name=Reprocessador de Cyanite
+tile.blockTurbinePart.0.name=Alojamento da Turbina
+tile.blockTurbinePart.1.name=Controlador da Turbina
+tile.blockTurbinePart.2.name=Porta de Energia da Turbina
+tile.blockTurbinePart.3.name=Porta de Flu\u00EDdos da Turbina
+tile.blockTurbinePart.4.name=Rolamento do Rotor da Turbina
+tile.blockTurbinePart.5.name=Entrada de Computador da Turbina
+tile.blockTurbineRotorPart.0.name=Haste do Rotor da Turbina
+tile.blockTurbineRotorPart.1.name=L\u00E2mina do Rotor da Turbina
+tile.blockMBCreativePart.0.name=Porta Criativa de Refrigera\u00E7\u00E3o do Reator
+tile.blockMBCreativePart.1.name=Gerador Criativo de Vapor da Turbina
+
+# Items
+item.ingotYellorium.name=Barra de Yellorium
+item.ingotCyanite.name=Barra de Cyanite
+item.ingotGraphite.name=Barra de Grafite
+item.ingotBlutonium.name=Barra de Blutonium
+item.dustYellorium.name=P\u00F3 de Yellorium
+item.dustCyanite.name=P\u00F3 de Cyanite
+item.dustBlutonium.name=P\u00F3 de Blutonium
+item.dustGraphite.name=P\u00F3 de Grafite
+item.bucket.cyanite.name=Balde do Flu\u00EDdo de Cyanite
+item.bucket.yellorium.name=Balde do Flu\u00EDdo de Yellorium
+
+# Fluids
+fluid.tile.water=\u00C1gua
+fluid.tile.lava=Lava
+fluid.tile.yellorium=Flu\u00EDdo de Yellorium
+fluid.tile.cyanite=Flu\u00EDdo de Cyanite
+fluid.tile.blutonium=Flu\u00EDdo de Blutonium
+fluid.steam=Vapor
