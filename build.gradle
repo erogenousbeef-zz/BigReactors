@@ -65,3 +65,17 @@ processResources
         exclude 'mcmod.info'
     }
 }
+
+task copyBeefCore(type: Copy) {
+    from("BeefCore/src/main/java/erogenousbeef/") {
+        include "**/*"
+        destinationDir = file("src/main/java/erogenousbeef/")
+    }
+}
+
+task deleteBeefCore(type: Delete) {
+    delete 'src/main/java/erogenousbeef/core'
+}
+
+tasks.compileApiJava.dependsOn copyBeefCore
+tasks.build.dependsOn deleteBeefCore
