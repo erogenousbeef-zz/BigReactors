@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock.interfaces;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import erogenousbeef.bigreactors.net.message.MultiblockMessage;

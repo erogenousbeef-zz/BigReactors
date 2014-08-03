@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.minecraft.block.Block;
@@ -21,10 +20,8 @@ import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemDuct;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BRRegistry;
-import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.net.message.MultiblockMessage;

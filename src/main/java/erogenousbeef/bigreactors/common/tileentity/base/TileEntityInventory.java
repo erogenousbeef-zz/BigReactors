@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.minecraft.block.Block;

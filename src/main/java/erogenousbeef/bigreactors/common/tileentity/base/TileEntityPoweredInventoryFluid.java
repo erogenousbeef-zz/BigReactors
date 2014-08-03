@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,7 +13,6 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.fluids.IFluidTank;
-
 import cpw.mods.fml.common.network.NetworkRegistry;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;

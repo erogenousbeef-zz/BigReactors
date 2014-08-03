@@ -18,8 +18,8 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
 import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 

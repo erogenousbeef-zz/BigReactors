@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +14,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
-
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;

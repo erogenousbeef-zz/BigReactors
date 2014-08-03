@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 

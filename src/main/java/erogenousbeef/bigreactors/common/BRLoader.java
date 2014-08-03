@@ -1,7 +1,5 @@
 package erogenousbeef.bigreactors.common;
 
-import java.util.Arrays;
-
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
