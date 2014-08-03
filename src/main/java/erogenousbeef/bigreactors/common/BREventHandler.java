@@ -5,8 +5,6 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-
 public class BREventHandler {
 
 	@SubscribeEvent
