@@ -20,20 +20,30 @@ Known Issues
 
 TODO - 0.4: The 1.7.10 Update
 -----------------------------
-Well, 1.7.10 snuck up on us faster than expected, so this rushes to the top of the priority list!
+Okay, we're well into the 1.7.10 update now! A lot of the massive refactoring is done, including:
+- Fully rewritten networking and message-routing system
+- Reactor part rewritten to not do stupid things with metadata
+  - MUCH faster to assemble/disassemble, like 90% less network traffic on your average reactor
+  - Exponential reduction on very large reactors (99%+ less traffic)
+- Reactor part icon selection rewritten thanks to above
+- Reactor control rod merged into base reactor part, lots of dead code removed
+- Enabled reactor parts on top/bottom faces thanks to all of the above
 
-Parker8283 has done a fantastic job of updating BR to 1.7.10; the primary job left is testing his implementation. A major concern with 1.7.10 is that there are now asynchronous chunk loads. From the description I've read, tile entities are still added on the main thread, so there shouldn't be any serious problems - it's just the actual disk-to-NBT loading which is threaded out, and the world-population code should remain the same.
+Remaining TODOs:
+- Fix up Reactor Control Rod GUI. It's gone without love for too long.
+  - Add way to set ALL control rods from the GUI
+  - Add tooltips explaining how control rods work
+  
+Remaining Test Items:
+- Ensure that multiblocks still reform when build across chunk boundaries
+- Ensure that multiblocks still reform on chunk loads
+- Ensure that turbines still assemble and operate
+- Ensure that reactors operate properly and GUI updates propagate properly
+- Ensure that cyanite reprocessor still works & inventory/fluid side changes still work
+- Ensure that all of the above also work on multiplayer servers
+- Test interoperability with TE 1.7.10 beta
 
-I'm going to take this opportunity to do some technical cleanup, particularly around how reactors select icons. This should result in slightly faster rendering (especially on slower network connections) and will reduce the amount of network traffic that reactor assembly/disassembly generates by around 90%. (Seriously.)
-
-Remaining Technical Items:
-
-- Refactor BlockReactorPart, unify all opaque reactor parts under this block.
-  - Redstone Port cannot be unified this way, due to the Redstone API blowing goats
-  - Make texture selection work via state and eliminate all calls to setBlockMetadataWithNotify
-  - Make sure to re-render on client
-- Verify that tooltips still work
-- Verify that energy connections still work for power taps and don't cause crashes 
+When all of the above are marked **done**, I'll release a public experimental (i.e. test) build. It will be *0.4.0X1*.
 
 TODO - 0.5: The Exotic Coolant Update
 ------------------------------
