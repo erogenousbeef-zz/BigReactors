@@ -49,7 +49,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 	@Override
 	public IIcon getIcon(int side, int metadata)
 	{
-		if(side == 0 || side == 1) { return BigReactors.blockReactorPart.getIcon(side, BlockReactorPart.CASING_METADATA_BASE); }
+		if(side == 0 || side == 1) { return BigReactors.blockReactorPart.getIcon(side, BlockReactorPart.METADATA_CASING); }
 
 		if(metadata == META_REDSTONE_LIT) { return blockIconLit; }
 		else {

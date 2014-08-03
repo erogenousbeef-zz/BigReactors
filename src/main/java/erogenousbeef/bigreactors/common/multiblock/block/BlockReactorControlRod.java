@@ -17,8 +17,6 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorC
 
 public class BlockReactorControlRod extends BlockContainer {
 
-	protected IIcon topIcon;
-	
 	public BlockReactorControlRod(Material material) {
 		super(material);
 		
@@ -37,25 +35,18 @@ public class BlockReactorControlRod extends BlockContainer {
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
-		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "tile.blockReactorPart.casingDefault");
-		this.topIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
+		blockIcon =  par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public IIcon getIcon(int side, int metadata)
 	{
-		if(side == 1) { return this.topIcon; }
+		if(side == 1) { return blockIcon; }
 		
-		return this.blockIcon;
+		return BigReactors.blockReactorPart.getIcon(side, BlockReactorPart.METADATA_CASING);
 	}
 
-	@Override
-	public boolean renderAsNormalBlock() { return false; }
-	
-	@Override
-	public boolean isOpaqueCube() { return false; }
-	
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityPlayer, int side, float hitX, float hitY, float hitZ) {
 		if(entityPlayer.isSneaking()) {

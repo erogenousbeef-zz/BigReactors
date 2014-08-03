@@ -27,6 +27,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
@@ -35,65 +36,59 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
 import erogenousbeef.bigreactors.utils.StaticUtils;
+import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.rectangular.PartPosition;
 
 public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode, IPeripheralProvider {
 	
-	public static final int CASING_METADATA_BASE = 0;	// Requires 5 "block types" to do properly.
-	public static final int CASING_CORNER = 1;
-	public static final int CASING_CENTER = 2;
-	public static final int CASING_VERTICAL = 3;
-	public static final int CASING_EASTWEST = 4;
-	public static final int CASING_NORTHSOUTH = 5;
+	public static final int METADATA_CASING = 0;
+	public static final int METADATA_CONTROLLER = 1;
+	public static final int METADATA_POWERTAP = 2;
+	public static final int METADATA_ACCESSPORT = 3;
+	public static final int METADATA_REDNETPORT = 4;
+	public static final int METADATA_COMPUTERPORT = 5;
+	public static final int METADATA_COOLANTPORT = 6;
 	
-	public static final int CONTROLLER_METADATA_BASE = 6; // Disabled, Idle, Active
-	public static final int CONTROLLER_IDLE = 7;
-	public static final int CONTROLLER_ACTIVE = 8;
-
-	public static final int POWERTAP_METADATA_BASE 	 = 9; // Disconnected, Connected
+	private static final int PORT_INLET = 0;
+	private static final int PORT_OUTLET = 1;
+	private static final int TAP_DISCONNECTED = 0;
+	private static final int TAP_CONNECTED = 1;
+	private static final int CONTROLLER_OFF = 0;
+	private static final int CONTROLLER_IDLE = 1;
+	private static final int CONTROLLER_ACTIVE = 2;
 	
-	public static final int ACCESSPORT_INLET = 11;
-	public static final int ACCESSPORT_OUTLET = 12;
-	public static final int REDNETPORT = 13;
-	public static final int COMPUTERPORT = 14;
-	public static final int COOLANTPORT = 15;
-	
-	private static String[] _subBlocks = new String[] { "casingDefault",
-														"casingCorner",
-														"casingCenter",
-														"casingVertical",
-														"casingEastWest",
-														"casingNorthSouth",
-														"controllerInactive",
-														"controllerIdle",
-														"controllerActive",
-														"powerTapDisconnected",
-														"powerTapConnected",
-														"accessInlet",
-														"accessOutlet",
+	private static String[] _subBlocks = new String[] { "casing",
+														"controller",
+														"powerTap",
+														"accessPort",
 														"redNetPort",
 														"computerPort",
 														"coolantPort" };
+	
 
-	protected static final int SUBICON_COOLANT_OUTLET = 0;
-	
-	private static String[] _subIconNames = new String[] {
-		"coolantPort.outlet"
+	private static String[][] _states = new String[][] {
+		{"default", "face", "corner", "eastwest", "northsouth", "vertical"}, // Casing
+		{"off", "idle", "active"}, 		// Controller
+		{"disconnected", "connected"}, 	// Power Tap
+		{"inlet", "outlet"}, 			// Access Port
+		{"default"},					// RedNet Port
+		{"default"},					// Computer Port
+		{"inlet", "outlet"} 			// Coolant Port
 	};
-	
-	private IIcon[] _icons = new IIcon[_subBlocks.length];
+	private IIcon[][] _icons = new IIcon[_states.length][];
+	private static final int NUM_ICONS = 18; // Number in the states dict + 1
+
 	private IIcon[] _redNetPortConfigIcons = new IIcon[TileEntityReactorRedNetPort.CircuitType.values().length - 1];
 	
-	private IIcon[] _subIcons = new IIcon[_subIconNames.length];
-	
-	public static boolean isCasing(int metadata) { return metadata >= CASING_METADATA_BASE && metadata < CONTROLLER_METADATA_BASE; }
-	public static boolean isController(int metadata) { return metadata >= CONTROLLER_METADATA_BASE && metadata < POWERTAP_METADATA_BASE; }
-	public static boolean isPowerTap(int metadata) { return metadata >= POWERTAP_METADATA_BASE && metadata < ACCESSPORT_INLET; }
-	public static boolean isAccessPort(int metadata) { return metadata >= ACCESSPORT_INLET && metadata < REDNETPORT; }
-	public static boolean isRedNetPort(int metadata) { return metadata == REDNETPORT; }
-	public static boolean isComputerPort(int metadata) { return metadata == COMPUTERPORT; }
-	public static boolean isCoolantPort(int metadata) { return metadata == COOLANTPORT; }
+	public static boolean isCasing(int metadata) { return metadata == METADATA_CASING; }
+	public static boolean isController(int metadata) { return metadata == METADATA_CONTROLLER; }
+	public static boolean isPowerTap(int metadata) { return metadata == METADATA_POWERTAP; }
+	public static boolean isAccessPort(int metadata) { return metadata == METADATA_ACCESSPORT; }
+	public static boolean isRedNetPort(int metadata) { return metadata == METADATA_REDNETPORT; }
+	public static boolean isComputerPort(int metadata) { return metadata == METADATA_COMPUTERPORT; }
+	public static boolean isCoolantPort(int metadata) { return metadata == METADATA_COOLANTPORT; }
 	
 	public BlockReactorPart(Material material) {
 		super(material);
@@ -107,94 +102,47 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 
 	@Override
     public IIcon getIcon(IBlockAccess blockAccess, int x, int y, int z, int side) {
-		// TODO: Put all icon selection in here
+		IIcon icon = null;
 		int metadata = blockAccess.getBlockMetadata(x,y,z);
-
-		if(isCoolantPort(metadata)) {
-			TileEntity te = blockAccess.getTileEntity(x, y, z);
-
-			if(te instanceof TileEntityReactorCoolantPort) {
-				TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
-				
-				if(cp.isConnected() && cp.getReactorController().isAssembled()) {
-					if(cp.getOutwardsDir().ordinal() == side) {
-						if(cp.isInlet()) {
-							return _icons[metadata];
-						}
-						else {
-							return _subIcons[SUBICON_COOLANT_OUTLET];
-						}
-					}
-					else {
-						return _icons[CASING_METADATA_BASE];
-					}
-				}
-				else {
-					if(side == 0 || side == 1) {
-						return _icons[CASING_METADATA_BASE];
-					}
-					else if(cp.isInlet()) {
-						return _icons[metadata];
-					}
-					else {
-						return _subIcons[SUBICON_COOLANT_OUTLET];
-					}
-				}
-			}
+		
+		if(metadata != METADATA_CASING && (side == 0 || side == 1)) {
+			return blockIcon;
 		}
 		
-		return getIcon(side, metadata);
+		switch(metadata) {
+			case METADATA_CASING:
+				icon = getCasingIcon(blockAccess, x, y, z, side);
+				break;
+			case METADATA_CONTROLLER:
+				icon = getControllerIcon(blockAccess, x, y, z, side);
+				break;
+			case METADATA_POWERTAP:
+				icon = getPowerTapIcon(blockAccess, x, y, z, side);
+				break;
+			case METADATA_ACCESSPORT:
+				icon = getAccessPortIcon(blockAccess, x, y, z, side);
+				break;
+			case METADATA_COOLANTPORT:
+				icon = getCoolantPortIcon(blockAccess, x, y, z, side);
+				break;
+			case METADATA_REDNETPORT:
+			case METADATA_COMPUTERPORT:
+				icon = getFaceOrBlockIcon(blockAccess, x, y, z, side, metadata);
+				break;
+		}
+
+		return icon != null ? icon : getIcon(side, metadata);
 	}
-	
-	
+
 	@Override
 	public IIcon getIcon(int side, int metadata)
 	{
-		// Casing block
-		switch(metadata) {
-			case CASING_METADATA_BASE:
-			case CASING_CORNER:
-			case CASING_CENTER:
-				return _icons[metadata];
-			
-			case CASING_VERTICAL:
-				// Vertical block
-				if(side == 0 || side == 1) {
-					return _icons[CASING_METADATA_BASE];
-				}
-				else
-				{
-					return _icons[metadata];
-				}
-			case CASING_EASTWEST:
-				// X-aligned block (e/w)
-				if(side == 4 || side == 5) {
-					return _icons[CASING_METADATA_BASE];
-				}
-				else {
-					return _icons[metadata];
-				}
-			case CASING_NORTHSOUTH:
-				// Z-aligned block (n/s)
-				if(side == 2 || side == 3) {
-					return _icons[CASING_METADATA_BASE];
-				}
-				else if(side == 4 || side == 5) {
-					// I hate everything
-					return _icons[CASING_EASTWEST];
-				}
-				else {
-					return _icons[metadata];
-				}
-			
-			default:
-				if(side == 0 || side == 1) {
-					return _icons[CASING_METADATA_BASE];
-				}
-				else {
-					metadata = Math.max(0, Math.min(15, metadata));
-					return _icons[metadata];
-				}
+		if(side == 0 || side == 1) { return blockIcon; }
+		else if(metadata >= 0 && metadata < _icons.length) {
+			return _icons[metadata][0];
+		}
+		else {
+			return blockIcon;
 		}
 	}
 
@@ -202,23 +150,28 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
+		String prefix = BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".";
+
+		for(int metadata = 0; metadata < _states.length; ++metadata) {
+			String[] blockStates = _states[metadata];
+			_icons[metadata] = new IIcon[blockStates.length];
+
+			for(int state = 0; state < blockStates.length; state++) {
+				_icons[metadata][state] = par1IconRegister.registerIcon(prefix + _subBlocks[metadata] + "." + blockStates[state]);
+			}
+		}
+		
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
-		
-		for(int i = 0; i < _subBlocks.length; ++i) {
-			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
-		}
-		
-		for(int i = 0; i < _subIconNames.length; ++i) {
-			_subIcons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subIconNames[i]);
-		}
 		
 		// We do this to skip DISABLED
 		TileEntityReactorRedNetPort.CircuitType[] circuitTypes = TileEntityReactorRedNetPort.CircuitType.values();
+		String rednetPrefix = BigReactors.TEXTURE_NAME_PREFIX + "redNet/";
+
 		for(int i = 1; i < circuitTypes.length; ++i) {
-			_redNetPortConfigIcons[i - 1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "redNet/" + circuitTypes[i].name());
+			_redNetPortConfigIcons[i - 1] = par1IconRegister.registerIcon(rednetPrefix + circuitTypes[i].name());
 		}
 	}
-	
+
 	// We do this to skip DISABLED
 	@SideOnly(Side.CLIENT)
 	public IIcon getRedNetConfigIcon(TileEntityReactorRedNetPort.CircuitType circuitType) {
@@ -250,7 +203,6 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 		}
 	}
 	
-	
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) {
 		TileEntity te = world.getTileEntity(x, y, z);
@@ -277,6 +229,13 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 		}
 
 		int metadata = world.getBlockMetadata(x, y, z);
+		TileEntity te = world.getTileEntity(x, y, z);
+
+		MultiblockControllerBase controller = null;
+		if(te instanceof IMultiblockPart) {
+			controller = ((IMultiblockPart)te).getMultiblockController();
+		}
+		
 		if(!isController(metadata) && !isAccessPort(metadata) && !isRedNetPort(metadata)) {
 			// If the player's hands are empty and they rightclick on a multiblock, they get a 
 			// multiblock-debugging message if the machine is not assembled.
@@ -285,7 +244,6 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 				
 				if(isCoolantPort(metadata) && (StaticUtils.Inventory.isPlayerHoldingWrench(player) || currentEquippedItem == null)) {
 					// Use wrench to change inlet/outlet state
-					TileEntity te = world.getTileEntity(x, y, z);
 					if(te instanceof TileEntityReactorCoolantPort) {
 						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
 						cp.setInlet(!cp.isInlet());
@@ -293,9 +251,7 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 					}
 				}
 				else if(currentEquippedItem == null) {
-					TileEntity te = world.getTileEntity(x, y, z);
 					if(te instanceof IMultiblockPart) {
-						MultiblockControllerBase controller = ((IMultiblockPart)te).getMultiblockController();
 						if(controller != null) {
 							Exception e = controller.getLastValidationException();
 							if(e != null) {
@@ -313,8 +269,8 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 			return false;
 		}
 		
-		// Machine isn't assembled yet...
-		if(metadata == CONTROLLER_METADATA_BASE) { return false; }
+		// Don't open the controller GUI if the reactor isn't assembled
+		if(isController(metadata) && (controller == null || !controller.isAssembled())) { return false; }
 
 		if(!world.isRemote) {
 			player.openGui(BRLoader.instance, 0, world, x, y, z);
@@ -337,60 +293,35 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 	@Override
 	public int damageDropped(int metadata)
 	{
-		if (isCasing(metadata))
-		{
-			return CASING_METADATA_BASE;
-		}
-		else if (isController(metadata))
-		{
-			return CONTROLLER_METADATA_BASE;
-		}
-		else if(isPowerTap(metadata)) {
-			return POWERTAP_METADATA_BASE;
-		}
-		else if(isAccessPort(metadata)) {
-			return ACCESSPORT_INLET;
-		}
-		else if(isRedNetPort(metadata)) {
-			return REDNETPORT;
-		}
-		else if(isComputerPort(metadata)) {
-			return COMPUTERPORT;
-		}
-		else if(isCoolantPort(metadata)) {
-			return COOLANTPORT;
-		}
-		else {
-			return CASING_METADATA_BASE;
-		}
+		return metadata;
 	}
 	
 	public ItemStack getReactorCasingItemStack() {
-		return new ItemStack(this, 1, CASING_METADATA_BASE);
+		return new ItemStack(this, 1, METADATA_CASING);
 	}
 	
 	public ItemStack getReactorControllerItemStack() {
-		return new ItemStack(this, 1, CONTROLLER_METADATA_BASE);
+		return new ItemStack(this, 1, METADATA_CONTROLLER);
 	}
 	
 	public ItemStack getReactorPowerTapItemStack() {
-		return new ItemStack(this, 1, POWERTAP_METADATA_BASE);
+		return new ItemStack(this, 1, METADATA_POWERTAP);
 	}
 	
 	public ItemStack getAccessPortItemStack() {
-		return new ItemStack(this, 1, ACCESSPORT_INLET);
+		return new ItemStack(this, 1, METADATA_ACCESSPORT);
 	}
 	
 	public ItemStack getRedNetPortItemStack() {
-		return new ItemStack(this, 1, REDNETPORT);
+		return new ItemStack(this, 1, METADATA_REDNETPORT);
 	}
 	
 	public ItemStack getComputerPortItemStack() {
-		return new ItemStack(this, 1, COMPUTERPORT);
+		return new ItemStack(this, 1, METADATA_COMPUTERPORT);
 	}
 	
 	public ItemStack getCoolantPortItemStack() {
-		return new ItemStack(this, 1, COOLANTPORT);
+		return new ItemStack(this, 1, METADATA_COOLANTPORT);
 	}
 	
 	@Override
@@ -523,5 +454,179 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 			return (IPeripheral)te;
 		
 		return null;
+	}
+	
+	//// UGLY UI CODE HERE ////
+	private IIcon getCoolantPortIcon(IBlockAccess blockAccess, int x, int y,
+			int z, int side) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorCoolantPort) {
+			TileEntityReactorCoolantPort port = (TileEntityReactorCoolantPort)te;
+			
+			if(!isReactorAssembled(port) || isOutwardsSide(port, side)) {
+				if(port.isInlet()) {
+					return _icons[METADATA_COOLANTPORT][PORT_INLET];
+				}
+				else {
+					return _icons[METADATA_COOLANTPORT][PORT_OUTLET];
+				}
+			}
+		}
+		return blockIcon;
+	}
+
+	private IIcon getAccessPortIcon(IBlockAccess blockAccess, int x, int y,
+			int z, int side) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorAccessPort) {
+			TileEntityReactorAccessPort port = (TileEntityReactorAccessPort)te;
+
+			if(!isReactorAssembled(port) || isOutwardsSide(port, side)) {
+				if(port.isInlet()) {
+					return _icons[METADATA_ACCESSPORT][PORT_INLET];
+				}
+				else {
+					return _icons[METADATA_ACCESSPORT][PORT_OUTLET];
+				}
+			}
+		}
+		return blockIcon;
+	}
+
+	private IIcon getPowerTapIcon(IBlockAccess blockAccess, int x, int y, int z, int side) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorPowerTap) {
+			TileEntityReactorPowerTap tap = (TileEntityReactorPowerTap)te;
+			
+			if(!isReactorAssembled(tap) || isOutwardsSide(tap, side)) {
+				if(tap.hasEnergyConnection()) {
+					return _icons[METADATA_POWERTAP][TAP_CONNECTED];
+				}
+				else {
+					return _icons[METADATA_POWERTAP][TAP_DISCONNECTED];
+				}
+			}
+		}
+		return blockIcon;
+	}
+
+	private IIcon getControllerIcon(IBlockAccess blockAccess, int x, int y,
+			int z, int side) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorPart) {
+			TileEntityReactorPart controller = (TileEntityReactorPart)te;
+			MultiblockReactor reactor = controller.getReactorController();
+			
+			if(reactor == null || !reactor.isAssembled()) {
+				return _icons[METADATA_CONTROLLER][CONTROLLER_OFF];
+			}
+			else if(!isOutwardsSide(controller, side)) {
+				return blockIcon;
+			}
+			else if(reactor.getActive()) {
+				return _icons[METADATA_CONTROLLER][CONTROLLER_ACTIVE];
+			}
+			else {
+				return _icons[METADATA_CONTROLLER][CONTROLLER_IDLE];
+			}
+		}
+		return blockIcon;
+	}
+
+	private static final int DEFAULT = 0;
+	private static final int FACE = 1;
+	private static final int CORNER = 2;
+	private static final int EASTWEST = 3;
+	private static final int NORTHSOUTH = 4;
+	private static final int VERTICAL = 5;
+	
+	private IIcon getCasingIcon(IBlockAccess blockAccess, int x, int y, int z, int side) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorPart) {
+			TileEntityReactorPart part = (TileEntityReactorPart)te;
+			PartPosition position = part.getPartPosition();
+			MultiblockReactor reactor = part.getReactorController();
+			if(!reactor.isAssembled()) {
+				return _icons[METADATA_CASING][DEFAULT];
+			}
+			
+			switch(position) {
+			case BottomFace:
+			case TopFace:
+			case EastFace:
+			case WestFace:
+			case NorthFace:
+			case SouthFace:
+				return _icons[METADATA_CASING][FACE];
+			case FrameCorner:
+				return _icons[METADATA_CASING][CORNER];
+			case Frame:
+				return getCasingEdgeIcon(part, reactor, side);
+			case Interior:
+			case Unknown:
+			default:
+				return _icons[METADATA_CASING][DEFAULT];
+			}
+		}
+		return _icons[METADATA_CASING][DEFAULT];
+	}
+	
+	private IIcon getCasingEdgeIcon(TileEntityReactorPart part, MultiblockReactor reactor, int side) {
+		if(!reactor.isAssembled()) { return _icons[METADATA_CASING][DEFAULT]; }
+
+		CoordTriplet minCoord = reactor.getMinimumCoord();
+		CoordTriplet maxCoord = reactor.getMaximumCoord();
+
+		boolean xExtreme, yExtreme, zExtreme;
+		xExtreme = yExtreme = zExtreme = false;
+
+		if(part.xCoord == minCoord.x || part.xCoord == maxCoord.x) { xExtreme = true; }
+		if(part.yCoord == minCoord.y || part.yCoord == maxCoord.y) { yExtreme = true; }
+		if(part.zCoord == minCoord.z || part.zCoord == maxCoord.z) { zExtreme = true; }
+		
+		int idx = DEFAULT;
+		if(!xExtreme) {
+			if(side < 4) { idx = EASTWEST; }
+		}
+		else if(!yExtreme) {
+			if(side > 1) {
+				idx = VERTICAL;
+			}
+		}
+		else { // !zExtreme
+			if(side < 2) {
+				idx = NORTHSOUTH;
+			}
+			else if(side > 3) {
+				idx = EASTWEST;
+			}
+		}
+		return _icons[METADATA_CASING][idx];
+	}
+	
+	private IIcon getFaceOrBlockIcon(IBlockAccess blockAccess, int x, int y, int z, int side, int metadata) {
+		TileEntity te = blockAccess.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorPart) {
+			TileEntityReactorPart part = (TileEntityReactorPart)te;
+			if(!isReactorAssembled(part) || isOutwardsSide(part, side)) {
+				return _icons[metadata][0];
+			}
+		}
+		return this.blockIcon;
+	}
+	
+	/**
+	 * @param part The part whose sides we're checking
+	 * @param side The side to compare to the part
+	 * @return True if `side` is the outwards-facing face of `part`
+	 */
+	private boolean isOutwardsSide(TileEntityReactorPart part, int side) {
+		ForgeDirection outDir = part.getOutwardsDir();
+		return outDir.ordinal() == side;
+	}
+	
+	private boolean isReactorAssembled(TileEntityReactorPart part) {
+		MultiblockReactor reactor = part.getReactorController();
+		return reactor != null && reactor.isAssembled();
 	}
 }

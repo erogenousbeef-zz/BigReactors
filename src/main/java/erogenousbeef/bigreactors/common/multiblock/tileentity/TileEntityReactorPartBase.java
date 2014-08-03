@@ -39,6 +39,26 @@ public abstract class TileEntityReactorPartBase extends
 	@Override
 	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
 	
+	@Override
+	public void onMachineAssembled(MultiblockControllerBase controller) {
+		super.onMachineAssembled(controller);
+		
+		// Re-render this block on the client
+		if(worldObj.isRemote) {
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
+	}
+
+	@Override
+	public void onMachineBroken() {
+		super.onMachineBroken();
+		
+		// Re-render this block on the client
+		if(worldObj.isRemote) {
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		}
+	}
+	
 	// IMultiblockGuiHandler
 	/**
 	 * @return The Container object for use by the GUI. Null if there isn't any.

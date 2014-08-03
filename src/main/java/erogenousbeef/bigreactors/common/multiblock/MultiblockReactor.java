@@ -774,12 +774,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	 */
 	private int tryDistributeItems(TileEntityReactorAccessPort port, ItemStack itemsToDistribute, boolean distributeToInputs) {
 		ItemStack existingStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_OUTLET);
-		CoordTriplet coord = port.getWorldLocation();
 		int initialWasteAmount = itemsToDistribute.stackSize;
-
-		int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
-
-		if(metadata == BlockReactorPart.ACCESSPORT_OUTLET || (distributeToInputs || attachedAccessPorts.size() < 2)) {
+		if(!port.isInlet() || (distributeToInputs || attachedAccessPorts.size() < 2)) {
 			// Dump waste preferentially to outlets, unless we only have one access port
 			if(existingStack == null) {
 				if(itemsToDistribute.stackSize > port.getInventoryStackLimit()) {
