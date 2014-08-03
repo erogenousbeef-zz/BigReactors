@@ -18,7 +18,7 @@ import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemDuct;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.SmallMachineInventoryExposureMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateInvExposureMessage;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -144,7 +144,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		
 		if(!this.worldObj.isRemote) {
 			// Send unrotated, as the rotation will be re-applied on the client
-            CommonPacketHandler.INSTANCE.sendToAllAround(new SmallMachineInventoryExposureMessage(xCoord, yCoord, zCoord, referenceSide, slot), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
+            CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateInvExposureMessage(xCoord, yCoord, zCoord, referenceSide, slot), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 
             this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
 		}
@@ -266,13 +266,9 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		return from != ForgeDirection.UNKNOWN;
 	}
 	
-	// Networked GUI
-	@Override
-	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException {
-		if(buttonName.equals("changeInvSide")) {
-			int side = dataStream.readInt();
-			iterateInventoryExposure(side);
-		}
+	// Network Message
+	public void onChangeInventorySide(int side) {
+		iterateInventoryExposure(side);
 	}
 	
 	// Helpers

@@ -8,43 +8,37 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
+import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
 
-public class SmallMachineFluidExposureMessage implements IMessage {
-    private int x, y, z, side, tankIdx;
+public class DeviceUpdateFluidExposureMessage extends WorldMessageClient {
+    private int side, tankIdx;
 
-    public SmallMachineFluidExposureMessage() {}
+    public DeviceUpdateFluidExposureMessage() { super(); side = -1; tankIdx = -1; }
     
-    public SmallMachineFluidExposureMessage(int x, int y, int z, int side, int tankIdx) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public DeviceUpdateFluidExposureMessage(int x, int y, int z, int side, int tankIdx) {
+    	super(x, y, z);
         this.side = side;
         this.tankIdx = tankIdx;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
+    	super.fromBytes(buf);
         side = buf.readInt();
         tankIdx = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
+    	super.toBytes(buf);
         buf.writeInt(side);
         buf.writeInt(tankIdx);
     }
 
-    public static class Handler implements IMessageHandler<SmallMachineFluidExposureMessage, IMessage> {
+    public static class Handler extends WorldMessageClient.Handler<DeviceUpdateFluidExposureMessage> {
         @Override
-        public IMessage onMessage(SmallMachineFluidExposureMessage message, MessageContext ctx) {
-            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
-            if(te != null && te instanceof TileEntityPoweredInventoryFluid) {
+        public IMessage handleMessage(DeviceUpdateFluidExposureMessage message, MessageContext ctx, TileEntity te) {
+            if(te instanceof TileEntityPoweredInventoryFluid) {
                 ((TileEntityPoweredInventoryFluid)te).setExposedTank(ForgeDirection.getOrientation(message.side), message.tankIdx);
                 FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
             }

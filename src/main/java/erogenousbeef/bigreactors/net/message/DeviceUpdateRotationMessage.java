@@ -8,40 +8,34 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
+import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
 
-public class SmallMachineRotationMessage implements IMessage {
-    private int x, y, z, newOrientation;
+public class DeviceUpdateRotationMessage extends WorldMessageClient {
+    private int newOrientation;
 
-    public SmallMachineRotationMessage() {}
+    public DeviceUpdateRotationMessage() { super(); newOrientation = 0; }
     
-    public SmallMachineRotationMessage(int x, int y, int z, int newOrientation) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public DeviceUpdateRotationMessage(int x, int y, int z, int newOrientation) {
+    	super(x, y, z);
         this.newOrientation = newOrientation;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
+    	super.fromBytes(buf);
         newOrientation = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
+    	super.toBytes(buf);
         buf.writeInt(newOrientation);
     }
 
-    public static class Handler implements IMessageHandler<SmallMachineRotationMessage, IMessage> {
+    public static class Handler extends WorldMessageClient.Handler<DeviceUpdateRotationMessage> {
         @Override
-        public IMessage onMessage(SmallMachineRotationMessage message, MessageContext ctx) {
-            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
-            if(te != null && te instanceof TileEntityBeefBase) {
+        public IMessage handleMessage(DeviceUpdateRotationMessage message, MessageContext ctx, TileEntity te) {
+            if(te instanceof TileEntityBeefBase) {
                 ((TileEntityBeefBase)te).rotateTowards(ForgeDirection.getOrientation(message.newOrientation));
                 FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
             }

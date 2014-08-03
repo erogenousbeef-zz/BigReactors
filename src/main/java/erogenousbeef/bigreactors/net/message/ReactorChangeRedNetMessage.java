@@ -8,49 +8,45 @@ import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
 import erogenousbeef.bigreactors.utils.NetworkUtils;
 
-public class RedNetSetDataMessage implements IMessage {
-    private int x, y, z;
+public class ReactorChangeRedNetMessage extends WorldMessageServer {
     private Object[] data;
     private ByteBuf bytes;
 
-    public RedNetSetDataMessage() {}
+    public ReactorChangeRedNetMessage() { super(); data = null; bytes = null; }
     
-    public RedNetSetDataMessage(int x, int y, int z, Object... data) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public ReactorChangeRedNetMessage(int x, int y, int z, Object... data) {
+    	super(x, y, z);
         this.data = data;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
+    	super.fromBytes(buf);
         this.bytes = buf.readBytes(buf.readableBytes());
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
+    	super.toBytes(buf);
+
         for(Object obj : data) {
             NetworkUtils.writeObjectToByteBuf(buf, obj);
         }
     }
 
-    public static class Handler implements IMessageHandler<RedNetSetDataMessage, IMessage> {
+    public static class Handler extends WorldMessageServer.Handler<ReactorChangeRedNetMessage> {
         @Override
-        public IMessage onMessage(RedNetSetDataMessage message, MessageContext ctx) {
-            TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
-            if(te != null && te instanceof TileEntityReactorRedNetPort) {
+        public IMessage handleMessage(ReactorChangeRedNetMessage message, MessageContext ctx, TileEntity te) {
+            if(te instanceof TileEntityReactorRedNetPort) {
                 try {
                     ((TileEntityReactorRedNetPort)te).decodeSettings(message.bytes, true);
                 } catch(IOException e) {
+                	BRLog.warning("Error while changing rednet data on block @ %d, %d, %d: %s", te.xCoord, te.yCoord, te.zCoord, e.getMessage());
                     e.printStackTrace();
                 }
             }

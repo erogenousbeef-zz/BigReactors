@@ -46,7 +46,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorP
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
 import erogenousbeef.bigreactors.net.message.MultiblockMessageClient;
-import erogenousbeef.bigreactors.net.message.ReactorWasteEjectionSettingMessage;
+import erogenousbeef.bigreactors.net.message.ReactorUpdateWasteEjectionMessage;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
@@ -851,7 +851,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					CoordTriplet coord = getReferenceCoord();
 					
 					for(EntityPlayer player : updatePlayers) {
-                        CommonPacketHandler.INSTANCE.sendTo(new ReactorWasteEjectionSettingMessage(coord.x, coord.y, coord.z, this.wasteEjection.ordinal()), (EntityPlayerMP)player);
+                        CommonPacketHandler.INSTANCE.sendTo(new ReactorUpdateWasteEjectionMessage(coord.x, coord.y, coord.z, this.wasteEjection.ordinal()), (EntityPlayerMP)player);
 					}
 				}
 			}

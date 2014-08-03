@@ -101,14 +101,9 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		return new ContainerReactorControlRod(this, player);
 	}
 	
-	@Override
-	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException {
-		if(buttonName.equals("rodInsert")) {
-			setControlRodInsertion((short)(this.controlRodInsertion + 10));
-		}
-		else if(buttonName.equals("rodRetract")) {
-			setControlRodInsertion((short)(this.controlRodInsertion - 10));
-		}
+	// Network Messages
+	public void onClientControlRodChange(int amount) {
+		setControlRodInsertion((short)(this.controlRodInsertion + amount));
 	}
 
 	// Control Rod Updates

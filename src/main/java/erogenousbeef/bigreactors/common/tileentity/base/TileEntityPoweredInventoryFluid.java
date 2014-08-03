@@ -16,7 +16,7 @@ import net.minecraftforge.fluids.IFluidTank;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.SmallMachineFluidExposureMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateFluidExposureMessage;
 
 public abstract class TileEntityPoweredInventoryFluid extends
 		TileEntityPoweredInventory implements IFluidHandler, IMultipleFluidHandler {
@@ -59,7 +59,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		tankExposure[side.ordinal()] = tankIdx;
 		
 		if(!this.worldObj.isRemote) {
-            CommonPacketHandler.INSTANCE.sendToAllAround(new SmallMachineFluidExposureMessage(xCoord, yCoord, zCoord, side.ordinal(), tankIdx), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
+            CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateFluidExposureMessage(xCoord, yCoord, zCoord, side.ordinal(), tankIdx), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
 		}
 		
@@ -164,33 +164,25 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		readFluidsFromNBT(updateTag);
 	}
 
-	// Networked GUI
-	@Override
-	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException {
-		if(buttonName.equals("changeInvSide")) {
-			// We can't call super here without fucking up the datastream
-			int side = dataStream.readInt();
-			if(tankExposure[side] != FLUIDTANK_NONE) {
-				// Clicked on something we're already exposing, iterate the exposure
-				iterateFluidTankExposure(side);
-			}
-			else if(this.getSizeInventory() <= 0) {
-				iterateFluidTankExposure(side);
-			}
-			else {
-				boolean wasExposed = this.getExposedSlotFromReferenceSide(side) != TileEntityInventory.INVENTORY_UNEXPOSED;
-				iterateInventoryExposure(side);
-				
-				// If an inventory was exposed, but now no inventory is exposed, it's our turn to shine.
-				if(wasExposed && this.getExposedSlotFromReferenceSide(side) == TileEntityInventory.INVENTORY_UNEXPOSED) {
-					// Ah, it cycled back around. Our turn.
-					iterateFluidTankExposure(side);
-				}
-				// Else: Inventory's still using the exposure.
-			}
+	// Network Message
+	public void onChangeInventorySide(int side) {
+		if(tankExposure[side] != FLUIDTANK_NONE) {
+			// Clicked on something we're already exposing, iterate the exposure
+			iterateFluidTankExposure(side);
+		}
+		else if(this.getSizeInventory() <= 0) {
+			iterateFluidTankExposure(side);
 		}
 		else {
-			super.onReceiveGuiButtonPress(buttonName, dataStream);
+			boolean wasExposed = this.getExposedSlotFromReferenceSide(side) != TileEntityInventory.INVENTORY_UNEXPOSED;
+			iterateInventoryExposure(side);
+			
+			// If an inventory was exposed, but now no inventory is exposed, it's our turn to shine.
+			if(wasExposed && this.getExposedSlotFromReferenceSide(side) == TileEntityInventory.INVENTORY_UNEXPOSED) {
+				// Ah, it cycled back around. Our turn.
+				iterateFluidTankExposure(side);
+			}
+			// Else: Inventory's still using the exposure.
 		}
 	}
 	

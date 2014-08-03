@@ -38,12 +38,4 @@ public interface IBeefGuiEntity {
 	 * @param player Player who should no longer receive UI updates
 	 */
 	public void stopUpdatingPlayer(EntityPlayer player);
-	
-	/**
-	 * Called on the server when a player presses a button in the UI
-	 * @param buttonName Name of the button, as specified in client code
-	 * @param dis Stream containing additional parameters, if any
-	 * @throws IOException
-	 */
-	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dis) throws IOException;
 }

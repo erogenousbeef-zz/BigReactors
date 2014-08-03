@@ -7,44 +7,37 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
+import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
 
-public class SmallMachineInventoryExposureMessage implements IMessage {
-    private int x, y, z, referenceSide, slot;
+public class DeviceUpdateInvExposureMessage extends WorldMessageClient {
+    private int referenceSide, slot;
 
-    public SmallMachineInventoryExposureMessage() {}
+    public DeviceUpdateInvExposureMessage() { super(); referenceSide = -1; slot = -1; }
     
-    public SmallMachineInventoryExposureMessage(int x, int y, int z, int referenceSide, int slot) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public DeviceUpdateInvExposureMessage(int x, int y, int z, int referenceSide, int slot) {
+    	super(x, y, z);
         this.referenceSide = referenceSide;
         this.slot = slot;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
+    	super.fromBytes(buf);
         referenceSide = buf.readInt();
         slot = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
+    	super.toBytes(buf);
         buf.writeInt(referenceSide);
         buf.writeInt(slot);
     }
-
     
-    public static class Handler implements IMessageHandler<SmallMachineInventoryExposureMessage, IMessage> {
+    public static class Handler extends WorldMessageClient.Handler<DeviceUpdateInvExposureMessage> {
         @Override
-        public IMessage onMessage(SmallMachineInventoryExposureMessage message, MessageContext ctx) {
-            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
-            if(te != null && te instanceof TileEntityInventory) {
+        public IMessage handleMessage(DeviceUpdateInvExposureMessage message, MessageContext ctx, TileEntity te) {
+            if(te instanceof TileEntityInventory) {
                 ((TileEntityInventory)te).setExposedInventorySlotReference(message.referenceSide, message.slot);
                 FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
             }

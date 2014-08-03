@@ -6,17 +6,16 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
+import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
 
-public class RedstoneSetDataMessage implements IMessage {
-    private int x, y, z, newCircut, newLevel;
+public class ReactorChangeRedstoneMessage extends WorldMessageServer {
+    private int newCircut, newLevel;
     private boolean newGt, pulse;
 
-    public RedstoneSetDataMessage() {}
+    public ReactorChangeRedstoneMessage() { super(); }
     
-    public RedstoneSetDataMessage(int x, int y, int z, int newCircut, int newLevel, boolean newGt, boolean pulse) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+    public ReactorChangeRedstoneMessage(int x, int y, int z, int newCircut, int newLevel, boolean newGt, boolean pulse) {
+    	super(x, y, z);
         this.newCircut = newCircut;
         this.newLevel = newLevel;
         this.newGt = newGt;
@@ -25,9 +24,7 @@ public class RedstoneSetDataMessage implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
+    	super.fromBytes(buf);
         newCircut = buf.readInt();
         newLevel = buf.readInt();
         newGt = buf.readBoolean();
@@ -36,20 +33,17 @@ public class RedstoneSetDataMessage implements IMessage {
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
+    	super.toBytes(buf);
         buf.writeInt(newCircut);
         buf.writeInt(newLevel);
         buf.writeBoolean(newGt);
         buf.writeBoolean(pulse);
     }
 
-    public static class Handler implements IMessageHandler<RedstoneSetDataMessage, IMessage> {
+    public static class Handler extends WorldMessageServer.Handler<ReactorChangeRedstoneMessage> {
         @Override
-        public IMessage onMessage(RedstoneSetDataMessage message, MessageContext ctx) {
-            TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
-            if(te != null && te instanceof TileEntityReactorRedstonePort) {
+        public IMessage handleMessage(ReactorChangeRedstoneMessage message, MessageContext ctx, TileEntity te) {
+            if(te instanceof TileEntityReactorRedstonePort) {
                 ((TileEntityReactorRedstonePort)te).onReceiveUpdatePacket(message.newCircut, message.newLevel, message.newGt, message.pulse);
             }
             return null;

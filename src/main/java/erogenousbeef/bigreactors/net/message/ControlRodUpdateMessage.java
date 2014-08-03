@@ -7,43 +7,36 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
+import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
 
-public class ControlRodUpdateMessage implements IMessage {
-    private int x, y, z;
-    private short controlRodInsertion;
+public class ControlRodUpdateMessage extends WorldMessageClient {
+    private short insertion;
 
-    public ControlRodUpdateMessage() {}
+    public ControlRodUpdateMessage() { super(); insertion = 0; }
     
     public ControlRodUpdateMessage(int x, int y, int z, short controlRodInsertion) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.controlRodInsertion = controlRodInsertion;
+    	super(x, y, z);
+        this.insertion = controlRodInsertion;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        x = buf.readInt();
-        y = buf.readInt();
-        z = buf.readInt();
-        controlRodInsertion = buf.readShort();
+    	super.fromBytes(buf);
+        insertion = buf.readShort();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(x);
-        buf.writeInt(y);
-        buf.writeInt(z);
-        buf.writeShort(controlRodInsertion);
+    	super.toBytes(buf);
+        buf.writeShort(insertion);
     }
 
-    public static class Handler implements IMessageHandler<ControlRodUpdateMessage, IMessage>
+    public static class Handler extends WorldMessageClient.Handler<ControlRodUpdateMessage>
     {
         @Override
-        public IMessage onMessage(ControlRodUpdateMessage message, MessageContext ctx) {
-            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
-            if(te != null && te instanceof TileEntityReactorControlRod) {
-                ((TileEntityReactorControlRod)te).onControlRodUpdate(message.controlRodInsertion);
+        protected IMessage handleMessage(ControlRodUpdateMessage message, MessageContext ctx, TileEntity te) {
+            if(te instanceof TileEntityReactorControlRod) {
+                ((TileEntityReactorControlRod)te).onControlRodUpdate(message.insertion);
             }
             return null;
         }
