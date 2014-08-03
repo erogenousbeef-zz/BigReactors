@@ -1,7 +1,6 @@
 package erogenousbeef.bigreactors.client;
 
 import net.minecraft.client.Minecraft;
-
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 

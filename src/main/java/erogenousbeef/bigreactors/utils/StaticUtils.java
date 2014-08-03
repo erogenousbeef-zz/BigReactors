@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.utils;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;

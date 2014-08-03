@@ -13,7 +13,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;

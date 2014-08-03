@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;

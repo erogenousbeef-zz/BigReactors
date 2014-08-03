@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -11,7 +10,6 @@ import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.FluidStack;
-
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

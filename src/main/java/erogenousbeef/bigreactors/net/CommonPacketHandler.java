@@ -4,7 +4,18 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.net.message.*;
+import erogenousbeef.bigreactors.net.message.ControlRodSetNameMessage;
+import erogenousbeef.bigreactors.net.message.ControlRodUpdateMessage;
+import erogenousbeef.bigreactors.net.message.GuiButtonPressMessage;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageClient;
+import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
+import erogenousbeef.bigreactors.net.message.ReactorWasteEjectionSettingMessage;
+import erogenousbeef.bigreactors.net.message.RedNetSetDataMessage;
+import erogenousbeef.bigreactors.net.message.RedstoneSetDataMessage;
+import erogenousbeef.bigreactors.net.message.SmallMachineFluidExposureMessage;
+import erogenousbeef.bigreactors.net.message.SmallMachineInventoryExposureMessage;
+import erogenousbeef.bigreactors.net.message.SmallMachineRotationMessage;
+import erogenousbeef.bigreactors.net.message.SmallMachineUIMessage;
 
 public class CommonPacketHandler {
 

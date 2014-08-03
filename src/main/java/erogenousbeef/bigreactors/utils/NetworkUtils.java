@@ -1,10 +1,7 @@
 package erogenousbeef.bigreactors.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-
-import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
+import cpw.mods.fml.common.network.ByteBufUtils;
 
 public class NetworkUtils {
 

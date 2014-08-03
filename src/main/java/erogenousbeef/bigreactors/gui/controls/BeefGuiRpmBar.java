@@ -1,7 +1,6 @@
 package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraft.util.EnumChatFormatting;
-
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;

@@ -1,12 +1,7 @@
 package erogenousbeef.bigreactors.net.message;
 
 import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-
-import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.utils.NetworkUtils;
 
 public class MultiblockMessage implements IMessage {
