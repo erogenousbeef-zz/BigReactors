@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -219,7 +221,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	// IMultiblockNetworkHandler
 	@Override
-	public void onNetworkPacket(MultiblockMessage.Type packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(MultiblockMessage.Type packetType, ByteBuf data) throws IOException {
 		if(packetType == Type.UpdateAccessPort) {
 			byte newMetadata = data.readByte();
 			

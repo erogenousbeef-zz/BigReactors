@@ -47,8 +47,4 @@ public class NetworkUtils {
             throw new IllegalArgumentException("Unrecognized class for network serialization");
         }
     }
-
-    public static DataInputStream toDataInputStream(ByteBuf buf) {
-        return new DataInputStream(new ByteArrayInputStream(buf.array()));
-    }
 }

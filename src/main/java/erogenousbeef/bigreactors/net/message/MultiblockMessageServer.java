@@ -14,6 +14,8 @@ import erogenousbeef.bigreactors.utils.NetworkUtils;
 import io.netty.buffer.ByteBuf;
 
 public class MultiblockMessageServer extends MultiblockMessage {
+	public MultiblockMessageServer() {}
+
     public MultiblockMessageServer(Type type, int x, int y, int z, Object... data) {
     	super(type, x, y, z, data);
     }
@@ -25,7 +27,7 @@ public class MultiblockMessageServer extends MultiblockMessage {
             TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
             if(te != null && te instanceof IMultiblockNetworkHandler) {
                 try {
-                    ((IMultiblockNetworkHandler)te).onNetworkPacket(message.type, message.dis);
+                    ((IMultiblockNetworkHandler)te).onNetworkPacket(message.type, message.bytes);
                 } catch(IOException e) {
                     e.printStackTrace();
                 }

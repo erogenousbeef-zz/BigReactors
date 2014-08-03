@@ -10,9 +10,11 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import io.netty.buffer.ByteBuf;
 
-public class SmallMachineRotationMessage implements IMessage, IMessageHandler<SmallMachineRotationMessage, IMessage> {
+public class SmallMachineRotationMessage implements IMessage {
     private int x, y, z, newOrientation;
 
+    public SmallMachineRotationMessage() {}
+    
     public SmallMachineRotationMessage(int x, int y, int z, int newOrientation) {
         this.x = x;
         this.y = y;
@@ -36,13 +38,15 @@ public class SmallMachineRotationMessage implements IMessage, IMessageHandler<Sm
         buf.writeInt(newOrientation);
     }
 
-    @Override
-    public IMessage onMessage(SmallMachineRotationMessage message, MessageContext ctx) {
-        TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityBeefBase) {
-            ((TileEntityBeefBase)te).rotateTowards(ForgeDirection.getOrientation(newOrientation));
-            FMLClientHandler.instance().getWorldClient().markBlockForUpdate(x, y, z);
+    public static class Handler implements IMessageHandler<SmallMachineRotationMessage, IMessage> {
+        @Override
+        public IMessage onMessage(SmallMachineRotationMessage message, MessageContext ctx) {
+            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityBeefBase) {
+                ((TileEntityBeefBase)te).rotateTowards(ForgeDirection.getOrientation(message.newOrientation));
+                FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
+            }
+            return null;
         }
-        return null;
     }
 }

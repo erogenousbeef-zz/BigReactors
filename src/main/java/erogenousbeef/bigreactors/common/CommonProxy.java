@@ -29,12 +29,13 @@ import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 public class CommonProxy {
 
 	public void preInit() {
-        CommonPacketHandler.init();
 	}
 
 	public void init() {
 		BigReactors.registerTileEntities();
 		
+		CommonPacketHandler.initServer();
+
 		NetworkRegistry.INSTANCE.registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
 		BigReactors.tickHandler = new BigReactorsTickHandler();
 		FMLCommonHandler.instance().bus().register(BigReactors.tickHandler);

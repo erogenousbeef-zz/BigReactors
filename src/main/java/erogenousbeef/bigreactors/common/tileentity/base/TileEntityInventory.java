@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -267,7 +269,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	
 	// Networked GUI
 	@Override
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException {
 		if(buttonName.equals("changeInvSide")) {
 			int side = dataStream.readInt();
 			iterateInventoryExposure(side);

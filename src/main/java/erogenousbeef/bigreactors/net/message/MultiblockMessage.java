@@ -2,10 +2,11 @@ package erogenousbeef.bigreactors.net.message;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.DataInputStream;
+import java.io.IOException;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.utils.NetworkUtils;
 
 public class MultiblockMessage implements IMessage {
@@ -34,8 +35,10 @@ public class MultiblockMessage implements IMessage {
 	protected Type type;
     protected int x, y, z;
     protected Object[] data;
-    protected DataInputStream dis;
+    protected ByteBuf bytes;
 
+    protected MultiblockMessage() {}
+    
     protected MultiblockMessage(Type type, int x, int y, int z, Object... data) {
         this.type = type;
         this.x = x;
@@ -46,11 +49,12 @@ public class MultiblockMessage implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        type = s_Types[buf.readInt()];
+    	type = s_Types[buf.readInt()];
         x = buf.readInt();
         y = buf.readInt();
-        z = buf.readInt();
-        dis = NetworkUtils.toDataInputStream(buf);
+        z = buf.readInt();    		
+    	
+    	bytes = buf.readBytes(buf.readableBytes());
     }
 
     @Override

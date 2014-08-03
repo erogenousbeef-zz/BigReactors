@@ -8,10 +8,12 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 import io.netty.buffer.ByteBuf;
 
-public class RedstoneSetDataMessage implements IMessage, IMessageHandler<RedstoneSetDataMessage, IMessage> {
+public class RedstoneSetDataMessage implements IMessage {
     private int x, y, z, newCircut, newLevel;
     private boolean newGt, pulse;
 
+    public RedstoneSetDataMessage() {}
+    
     public RedstoneSetDataMessage(int x, int y, int z, int newCircut, int newLevel, boolean newGt, boolean pulse) {
         this.x = x;
         this.y = y;
@@ -44,12 +46,14 @@ public class RedstoneSetDataMessage implements IMessage, IMessageHandler<Redston
         buf.writeBoolean(pulse);
     }
 
-    @Override
-    public IMessage onMessage(RedstoneSetDataMessage message, MessageContext ctx) {
-        TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityReactorRedstonePort) {
-            ((TileEntityReactorRedstonePort)te).onReceiveUpdatePacket(newCircut, newLevel, newGt, pulse);
+    public static class Handler implements IMessageHandler<RedstoneSetDataMessage, IMessage> {
+        @Override
+        public IMessage onMessage(RedstoneSetDataMessage message, MessageContext ctx) {
+            TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityReactorRedstonePort) {
+                ((TileEntityReactorRedstonePort)te).onReceiveUpdatePacket(message.newCircut, message.newLevel, message.newGt, message.pulse);
+            }
+            return null;
         }
-        return null;
     }
 }

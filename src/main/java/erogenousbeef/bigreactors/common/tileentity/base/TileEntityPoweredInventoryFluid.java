@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -166,7 +168,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
 
 	// Networked GUI
 	@Override
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException {
 		if(buttonName.equals("changeInvSide")) {
 			// We can't call super here without fucking up the datastream
 			int side = dataStream.readInt();

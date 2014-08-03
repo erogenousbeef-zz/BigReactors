@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
@@ -170,5 +172,5 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	 * @param dataStream Data stream associated with this button press event, containing your custom data.
 	 * @throws IOException On stream read errors
 	 */
-	public abstract void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException;
+	public abstract void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException;
 }

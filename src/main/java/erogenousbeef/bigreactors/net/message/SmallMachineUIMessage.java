@@ -11,10 +11,12 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import io.netty.buffer.ByteBuf;
 
-public class SmallMachineUIMessage implements IMessage, IMessageHandler<SmallMachineUIMessage, IMessage> {
+public class SmallMachineUIMessage implements IMessage {
     private int x, y, z;
     private NBTTagCompound compound;
 
+    public SmallMachineUIMessage() {}
+    
     public SmallMachineUIMessage(int x, int y, int z, NBTTagCompound compound) {
         this.x = x;
         this.y = y;
@@ -38,12 +40,14 @@ public class SmallMachineUIMessage implements IMessage, IMessageHandler<SmallMac
         ByteBufUtils.writeTag(buf, compound);
     }
 
-    @Override
-    public IMessage onMessage(SmallMachineUIMessage message, MessageContext ctx) {
-        TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityBeefBase) {
-            ((TileEntityBeefBase)te).onReceiveUpdate(compound);
+    public static class Handler implements IMessageHandler<SmallMachineUIMessage, IMessage> {
+        @Override
+        public IMessage onMessage(SmallMachineUIMessage message, MessageContext ctx) {
+            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityBeefBase) {
+                ((TileEntityBeefBase)te).onReceiveUpdate(message.compound);
+            }
+            return null;
         }
-        return null;
     }
 }
