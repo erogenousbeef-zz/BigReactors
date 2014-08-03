@@ -10,8 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
-import appeng.api.AEApi;
-import appeng.api.features.IGrinderRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInterModComms;
@@ -24,6 +22,7 @@ import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
+import erogenousbeef.bigreactors.utils.IMCHelper;
 import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class CommonProxy {
@@ -69,63 +68,78 @@ public class CommonProxy {
 			doubleYellorium.stackSize = 2;
 
 			if(yelloriteOre != null && ingotYellorium != null) {
-				addInductionSmelterRecipe(yelloriteOre, sandStack, doubleYellorium, 1600);
+				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(yelloriteOre, sandStack, doubleYellorium, 1600);
 			}
 			
 			if(yelloriteOre != null && doubledYelloriumDust != null) {
-				addPulverizerRecipe(yelloriteOre, doubledYelloriumDust, 4000);
+				IMCHelper.ThermalExpansion.addPulverizerRecipe(yelloriteOre, doubledYelloriumDust, 4000);
 			}
 			
 			if(ingotYellorium != null && dustYellorium != null) {
-				addPulverizerRecipe(ingotYellorium, dustYellorium, 2400);
-				addInductionSmelterRecipe(doubledYelloriumDust, sandStack, doubleYellorium, 200);
+				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotYellorium, dustYellorium, 2400);
+				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubledYelloriumDust, sandStack, doubleYellorium, 200);
 			}
 
 			if(ingotCyanite != null && dustCyanite != null) {
-				addPulverizerRecipe(ingotCyanite, dustCyanite, 2400);
+				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotCyanite, dustCyanite, 2400);
 				
 				ItemStack doubleDust = dustCyanite.copy();
 				doubleDust.stackSize = 2;
 				ItemStack doubleIngot = ingotCyanite.copy();
 				doubleIngot.stackSize = 2;
-				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
 			}
 
 			if(ingotGraphite != null && dustGraphite != null) {
-				addPulverizerRecipe(ingotGraphite, dustGraphite, 2400);
+				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotGraphite, dustGraphite, 2400);
 
 				ItemStack doubleDust = dustGraphite.copy();
 				doubleDust.stackSize = 2;
 				ItemStack doubleIngot = ingotGraphite.copy();
 				doubleIngot.stackSize = 2;
-				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
 			}
 
 			if(ingotBlutonium != null && dustBlutonium != null) {
-				addPulverizerRecipe(ingotBlutonium, dustBlutonium, 2400);
+				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotBlutonium, dustBlutonium, 2400);
 
 				ItemStack doubleDust = dustBlutonium.copy();
 				doubleDust.stackSize = 2;
 				ItemStack doubleIngot = ingotBlutonium.copy();
 				doubleIngot.stackSize = 2;
-				addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
 			}
 		} // END: IsModLoaded - ThermalExpansion
 		
-		
 		if(Loader.isModLoaded("MineFactoryReloaded")) {
 			// Add yellorite to yellow focus list.
-            NBTTagCompound laserOreMsg = new NBTTagCompound();
-            yelloriteOre.writeToNBT(laserOreMsg);
-            laserOreMsg.setInteger("value", 2);
-            sendInterModMessage("MineFactoryReloaded", "registerLaserOre", laserOreMsg);
+			IMCHelper.MFR.addOreToMiningLaserFocus(yelloriteOre, 2);
             
             // Make Yellorite the 'preferred' ore for lime focus
-            NBTTagCompound preferredOreMsg = new NBTTagCompound();
-            yelloriteOre.writeToNBT(preferredOreMsg);
-            preferredOreMsg.setInteger("value", 9);
-            sendInterModMessage("MineFactoryReloaded", "addLaserPreferredOre", preferredOreMsg);
+            IMCHelper.MFR.setMiningLaserFocusPreferredOre(yelloriteOre, 9);
 		} // END: IsModLoaded - MineFactoryReloaded
+		
+		if(Loader.isModLoaded("appliedenergistics2")) {
+			if(yelloriteOre != null && dustYellorium != null) {
+				IMCHelper.AE2.addGrinderRecipe(yelloriteOre, doubledYelloriumDust, 4);
+			}
+		
+			if(ingotYellorium != null && dustYellorium != null) {
+				IMCHelper.AE2.addGrinderRecipe(ingotYellorium, dustYellorium, 2);
+			}
+
+			if(ingotCyanite != null && dustCyanite != null) {
+				IMCHelper.AE2.addGrinderRecipe(ingotCyanite, dustCyanite, 2);
+			}
+
+			if(ingotGraphite != null && dustGraphite != null) {
+				IMCHelper.AE2.addGrinderRecipe(ingotGraphite, dustGraphite, 2);
+			}
+
+			if(ingotBlutonium != null && dustBlutonium != null) {
+				IMCHelper.AE2.addGrinderRecipe(ingotBlutonium, dustBlutonium, 2);
+			}
+		} // END: IsModLoaded - AE2
 	}
 
 	public void postInit() {
@@ -162,32 +176,6 @@ public class CommonProxy {
 		if(dustYellorium != null) {
 			doubledYelloriumDust = dustYellorium.copy();
 			doubledYelloriumDust.stackSize = 2;
-		}
-		
-		if(Loader.isModLoaded("appliedenergistics2")) {
-			IGrinderRegistry grinderRM = AEApi.instance().registries().grinder();
-
-			if(grinderRM != null) {
-				if(yelloriteOre != null && dustYellorium != null) {
-					grinderRM.addRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy(), 4);
-				}
-			
-				if(ingotYellorium != null && dustYellorium != null) {
-					grinderRM.addRecipe(ingotYellorium.copy(), dustYellorium.copy(), 2);
-				}
-
-				if(ingotCyanite != null && dustCyanite != null) {
-					grinderRM.addRecipe(ingotCyanite.copy(), dustCyanite.copy(), 2);
-				}
-
-				if(ingotGraphite != null && dustGraphite != null) {
-					grinderRM.addRecipe(ingotGraphite.copy(), dustGraphite.copy(), 2);
-				}
-
-				if(ingotBlutonium != null && dustBlutonium != null) {
-					grinderRM.addRecipe(ingotBlutonium.copy(), dustBlutonium.copy(), 2);
-				}
-			}
 		}
 		
 		if(Loader.isModLoaded("Mekanism")) {
@@ -271,28 +259,6 @@ public class CommonProxy {
 		} catch(Exception e) {
 			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
 		}
-	}
-	
-	// Thermal Expansion IMC APIs, thanks Skyboy!
-	protected void addPulverizerRecipe(ItemStack from, ItemStack to, int energy) {
-		NBTTagCompound message = new NBTTagCompound();
-		message.setInteger("energy", energy);
-		message.setTag("input", from.writeToNBT(new NBTTagCompound()));
-		message.setTag("primaryOutput", to.writeToNBT(new NBTTagCompound()));
-		sendInterModMessage("ThermalExpansion", "PulverizerRecipe", message);
-	}
-	
-	protected void addInductionSmelterRecipe(ItemStack firstInput, ItemStack secondInput, ItemStack output, int energy) {
-		NBTTagCompound message = new NBTTagCompound();
-		message.setInteger("energy", energy);
-		message.setTag("primaryInput", firstInput.writeToNBT(new NBTTagCompound()));
-		message.setTag("secondaryInput", secondInput.writeToNBT(new NBTTagCompound()));
-		message.setTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
-		sendInterModMessage("ThermalExpansion", "SmelterRecipe", message);
-	}
-	
-	protected void sendInterModMessage(String to, String type, NBTTagCompound message) {
-		FMLInterModComms.sendMessage(to, type, message);
 	}
 	
 	@SideOnly(Side.CLIENT)
