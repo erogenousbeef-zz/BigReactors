@@ -11,7 +11,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
-import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
@@ -173,7 +172,7 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 	
 	@Override
 	public void onNeighborTileChange(IBlockAccess world, int x, int y, int z, int neighborX, int neighborY, int neighborZ) {
-		if(!((World)world).isRemote) { //TODO See if cast causes problems
+		if(!worldObj.isRemote) {
 			checkForAdjacentTank();
 		}
 	}

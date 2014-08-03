@@ -21,14 +21,13 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
-import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
+import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.data.ReactorFuel;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
@@ -71,7 +70,7 @@ import erogenousbeef.bigreactors.world.BRWorldGenerator;
 public class BigReactors {
 
 	public static final String NAME 	= "Big Reactors";
-	public static final String CHANNEL 	= "BigReactors";
+	public static final String CHANNEL 	= "bigreactors";
 	public static final String RESOURCE_PATH = "/assets/bigreactors/";
 	
 	public static final CreativeTabs TAB = new CreativeTabBR(CHANNEL);
@@ -103,7 +102,7 @@ public class BigReactors {
 	public static BlockMBCreativePart blockMultiblockCreativePart;
 	
 	public static Block blockRadiothermalGen;
-	public static Block blockSmallMachine;
+	public static Block blockDevice;
 	
 	public static Block fluidYelloriumStill;
 	public static Block fluidCyaniteStill;
@@ -363,8 +362,8 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Items.redstone, 'U', yelloriumIngot));
 			}
 			
-			if(blockSmallMachine != null) {
-				ItemStack cyaniteReprocessorStack = ((BlockBRSmallMachine)blockSmallMachine).getCyaniteReprocessorItemStack();
+			if(blockDevice != null) {
+				ItemStack cyaniteReprocessorStack = ((BlockBRDevice)blockDevice).getCyaniteReprocessorItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', ironOrSteelIngot, 'F', blockYelloriumFuelRod, 'P', Blocks.piston, 'R', Items.redstone));
 			}
 			
@@ -608,14 +607,14 @@ public class BigReactors {
 		}
 	}
 	
-	public static void registerSmallMachines(int id, boolean require) {
-		if(BigReactors.blockSmallMachine == null) {
+	public static void registerDevices(int id, boolean require) {
+		if(BigReactors.blockDevice == null) {
 			BRConfig.CONFIGURATION.load();
 
-			BigReactors.blockSmallMachine = new BlockBRSmallMachine(Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockBigReactors.class, "BRSmallMachine");
+			BigReactors.blockDevice = new BlockBRDevice(Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockDevice, ItemBlockBigReactors.class, "BRDevice");
 			
-			OreDictionary.registerOre("brSmallMachineCyaniteProcessor", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getCyaniteReprocessorItemStack());
+			OreDictionary.registerOre("brDeviceCyaniteProcessor", ((BlockBRDevice)BigReactors.blockDevice).getCyaniteReprocessorItemStack());
 			
 			BRConfig.CONFIGURATION.save();
 		}
@@ -633,16 +632,13 @@ public class BigReactors {
 		BRConfig.CONFIGURATION.save();
 	}
 	
-	public static void registerFluids(int id, boolean require) { //TODO Verify that I'm correct in thinking that the setBlockID doesn't need to be replaced with setBlock.
+	public static void registerFluids(int id, boolean require) {
 		if(BigReactors.fluidYelloriumStill == null) {
 			BRConfig.CONFIGURATION.load();
-			
-			//int fluidYelloriumID = BRConfig.CONFIGURATION.getBlock("LiquidYelloriumStill", BigReactors.BLOCK_ID_PREFIX + 4).getInt();
 			
 			BigReactors.fluidYellorium = FluidRegistry.getFluid("yellorium");
 			if(fluidYellorium == null) {
 				fluidYellorium = new Fluid("yellorium");
-				//fluidYellorium.setBlockID(fluidYelloriumID);
 				fluidYellorium.setDensity(100);
 				fluidYellorium.setGaseous(false);
 				fluidYellorium.setLuminosity(10);
@@ -667,12 +663,9 @@ public class BigReactors {
 		if(BigReactors.fluidCyaniteStill == null) {
 			BRConfig.CONFIGURATION.load();
 			
-			//int fluidCyaniteID = BRConfig.CONFIGURATION.getBlock("LiquidCyaniteStill", BigReactors.BLOCK_ID_PREFIX + 5).getInt();
-			
 			BigReactors.fluidCyanite = FluidRegistry.getFluid("cyanite");
 			if(fluidCyanite == null) {
 				fluidCyanite = new Fluid("cyanite");
-				//fluidCyanite.setBlockID(fluidCyaniteID);
 				fluidCyanite.setDensity(100);
 				fluidCyanite.setGaseous(false);
 				fluidCyanite.setLuminosity(6);

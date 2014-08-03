@@ -1,9 +1,7 @@
 package erogenousbeef.bigreactors.common.data;
 
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import erogenousbeef.bigreactors.api.IReactorSolid;
 
 public class ReactorSolidMapping {
 

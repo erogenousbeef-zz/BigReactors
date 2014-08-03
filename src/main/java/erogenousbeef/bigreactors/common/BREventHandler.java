@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraftforge.event.world.ChunkDataEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 

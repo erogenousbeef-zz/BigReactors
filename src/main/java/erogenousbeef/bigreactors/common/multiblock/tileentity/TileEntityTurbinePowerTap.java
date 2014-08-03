@@ -93,7 +93,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		boolean isConnected = (rfNetwork != null);
 		if(wasConnected != isConnected && worldObj.isRemote) {
 			// Re-render on clients
-            ((World)world).markBlockForUpdate(xCoord, yCoord, zCoord); //TODO See if cast causes problems
+            worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 

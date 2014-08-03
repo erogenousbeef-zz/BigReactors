@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.gui;
 
-import java.io.DataInputStream;
+import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -37,12 +38,4 @@ public interface IBeefGuiEntity {
 	 * @param player Player who should no longer receive UI updates
 	 */
 	public void stopUpdatingPlayer(EntityPlayer player);
-	
-	/**
-	 * Called on the server when a player presses a button in the UI
-	 * @param buttonName Name of the button, as specified in client code
-	 * @param dataStream Stream containing additional parameters, if any
-	 * @throws IOException
-	 */
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException;
 }

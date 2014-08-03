@@ -19,7 +19,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.GuiSelectableButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.RedstoneSetDataMessage;
+import erogenousbeef.bigreactors.net.message.ReactorRedstonePortChangeMessage;
 
 public class GuiReactorRedstonePort extends BeefGuiBase {
 
@@ -381,7 +381,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			int actualOutputLevel = this.outputLevel;
 			if(newCircuitType == CircuitType.inputSetControlRod && this.greaterThan && this.retract) { actualOutputLevel *= -1; }
 
-            CommonPacketHandler.INSTANCE.sendToServer(new RedstoneSetDataMessage(port.xCoord, port.yCoord, port.zCoord, newCircuitType.ordinal(), actualOutputLevel, this.greaterThan, this.activeOnPulse));
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorRedstonePortChangeMessage(port, newCircuitType.ordinal(), actualOutputLevel, this.greaterThan, this.activeOnPulse));
         }
 		else if(clickedButton.id == 1) {
 			for(Entry<CircuitType, GuiSelectableButton> pair : btnMap.entrySet()) {

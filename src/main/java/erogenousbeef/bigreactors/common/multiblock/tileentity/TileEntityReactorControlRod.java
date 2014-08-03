@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import java.io.DataInputStream;
+import io.netty.buffer.ByteBuf;
+
 import java.io.IOException;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -9,7 +10,6 @@ import net.minecraft.inventory.Container;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.FluidStack;
-
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -82,7 +82,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	}
 
 	// Player updates via IBeefGuiEntity
-	// TODO REMOVEME
 	@Override
 	public void beginUpdatingPlayer(EntityPlayer player) {
 	}
@@ -102,14 +101,9 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		return new ContainerReactorControlRod(this, player);
 	}
 	
-	@Override
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
-		if(buttonName.equals("rodInsert")) {
-			setControlRodInsertion((short)(this.controlRodInsertion + 10));
-		}
-		else if(buttonName.equals("rodRetract")) {
-			setControlRodInsertion((short)(this.controlRodInsertion - 10));
-		}
+	// Network Messages
+	public void onClientControlRodChange(int amount) {
+		setControlRodInsertion((short)(this.controlRodInsertion + amount));
 	}
 
 	// Control Rod Updates

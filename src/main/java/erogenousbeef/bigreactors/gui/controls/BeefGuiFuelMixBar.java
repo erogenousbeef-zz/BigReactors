@@ -3,7 +3,6 @@ package erogenousbeef.bigreactors.gui.controls;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.EnumChatFormatting;
-
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;

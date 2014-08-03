@@ -1,7 +1,5 @@
 package erogenousbeef.bigreactors.common;
 
-import java.util.Arrays;
-
 import net.minecraft.block.Block;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -48,7 +46,7 @@ public class BRLoader {
 		BigReactors.registerFuelRods(0, true);
 		BigReactors.registerReactorPartBlocks(0, true);
 		BigReactors.registerTurbineParts();
-		BigReactors.registerSmallMachines(0,  true);
+		BigReactors.registerDevices(0,  true);
 		BigReactors.registerFluids(0,  true);
 		BigReactors.registerCreativeParts(0, true);
 

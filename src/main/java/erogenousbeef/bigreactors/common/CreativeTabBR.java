@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 
 public class CreativeTabBR extends CreativeTabs {
 
