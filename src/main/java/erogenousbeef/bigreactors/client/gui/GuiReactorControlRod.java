@@ -21,7 +21,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	TileEntityReactorControlRod entity;
 	
 	BeefGuiLabel titleString;
-	BeefGuiLabel heatString;
 	BeefGuiLabel rodStatus;
 	BeefGuiLabel rodNameLabel;
 
@@ -67,9 +66,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		setNameBtn.enabled = false;
 		topY += 28;
 		
-		heatString = new BeefGuiLabel(this, "Heat", leftX, topY);
-		topY += heatString.getHeight() + 8;
-		
 		rodStatus = new BeefGuiLabel(this, "Control Rods:", leftX, topY);
 		
 		int btnLeftX = leftX + rodStatus.getWidth() + 16;
@@ -80,7 +76,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		topY += rodStatus.getHeight() + 8;
 		
 		registerControl(titleString);
-		registerControl(heatString);
 		registerControl(rodStatus);
 		registerControl(rodNameLabel);
 		
@@ -106,15 +101,6 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	}
 	
 	protected void updateStrings() {
-		MultiblockControllerBase controller = entity.getMultiblockController();
-		if(controller instanceof MultiblockReactor) {
-			MultiblockReactor reactor = (MultiblockReactor)controller;
-			heatString.setLabelText(String.format("Fuel Heat: %1.1f C", reactor.getFuelHeat()));
-		}
-		else {
-			heatString.setLabelText(String.format("Heat: Unknown"));
-		}
-
 		rodStatus.setLabelText(String.format("Control Rod: %2d%%", entity.getControlRodInsertion()));
 		if(entity.isConnected()) {
 			rodInsertBtn.enabled = true;

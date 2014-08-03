@@ -1,29 +1,20 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.fluids.FluidStack;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
-import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
-import erogenousbeef.bigreactors.gui.container.ContainerReactorControlRod;
+import erogenousbeef.bigreactors.gui.container.ContainerBasic;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.bigreactors.net.message.ControlRodUpdateMessage;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
-import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorControlRod extends RectangularMultiblockTileEntityBase implements IBeefGuiEntity {
+public class TileEntityReactorControlRod extends TileEntityReactorPart {
 	public final static short maxInsertion = 100;
 	public final static short minInsertion = 0;
 
@@ -32,26 +23,18 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	
 	// User settings
 	protected String name;
-
-	// Backwards Compatibility
-	private FluidStack cachedFuel;
 	
 	public TileEntityReactorControlRod() {
 		super();
 	
 		controlRodInsertion = minInsertion;
-		
 		name = "";
-		
-		cachedFuel = null;
 	}
 	
 	// Data accessors
 	public short getControlRodInsertion() {
 		return this.controlRodInsertion;
 	}
-	
-	public FluidStack getCachedFuel() { return cachedFuel; }
 	
 	public void setControlRodInsertion(short newInsertion) {
 		if(newInsertion > maxInsertion || newInsertion < minInsertion || newInsertion == controlRodInsertion) { return; }
@@ -61,52 +44,24 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		this.sendControlRodUpdate();
 	}
 	
-	// Fuel Handling
-
-	// TileEntity stuff
-	// Save/Load
-	@Override
-	public void readFromNBT(NBTTagCompound data) {
-		super.readFromNBT(data);
-		this.readLocalDataFromNBT(data);
+	public void setName(String newName) {
+		if(this.name.equals(newName)) { return; }
 		
-		if(data.hasKey("fuelFluidStack")) {
-			this.cachedFuel = FluidStack.loadFluidStackFromNBT(data.getCompoundTag("fuelFluidStack"));
+		this.name = newName;
+		if(!this.worldObj.isRemote) {
+			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 	
-	@Override
-	public void writeToNBT(NBTTagCompound data) {
-		super.writeToNBT(data);
-		this.writeLocalDataToNBT(data);
+	public String getName() {
+		return this.name;
 	}
 
-	// Player updates via IBeefGuiEntity
-	@Override
-	public void beginUpdatingPlayer(EntityPlayer player) {
-	}
-
-	@Override
-	public void stopUpdatingPlayer(EntityPlayer player) {
-	}
-
-	@SideOnly(Side.CLIENT)
-	@Override
-	public GuiScreen getGUI(EntityPlayer player) {
-		return new GuiReactorControlRod(getContainer(player), this);
-	}
-
-	@Override
-	public Container getContainer(EntityPlayer player) {
-		return new ContainerReactorControlRod(this, player);
-	}
-	
 	// Network Messages
 	public void onClientControlRodChange(int amount) {
 		setControlRodInsertion((short)(this.controlRodInsertion + amount));
 	}
 
-	// Control Rod Updates
 	protected void sendControlRodUpdate() {
 		if(this.worldObj == null || this.worldObj.isRemote) { return; }
 
@@ -118,36 +73,35 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		this.controlRodInsertion = controlRodInsertion;
 	}
 
-	private void readLocalDataFromNBT(NBTTagCompound data) {
-		if(data.hasKey("controlRodInsertion")) {
-			this.controlRodInsertion = data.getShort("controlRodInsertion");
-		}
-		
-		if(data.hasKey("name")) {
-			this.name = data.getString("name");
-		}
-		else {
-			this.name = "";
-		}
-	}
-	
-	private void writeLocalDataToNBT(NBTTagCompound data) {
-		data.setShort("controlRodInsertion", controlRodInsertion);
-		
-		if(!this.name.isEmpty()) {
-			data.setString("name", this.name);
-		}
-	}
-	
-	// MultiblockTileEntityBase
+	// TileEntity overrides
 	@Override
-	public MultiblockControllerBase createNewMultiblock() {
-		return new MultiblockReactor(this.worldObj);
+	public void readFromNBT(NBTTagCompound data) {
+		super.readFromNBT(data);
+		this.readLocalDataFromNBT(data);
 	}
 	
 	@Override
-	public Class<? extends MultiblockControllerBase> getMultiblockControllerType() { return MultiblockReactor.class; }
+	public void writeToNBT(NBTTagCompound data) {
+		super.writeToNBT(data);
+		this.writeLocalDataToNBT(data);
+	}	
+	
+	// IMultiblockGuiHandler
+	/**
+	 * @return The Container object for use by the GUI. Null if there isn't any.
+	 */
+	@Override
+	public Object getContainer(InventoryPlayer inventoryPlayer) {
+		return new ContainerBasic();
+	}
 
+	@SideOnly(Side.CLIENT)
+	@Override
+	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
+		return new GuiReactorControlRod(new ContainerBasic(), this);
+	}
+	
+	// TileEntityReactorPart
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%d, %d, %d - Control rods may only be placed on the top face", xCoord, yCoord, zCoord));
@@ -178,14 +132,6 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	}
 
 	@Override
-	public void onMachineActivated() {
-	}
-
-	@Override
-	public void onMachineDeactivated() {
-	}
-	
-	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packet) {
 		super.encodeDescriptionPacket(packet);
 		NBTTagCompound localData = new NBTTagCompound();
@@ -207,16 +153,25 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 		}
 	}
 	
-	public void setName(String newName) {
-		if(this.name.equals(newName)) { return; }
+	// Save/Load Helpers
+	private void readLocalDataFromNBT(NBTTagCompound data) {
+		if(data.hasKey("controlRodInsertion")) {
+			this.controlRodInsertion = data.getShort("controlRodInsertion");
+		}
 		
-		this.name = newName;
-		if(!this.worldObj.isRemote) {
-			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		if(data.hasKey("name")) {
+			this.name = data.getString("name");
+		}
+		else {
+			this.name = "";
 		}
 	}
 	
-	public String getName() {
-		return this.name;
+	private void writeLocalDataToNBT(NBTTagCompound data) {
+		data.setShort("controlRodInsertion", controlRodInsertion);
+		
+		if(!this.name.isEmpty()) {
+			data.setString("name", this.name);
+		}
 	}
 }

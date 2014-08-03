@@ -32,13 +32,11 @@ import erogenousbeef.bigreactors.common.data.ReactorFuel;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
-import erogenousbeef.bigreactors.common.item.ItemBlockReactorPart;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMBCreativePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMultiblockGlass;
-import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePort;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
@@ -92,7 +90,6 @@ public class BigReactors {
 	public static BlockBRMetal blockMetal;
 	public static Block blockYelloriumFuelRod;
 	public static BlockReactorPart blockReactorPart;
-	public static Block blockReactorControlRod;
 	public static Block blockReactorRedstonePort; // UGH. Why does the redstone API not allow me to check metadata? :(
 	
 	public static BlockTurbinePart blockTurbinePart;
@@ -329,6 +326,9 @@ public class BigReactors {
 				reactorPartStack = BigReactors.blockReactorPart.getCoolantPortItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, "C C", "IVI", "CPC", 'C', "reactorCasing", 'V', Items.bucket, 'P', Blocks.piston, 'I', ironOrSteelIngot));
 				
+				reactorPartStack = BigReactors.blockReactorPart.getControlRodItemStack();
+				GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Items.redstone, 'U', yelloriumIngot));
+				
 				if(Loader.isModLoaded("MineFactoryReloaded")) {
 					reactorPartStack = BigReactors.blockReactorPart.getRedNetPortItemStack();
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorPartStack, "CRC", "RGR", "CRC", 'C', "reactorCasing", 'R', "cableRedNet", 'G', "ingotGold"));
@@ -355,11 +355,6 @@ public class BigReactors {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glass", 'C', "reactorCasing"));
 					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "glass", 'C', "turbineHousing"));
 				}
-			}
-			
-			if(blockReactorControlRod != null) {
-				ItemStack reactorControlRodStack = new ItemStack(BigReactors.blockReactorControlRod, 1);
-				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Items.redstone, 'U', yelloriumIngot));
 			}
 			
 			if(blockDevice != null) {
@@ -526,13 +521,6 @@ public class BigReactors {
 
 
 	public static void registerFuelRods(int id, boolean require) {
-		if(BigReactors.blockReactorControlRod == null) {
-			BRConfig.CONFIGURATION.load();
-			BigReactors.blockReactorControlRod = new BlockReactorControlRod(Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockReactorControlRod, ItemBlock.class, "ReactorControlRod");
-			BRConfig.CONFIGURATION.save();
-		}
-
 		if(BigReactors.blockYelloriumFuelRod == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockYelloriumFuelRod = new BlockFuelRod(Material.iron);
@@ -546,7 +534,7 @@ public class BigReactors {
 		if(BigReactors.blockReactorPart == null) {
 			BRConfig.CONFIGURATION.load();
 			BigReactors.blockReactorPart = new BlockReactorPart(Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockReactorPart, ItemBlockReactorPart.class, "BRReactorPart");
+			GameRegistry.registerBlock(BigReactors.blockReactorPart, ItemBlockBigReactors.class, "BRReactorPart");
 
 			OreDictionary.registerOre("reactorCasing", 		 BigReactors.blockReactorPart.getReactorCasingItemStack());
 			OreDictionary.registerOre("reactorController", 	 BigReactors.blockReactorPart.getReactorControllerItemStack());
@@ -554,6 +542,8 @@ public class BigReactors {
 			OreDictionary.registerOre("reactorRedNetPort", 	 BigReactors.blockReactorPart.getRedNetPortItemStack());
 			OreDictionary.registerOre("reactorComputerPort", BigReactors.blockReactorPart.getComputerPortItemStack());
 			OreDictionary.registerOre("reactorCoolantPort",  BigReactors.blockReactorPart.getCoolantPortItemStack());
+			OreDictionary.registerOre("reactorControlRod",	 BigReactors.blockReactorPart.getControlRodItemStack());
+
 			BRConfig.CONFIGURATION.save();
 		}
 		
