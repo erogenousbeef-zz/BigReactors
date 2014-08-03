@@ -188,7 +188,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	/**
 	 * @param newType The type of the new circuit.
 	 * @param param1 For input/control rods, the level(s) to change or set. For outputs, the numerical value
-	 * @param greater Than For outputs, whether to activate when greater than or less than the outputLevel value. For input/control rods, whether to set (true) or change (false) the values. //TODO Fix this Javadoc
+	 * @param greaterThan For outputs, whether to activate when greater than or less than the outputLevel value. For input/control rods, whether to set (true) or change (false) the values.
 	 */
 	public void onReceiveUpdatePacket(int newType, int outputLevel, boolean greaterThan, boolean activeOnPulse) {
 		boolean oldTypeWasInput = this.isInput();
