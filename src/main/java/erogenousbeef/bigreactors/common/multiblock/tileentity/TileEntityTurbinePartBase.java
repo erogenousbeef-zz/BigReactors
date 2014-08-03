@@ -7,14 +7,15 @@ import java.io.IOException;
 import net.minecraft.entity.player.InventoryPlayer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.common.BRLog;
+import erogenousbeef.bigreactors.common.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
-import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockNetworkHandler;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
+import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, IMultiblockNetworkHandler {
+public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, IActivateable {
 
 	public TileEntityTurbinePartBase() {
 	}
@@ -56,17 +57,6 @@ public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTil
 	@Override
 	public void onMachineDeactivated() {
 	}
-	
-	///// Network communication - IMultiblockNetworkHandler
-
-	@Override
-	public void onNetworkPacket(Type packetType, ByteBuf data) throws IOException {
-		if(!this.isConnected()) {
-			return;
-		}
-
-		getTurbine().onNetworkPacket(packetType, data);
-	}
 
 	/// GUI Support - IMultiblockGuiHandler
 	/**
@@ -85,5 +75,37 @@ public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTil
 
 	public MultiblockTurbine getTurbine() {
 		return (MultiblockTurbine)getMultiblockController();
+	}
+	
+	// IActivateable
+	// IActivateable
+	@Override
+	public CoordTriplet getReferenceCoord() {
+		if(isConnected()) {
+			return getMultiblockController().getReferenceCoord();
+		}
+		else {
+			return new CoordTriplet(xCoord, yCoord, zCoord);
+		}
+	}
+	
+	@Override
+	public boolean getActive() {
+		if(isConnected()) {
+			return getTurbine().getActive();
+		}
+		else {
+			return false;
+		}
+	}
+	
+	@Override
+	public void setActive(boolean active) {
+		if(isConnected()) {
+			getTurbine().setActive(active);
+		}
+		else {
+			BRLog.error("Received a setActive command at %d, %d, %d, but not connected to a multiblock controller!", xCoord, yCoord, zCoord);
+		}
 	}
 }

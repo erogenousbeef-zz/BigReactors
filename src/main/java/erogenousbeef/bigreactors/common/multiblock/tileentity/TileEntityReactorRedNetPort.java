@@ -199,12 +199,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			reactor = getReactorController();
 			if(inputActivatesOnPulse[channel]) {
 				if(isPulse) {
-					reactor.setActive(!reactor.isActive());
+					reactor.setActive(!reactor.getActive());
 				}
 			}
 			else {
 				boolean newActive = newValue != 0;
-				if(newActive != reactor.isActive()) {
+				if(newActive != reactor.getActive()) {
 					reactor.setActive(newActive);
 				}
 			}

@@ -89,7 +89,7 @@ public class TileEntityTurbineComputerPort extends
 		case getConnected:
 			return new Object[] { isConnected() };
 		case getActive:
-			return new Object[] { turbine.isActive() };
+			return new Object[] { turbine.getActive() };
 		case getEnergyProducedLastTick:
 			return new Object[] { turbine.getEnergyGeneratedLastTick() };
 		case getEnergyStored:

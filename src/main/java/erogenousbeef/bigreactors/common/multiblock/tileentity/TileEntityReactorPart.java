@@ -76,7 +76,7 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 			}
 			else if(BlockReactorPart.isController(metadata)) {
 				// This is called during world loading as well, so controllers can start active.
-				if(!this.getReactorController().isActive()) {
+				if(!this.getReactorController().getActive()) {
 					this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, BlockReactorPart.CONTROLLER_IDLE, 2);				
 				}
 				else {

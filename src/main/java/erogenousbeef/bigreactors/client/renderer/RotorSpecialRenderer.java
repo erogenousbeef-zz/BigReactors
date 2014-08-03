@@ -32,7 +32,7 @@ public class RotorSpecialRenderer extends TileEntitySpecialRenderer {
 		
 		MultiblockTurbine turbine = bearing.getTurbine();
 		
-		if(!turbine.isAssembled() || !turbine.isActive() || !turbine.hasGlass()) { return; }
+		if(!turbine.isAssembled() || !turbine.getActive() || !turbine.hasGlass()) { return; }
 		
 		Integer displayList = bearing.getDisplayList();
 		ForgeDirection rotorDir = bearing.getOutwardsDir().getOpposite();

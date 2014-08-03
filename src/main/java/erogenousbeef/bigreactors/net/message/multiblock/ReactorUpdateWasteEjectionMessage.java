@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.net.message;
+package erogenousbeef.bigreactors.net.message.multiblock;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
@@ -8,17 +8,17 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
+import erogenousbeef.bigreactors.net.message.base.ReactorMessageClient;
 import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
 
-// TODO: Refactor this into a MultiblockMessageClient
-public class ReactorUpdateWasteEjectionMessage extends WorldMessageClient {
+public class ReactorUpdateWasteEjectionMessage extends ReactorMessageClient {
     private int newSetting;
     
     public ReactorUpdateWasteEjectionMessage() { super(); newSetting = 0; }
 
-    public ReactorUpdateWasteEjectionMessage(int x, int y, int z, int newSetting) {
-    	super(x, y, z);
-        this.newSetting = newSetting;
+    public ReactorUpdateWasteEjectionMessage(MultiblockReactor reactor) {
+    	super(reactor);
+    	newSetting = reactor.getWasteEjection().ordinal();
     }
 
     @Override
@@ -33,14 +33,10 @@ public class ReactorUpdateWasteEjectionMessage extends WorldMessageClient {
         buf.writeInt(newSetting);
     }
 
-    public static class Handler extends WorldMessageClient.Handler<ReactorUpdateWasteEjectionMessage> {
-    	protected static final MultiblockReactor.WasteEjectionSetting[] s_Values = MultiblockReactor.WasteEjectionSetting.values();
-
+    public static class Handler extends ReactorMessageClient.Handler<ReactorUpdateWasteEjectionMessage> {
         @Override
-        public IMessage handleMessage(ReactorUpdateWasteEjectionMessage message, MessageContext ctx, TileEntity te) {
-            if(te instanceof TileEntityReactorPart) {
-                ((TileEntityReactorPart)te).getReactorController().setWasteEjection(s_Values[message.newSetting]);
-            }
+        public IMessage handleMessage(ReactorUpdateWasteEjectionMessage message, MessageContext ctx, MultiblockReactor reactor) {
+        	reactor.setWasteEjection(MultiblockReactor.s_EjectionSettings[message.newSetting]);
             return null;
         }    	
     }

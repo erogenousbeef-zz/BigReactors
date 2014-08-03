@@ -30,6 +30,7 @@ import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.RadiationData;
+import erogenousbeef.bigreactors.common.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
@@ -44,9 +45,8 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorF
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
-import erogenousbeef.bigreactors.net.message.MultiblockMessageClient;
-import erogenousbeef.bigreactors.net.message.ReactorUpdateWasteEjectionMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorUpdateMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorUpdateWasteEjectionMessage;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
@@ -54,7 +54,7 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo, IMultipleFluidHandler {
+public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo, IMultipleFluidHandler, IActivateable {
 	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
 	public static final int FuelCapacityPerFuelRod = 4 * AmountPerIngot; // 4 ingots per rod
 	
@@ -91,6 +91,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		kAutomatic,					// Full auto, always remove waste
 		kManual, 					// Manual, only on button press
 	}
+	public static final WasteEjectionSetting[] s_EjectionSettings = WasteEjectionSetting.values();
 	
 	// Lists of connected parts
 	private Set<TileEntityReactorPowerTap> attachedPowerTaps;
@@ -267,7 +268,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		float newHeat = 0f;
 		
-		if(isActive()) {
+		if(getActive()) {
 			// Select a control rod to radiate from. Reset the iterator and select a new Y-level if needed.
 			if(!currentFuelRod.hasNext()) {
 				currentFuelRod = attachedFuelRods.iterator();
@@ -290,7 +291,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 
 		// Allow radiation to decay even when reactor is off.
-		radiationHelper.tick(isActive());
+		radiationHelper.tick(getActive());
 
 		// If we can, poop out waste and inject new fuel.
 		if(wasteEjection == WasteEjectionSetting.kAutomatic) {
@@ -395,7 +396,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return (oldHeat != this.getReactorHeat() || oldEnergy != this.getEnergyStored());
 	}
 	
-	public void setStoredEnergy(float oldEnergy) {
+	public void setEnergyStored(float oldEnergy) {
 		energyStored = oldEnergy;
 		if(energyStored < 0.0 || Float.isNaN(energyStored)) {
 			energyStored = 0.0f;
@@ -441,10 +442,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		this.addStoredEnergy(-1f * energy);
 	}
 	
-	public boolean isActive() {
-		return this.active;
-	}
-
 	public void setActive(boolean act) {
 		if(act == this.active) { return; }
 		this.active = act;
@@ -561,22 +558,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(data.hasKey("storedEnergy")) {
-			setStoredEnergy(Math.max(getEnergyStored(), data.getFloat("storedEnergy")));
+			setEnergyStored(Math.max(getEnergyStored(), data.getFloat("storedEnergy")));
 		}
 		
-		if(data.hasKey("wasteEjection2")) {
-			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection2")];
-		}
-		else if(data.hasKey("wasteEjection"))
-		{
-			// Old waste ejection system
-			int translatedSetting = data.getInteger("wasteEjection");
-			if(translatedSetting == 2)
-				translatedSetting = 1;
-			else
-				translatedSetting = 0;
-
-			this.wasteEjection = WasteEjectionSetting.values()[translatedSetting];
+		if(data.hasKey("wasteEjection")) {
+			this.wasteEjection = s_EjectionSettings[data.getInteger("wasteEjection")];
 		}
 		
 		if(data.hasKey("fuelHeat")) {
@@ -604,10 +590,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
-		data.setInteger("wasteEjection2", this.wasteEjection.ordinal());
+		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
 		data.setFloat("energy", this.energyStored);
 		data.setFloat("heat", this.reactorHeat);
-		data.setBoolean("isActive", this.isActive());
+		data.setBoolean("isActive", this.getActive());
 		data.setFloat("fuelHeat", fuelHeat);
 		data.setTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
 		data.setTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
@@ -617,7 +603,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		if(data.hasKey("wasteEjection2")) {
-			this.wasteEjection = WasteEjectionSetting.values()[data.getInteger("wasteEjection2")];
+			this.wasteEjection = s_EjectionSettings[data.getInteger("wasteEjection2")];
 		}
 		
 		if(data.hasKey("isActive")) {
@@ -651,60 +637,80 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		onFuelStatusChanged();
 	}
 
-	protected IMessage getUpdatePacket() {
-		Fluid fuelType, wasteType, coolantType, vaporType;
-		fuelType = fuelContainer.getFuelType();
-		wasteType = fuelContainer.getWasteType();
-		coolantType = coolantContainer.getCoolantType();
-		vaporType = coolantContainer.getVaporType();
-		
+	// Network & Storage methods
+	/*
+	 * Serialize a reactor into a given Byte buffer
+	 * @param buf The byte buffer to serialize into
+	 */
+	public void serialize(ByteBuf buf) {
 		int fuelTypeID, wasteTypeID, coolantTypeID, vaporTypeID;
-		fuelTypeID = fuelType == null ? -1 : fuelType.getID();
-		wasteTypeID = wasteType == null ? -1 : wasteType.getID();
-		coolantTypeID = coolantType == null ? -1 : coolantType.getID();
-		vaporTypeID = vaporType == null ? -1 : vaporType.getID();
-		
-		CoordTriplet coord = getReferenceCoord();
 
-        return new MultiblockMessageClient(
-        		Type.ReactorStatus,
-                coord.x, coord.y, coord.z,
-                this.active, this.reactorHeat, energyStored,
-                this.energyGeneratedLastTick, this.fuelConsumedLastTick,
-                this.fuelHeat, fuelTypeID, fuelContainer.getFuelAmount(),
-                wasteTypeID, fuelContainer.getWasteAmount(),
-                radiationHelper.getFertility(), coolantTypeID,
-                coolantContainer.getCoolantAmount(),
-                vaporTypeID, coolantContainer.getVaporAmount()
-        );
+		// Marshal fluid types into integers
+		{
+			Fluid fuelType, wasteType, coolantType, vaporType;
+			fuelType = fuelContainer.getFuelType();
+			wasteType = fuelContainer.getWasteType();
+			coolantType = coolantContainer.getCoolantType();
+			vaporType = coolantContainer.getVaporType();
+			
+			fuelTypeID = fuelType == null ? -1 : fuelType.getID();
+			wasteTypeID = wasteType == null ? -1 : wasteType.getID();
+			coolantTypeID = coolantType == null ? -1 : coolantType.getID();
+			vaporTypeID = vaporType == null ? -1 : vaporType.getID();
+		}
+
+		// Basic data
+		buf.writeBoolean(active);
+		buf.writeFloat(reactorHeat);
+		buf.writeFloat(fuelHeat);
+		buf.writeFloat(energyStored);
+		buf.writeFloat(radiationHelper.getFertility());
+		
+		// Statistics
+		buf.writeFloat(energyGeneratedLastTick);
+		buf.writeFloat(fuelConsumedLastTick);
+		
+		// Fuel & waste data
+		buf.writeInt(fuelTypeID);
+		buf.writeInt(fuelContainer.getFuelAmount());
+		buf.writeInt(wasteTypeID);
+		buf.writeInt(fuelContainer.getWasteAmount());
+
+		// Coolant data
+		buf.writeInt(coolantTypeID);
+		buf.writeInt(coolantContainer.getCoolantAmount());
+		buf.writeInt(vaporTypeID);
+		buf.writeInt(coolantContainer.getVaporAmount());
 	}
-	
-	public void receiveReactorUpdate(ByteBuf data) throws IOException {
-		boolean active = data.readBoolean();
-		float heat = data.readFloat();
-		float storedEnergy = data.readFloat();
-		float energyGeneratedLastTick = data.readFloat();
-		float fuelConsumedLastTick = data.readFloat();
-		float fuelHeat = data.readFloat();
-		int fuelTypeID = data.readInt();
-		int fuelAmt = data.readInt();
-		int wasteTypeID = data.readInt();
-		int wasteAmt = data.readInt();
-		float fertility = data.readFloat();
-		int coolantTypeID = data.readInt();
-		int coolantAmt = data.readInt();
-		int vaporTypeID = data.readInt();
-		int vaporAmt = data.readInt();
 
-		setActive(active);
-		setReactorHeat(heat);
-		setStoredEnergy(storedEnergy);
-		setEnergyGeneratedLastTick(energyGeneratedLastTick);
-		setFuelConsumedLastTick(fuelConsumedLastTick);
-		setFuelHeat(fuelHeat);
+	/*
+	 * Deserialize a reactor's data from a given Byte buffer
+	 * @param buf The byte buffer containing reactor data
+	 */
+	public void deserialize(ByteBuf buf) {
+		// Basic data
+		setActive(buf.readBoolean());
+		setReactorHeat(buf.readFloat());
+		setFuelHeat(buf.readFloat());
+		setEnergyStored(buf.readFloat());
+		radiationHelper.setFertility(buf.readFloat());
 		
-		radiationHelper.setFertility(fertility);
+		// Statistics
+		setEnergyGeneratedLastTick(buf.readFloat());
+		setFuelConsumedLastTick(buf.readFloat());
 		
+		// Fuel & waste data
+		int fuelTypeID = buf.readInt();
+		int fuelAmt = buf.readInt();
+		int wasteTypeID = buf.readInt();
+		int wasteAmt = buf.readInt();
+
+		// Coolant data
+		int coolantTypeID = buf.readInt();
+		int coolantAmt = buf.readInt();
+		int vaporTypeID = buf.readInt();
+		int vaporAmt = buf.readInt();
+
 		if(fuelTypeID == -1) {
 			fuelContainer.emptyFuel();
 		}
@@ -732,6 +738,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		else {
 			coolantContainer.setVapor(new FluidStack(FluidRegistry.getFluid(vaporTypeID), vaporAmt));
 		}
+	}
+	
+	protected IMessage getUpdatePacket() {
+        return new ReactorUpdateMessage(this);
 	}
 	
 	/**
@@ -821,7 +831,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(otherReactor.reactorHeat > this.reactorHeat) { setReactorHeat(otherReactor.reactorHeat); }
 		if(otherReactor.fuelHeat > this.fuelHeat) { setFuelHeat(otherReactor.fuelHeat); }
 
-		if(otherReactor.getEnergyStored() > this.getEnergyStored()) { this.setStoredEnergy(otherReactor.getEnergyStored()); }
+		if(otherReactor.getEnergyStored() > this.getEnergyStored()) { this.setEnergyStored(otherReactor.getEnergyStored()); }
 
 		fuelContainer.merge(otherReactor.fuelContainer);
 		radiationHelper.merge(otherReactor.radiationHelper);
@@ -851,7 +861,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					CoordTriplet coord = getReferenceCoord();
 					
 					for(EntityPlayer player : updatePlayers) {
-                        CommonPacketHandler.INSTANCE.sendTo(new ReactorUpdateWasteEjectionMessage(coord.x, coord.y, coord.z, this.wasteEjection.ordinal()), (EntityPlayerMP)player);
+                        CommonPacketHandler.INSTANCE.sendTo(new ReactorUpdateWasteEjectionMessage(this), (EntityPlayerMP)player);
 					}
 				}
 			}
@@ -1392,5 +1402,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		TileEntity saveTe = worldObj.getTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
 		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
+	}
+
+	@Override
+	public boolean getActive() {
+		return this.active;
 	}
 }

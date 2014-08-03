@@ -15,7 +15,7 @@ public class TileEntityTurbineCreativeSteamGenerator extends TileEntityTurbinePa
 
 	@Override
 	public void onMultiblockServerTick() {
-		if(isConnected() && getTurbine().isActive()) {
+		if(isConnected() && getTurbine().getActive()) {
 			Fluid steam = FluidRegistry.getFluid("steam");
 			
 			getTurbine().fill(MultiblockTurbine.TANK_INPUT, new FluidStack(steam, getTurbine().getMaxIntakeRate()), true);

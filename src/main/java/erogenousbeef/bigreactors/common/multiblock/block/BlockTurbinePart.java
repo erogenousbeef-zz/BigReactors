@@ -146,7 +146,7 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 				else if(part.getOutwardsDir().ordinal() == side) {
 					// Only put the fancy icon on one side of the machine. Other parts will use the base.
 					if(metadata == METADATA_CONTROLLER) {
-						if(turbine.isActive()) {
+						if(turbine.getActive()) {
 							subIcon = SUBICON_CONTROLLER_ACTIVE;
 						}
 						else {
@@ -438,7 +438,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     			// Rotor bearing found!
     			TileEntityTurbinePartStandard bearing = (TileEntityTurbinePartStandard)te;
     			MultiblockTurbine turbine = bearing.getTurbine();
-    			if(turbine != null && turbine.isActive()) {
+    			if(turbine != null && turbine.getActive()) {
     				// Spawn particles!
     				int numParticles = Math.min(20, Math.max(1, turbine.getFluidConsumedLastTick() / 40));
     				ForgeDirection inwardsDir = bearing.getOutwardsDir().getOpposite();
@@ -480,7 +480,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
         	TileEntity te = world.getTileEntity(x, y, z);
         	if(te instanceof TileEntityTurbineRotorBearing) {
         		TileEntityTurbineRotorBearing bearing = (TileEntityTurbineRotorBearing)te;
-        		if(bearing.isConnected() && bearing.getTurbine().isActive()) {
+        		if(bearing.isConnected() && bearing.getTurbine().getActive()) {
         			return bearing.getAABB();
         		}
         	}
