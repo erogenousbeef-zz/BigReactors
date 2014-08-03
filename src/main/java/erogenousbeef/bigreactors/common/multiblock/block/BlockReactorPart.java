@@ -26,6 +26,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
@@ -244,21 +245,24 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 			controller = part.getMultiblockController();
 		}
 		
-		if(isCasing(metadata) && isPowerTap(metadata) && isComputerPort(metadata)) {
+		if(isCasing(metadata) || isPowerTap(metadata) || isComputerPort(metadata)) {
 			// If the player's hands are empty and they rightclick on a multiblock, they get a 
 			// multiblock-debugging message if the machine is not assembled.
-			if(controller != null) {
-				Exception e = controller.getLastValidationException();
-				if(e != null) {
-					player.addChatMessage(new ChatComponentText(e.getMessage()));
+			if(player.getCurrentEquippedItem() == null) {
+				if(controller != null) {
+					Exception e = controller.getLastValidationException();
+					if(e != null) {
+						player.addChatMessage(new ChatComponentText(e.getMessage()));
+						return true;
+					}
+				}
+				else {
+					player.addChatMessage(new ChatComponentText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block.")); //TODO Localize
 					return true;
 				}
 			}
-			else {
-				player.addChatMessage(new ChatComponentText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block.")); //TODO Localize
-				return true;
-			}
-			
+
+			// If nonempty, or there was no error, just fall through
 			return false;
 		}
 
