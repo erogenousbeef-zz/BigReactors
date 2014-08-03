@@ -12,8 +12,8 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.ControlRodSetNameMessage;
-import erogenousbeef.bigreactors.net.message.GuiButtonPressMessage;
+import erogenousbeef.bigreactors.net.message.ControlRodChangeInsertionMessage;
+import erogenousbeef.bigreactors.net.message.ControlRodChangeNameMessage;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class GuiReactorControlRod extends BeefGuiBase {
@@ -130,23 +130,18 @@ public class GuiReactorControlRod extends BeefGuiBase {
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		String btnCmd;
-		
 		switch(button.id) {
 		case 0:
-			btnCmd = "rodRetract";
+	        CommonPacketHandler.INSTANCE.sendToServer(new ControlRodChangeInsertionMessage(entity.xCoord, entity.yCoord, entity.zCoord, -10));
 			break;
 		case 2:
-            CommonPacketHandler.INSTANCE.sendToServer(new ControlRodSetNameMessage(entity.xCoord, entity.yCoord, entity.zCoord, this.rodName.getText()));
+            CommonPacketHandler.INSTANCE.sendToServer(new ControlRodChangeNameMessage(entity.xCoord, entity.yCoord, entity.zCoord, this.rodName.getText()));
 			this.rodName.setFocused(false);
-			return;
+			break;
 		case 1:
 		default:
-			btnCmd = "rodInsert";
-			break;
+	        CommonPacketHandler.INSTANCE.sendToServer(new ControlRodChangeInsertionMessage(entity.xCoord, entity.yCoord, entity.zCoord, 10));
 		}
-
-        CommonPacketHandler.INSTANCE.sendToServer(new GuiButtonPressMessage(entity.xCoord, entity.yCoord, entity.zCoord, btnCmd));
     }
 	
 	@Override

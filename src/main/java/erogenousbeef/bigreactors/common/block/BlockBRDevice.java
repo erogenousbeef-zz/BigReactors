@@ -35,7 +35,7 @@ import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInvento
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 
-public class BlockBRSmallMachine extends BlockContainer {
+public class BlockBRDevice extends BlockContainer {
 
 	public static final int META_CYANITE_REPROCESSOR = 0;
 	
@@ -48,12 +48,12 @@ public class BlockBRSmallMachine extends BlockContainer {
 	private IIcon[] _inventorySideIcons = new IIcon[3];
 	private IIcon[] _fluidSideIcons = new IIcon[2];
 	
-	public BlockBRSmallMachine(Material material) {
+	public BlockBRDevice(Material material) {
 		super(material);
 		setStepSound(soundTypeMetal);
 		setHardness(1.0f);
-		setBlockName("blockBRSmallMachine");
-		setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockBRSmallMachine");
+		setBlockName("blockBRDevice");
+		setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockBRDevice");
 		setCreativeTab(BigReactors.TAB);
 	}
 	

@@ -20,7 +20,7 @@ import erogenousbeef.bigreactors.gui.controls.grab.BeefGuiGrabSource;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabTarget;
 import erogenousbeef.bigreactors.gui.controls.grab.RedNetConfigGrabbable;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.RedNetSetDataMessage;
+import erogenousbeef.bigreactors.net.message.ReactorRedNetPortChangeMessage;
 import erogenousbeef.core.common.CoordTriplet;
 
 public class GuiReactorRedNetPort extends BeefGuiBase {
@@ -225,7 +225,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		if(button.id == 0) {
 			Object[] packetData = getUpdatePacketData();
 
-            CommonPacketHandler.INSTANCE.sendToServer(new RedNetSetDataMessage(port.xCoord, port.yCoord, port.zCoord, packetData));
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorRedNetPortChangeMessage(port, packetData));
         }
 		
 		if(button.id == 1 || button.id == 2) {

@@ -23,6 +23,8 @@ import powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode;
 import powercrystals.minefactoryreloaded.api.rednet.connectivity.RedNetConnectionType;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
@@ -35,8 +37,6 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
 
 public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode, IPeripheralProvider {
 	

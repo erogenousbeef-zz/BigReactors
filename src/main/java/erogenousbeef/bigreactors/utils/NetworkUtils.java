@@ -1,10 +1,7 @@
 package erogenousbeef.bigreactors.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-
-import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
+import cpw.mods.fml.common.network.ByteBufUtils;
 
 public class NetworkUtils {
 
@@ -43,9 +40,8 @@ public class NetworkUtils {
         {
             buf.writeShort((Short) obj);
         }
-    }
-
-    public static DataInputStream toDataInputStream(ByteBuf buf) {
-        return new DataInputStream(new ByteArrayInputStream(buf.array()));
+        else {
+            throw new IllegalArgumentException("Unrecognized class for network serialization");
+        }
     }
 }

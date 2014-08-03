@@ -126,7 +126,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		case inputActive:
 			if(this.isInputActiveOnPulse()) {
 				if(this.isExternallyPowered) {
-					reactor.setActive(!reactor.isActive());
+					reactor.setActive(!reactor.getActive());
 				}
 			}
 			else {

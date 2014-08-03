@@ -18,8 +18,9 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.Packets;
-import erogenousbeef.bigreactors.net.message.MultiblockNetworkHandlerMessageServer;
+import erogenousbeef.bigreactors.net.message.MachineCommandActivateMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorChangeWasteEjectionMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorCommandEjectMessage;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 
@@ -166,7 +167,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 		
 		updateIcons();
 		
-		if(reactor.isActive()) {
+		if(reactor.getActive()) {
 			statusString.setLabelText("Status: " + EnumChatFormatting.DARK_GREEN + "Online");
 		}
 		else {
@@ -197,8 +198,8 @@ public class GuiReactorStatus extends BeefGuiBase {
 		CoordTriplet saveDelegate = reactor.getReferenceCoord();
 		if(button.id == 0 || button.id == 1) {
 			boolean newSetting = button.id == 0;
-			if(newSetting != reactor.isActive()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.MultiblockActivateButton, saveDelegate.x, saveDelegate.y, saveDelegate.z, newSetting));
+			if(newSetting != reactor.getActive()) {
+                CommonPacketHandler.INSTANCE.sendToServer(new MachineCommandActivateMessage(reactor, newSetting));
 			}
 		}
 		else if(button.id >= 2 && button.id <= 4) {
@@ -213,16 +214,16 @@ public class GuiReactorStatus extends BeefGuiBase {
 			}
 			
 			if(reactor.getWasteEjection() != newEjectionSetting) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.ReactorWasteEjectionSettingUpdate, saveDelegate.x, saveDelegate.y, saveDelegate.z, newEjectionSetting.ordinal()));
+                CommonPacketHandler.INSTANCE.sendToServer(new ReactorChangeWasteEjectionMessage(reactor, newEjectionSetting));
 			}
 		}
 		else if(button.id == 5) {
-            CommonPacketHandler.INSTANCE.sendToServer(new MultiblockNetworkHandlerMessageServer(Packets.ReactorEjectButton, saveDelegate.x, saveDelegate.y, saveDelegate.z, false, isShiftKeyDown(), false));
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorCommandEjectMessage(reactor, true, isShiftKeyDown()));
 		}
 	}
 	
 	protected void updateIcons() {
-		if(reactor.isActive()) {
+		if(reactor.getActive()) {
 			btnReactorOn.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.ON_ON));
 			btnReactorOff.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
 		}

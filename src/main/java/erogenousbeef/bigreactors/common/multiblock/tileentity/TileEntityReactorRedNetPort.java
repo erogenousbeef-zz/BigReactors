@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import java.io.DataInputStream;
+import io.netty.buffer.ByteBuf;
+
 import java.io.EOFException;
 import java.io.IOException;
 
@@ -198,12 +199,12 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			reactor = getReactorController();
 			if(inputActivatesOnPulse[channel]) {
 				if(isPulse) {
-					reactor.setActive(!reactor.isActive());
+					reactor.setActive(!reactor.getActive());
 				}
 			}
 			else {
 				boolean newActive = newValue != 0;
-				if(newActive != reactor.isActive()) {
+				if(newActive != reactor.getActive()) {
 					reactor.setActive(newActive);
 				}
 			}
@@ -258,7 +259,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		ForgeDirection out = getOutwardsDir();
 		
 		if(redNetwork != null) {
-				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out); //TODO See if this is the ForgeDirection that is needed.
+				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite());
 		}
 		
 		if(redNetInput != null) {
@@ -363,25 +364,25 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 
 	// Decodes setting changes from an update packet
-	public void decodeSettings(DataInputStream data, boolean doValidation) throws IOException {
+	public void decodeSettings(ByteBuf dis, boolean doValidation) throws IOException {
 		int channel;
 		for(;;) {
 			try {
-				channel = data.readInt();
-				CircuitType newSetting = CircuitType.values()[ data.readInt() ];
+				channel = dis.readInt();
+				CircuitType newSetting = CircuitType.values()[ dis.readInt() ];
 				clearChannel(channel);
 
 				channelCircuitTypes[channel] = newSetting;
 
 				if(isInput(channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(channelCircuitTypes[channel])) {
-					inputActivatesOnPulse[channel] = data.readBoolean();
+					inputActivatesOnPulse[channel] = dis.readBoolean();
 				}
 				
 				if(circuitTypeHasSubSetting(newSetting)) {
-					boolean hasSubSettingData = data.readBoolean();
+					boolean hasSubSettingData = dis.readBoolean();
 					CoordTriplet coord = null;
 					if(hasSubSettingData) {
-						coord = new CoordTriplet( data.readInt(), data.readInt(), data.readInt() );					
+						coord = new CoordTriplet( dis.readInt(), dis.readInt(), dis.readInt() );					
 					}
 					
 					if(doValidation) {

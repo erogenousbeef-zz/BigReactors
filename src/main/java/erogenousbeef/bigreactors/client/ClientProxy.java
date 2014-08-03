@@ -18,6 +18,7 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorBearing;
 import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
+import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 
 @SideOnly(Side.CLIENT)

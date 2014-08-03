@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.3.5A"
+version = "0.4.0X1"
 group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 
@@ -38,10 +38,12 @@ repositories {
 
 dependencies { //The first two were added because one of the mods below them (I suspect AE2) was auto-downloading the 1.7.2 versions. Hopefully can be fixed in the future and can remove these.
     compile 'codechicken:CodeChickenLib:1.7.10-1.1.1.98:dev'
-    compile 'codechicken:ForgeMultipart:1.7.10-1.1.0.299:dev'
     compile 'com.mod-buildcraft:buildcraft:6.0.17:dev'
-    compile 'appeng:appliedenergistics2:rv0-stable-10:dev'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.3.2.43'
+		
+	// Remember to use the non-obfuscated dev versions!
+	compile files('lib/CoFHCore-[1.7.10]3.0.0B2-dev-24.jar');		// CoFHCore - general libraries
+	compile files('lib/CoFHLib-[1.7.10]1.0.0B2-dev-18.jar');		// CoFHLib - more general libraries
 }
 
 processResources
@@ -63,3 +65,17 @@ processResources
         exclude 'mcmod.info'
     }
 }
+
+task copyBeefCore(type: Copy) {
+    from("BeefCore/src/main/java/erogenousbeef/") {
+        include "**/*"
+        destinationDir = file("src/main/java/erogenousbeef/")
+    }
+}
+
+task deleteBeefCore(type: Delete) {
+    delete 'src/main/java/erogenousbeef/core'
+}
+
+tasks.compileApiJava.dependsOn copyBeefCore
+tasks.build.dependsOn deleteBeefCore
