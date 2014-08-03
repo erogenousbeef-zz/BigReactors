@@ -205,13 +205,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(side == 0 || side == 1) { return null; }
 		
 		int metadata = this.getBlockMetadata();
-		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
+		if(isInlet()) {
 			return new int[] {SLOT_INLET};
 		}
-		else if(metadata == BlockReactorPart.ACCESSPORT_OUTLET) {
+		else {
 			return new int[] {SLOT_OUTLET};
 		}
-		return null;
 	}
 
 	@Override
@@ -289,10 +288,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	 * Called when stuff has been placed in the access port
 	 */
 	public void onItemsReceived() {
-		if(BlockReactorPart.ACCESSPORT_OUTLET == this.worldObj.getBlockMetadata(xCoord, yCoord, zCoord)) {
+		if(!isInlet()) {
 			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
 		}
 
 		markDirty();
 	}
+	
+	public boolean isInlet() { return this.isInlet; }
 }

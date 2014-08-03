@@ -71,8 +71,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	}
 	
 	protected void updateIcons() {
-		int metadata = _port.getWorldObj().getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
-		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
+		if(_port.isInlet()) {
 			btnInlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.INLET_ON));
 			btnOutlet.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OUTLET_OFF));
 		}
@@ -90,26 +89,12 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 0 || button.id == 1) {
-			int metadata = _port.getWorldObj().getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
-			int newMetadata = button.id == 0 ? BlockReactorPart.ACCESSPORT_INLET : BlockReactorPart.ACCESSPORT_OUTLET;
-			
-			if(newMetadata != metadata) {
-                CommonPacketHandler.INSTANCE.sendToServer(new ReactorAccessPortChangeDirectionMessage(_port));
-			}
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorAccessPortChangeDirectionMessage(_port));
 		}
 		
 		else if(button.id == 2 || button.id == 3) {
 			boolean ejectFuel = button.id == 2;
             CommonPacketHandler.INSTANCE.sendToServer(new ReactorCommandEjectToPortMessage(_port, ejectFuel, isShiftKeyDown()));
-		}
-	}
-	
-	private String getStringFromMetadata(int metadata) {
-		if(metadata == BlockReactorPart.ACCESSPORT_INLET) {
-			return "Dir: IN";
-		}
-		else {
-			return "Dir: OUT";
 		}
 	}
 }

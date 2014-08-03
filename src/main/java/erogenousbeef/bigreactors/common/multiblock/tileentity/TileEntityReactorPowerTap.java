@@ -84,15 +84,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		
 		boolean isConnected = (rfNetwork != null);
 		if(wasConnected != isConnected) {
-			// TODO: Remove this when making reactors no longer setBlockMetadataWithNotify
-			if(isConnected) {
-				// Newly connected
-                worldObj.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE+1, 2);
-			}
-			else {
-				// No longer connected
-                worldObj.setBlockMetadataWithNotify(x, y, z, BlockReactorPart.POWERTAP_METADATA_BASE, 2);
-			}
+			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
 	}
 
@@ -151,4 +143,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 
 		return this.getReactorController().getMaxEnergyStored(from);
 	}
+	
+	public boolean hasEnergyConnection() { return rfNetwork != null; }
 }
