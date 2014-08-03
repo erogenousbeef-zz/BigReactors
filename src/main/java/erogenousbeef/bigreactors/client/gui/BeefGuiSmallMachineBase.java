@@ -8,7 +8,7 @@ import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.GuiButtonPressMessage;
+import erogenousbeef.bigreactors.net.message.DeviceChangeExposureMessage;
 
 public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 
@@ -75,7 +75,7 @@ public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 	protected void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		if(button.id >= EXPOSURE_BUTTON_ID_BASE && button.id < EXPOSURE_BUTTON_ID_BASE + 6) {
-            CommonPacketHandler.INSTANCE.sendToServer(new GuiButtonPressMessage(_entity.xCoord, _entity.yCoord, _entity.zCoord, "changeInvSide", button.id - EXPOSURE_BUTTON_ID_BASE));
+            CommonPacketHandler.INSTANCE.sendToServer(new DeviceChangeExposureMessage(_entity.xCoord, _entity.yCoord, _entity.zCoord, button.id - EXPOSURE_BUTTON_ID_BASE));
 		}
 	}
 	

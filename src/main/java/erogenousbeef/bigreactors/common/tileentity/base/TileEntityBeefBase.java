@@ -18,8 +18,8 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.SmallMachineRotationMessage;
-import erogenousbeef.bigreactors.net.message.SmallMachineUIMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateRotationMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateMessage;
 
 public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiEntity {
 	private Set<EntityPlayer> updatePlayers;
@@ -59,7 +59,7 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 
 		forwardFace = newDirection;
 		if(!worldObj.isRemote) {
-            CommonPacketHandler.INSTANCE.sendToAllAround(new SmallMachineRotationMessage(xCoord, yCoord, zCoord, newDirection.ordinal()), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
+            CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateRotationMessage(xCoord, yCoord, zCoord, newDirection.ordinal()), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
 		}
 	}
 	
@@ -132,7 +132,7 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		NBTTagCompound childData = new NBTTagCompound();
 		onSendUpdate(childData);
 		
-		return new SmallMachineUIMessage(xCoord, yCoord, zCoord, childData);
+		return new DeviceUpdateMessage(xCoord, yCoord, zCoord, childData);
 	}
 	
 	private void sendUpdatePacketToClient(EntityPlayer recipient) {
@@ -162,13 +162,4 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	 * @param updateTag The tag which should contain your data.
 	 */
 	public void onReceiveUpdate(NBTTagCompound updateTag) {}
-	
-	/**
-	 * Called when the server packet handler receives a GUI Button press.
-	 * Override this to handle GUI button presses
-	 * @param buttonName Name of the button pressed
-	 * @param dataStream Data stream associated with this button press event, containing your custom data.
-	 * @throws IOException On stream read errors
-	 */
-	public abstract void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException;
 }
