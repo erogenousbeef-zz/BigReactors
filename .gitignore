@@ -19,3 +19,6 @@
 # Mac Stuff
 .DS_Store
 *.command
+
+# External APIs
+/lib
