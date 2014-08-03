@@ -1,4 +1,4 @@
-# Big Reactors Language Properties - Spanish
+# Big Reactors Language File - Spanish
 # @author Erogenous Beef and k3936
 
 itemGroup.BigReactors=Grandes Reactores
@@ -16,12 +16,12 @@ tile.multiblockGlass.1.name=Cristal de la Turbine
 tile.blockReactorRedstonePort.name=Puerto de Redstone del Reactor
 tile.blockReactorPart.0.name=Caja del Reactor
 tile.blockReactorPart.1.name=Controlador del Reactor
-tile.blockReactorPart.2.name=Fuente de Alimentaci\u00F3n del Reactor
+tile.blockReactorPart.2.name=Fuente de Alimentación del Reactor
 tile.blockReactorPart.3.name=Puerto de Acceso al Reactor
 tile.blockReactorPart.4.name=Puerto de RedNet del Reactor
 tile.blockReactorPart.5.name=Puerto de Ordenador al Reactor
 tile.blockReactorPart.6.name=Puerto de Refrigerante al Reactor
-tile.blockRadiothermalGen.0=Generador RadioT\u00E9rmico
+tile.blockRadiothermalGen.0=Generador RadioTérmico
 tile.blockBRSmallMachine.0.name=Reprocesador de Cyanite
 tile.blockTurbinePart.0.name=Caja de la Turbina
 tile.blockTurbinePart.1.name=Controlador de la Turbina
