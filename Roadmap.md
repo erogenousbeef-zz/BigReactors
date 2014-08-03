@@ -20,14 +20,14 @@ Known Issues
 
 TODO - 0.4: The 1.7.10 Update
 -----------------------------
-Okay, we're well into the 1.7.10 update now! A lot of the massive refactoring is done, including:
-- Fully rewritten networking and message-routing system
-- Reactor part rewritten to not do stupid things with metadata
-  - MUCH faster to assemble/disassemble, like 90% less network traffic on your average reactor
-  - Exponential reduction on very large reactors (99%+ less traffic)
-- Reactor part icon selection rewritten thanks to above
-- Reactor control rod merged into base reactor part, lots of dead code removed
-- Enabled reactor parts on top/bottom faces thanks to all of the above
+Okay, we're well into the 1.7.10 update now! **A lot of the massive refactoring is DONE**, including:
+- *DONE* Fully rewritten networking and message-routing system
+- *DONE* Reactor part rewritten to not do stupid things with metadata
+  - *DONE* MUCH faster to assemble/disassemble, like 90% less network traffic on your average reactor
+  - *DONE* Exponential reduction on very large reactors (99%+ less traffic)
+- *DONE* Reactor part icon selection rewritten thanks to above
+- *DONE* Reactor control rod merged into base reactor part, lots of dead code removed
+- *DONE* Enabled reactor parts on top/bottom faces thanks to all of the above
 
 Remaining TODOs:
 - Fix up Reactor Control Rod GUI. It's gone without love for too long.
