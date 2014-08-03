@@ -242,8 +242,7 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 			if(!world.isRemote) {
 				ItemStack currentEquippedItem = player.getCurrentEquippedItem();
 				
-				if(isCoolantPort(metadata) && (StaticUtils.Inventory.isPlayerHoldingWrench(player) || currentEquippedItem == null)) {
-					// Use wrench to change inlet/outlet state
+				if(StaticUtils.Inventory.isPlayerHoldingWrench(player) && isCoolantPort(metadata)) {
 					if(te instanceof TileEntityReactorCoolantPort) {
 						TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
 						cp.setInlet(!cp.isInlet());
@@ -267,6 +266,13 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 				}
 			}
 			return false;
+		}
+		else if(!world.isRemote && isAccessPort(metadata) && StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
+			if(te instanceof TileEntityReactorAccessPort) {
+				TileEntityReactorAccessPort cp = (TileEntityReactorAccessPort)te;
+				cp.setInlet(!cp.isInlet());
+				return true;
+			}
 		}
 		
 		// Don't open the controller GUI if the reactor isn't assembled
