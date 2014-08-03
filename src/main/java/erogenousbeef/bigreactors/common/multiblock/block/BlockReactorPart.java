@@ -258,6 +258,8 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 				player.addChatMessage(new ChatComponentText("Block is not connected to a reactor. This could be due to lag, or a bug. If the problem persists, try breaking and re-placing the block.")); //TODO Localize
 				return true;
 			}
+			
+			return false;
 		}
 
 		// Do toggly fiddly things for access/coolant ports
@@ -274,6 +276,9 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 					cp.setInlet(!cp.isInlet());
 					return true;
 				}
+			}
+			else if(isCoolantPort(metadata)) {
+				return false;
 			}
 		}
 		
