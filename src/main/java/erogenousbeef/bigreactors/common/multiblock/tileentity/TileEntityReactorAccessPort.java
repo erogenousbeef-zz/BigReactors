@@ -213,8 +213,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
-		if(side == 0 || side == 1) { return null; }
-		
 		int metadata = this.getBlockMetadata();
 		if(isInlet()) {
 			return new int[] {SLOT_INLET};
@@ -226,15 +224,11 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 	@Override
 	public boolean canInsertItem(int slot, ItemStack itemstack, int side) {
-		if(side == 0 || side == 1) { return false; }
-		
 		return isItemValidForSlot(slot, itemstack);
 	}
 
 	@Override
 	public boolean canExtractItem(int slot, ItemStack itemstack, int side) {
-		if(side == 0 || side == 1) { return false; }
-		
 		return isItemValidForSlot(slot, itemstack);
 	}
 

@@ -35,18 +35,12 @@ public class TileEntityReactorPart extends TileEntityReactorPartBase {
 
 	@Override
 	public void isGoodForTop() throws MultiblockValidationException {
-		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isCasing(metadata)) { return; }
-
-		throw new MultiblockValidationException(String.format("%d, %d, %d - This part may not be placed on a reactor's top face", xCoord, yCoord, zCoord));
+		// All parts are valid for the top, by default
 	}
 
 	@Override
 	public void isGoodForBottom() throws MultiblockValidationException {
-		int metadata = this.worldObj.getBlockMetadata(this.xCoord, this.yCoord, this.zCoord);
-		if(BlockReactorPart.isCasing(metadata)) { return; }
-
-		throw new MultiblockValidationException(String.format("%d, %d, %d - This part may not be placed on a reactor's bottom face", xCoord, yCoord, zCoord));
+		// All parts are valid for the bottom, by default
 	}
 
 	@Override
