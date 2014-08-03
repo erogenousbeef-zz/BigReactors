@@ -4,13 +4,13 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraftforge.common.util.ForgeDirection;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
+import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.bigreactors.net.message.DeviceChangeExposureMessage;
 
-public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
+public abstract class BeefGuiDeviceBase extends BeefGuiBase {
 
 	protected static final int EXPOSURE_BUTTON_ID_BASE = 100;
 	private GuiIconButton[] exposureButtons;
@@ -23,7 +23,7 @@ public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 	
 	TileEntityBeefBase _entity;
 	
-	public BeefGuiSmallMachineBase(Container container, TileEntityBeefBase tileEntity) {
+	public BeefGuiDeviceBase(Container container, TileEntityBeefBase tileEntity) {
 		super(container);
 		_entity = tileEntity;
 	}
@@ -61,7 +61,7 @@ public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 		createInventoryExposureButton(ForgeDirection.DOWN, minLeft + 21, minTop + 42);
 		createInventoryExposureButton(ForgeDirection.SOUTH, minLeft + 42, minTop + 42);
 
-		exposureButtons[ForgeDirection.NORTH.ordinal()].setIcon(BigReactors.blockSmallMachine.getIcon(4, getBlockMetadata()));
+		exposureButtons[ForgeDirection.NORTH.ordinal()].setIcon(BigReactors.blockDevice.getIcon(4, getBlockMetadata()));
 		exposureButtons[ForgeDirection.NORTH.ordinal()].enabled = false;
 	}
 	
@@ -80,12 +80,12 @@ public abstract class BeefGuiSmallMachineBase extends BeefGuiBase {
 	}
 	
 	protected void updateInventoryExposures() {
-		BlockBRSmallMachine smallMachineBlock = (BlockBRSmallMachine)BigReactors.blockSmallMachine;
+		BlockBRDevice deviceBlock = (BlockBRDevice)BigReactors.blockDevice;
 		for(ForgeDirection dir : ForgeDirection.values()) {
 			if(dir == ForgeDirection.UNKNOWN || dir == ForgeDirection.NORTH) { continue; }
 			int rotatedSide = _entity.getRotatedSide(dir.ordinal());
 			
-			exposureButtons[dir.ordinal()].setIcon( smallMachineBlock.getIconFromTileEntity(_entity, BlockBRSmallMachine.META_CYANITE_REPROCESSOR, rotatedSide) );
+			exposureButtons[dir.ordinal()].setIcon( deviceBlock.getIconFromTileEntity(_entity, BlockBRDevice.META_CYANITE_REPROCESSOR, rotatedSide) );
 		}
 	}
 }
