@@ -44,12 +44,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		isInlet = true;
 	}
 
-	public void toggleDirection() {
-		isInlet = !isInlet;
-		markDirty();
-		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-	}
-	
 	// TileEntity overrides
 	
 	@Override
@@ -70,7 +64,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		}
 		
 		if(tag.hasKey("isInlet")) {
-			isInlet = tag.getBoolean("isInlet");
+			setInlet(tag.getBoolean("isInlet"), false);
 		}
 	}
 	
@@ -94,6 +88,23 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		
 		tag.setBoolean("isInlet", isInlet);
 	}
+	
+	// MultiblockTileEntityBase
+	@Override
+	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
+		super.encodeDescriptionPacket(packetData);
+		
+		packetData.setBoolean("inlet", isInlet);
+	}
+	
+	@Override
+	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
+		super.decodeDescriptionPacket(packetData);
+		
+		if(packetData.hasKey("inlet")) {
+			setInlet(packetData.getBoolean("inlet"));
+		}
+	}	
 	
 	// IInventory
 	
@@ -296,4 +307,19 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	}
 	
 	public boolean isInlet() { return this.isInlet; }
+
+	public void setInlet(boolean shouldBeInlet) {
+		setInlet(shouldBeInlet, true);
+	}
+	
+	protected void setInlet(boolean shouldBeInlet, boolean markDirty) {
+		if(isInlet == shouldBeInlet) { return; }
+
+		isInlet = shouldBeInlet;
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			
+		if(markDirty && !worldObj.isRemote) {
+			markDirty();
+		}
+	}
 }

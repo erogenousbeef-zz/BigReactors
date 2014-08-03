@@ -89,7 +89,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 0 || button.id == 1) {
-            CommonPacketHandler.INSTANCE.sendToServer(new ReactorAccessPortChangeDirectionMessage(_port));
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorAccessPortChangeDirectionMessage(_port, button.id == btnInlet.id));
 		}
 		
 		else if(button.id == 2 || button.id == 3) {

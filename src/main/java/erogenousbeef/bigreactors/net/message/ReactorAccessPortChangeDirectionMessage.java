@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.net.message;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
@@ -9,16 +10,30 @@ import erogenousbeef.bigreactors.net.message.base.ReactorMessageServer;
 import erogenousbeef.bigreactors.net.message.base.TileMessageServer;
 
 public class ReactorAccessPortChangeDirectionMessage extends TileMessageServer<TileEntityReactorAccessPort> {
-	public ReactorAccessPortChangeDirectionMessage() {}
-	public ReactorAccessPortChangeDirectionMessage(TileEntityReactorAccessPort port) {
+	private boolean newSetting;
+	public ReactorAccessPortChangeDirectionMessage() { super(); newSetting = true; }
+	public ReactorAccessPortChangeDirectionMessage(TileEntityReactorAccessPort port, boolean inlet) {
 		super(port);
+		newSetting = inlet;
+	}
+	
+	@Override
+	public void toBytes(ByteBuf buf) {
+		super.toBytes(buf);
+		buf.writeBoolean(newSetting);
+	}
+	
+	@Override
+	public void fromBytes(ByteBuf buf) {
+		super.fromBytes(buf);
+		newSetting = buf.readBoolean();
 	}
 	
 	public static class Handler extends TileMessageServer.Handler<ReactorAccessPortChangeDirectionMessage, TileEntityReactorAccessPort> {
 		@Override
 		protected IMessage handle(ReactorAccessPortChangeDirectionMessage message,
 				MessageContext ctx, TileEntityReactorAccessPort te) {
-			te.toggleDirection();
+			te.setInlet(message.newSetting);
 			return null;
 		}
 
@@ -29,6 +44,5 @@ public class ReactorAccessPortChangeDirectionMessage extends TileMessageServer<T
 			}
 			return null;
 		}
-		
 	}
 }
