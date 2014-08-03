@@ -27,7 +27,7 @@ import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
-import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
+import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.data.ReactorFuel;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
@@ -102,7 +102,7 @@ public class BigReactors {
 	public static BlockMBCreativePart blockMultiblockCreativePart;
 	
 	public static Block blockRadiothermalGen;
-	public static Block blockSmallMachine;
+	public static Block blockDevice;
 	
 	public static Block fluidYelloriumStill;
 	public static Block fluidCyaniteStill;
@@ -362,8 +362,8 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(reactorControlRodStack, "CGC", "GRG", "CUC", 'G', "ingotGraphite", 'C', "reactorCasing", 'R', Items.redstone, 'U', yelloriumIngot));
 			}
 			
-			if(blockSmallMachine != null) {
-				ItemStack cyaniteReprocessorStack = ((BlockBRSmallMachine)blockSmallMachine).getCyaniteReprocessorItemStack();
+			if(blockDevice != null) {
+				ItemStack cyaniteReprocessorStack = ((BlockBRDevice)blockDevice).getCyaniteReprocessorItemStack();
 				GameRegistry.addRecipe(new ShapedOreRecipe(cyaniteReprocessorStack, "CIC", "PFP", "CRC", 'C', "reactorCasing", 'I', ironOrSteelIngot, 'F', blockYelloriumFuelRod, 'P', Blocks.piston, 'R', Items.redstone));
 			}
 			
@@ -607,14 +607,14 @@ public class BigReactors {
 		}
 	}
 	
-	public static void registerSmallMachines(int id, boolean require) {
-		if(BigReactors.blockSmallMachine == null) {
+	public static void registerDevices(int id, boolean require) {
+		if(BigReactors.blockDevice == null) {
 			BRConfig.CONFIGURATION.load();
 
-			BigReactors.blockSmallMachine = new BlockBRSmallMachine(Material.iron);
-			GameRegistry.registerBlock(BigReactors.blockSmallMachine, ItemBlockBigReactors.class, "BRSmallMachine");
+			BigReactors.blockDevice = new BlockBRDevice(Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockDevice, ItemBlockBigReactors.class, "BRDevice");
 			
-			OreDictionary.registerOre("brSmallMachineCyaniteProcessor", ((BlockBRSmallMachine)BigReactors.blockSmallMachine).getCyaniteReprocessorItemStack());
+			OreDictionary.registerOre("brDeviceCyaniteProcessor", ((BlockBRDevice)BigReactors.blockDevice).getCyaniteReprocessorItemStack());
 			
 			BRConfig.CONFIGURATION.save();
 		}

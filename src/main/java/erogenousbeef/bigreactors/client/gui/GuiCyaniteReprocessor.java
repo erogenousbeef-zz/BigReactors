@@ -4,14 +4,14 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockBRSmallMachine;
+import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiFluidBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiProgressArrow;
 
-public class GuiCyaniteReprocessor extends BeefGuiSmallMachineBase {
+public class GuiCyaniteReprocessor extends BeefGuiDeviceBase {
 
 	private GuiButton _togglePort;
 	private TileEntityCyaniteReprocessor _entity;
@@ -74,6 +74,6 @@ public class GuiCyaniteReprocessor extends BeefGuiSmallMachineBase {
 
 	@Override
 	protected int getBlockMetadata() {
-		return BlockBRSmallMachine.META_CYANITE_REPROCESSOR;
+		return BlockBRDevice.META_CYANITE_REPROCESSOR;
 	}
 }
