@@ -93,7 +93,6 @@ public class BlockBRDevice extends BlockContainer {
 		}
 		
 		if(te instanceof TileEntityPoweredInventoryFluid) {
-			// TODO: Fix.
 			TileEntityPoweredInventoryFluid fluidTe = (TileEntityPoweredInventoryFluid)te;
 			int tank = fluidTe.getExposedTankFromReferenceSide(ForgeDirection.getOrientation(fluidTe.getRotatedSide(side)));
 			if(tank != -1) {

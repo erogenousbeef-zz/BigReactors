@@ -103,7 +103,7 @@ public abstract class BeefGuiBase extends GuiContainer {
 				if(tooltip != null) {
 					// This prevents weird rendering issues with NEI
 					GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-					drawHoveringText(Arrays.asList(tooltip), absoluteX, absoluteY, fontRendererObj); // Draws hovering text //TODO verify that this is the new method
+					drawHoveringText(Arrays.asList(tooltip), absoluteX, absoluteY, fontRendererObj);
 					GL11.glPopAttrib();
 					break;
 				}

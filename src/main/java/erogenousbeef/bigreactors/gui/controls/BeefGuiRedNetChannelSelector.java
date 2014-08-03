@@ -20,7 +20,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	 * 
 	 * @param container
 	 * @param caption
-	 * @param channelIdx Index of the channel, also the color index in the EntitySheep color table. (Always 100% opacity.) //TODO Fix this Javadoc
+	 * @param colorIdx Index of the channel, also the color index in the EntitySheep color table. (Always 100% opacity.)
 	 * @param x
 	 * @param y
 	 * @param width
