@@ -12,8 +12,8 @@ import erogenousbeef.bigreactors.gui.BeefGuiIconManager;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiLabel;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
-import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
+import erogenousbeef.bigreactors.net.message.ReactorAccessPortChangeDirectionMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorCommandEjectToPortMessage;
 
 public class GuiReactorAccessPort extends BeefGuiBase {
 	private TileEntityReactorAccessPort _port;
@@ -94,13 +94,13 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 			int newMetadata = button.id == 0 ? BlockReactorPart.ACCESSPORT_INLET : BlockReactorPart.ACCESSPORT_OUTLET;
 			
 			if(newMetadata != metadata) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateAccessPort, _port.xCoord, _port.yCoord, _port.zCoord, (byte)newMetadata));
+                CommonPacketHandler.INSTANCE.sendToServer(new ReactorAccessPortChangeDirectionMessage(_port));
 			}
 		}
 		
 		else if(button.id == 2 || button.id == 3) {
-			boolean fuel = button.id == 2;
-            CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.ButtonEject, _port.xCoord, _port.yCoord, _port.zCoord, fuel, isShiftKeyDown(), true, _port.xCoord, _port.yCoord, _port.zCoord));
+			boolean ejectFuel = button.id == 2;
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorCommandEjectToPortMessage(_port, ejectFuel, isShiftKeyDown()));
 		}
 	}
 	

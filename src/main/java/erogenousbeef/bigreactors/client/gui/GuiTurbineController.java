@@ -17,8 +17,10 @@ import erogenousbeef.bigreactors.gui.controls.BeefGuiPowerBar;
 import erogenousbeef.bigreactors.gui.controls.BeefGuiRpmBar;
 import erogenousbeef.bigreactors.gui.controls.GuiIconButton;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
-import erogenousbeef.bigreactors.net.message.MultiblockMessageServer;
+import erogenousbeef.bigreactors.net.message.MachineCommandActivateMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeInductorMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeMaxIntakeMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeVentMessage;
 import erogenousbeef.core.common.CoordTriplet;
 
 public class GuiTurbineController extends BeefGuiBase {
@@ -164,7 +166,7 @@ public class GuiTurbineController extends BeefGuiBase {
 	}
 
 	private void updateStrings() {
-		if(turbine.isActive()) {
+		if(turbine.getActive()) {
 			statusString.setLabelText("Status: " + EnumChatFormatting.DARK_GREEN + "Active");
 			btnActivate.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.ON_ON));
 			btnDeactivate.setIcon(ClientProxy.GuiIcons.getIcon(BeefGuiIconManager.OFF_OFF));
@@ -179,7 +181,7 @@ public class GuiTurbineController extends BeefGuiBase {
 		energyGeneratedString.setLabelText(String.format("%.0f RF/t", turbine.getEnergyGeneratedLastTick()));
 		governorString.setLabelText(String.format("%d mB/t", turbine.getMaxIntakeRate()));
 		
-		if(turbine.isActive()) {
+		if(turbine.getActive()) {
 			if(turbine.getRotorEfficiencyLastTick() < 1f) {
 				rotorEfficiencyString.setLabelText(String.format("%.1f%%", turbine.getRotorEfficiencyLastTick() * 100f));
 			}
@@ -244,8 +246,8 @@ public class GuiTurbineController extends BeefGuiBase {
 
 		if(button.id == 0 || button.id == 1) {
 			boolean setActive = button.id == 0;
-			if(setActive != turbine.isActive()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.ButtonActivate, saveDelegate.x, saveDelegate.y, saveDelegate.z, setActive));
+			if(setActive != turbine.getActive()) {
+                CommonPacketHandler.INSTANCE.sendToServer(new MachineCommandActivateMessage(turbine, setActive));
             }
 		}
 		
@@ -266,7 +268,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			newMax = Math.max(0, Math.min(turbine.getMaxIntakeRateMax(), turbine.getMaxIntakeRate() + newMax));
 
 			if(newMax != turbine.getMaxIntakeRate()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateTurbineGovernor, saveDelegate.x, saveDelegate.y, saveDelegate.z, newMax));
+                CommonPacketHandler.INSTANCE.sendToServer(new TurbineChangeMaxIntakeMessage(turbine, newMax));
 			}
 		}
 		
@@ -285,7 +287,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			}
 			
 			if(newStatus != turbine.getVentSetting()) {
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateTurbineVent, saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus.ordinal()));
+                CommonPacketHandler.INSTANCE.sendToServer(new TurbineChangeVentMessage(turbine, newStatus));
 			}
 		}
 		
@@ -294,7 +296,7 @@ public class GuiTurbineController extends BeefGuiBase {
 			boolean newStatus = button.id == 7;
 			if(newStatus != turbine.getInductorEngaged())
 			{
-                CommonPacketHandler.INSTANCE.sendToServer(new MultiblockMessageServer(Type.UpdateTurbineInductor, saveDelegate.x, saveDelegate.y, saveDelegate.z, newStatus));
+                CommonPacketHandler.INSTANCE.sendToServer(new TurbineChangeInductorMessage(turbine, newStatus));
 			}
 		}
 	}

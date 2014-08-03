@@ -97,7 +97,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		case getNumberOfControlRods:
 			return new Object[] { (int)reactor.getFuelRodCount() };
 		case getActive:
-			return new Object[] { reactor.isActive() };
+			return new Object[] { reactor.getActive() };
 		case getFuelTemperature:
 			return new Object[] { reactor.getFuelHeat() };
 		case getCasingTemperature:

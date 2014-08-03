@@ -26,6 +26,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
@@ -38,8 +39,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineP
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
-import erogenousbeef.bigreactors.net.message.MultiblockMessageClient;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineUpdateMessage;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
@@ -47,13 +47,14 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater {
+public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater, IActivateable {
 
 	public enum VentStatus {
 		VentOverflow,
 		VentAll,
 		DoNotVent
 	}
+	public static final VentStatus[] s_VentStatuses = VentStatus.values();
 	
 	// UI updates
 	private Set<EntityPlayer> updatePlayers;
@@ -175,90 +176,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	}
 
 	protected IMessage getUpdatePacket() {
-		// Capture compacted fluid data first
-		int inputFluidID, inputFluidAmt, outputFluidID, outputFluidAmt;
-		
-		FluidStack inputFluid, outputFluid;
-		inputFluid = tanks[TANK_INPUT].getFluid();
-		outputFluid = tanks[TANK_OUTPUT].getFluid();
-		
-		if(inputFluid == null || inputFluid.amount <= 0) {
-			inputFluidID = FLUID_NONE;
-			inputFluidAmt = 0;
-		}
-		else {
-			inputFluidID = inputFluid.getFluid().getID();
-			inputFluidAmt = inputFluid.amount;
-		}
-		
-		if(outputFluid == null || outputFluid.amount <= 0) {
-			outputFluidID = FLUID_NONE;
-			outputFluidAmt = 0;
-		}
-		else {
-			outputFluidID = outputFluid.getFluid().getID();
-			outputFluidAmt = outputFluid.amount;
-		}
-
-		CoordTriplet referenceCoord = getReferenceCoord();
-
-        return new MultiblockMessageClient(
-                Type.TurbineStatus,
-                referenceCoord.x, referenceCoord.y, referenceCoord.z,
-                inputFluidID, inputFluidAmt, outputFluidID, outputFluidAmt,
-                energyStored, rotorEnergy, energyGeneratedLastTick,
-                maxIntakeRate, active, ventStatus.ordinal(),
-                fluidConsumedLastTick, rotorEfficiencyLastTick, inductorEngaged
-        );
-	}
-
-	/**
-	 * Parses a full-update packet. Only used on the client.
-	 * @param data The data input stream containing the update data.
-	 * @throws IOException
-	 */
-	public void onReceiveUpdatePacket(ByteBuf data) throws IOException {
-		int inputFluidID = data.readInt();
-		int inputFluidAmt = data.readInt();
-		int outputFluidID = data.readInt();
-		int outputFluidAmt = data.readInt();
-		energyStored = data.readFloat();
-		rotorEnergy = data.readFloat();
-		energyGeneratedLastTick = data.readFloat();
-		maxIntakeRate = data.readInt();
-		setActive(data.readBoolean());
-		setVentStatus(VentStatus.values()[data.readInt()], false);
-		fluidConsumedLastTick = data.readInt();
-		rotorEfficiencyLastTick = data.readFloat();
-		setInductorEngaged(data.readBoolean(), false);
-
-		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
-			tanks[TANK_INPUT].setFluid(null);
-		}
-		else {
-			Fluid fluid = FluidRegistry.getFluid(inputFluidID);
-			if(fluid == null) {
-				BRLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting input tank to empty", inputFluidID);
-				tanks[TANK_INPUT].setFluid(null);
-			}
-			else {
-				tanks[TANK_INPUT].setFluid(new FluidStack(fluid, inputFluidAmt));
-			}
-		}
-
-		if(outputFluidID == FLUID_NONE || outputFluidAmt <= 0) {
-			tanks[TANK_OUTPUT].setFluid(null);
-		}
-		else {
-			Fluid fluid = FluidRegistry.getFluid(outputFluidID);
-			if(fluid == null) {
-				BRLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting output tank to empty", outputFluidID);
-				tanks[TANK_OUTPUT].setFluid(null);
-			}
-			else {
-				tanks[TANK_OUTPUT].setFluid(new FluidStack(fluid, outputFluidAmt));
-			}
-		}
+        return new TurbineUpdateMessage(this);
 	}
 
 	/**
@@ -272,37 +190,6 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 	}
 
-	public void onNetworkPacket(Type packetType, ByteBuf data) throws IOException {
-		// Client->Server Packets
-		if(packetType == Type.ButtonActivate) {
-			boolean nowActive = data.readBoolean();
-			setActive(nowActive);
-		}
-
-		if(packetType == Type.UpdateTurbineGovernor) {
-			setMaxIntakeRate(data.readInt());
-		}
-		
-		if(packetType == Type.UpdateTurbineVent) {
-			int idx = data.readInt();
-			if(idx >= 0 && idx < VentStatus.values().length) {
-				setVentStatus(VentStatus.values()[idx], true);
-			}
-		}
-		if(packetType == Type.UpdateTurbineInductor)
-		{
-			boolean engaged = data.readBoolean();
-			setInductorEngaged(engaged, true);
-		}
-
-		// Server->Client Packets
-		if(packetType == Type.TurbineStatus) {
-			onReceiveUpdatePacket(data);
-		}
-		
-		// Bidirectional packets
-	}
-	
 	// MultiblockControllerBase overrides
 
 	@Override
@@ -592,7 +479,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		MultiblockTurbine otherTurbine = (MultiblockTurbine)otherMachine;
 		
-		rotorEnergy = Math.max(rotorEnergy, otherTurbine.rotorEnergy);
+		setRotorEnergy(Math.max(rotorEnergy, otherTurbine.rotorEnergy));
 	}
 
 	@Override
@@ -612,7 +499,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		// Generate energy based on steam
 		int steamIn = 0; // mB. Based on water, actually. Probably higher for steam. Measure it.
 
-		if(isActive()) {
+		if(getActive()) {
 			// Spin up via steam inputs, convert some steam back into water.
 			// Use at most the user-configured max, or the amount in the tank, whichever is less.
 			steamIn = Math.min(maxIntakeRate, tanks[TANK_INPUT].getFluidAmount());
@@ -767,8 +654,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 		
 		if(data.hasKey("rotorEnergy")) {
-			rotorEnergy = data.getFloat("rotorEnergy");
-			if(Float.isNaN(rotorEnergy) || Float.isInfinite(rotorEnergy)) { rotorEnergy = 0f; }
+			setRotorEnergy(data.getFloat("rotorEnergy"));
 			
 			if(!worldObj.isRemote) {
 				rpmUpdateTracker.setValue(getRotorSpeed());
@@ -793,9 +679,117 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		readFromNBT(data);
 	}
+	
+	// Network Serialization
+	/**
+	 * Used when dispatching update packets from the server.
+	 * @param buf ByteBuf into which the turbine's full status should be written
+	 */
+	public void serialize(ByteBuf buf) {
+		// Capture compacted fluid data first
+		int inputFluidID, inputFluidAmt, outputFluidID, outputFluidAmt;
+		{
+			FluidStack inputFluid, outputFluid;
+			inputFluid = tanks[TANK_INPUT].getFluid();
+			outputFluid = tanks[TANK_OUTPUT].getFluid();
+			
+			if(inputFluid == null || inputFluid.amount <= 0) {
+				inputFluidID = FLUID_NONE;
+				inputFluidAmt = 0;
+			}
+			else {
+				inputFluidID = inputFluid.getFluid().getID();
+				inputFluidAmt = inputFluid.amount;
+			}
+			
+			if(outputFluid == null || outputFluid.amount <= 0) {
+				outputFluidID = FLUID_NONE;
+				outputFluidAmt = 0;
+			}
+			else {
+				outputFluidID = outputFluid.getFluid().getID();
+				outputFluidAmt = outputFluid.amount;
+			}
+		}
+
+		// User settings
+		buf.writeBoolean(active);
+		buf.writeBoolean(inductorEngaged);
+		buf.writeInt(ventStatus.ordinal());
+		buf.writeInt(maxIntakeRate);
+
+		// Basic stats
+		buf.writeFloat(energyStored);
+		buf.writeFloat(rotorEnergy);
+
+		// Reportage statistics
+		buf.writeFloat(energyGeneratedLastTick);
+		buf.writeInt(fluidConsumedLastTick);
+		buf.writeFloat(rotorEfficiencyLastTick);
+		
+		// Fluid data
+		buf.writeInt(inputFluidID);
+		buf.writeInt(inputFluidAmt);
+		buf.writeInt(outputFluidID);
+		buf.writeInt(outputFluidAmt);
+	}
+	
+	/**
+	 * Used when a status packet arrives on the client.
+	 * @param buf ByteBuf containing serialized turbine data
+	 */
+	public void deserialize(ByteBuf buf) {
+		// User settings
+		setActive(buf.readBoolean());
+		setInductorEngaged(buf.readBoolean(), false);
+		setVentStatus(s_VentStatuses[buf.readInt()], false);
+		setMaxIntakeRate(buf.readInt());
+		
+		// Basic data
+		setEnergyStored(buf.readFloat());
+		setRotorEnergy(buf.readFloat());
+		
+		// Reportage
+		energyGeneratedLastTick = buf.readFloat();
+		fluidConsumedLastTick = buf.readInt();
+		rotorEfficiencyLastTick = buf.readFloat();
+	
+		// Fluid data
+		int inputFluidID = buf.readInt();
+		int inputFluidAmt = buf.readInt();
+		int outputFluidID = buf.readInt();
+		int outputFluidAmt = buf.readInt();
+
+		if(inputFluidID == FLUID_NONE || inputFluidAmt <= 0) {
+			tanks[TANK_INPUT].setFluid(null);
+		}
+		else {
+			Fluid fluid = FluidRegistry.getFluid(inputFluidID);
+			if(fluid == null) {
+				BRLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting input tank to empty", inputFluidID);
+				tanks[TANK_INPUT].setFluid(null);
+			}
+			else {
+				tanks[TANK_INPUT].setFluid(new FluidStack(fluid, inputFluidAmt));
+			}
+		}
+
+		if(outputFluidID == FLUID_NONE || outputFluidAmt <= 0) {
+			tanks[TANK_OUTPUT].setFluid(null);
+		}
+		else {
+			Fluid fluid = FluidRegistry.getFluid(outputFluidID);
+			if(fluid == null) {
+				BRLog.warning("[CLIENT] Multiblock Turbine received an unknown fluid of type %d, setting output tank to empty", outputFluidID);
+				tanks[TANK_OUTPUT].setFluid(null);
+			}
+			else {
+				tanks[TANK_OUTPUT].setFluid(new FluidStack(fluid, outputFluidAmt));
+			}
+		}
+	}
 
 	// Nondirectional FluidHandler implementation, similar to IFluidHandler
-
 	public int fill(int tank, FluidStack resource, boolean doFill) {
 		if(!canFill(tank, resource.getFluid())) {
 			return 0;
@@ -950,7 +944,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	}
 	
 	// Activity state
-	public boolean isActive() {
+	public boolean getActive() {
 		return active;
 	}
 
@@ -1128,6 +1122,12 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		inductorEngaged = engaged;
 		if(markReferenceCoordDirty)
 			markReferenceCoordDirty();
+	}
+	
+
+	private void setRotorEnergy(float newEnergy) {
+		if(Float.isNaN(newEnergy) || Float.isInfinite(newEnergy)) { return; }
+		rotorEnergy = Math.max(0f, newEnergy);
 	}
 
 	protected void markReferenceCoordDirty() {

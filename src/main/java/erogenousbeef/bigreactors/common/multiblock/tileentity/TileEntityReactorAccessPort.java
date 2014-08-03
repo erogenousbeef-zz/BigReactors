@@ -24,8 +24,6 @@ import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage;
-import erogenousbeef.bigreactors.net.message.MultiblockMessage.Type;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -33,6 +31,7 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
 
 	protected ItemStack[] _inventories;
+	protected boolean isInlet;
 	
 	public static final int SLOT_INLET = 0;
 	public static final int SLOT_OUTLET = 1;
@@ -42,8 +41,15 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		super();
 		
 		_inventories = new ItemStack[getSizeInventory()];
+		isInlet = true;
 	}
 
+	public void toggleDirection() {
+		isInlet = !isInlet;
+		markDirty();
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+	}
+	
 	// TileEntity overrides
 	
 	@Override
@@ -61,6 +67,10 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 					_inventories[slot] = itemStack;
 				}
 			}
+		}
+		
+		if(tag.hasKey("isInlet")) {
+			isInlet = tag.getBoolean("isInlet");
 		}
 	}
 	
@@ -81,6 +91,8 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(tagList.tagCount() > 0) {
 			tag.setTag("Items", tagList);
 		}
+		
+		tag.setBoolean("isInlet", isInlet);
 	}
 	
 	// IInventory
@@ -214,21 +226,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(side == 0 || side == 1) { return false; }
 		
 		return isItemValidForSlot(slot, itemstack);
-	}
-
-	// IMultiblockNetworkHandler
-	@Override
-	public void onNetworkPacket(MultiblockMessage.Type packetType, ByteBuf data) throws IOException {
-		if(packetType == Type.UpdateAccessPort) {
-			byte newMetadata = data.readByte();
-			
-			if(newMetadata == BlockReactorPart.ACCESSPORT_INLET || newMetadata == BlockReactorPart.ACCESSPORT_OUTLET) {
-				this.worldObj.setBlockMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, newMetadata, 2);
-			}
-		}
-		else {
-			super.onNetworkPacket(packetType, data);
-		}
 	}
 
 	// IMultiblockGuiHandler
