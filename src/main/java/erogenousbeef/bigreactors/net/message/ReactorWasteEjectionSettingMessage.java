@@ -10,8 +10,10 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import io.netty.buffer.ByteBuf;
 
-public class ReactorWasteEjectionSettingMessage implements IMessage, IMessageHandler<ReactorWasteEjectionSettingMessage, IMessage> {
+public class ReactorWasteEjectionSettingMessage implements IMessage {
     private int x, y, z, newSetting;
+    
+    public ReactorWasteEjectionSettingMessage() {}
 
     public ReactorWasteEjectionSettingMessage(int x, int y, int z, int newSetting) {
         this.x = x;
@@ -36,12 +38,14 @@ public class ReactorWasteEjectionSettingMessage implements IMessage, IMessageHan
         buf.writeInt(newSetting);
     }
 
-    @Override
-    public IMessage onMessage(ReactorWasteEjectionSettingMessage message, MessageContext ctx) {
-        TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityReactorPart) {
-            ((TileEntityReactorPart)te).getReactorController().setWasteEjection(MultiblockReactor.WasteEjectionSetting.values()[newSetting]);
-        }
-        return null;
+    public static class Handler implements IMessageHandler<ReactorWasteEjectionSettingMessage, IMessage> {
+        @Override
+        public IMessage onMessage(ReactorWasteEjectionSettingMessage message, MessageContext ctx) {
+            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityReactorPart) {
+                ((TileEntityReactorPart)te).getReactorController().setWasteEjection(MultiblockReactor.WasteEjectionSetting.values()[message.newSetting]);
+            }
+            return null;
+        }    	
     }
 }

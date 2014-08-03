@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -102,7 +104,7 @@ public class TileEntityReactorControlRod extends RectangularMultiblockTileEntity
 	}
 	
 	@Override
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException {
+	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dataStream) throws IOException {
 		if(buttonName.equals("rodInsert")) {
 			setControlRodInsertion((short)(this.controlRodInsertion + 10));
 		}

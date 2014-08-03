@@ -9,9 +9,11 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
 import io.netty.buffer.ByteBuf;
 
-public class SmallMachineInventoryExposureMessage implements IMessage, IMessageHandler<SmallMachineInventoryExposureMessage, IMessage> {
+public class SmallMachineInventoryExposureMessage implements IMessage {
     private int x, y, z, referenceSide, slot;
 
+    public SmallMachineInventoryExposureMessage() {}
+    
     public SmallMachineInventoryExposureMessage(int x, int y, int z, int referenceSide, int slot) {
         this.x = x;
         this.y = y;
@@ -38,13 +40,16 @@ public class SmallMachineInventoryExposureMessage implements IMessage, IMessageH
         buf.writeInt(slot);
     }
 
-    @Override
-    public IMessage onMessage(SmallMachineInventoryExposureMessage message, MessageContext ctx) {
-        TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityInventory) {
-            ((TileEntityInventory)te).setExposedInventorySlotReference(referenceSide, slot);
-            FMLClientHandler.instance().getWorldClient().markBlockForUpdate(x, y, z);
+    
+    public static class Handler implements IMessageHandler<SmallMachineInventoryExposureMessage, IMessage> {
+        @Override
+        public IMessage onMessage(SmallMachineInventoryExposureMessage message, MessageContext ctx) {
+            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityInventory) {
+                ((TileEntityInventory)te).setExposedInventorySlotReference(message.referenceSide, message.slot);
+                FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
+            }
+            return null;
         }
-        return null;
     }
 }

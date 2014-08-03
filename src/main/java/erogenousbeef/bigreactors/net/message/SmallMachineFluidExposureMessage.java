@@ -10,9 +10,11 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import io.netty.buffer.ByteBuf;
 
-public class SmallMachineFluidExposureMessage implements IMessage, IMessageHandler<SmallMachineFluidExposureMessage, IMessage> {
+public class SmallMachineFluidExposureMessage implements IMessage {
     private int x, y, z, side, tankIdx;
 
+    public SmallMachineFluidExposureMessage() {}
+    
     public SmallMachineFluidExposureMessage(int x, int y, int z, int side, int tankIdx) {
         this.x = x;
         this.y = y;
@@ -39,13 +41,15 @@ public class SmallMachineFluidExposureMessage implements IMessage, IMessageHandl
         buf.writeInt(tankIdx);
     }
 
-    @Override
-    public IMessage onMessage(SmallMachineFluidExposureMessage message, MessageContext ctx) {
-        TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityPoweredInventoryFluid) {
-            ((TileEntityPoweredInventoryFluid)te).setExposedTank(ForgeDirection.getOrientation(side), tankIdx);
-            FMLClientHandler.instance().getWorldClient().markBlockForUpdate(x, y, z);
+    public static class Handler implements IMessageHandler<SmallMachineFluidExposureMessage, IMessage> {
+        @Override
+        public IMessage onMessage(SmallMachineFluidExposureMessage message, MessageContext ctx) {
+            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityPoweredInventoryFluid) {
+                ((TileEntityPoweredInventoryFluid)te).setExposedTank(ForgeDirection.getOrientation(message.side), message.tankIdx);
+                FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
+            }
+            return null;
         }
-        return null;
     }
 }

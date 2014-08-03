@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
@@ -216,7 +218,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	 * @param data The data input stream containing the update data.
 	 * @throws IOException
 	 */
-	public void onReceiveUpdatePacket(DataInputStream data) throws IOException {
+	public void onReceiveUpdatePacket(ByteBuf data) throws IOException {
 		int inputFluidID = data.readInt();
 		int inputFluidAmt = data.readInt();
 		int outputFluidID = data.readInt();
@@ -271,7 +273,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 	}
 
-	public void onNetworkPacket(Type packetType, DataInputStream data) throws IOException {
+	public void onNetworkPacket(Type packetType, ByteBuf data) throws IOException {
 		// Client->Server Packets
 		if(packetType == Type.ButtonActivate) {
 			boolean nowActive = data.readBoolean();

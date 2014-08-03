@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashSet;
@@ -678,7 +680,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
         );
 	}
 	
-	public void receiveReactorUpdate(DataInputStream data) throws IOException {
+	public void receiveReactorUpdate(ByteBuf data) throws IOException {
 		boolean active = data.readBoolean();
 		float heat = data.readFloat();
 		float storedEnergy = data.readFloat();

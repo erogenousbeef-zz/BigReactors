@@ -10,18 +10,21 @@ public class CommonPacketHandler {
 
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(BigReactors.CHANNEL.toLowerCase());
 
-    public static void init() {
-        INSTANCE.registerMessage(MultiblockMessageServer.Handler.class, MultiblockMessageServer.class, 0, Side.SERVER);
+    public static void initServer() {
         INSTANCE.registerMessage(MultiblockMessageClient.Handler.class, MultiblockMessageClient.class, 1, Side.CLIENT);
-        INSTANCE.registerMessage(GuiButtonPressMessage.class, GuiButtonPressMessage.class, 2, Side.SERVER);
-        INSTANCE.registerMessage(ControlRodSetNameMessage.class, ControlRodSetNameMessage.class, 3, Side.SERVER);
-        INSTANCE.registerMessage(RedNetSetDataMessage.class, RedNetSetDataMessage.class, 4, Side.SERVER);
-        INSTANCE.registerMessage(RedstoneSetDataMessage.class, RedstoneSetDataMessage.class, 5, Side.SERVER);
-        INSTANCE.registerMessage(ReactorWasteEjectionSettingMessage.class, ReactorWasteEjectionSettingMessage.class, 6, Side.CLIENT);
-        INSTANCE.registerMessage(SmallMachineUIMessage.class, SmallMachineUIMessage.class, 7, Side.CLIENT);
-        INSTANCE.registerMessage(SmallMachineRotationMessage.class, SmallMachineRotationMessage.class, 8, Side.CLIENT);
-        INSTANCE.registerMessage(SmallMachineInventoryExposureMessage.class, SmallMachineInventoryExposureMessage.class, 9, Side.CLIENT);
-        INSTANCE.registerMessage(SmallMachineFluidExposureMessage.class, SmallMachineFluidExposureMessage.class, 10, Side.CLIENT);
-        INSTANCE.registerMessage(ControlRodUpdateMessage.class, ControlRodUpdateMessage.class, 11, Side.CLIENT);
+        INSTANCE.registerMessage(ReactorWasteEjectionSettingMessage.Handler.class, ReactorWasteEjectionSettingMessage.class, 3, Side.CLIENT);
+        INSTANCE.registerMessage(SmallMachineUIMessage.Handler.class, SmallMachineUIMessage.class, 5, Side.CLIENT);
+        INSTANCE.registerMessage(SmallMachineRotationMessage.Handler.class, SmallMachineRotationMessage.class, 7, Side.CLIENT);
+        INSTANCE.registerMessage(SmallMachineInventoryExposureMessage.Handler.class, SmallMachineInventoryExposureMessage.class, 9, Side.CLIENT);
+        INSTANCE.registerMessage(SmallMachineFluidExposureMessage.Handler.class, SmallMachineFluidExposureMessage.class, 11, Side.CLIENT);
+        INSTANCE.registerMessage(ControlRodUpdateMessage.Handler.class, ControlRodUpdateMessage.class, 13, Side.CLIENT);
+    }
+    
+    public static void initClient() {
+        INSTANCE.registerMessage(MultiblockMessageServer.Handler.class, MultiblockMessageServer.class, 0, Side.SERVER);
+        INSTANCE.registerMessage(GuiButtonPressMessage.Handler.class, GuiButtonPressMessage.class, 2, Side.SERVER);
+        INSTANCE.registerMessage(ControlRodSetNameMessage.Handler.class, ControlRodSetNameMessage.class, 4, Side.SERVER);
+        INSTANCE.registerMessage(RedNetSetDataMessage.Handler.class, RedNetSetDataMessage.class, 6, Side.SERVER);
+        INSTANCE.registerMessage(RedstoneSetDataMessage.Handler.class, RedstoneSetDataMessage.class, 8, Side.SERVER);
     }
 }

@@ -9,10 +9,12 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import io.netty.buffer.ByteBuf;
 
-public class ControlRodUpdateMessage implements IMessage, IMessageHandler<ControlRodUpdateMessage, IMessage> {
+public class ControlRodUpdateMessage implements IMessage {
     private int x, y, z;
     private short controlRodInsertion;
 
+    public ControlRodUpdateMessage() {}
+    
     public ControlRodUpdateMessage(int x, int y, int z, short controlRodInsertion) {
         this.x = x;
         this.y = y;
@@ -36,12 +38,15 @@ public class ControlRodUpdateMessage implements IMessage, IMessageHandler<Contro
         buf.writeShort(controlRodInsertion);
     }
 
-    @Override
-    public IMessage onMessage(ControlRodUpdateMessage message, MessageContext ctx) {
-        TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityReactorControlRod) {
-            ((TileEntityReactorControlRod)te).onControlRodUpdate(controlRodInsertion);
+    public static class Handler implements IMessageHandler<ControlRodUpdateMessage, IMessage>
+    {
+        @Override
+        public IMessage onMessage(ControlRodUpdateMessage message, MessageContext ctx) {
+            TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityReactorControlRod) {
+                ((TileEntityReactorControlRod)te).onControlRodUpdate(message.controlRodInsertion);
+            }
+            return null;
         }
-        return null;
     }
 }

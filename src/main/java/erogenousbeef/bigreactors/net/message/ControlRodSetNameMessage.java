@@ -9,10 +9,12 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import io.netty.buffer.ByteBuf;
 
-public class ControlRodSetNameMessage implements IMessage, IMessageHandler<ControlRodSetNameMessage, IMessage> {
+public class ControlRodSetNameMessage implements IMessage {
     private int x, y, z;
     private String name;
 
+    public ControlRodSetNameMessage() {}
+    
     public ControlRodSetNameMessage(int x, int y, int z, String name) {
         this.x = x;
         this.y = y;
@@ -36,12 +38,15 @@ public class ControlRodSetNameMessage implements IMessage, IMessageHandler<Contr
         ByteBufUtils.writeUTF8String(buf, name);
     }
 
-    @Override
-    public IMessage onMessage(ControlRodSetNameMessage message, MessageContext ctx) {
-        TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityReactorControlRod) {
-            ((TileEntityReactorControlRod)te).setName(name);
+    public static class Handler implements IMessageHandler<ControlRodSetNameMessage, IMessage>
+    {
+        @Override
+        public IMessage onMessage(ControlRodSetNameMessage message, MessageContext ctx) {
+            TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityReactorControlRod) {
+                ((TileEntityReactorControlRod)te).setName(message.name);
+            }
+            return null;
         }
-        return null;
     }
 }

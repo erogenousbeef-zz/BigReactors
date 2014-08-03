@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.gui;
 
+import io.netty.buffer.ByteBuf;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -41,8 +43,8 @@ public interface IBeefGuiEntity {
 	/**
 	 * Called on the server when a player presses a button in the UI
 	 * @param buttonName Name of the button, as specified in client code
-	 * @param dataStream Stream containing additional parameters, if any
+	 * @param dis Stream containing additional parameters, if any
 	 * @throws IOException
 	 */
-	public void onReceiveGuiButtonPress(String buttonName, DataInputStream dataStream) throws IOException;
+	public void onReceiveGuiButtonPress(String buttonName, ByteBuf dis) throws IOException;
 }

@@ -1,6 +1,5 @@
 package erogenousbeef.bigreactors.net.message;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.minecraft.tileentity.TileEntity;
@@ -13,12 +12,14 @@ import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.utils.NetworkUtils;
 import io.netty.buffer.ByteBuf;
 
-public class GuiButtonPressMessage implements IMessage, IMessageHandler<GuiButtonPressMessage, IMessage> {
+public class GuiButtonPressMessage implements IMessage {
     private int x, y, z;
     private String buttonName;
     private Object[] data;
-    private DataInputStream dis;
+    private ByteBuf dis;
 
+    public GuiButtonPressMessage() {}
+    
     public GuiButtonPressMessage(int x, int y, int z, String buttonName, Object... data) {
         this.x = x;
         this.y = y;
@@ -33,7 +34,7 @@ public class GuiButtonPressMessage implements IMessage, IMessageHandler<GuiButto
         y = buf.readInt();
         z = buf.readInt();
         buttonName = ByteBufUtils.readUTF8String(buf);
-        dis = NetworkUtils.toDataInputStream(buf);
+        dis = buf.readBytes(buf.readableBytes());
     }
 
     @Override
@@ -47,16 +48,18 @@ public class GuiButtonPressMessage implements IMessage, IMessageHandler<GuiButto
         }
     }
 
-    @Override
-    public IMessage onMessage(GuiButtonPressMessage message, MessageContext ctx) {
-        TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(x, y, z);
-        if(te != null && te instanceof IBeefGuiEntity) {
-            try {
-                ((IBeefGuiEntity)te).onReceiveGuiButtonPress(buttonName, dis);
-            } catch(IOException e) {
-                e.printStackTrace();
+    public static class Handler implements IMessageHandler<GuiButtonPressMessage, IMessage> {
+        @Override
+        public IMessage onMessage(GuiButtonPressMessage message, MessageContext ctx) {
+            TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof IBeefGuiEntity) {
+                try {
+                    ((IBeefGuiEntity)te).onReceiveGuiButtonPress(message.buttonName, message.dis);
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
             }
+            return null;
         }
-        return null;
     }
 }

@@ -12,11 +12,13 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorR
 import erogenousbeef.bigreactors.utils.NetworkUtils;
 import io.netty.buffer.ByteBuf;
 
-public class RedNetSetDataMessage implements IMessage, IMessageHandler<RedNetSetDataMessage, IMessage> {
+public class RedNetSetDataMessage implements IMessage {
     private int x, y, z;
     private Object[] data;
-    private DataInputStream dis;
+    private ByteBuf bytes;
 
+    public RedNetSetDataMessage() {}
+    
     public RedNetSetDataMessage(int x, int y, int z, Object... data) {
         this.x = x;
         this.y = y;
@@ -29,7 +31,7 @@ public class RedNetSetDataMessage implements IMessage, IMessageHandler<RedNetSet
         x = buf.readInt();
         y = buf.readInt();
         z = buf.readInt();
-        dis = NetworkUtils.toDataInputStream(buf);
+        this.bytes = buf.readBytes(buf.readableBytes());
     }
 
     @Override
@@ -42,16 +44,18 @@ public class RedNetSetDataMessage implements IMessage, IMessageHandler<RedNetSet
         }
     }
 
-    @Override
-    public IMessage onMessage(RedNetSetDataMessage message, MessageContext ctx) {
-        TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(x, y, z);
-        if(te != null && te instanceof TileEntityReactorRedNetPort) {
-            try {
-                ((TileEntityReactorRedNetPort)te).decodeSettings(dis, true);
-            } catch(IOException e) {
-                e.printStackTrace();
+    public static class Handler implements IMessageHandler<RedNetSetDataMessage, IMessage> {
+        @Override
+        public IMessage onMessage(RedNetSetDataMessage message, MessageContext ctx) {
+            TileEntity te = ctx.getServerHandler().playerEntity.worldObj.getTileEntity(message.x, message.y, message.z);
+            if(te != null && te instanceof TileEntityReactorRedNetPort) {
+                try {
+                    ((TileEntityReactorRedNetPort)te).decodeSettings(message.bytes, true);
+                } catch(IOException e) {
+                    e.printStackTrace();
+                }
             }
+            return null;
         }
-        return null;
     }
 }
