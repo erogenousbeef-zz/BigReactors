@@ -748,6 +748,7 @@ public class BigReactors {
 
 		BRRegistry.registerCoilPart("blockCopper",		1.2f, 1f, 1.2f);	// TE, lots of mods
 		BRRegistry.registerCoilPart("blockOsmium",		1.2f, 1f, 1.2f);	// Mekanism
+		BRRegistry.registerCoilPart("blockZinc",		1.35f, 1f, 1.3f);
 		BRRegistry.registerCoilPart("blockLead",		1.35f, 1.01f, 1.3f);// TE, Mekanism, some others
 		BRRegistry.registerCoilPart("blockBrass",		1.4f, 1f, 1.2f);	// Metallurgy
 		BRRegistry.registerCoilPart("blockBronze",		1.4f, 1f, 1.2f);	// Mekanism, many others
@@ -787,6 +788,7 @@ public class BigReactors {
 		BRRegistry.registerReactorInteriorBlock("blockOsmium", 		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
 		BRRegistry.registerReactorInteriorBlock("blockBrass", 		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
 		BRRegistry.registerReactorInteriorBlock("blockBronze", 		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
+		BRRegistry.registerReactorInteriorBlock("blockZinc",		0.51f, 0.77f, 1.41f, IHeatEntity.conductivityCopper);
 		BRRegistry.registerReactorInteriorBlock("blockAluminum", 	0.50f, 0.78f, 1.42f, IHeatEntity.conductivityIron);
 		BRRegistry.registerReactorInteriorBlock("blockSteel",	 	0.50f, 0.78f, 1.42f, IHeatEntity.conductivityIron);
 		BRRegistry.registerReactorInteriorBlock("blockInvar",	 	0.50f, 0.79f, 1.43f, IHeatEntity.conductivityIron);
