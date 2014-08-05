@@ -79,7 +79,8 @@ public class BeefGuiIconManager extends BeefIconManager {
 				"ventNoneOn",
 				"rotorEfficiency",
 				"flowRate",
-				"coil"
+				"coil",
+				"controlRod"
 		};
 	}
 	

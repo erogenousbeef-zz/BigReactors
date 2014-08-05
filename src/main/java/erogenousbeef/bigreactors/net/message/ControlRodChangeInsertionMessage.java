@@ -9,23 +9,27 @@ import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
 
 public class ControlRodChangeInsertionMessage extends WorldMessageServer {
 	protected int amount;
+	protected boolean changeAll;
 	
-	public ControlRodChangeInsertionMessage() { super(); amount = 0; }
-	public ControlRodChangeInsertionMessage(int x, int y, int z, int amount) { 
+	public ControlRodChangeInsertionMessage() { super(); amount = 0; changeAll = false; }
+	public ControlRodChangeInsertionMessage(int x, int y, int z, int amount, boolean all) { 
 		super(x, y, z);
 		this.amount = amount;
+		this.changeAll = all;
 	}
 	
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		super.fromBytes(buf);
 		amount = buf.readInt();
+		changeAll = buf.readBoolean();
 	}
 	
 	@Override
 	public void toBytes(ByteBuf buf) {
 		super.toBytes(buf);
 		buf.writeInt(amount);
+		buf.writeBoolean(changeAll);
 	}
 
 	public static class Handler extends WorldMessageServer.Handler<ControlRodChangeInsertionMessage> {
@@ -33,7 +37,15 @@ public class ControlRodChangeInsertionMessage extends WorldMessageServer {
 		protected IMessage handleMessage(ControlRodChangeInsertionMessage message, 
 										MessageContext ctx, TileEntity te) {
 			if(te instanceof TileEntityReactorControlRod) {
-				((TileEntityReactorControlRod)te).onClientControlRodChange(message.amount);
+				TileEntityReactorControlRod rod = (TileEntityReactorControlRod)te;
+				int newInsertion = rod.getControlRodInsertion() + (short)message.amount;
+				if(message.changeAll && rod.getReactorController() != null)
+				{
+					rod.getReactorController().setAllControlRodInsertionValues(newInsertion);
+				}
+				else {
+					rod.setControlRodInsertion((short)newInsertion);
+				}
 			}
 			return null;
 		}
