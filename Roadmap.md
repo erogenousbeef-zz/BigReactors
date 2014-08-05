@@ -28,12 +28,13 @@ Okay, we're well into the 1.7.10 update now! **A lot of the massive refactoring 
 - *DONE* Reactor part icon selection rewritten thanks to above
 - *DONE* Reactor control rod merged into base reactor part, lots of dead code removed
 - *DONE* Enabled reactor parts on top/bottom faces thanks to all of the above
-
-Remaining TODOs:
-- Fix up Reactor Control Rod GUI. It's gone without love for too long.
-  - Add way to set ALL control rods from the GUI
-  - Add tooltips explaining how control rods work
+- *DONE* Control Rod GUI has been overhauled
+  - *DONE* Can set all control rods from single GUI
+  - *DONE* Has tooltips explaining WTF control rod insertion does
   
+Remaining TODOs:
+- Make all small machines tickless
+
 Remaining Test Items:
 - Ensure that multiblocks still reform when build across chunk boundaries
 - Ensure that multiblocks still reform on chunk loads
@@ -49,11 +50,16 @@ TODO - 0.5: The Exotic Coolant Update
 ------------------------------
 ### Internals
 - Coolant fluid pairs can be registered in a registry, allowing different types of fluids to be used as coolants
+- Rebalance reactor interior list so it's not just a race to enderium
+  - Make blocks mostly good at either generating energy OR moderating radiation, not both
+  - Moderators improve as they become more transparent to slow radiation
+  - Generators improve as they become less transparent to slow radiation
 
 ### Multiblock Turbine
 - Optional explosion during severe overspeed conditions
 - Redstone port.
 - Different types of rotors and blades, made of different metals
+- Additional very-high-end coil parts that extract Gratuitous Amounts of Energy
 
 ### Heat Exchanger
 - Big multiblock machine which converts exotic coolants into steam
@@ -64,6 +70,9 @@ TODO - 0.5: The Exotic Coolant Update
 ### Multiblock Reactor
 - Coolant manifolds inside reactor add extra surface area - must be adjacent to casing, other manifold or fuel rod
 - Coolant inlet accepts all mapped fluid pairs from coolant registry
+
+### For fun
+- Add "hojillion"/"ho" as a prefix for ludicrously high amounts of energy
 
 TODO - 0.6: The Fueling Update
 ------------------------------
@@ -144,3 +153,6 @@ Wishlist
 ### Fuel Pre-Processing (0.7?)
 - Provide better ways of pre-processing reactor fuel dusts directly into fuel fluids at an enhanced rate
 - Create a "fear engine" that gives bonuses to power output/fuel generation when exposed to hostile mobs
+
+### Beamguide machine
+- Goddamn it looks cool
