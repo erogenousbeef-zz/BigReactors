@@ -58,7 +58,7 @@ public abstract class BeefGuiVerticalProgressBar extends BeefGuiControlBase {
 		renderEngine.bindTexture(controlResource);
 		Tessellator tessellator = Tessellator.instance;
 		tessellator.startDrawingQuads();
-		tessellator.addVertexWithUV(this.absoluteX, this.absoluteY + this.height, backgroundLeftU, 0, 1.0);
+		tessellator.addVertexWithUV(this.absoluteX, this.absoluteY + this.height, 0, backgroundLeftU, 1.0);
 		tessellator.addVertexWithUV(this.absoluteX + this.width, this.absoluteY + this.height, 0, backgroundRightU, 1.0);
 		tessellator.addVertexWithUV(this.absoluteX + this.width, this.absoluteY, 0, backgroundRightU, 0);
 		tessellator.addVertexWithUV(this.absoluteX, this.absoluteY, 0, backgroundLeftU, 0);
