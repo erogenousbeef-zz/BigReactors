@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.relauncher.Side;
@@ -147,4 +148,8 @@ public abstract class BeefGuiBase extends GuiContainer {
 	}
 	
 	public void onControlClicked(IBeefGuiControl control) {}
+	
+	protected static boolean isAltKeyDown() {
+		return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+	}
 }
