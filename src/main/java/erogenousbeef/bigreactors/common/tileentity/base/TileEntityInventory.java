@@ -145,8 +145,8 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		if(!this.worldObj.isRemote) {
 			// Send unrotated, as the rotation will be re-applied on the client
             CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateInvExposureMessage(xCoord, yCoord, zCoord, referenceSide, slot), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
-
-            this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
+            this.markDirty();
+            this.notifyBlockChange();
 		}
 	}
 
