@@ -233,7 +233,8 @@ public class StaticUtils {
 	}
 	
 	public static class Strings {
-		public static String[] sizePrefixes = {"", "Ki", "Me", "Gi", "Te", "Pe", "Ex", "Ze", "Yo"};
+		public static String[] sizePrefixes = {"", "Ki", "Me", "Gi", "Te", "Pe", "Ex", "Ze", "Yo", "Ho"};
+		// Ho = Hojillion
 		
 		public static String formatRF(float number) {
 			String prefix = "";

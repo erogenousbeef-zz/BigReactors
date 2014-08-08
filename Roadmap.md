@@ -32,9 +32,6 @@ Okay, we're well into the 1.7.10 update now! **A lot of the massive refactoring 
   - *DONE* Can set all control rods from single GUI
   - *DONE* Has tooltips explaining WTF control rod insertion does
   
-Remaining TODOs:
-- Make all small machines tickless
-
 Remaining Test Items:
 - Ensure that multiblocks still reform when build across chunk boundaries
 - Ensure that multiblocks still reform on chunk loads
