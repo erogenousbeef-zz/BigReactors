@@ -46,7 +46,8 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		
 		if(!this.worldObj.isRemote) { 
 			// Force a connection to neighboring objects
-			this.markDirty();
+			this.notifyNeighborsOfTileChange();
+			this.notifyNeighborsOfBlockChange();
 		}
 	}
 	
@@ -59,7 +60,8 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		
 		if(!this.worldObj.isRemote) { 
 			// Force a connection to neighboring objects
-			this.markDirty();
+			this.notifyNeighborsOfTileChange();
+			this.notifyNeighborsOfBlockChange();
 		}
 	}
 	

@@ -111,7 +111,7 @@ public class BlockMBCreativePart extends BlockContainer {
 			TileEntityReactorCreativeCoolantPort cp = (TileEntityReactorCreativeCoolantPort)te;
 			if(currentEquippedItem == null || StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
 				// Use wrench to change inlet/outlet state
-				cp.setInlet(!cp.isInlet());
+				cp.setInlet(!cp.isInlet(), true);
 			}
 			else {
 				cp.forceAddWater();

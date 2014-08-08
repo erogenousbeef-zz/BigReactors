@@ -289,7 +289,7 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 			if(te instanceof TileEntityTurbineFluidPort) {
 				TileEntityTurbineFluidPort fluidPort = (TileEntityTurbineFluidPort)te; 
 				FluidFlow flow = fluidPort.getFlowDirection();
-				fluidPort.setFluidFlowDirection(flow == FluidFlow.In ? FluidFlow.Out : FluidFlow.In);
+				fluidPort.setFluidFlowDirection(flow == FluidFlow.In ? FluidFlow.Out : FluidFlow.In, true);
 				return true;
 			}
 		}
