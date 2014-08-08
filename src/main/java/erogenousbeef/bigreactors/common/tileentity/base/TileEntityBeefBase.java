@@ -26,6 +26,15 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
 
+	// Helper function for notifying neighbors
+	protected void notifyBlockChange() {
+		worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType());
+	}
+	
+	protected void notifyTileChange() {
+		worldObj.func_147453_f(xCoord, yCoord, zCoord, getBlockType());
+	}
+	
 	// A rotation matrix which assumes that the normalized forward direction is NORTH
 	// 2 = Forward, 3 = Rear, 4 = Left, 5 = Right
 	private static final int[][] ROTATION_MATRIX = {
@@ -60,6 +69,7 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		forwardFace = newDirection;
 		if(!worldObj.isRemote) {
             CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateRotationMessage(xCoord, yCoord, zCoord, newDirection.ordinal()), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
+            this.markDirty();
 		}
 	}
 	

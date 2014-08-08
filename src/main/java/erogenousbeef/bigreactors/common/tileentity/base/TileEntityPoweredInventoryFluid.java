@@ -60,9 +60,9 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		
 		if(!this.worldObj.isRemote) {
             CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateFluidExposureMessage(xCoord, yCoord, zCoord, side.ordinal(), tankIdx), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
-			this.worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, this.worldObj.getBlock(this.xCoord, this.yCoord, this.zCoord));
+            this.markDirty();
+            this.notifyBlockChange();
 		}
-		
 	}
 	
 	/**
