@@ -29,14 +29,20 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	
 	public boolean isInlet() { return inlet; }
 
-	public void setInlet(boolean shouldBeInlet) {
+	public void setInlet(boolean shouldBeInlet, boolean markDirty) {
 		if(inlet == shouldBeInlet) { return; }
 
 		inlet = shouldBeInlet;
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		
-		if(!inlet && !worldObj.isRemote) {
-			checkForAdjacentTank();
+		if(!worldObj.isRemote) {
+			if(!inlet) {
+				checkForAdjacentTank();
+			}
+			if(markDirty) {
+				notifyNeighborsOfBlockChange();
+				markDirty();
+			}
 		}
 	}
 	
@@ -53,7 +59,7 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 		super.decodeDescriptionPacket(packetData);
 		
 		if(packetData.hasKey("inlet")) {
-			setInlet(packetData.getBoolean("inlet"));
+			setInlet(packetData.getBoolean("inlet"), false);
 		}
 	}
 	
@@ -69,7 +75,8 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 		}
 		else {
 			// Force adjacent objects to notice us.
-			this.markDirty();
+			this.notifyNeighborsOfTileChange();
+			this.notifyNeighborsOfBlockChange();
 		}
 	}
 	

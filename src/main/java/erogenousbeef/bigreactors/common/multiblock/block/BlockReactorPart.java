@@ -272,7 +272,7 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 			if(StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
 				if(te instanceof TileEntityReactorCoolantPort) {
 					TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;
-					cp.setInlet(!cp.isInlet());
+					cp.setInlet(!cp.isInlet(), true);
 					return true;
 				}
 				else if(te instanceof TileEntityReactorAccessPort) {

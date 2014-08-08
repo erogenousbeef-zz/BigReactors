@@ -50,7 +50,8 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 		
 		// Force a connection to the power taps
-		this.markDirty();
+		this.notifyNeighborsOfTileChange();
+		this.notifyNeighborsOfBlockChange();
 	}
 
 	// Custom PowerTap methods

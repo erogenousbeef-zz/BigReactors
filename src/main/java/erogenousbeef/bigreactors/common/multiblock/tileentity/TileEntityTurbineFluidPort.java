@@ -31,12 +31,18 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 		pumpDestination = null;
 	}
 
-	public void setFluidFlowDirection(FluidFlow newDirection) {
+	public void setFluidFlowDirection(FluidFlow newDirection, boolean markDirty) {
 		flowSetting = newDirection;
-		worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
+
+		if(!worldObj.isRemote) {
+			if(markDirty) {
+				this.notifyNeighborsOfBlockChange();
+				this.markDirty();
+			}
+		}
+
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
-	
 	
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase)
@@ -46,10 +52,11 @@ public class TileEntityTurbineFluidPort extends TileEntityTurbinePartStandard im
 		
 		if(!this.worldObj.isRemote) { 
 			// Force a connection to neighboring objects
-			this.markDirty();
+			this.notifyNeighborsOfTileChange();
+			this.notifyNeighborsOfBlockChange();
 		}
 	}
-	
+
 	@Override
 	public void onMachineBroken()
 	{
