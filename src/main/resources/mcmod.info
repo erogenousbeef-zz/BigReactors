@@ -12,7 +12,7 @@
   "logoFile": "",
   "screenshots": [],
   "dependencies": [
-	"MinecraftForge", "CoFHCore"
+	"MinecraftForge"
   ]
 }
 ]
