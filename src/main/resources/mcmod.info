@@ -11,6 +11,8 @@
   "credits": "powercrystals, skyboy, King_Lemming, & Calclavia for example code",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": [
+	"MinecraftForge", "CoFHCore"
+  ]
 }
 ]
