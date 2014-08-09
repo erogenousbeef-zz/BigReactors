@@ -27,6 +27,7 @@ import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
+import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 
 public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
 
@@ -256,11 +257,11 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			if(itemToDistribute == null) { return null; }
 
 			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te instanceof IItemDuct) {
+			if(ModHelperBase.useCofh && te instanceof IItemDuct) {
 				IItemDuct conduit = (IItemDuct)te;
 				itemToDistribute = conduit.insertItem(dir.getOpposite(), itemToDistribute);
 			}
-			else if(te instanceof IPipeTile) {
+			else if(ModHelperBase.useBuildcraftTransport && te instanceof IPipeTile) {
 				IPipeTile pipe = (IPipeTile)te;
 				if(pipe.isPipeConnected(dir.getOpposite())) {
 					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
