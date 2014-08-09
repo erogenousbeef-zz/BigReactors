@@ -51,7 +51,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		
 		// Force a connection to the power taps
 		this.notifyNeighborsOfTileChange();
-		this.notifyNeighborsOfBlockChange();
 	}
 
 	// Custom PowerTap methods
