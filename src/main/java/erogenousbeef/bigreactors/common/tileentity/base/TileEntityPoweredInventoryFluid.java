@@ -63,9 +63,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
             this.markDirty();
 		}
 		else {
-			// Notify neighbors on client
 			this.notifyTileChange();
 		}
+		
+		this.notifyBlockChange();
 	}
 	
 	/**
