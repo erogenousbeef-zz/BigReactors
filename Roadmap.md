@@ -33,13 +33,13 @@ Okay, we're well into the 1.7.10 update now! **A lot of the massive refactoring 
   - *DONE* Has tooltips explaining WTF control rod insertion does
   
 Remaining Test Items:
-- Ensure that multiblocks still reform when build across chunk boundaries
-- Ensure that multiblocks still reform on chunk loads
-- Ensure that turbines still assemble and operate
-- Ensure that reactors operate properly and GUI updates propagate properly
-- Ensure that cyanite reprocessor still works & inventory/fluid side changes still work
+- *DONE* Ensure that multiblocks still reform when build across chunk boundaries
+- *DONE* Ensure that multiblocks still reform on chunk loads
+- *DONE* Ensure that turbines still assemble and operate
+- *DONE* Ensure that reactors operate properly and GUI updates propagate properly
+- *DONE* Ensure that cyanite reprocessor still works & inventory/fluid side changes still work
 - Ensure that all of the above also work on multiplayer servers
-- Test interoperability with TE 1.7.10 beta
+- **Partially Done** Test interoperability with TE 1.7.10 beta
 
 When all of the above are marked **done**, I'll release a public experimental (i.e. test) build. It will be *0.4.0X1*.
 
