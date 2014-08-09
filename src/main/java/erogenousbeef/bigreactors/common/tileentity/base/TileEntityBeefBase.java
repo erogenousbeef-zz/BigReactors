@@ -27,10 +27,18 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 	private static final int ticksBetweenUpdates = 3;
 
 	// Helper function for notifying neighbors
+	/**
+	 * Notify neighboring blocks that the actual block in this space has changed.
+	 * Generally should not be used manually.
+	 */
 	protected void notifyBlockChange() {
 		worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, getBlockType());
 	}
 	
+	/**
+	 * Notify neighboring blocks that a change has occurred to this tile entity.
+	 * Most commonly used for inventory-related changes.
+	 */
 	protected void notifyTileChange() {
 		worldObj.func_147453_f(xCoord, yCoord, zCoord, getBlockType());
 	}
@@ -70,6 +78,9 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		if(!worldObj.isRemote) {
             CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateRotationMessage(xCoord, yCoord, zCoord, newDirection.ordinal()), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
             this.markDirty();
+		}
+		else {
+			this.notifyTileChange();
 		}
 	}
 	

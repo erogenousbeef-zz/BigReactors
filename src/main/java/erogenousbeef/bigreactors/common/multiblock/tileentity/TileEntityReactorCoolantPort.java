@@ -39,10 +39,16 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			if(!inlet) {
 				checkForAdjacentTank();
 			}
+
 			if(markDirty) {
-				notifyNeighborsOfBlockChange();
 				markDirty();
 			}
+			else {
+				notifyNeighborsOfTileChange();
+			}
+		}
+		else {
+			notifyNeighborsOfTileChange();
 		}
 	}
 	
@@ -68,15 +74,12 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 	{
 		super.onMachineAssembled(multiblockControllerBase);
 		checkForAdjacentTank();
-		
+
+		this.notifyNeighborsOfTileChange();
+
 		// Re-render on the client
 		if(worldObj.isRemote) {
 			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		}
-		else {
-			// Force adjacent objects to notice us.
-			this.notifyNeighborsOfTileChange();
-			this.notifyNeighborsOfBlockChange();
 		}
 	}
 	
