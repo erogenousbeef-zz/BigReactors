@@ -1,28 +1,27 @@
 package erogenousbeef.bigreactors.common;
 
-import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.List;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import dan200.computercraft.api.ComputerCraftAPI;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.bigreactors.utils.IMCHelper;
+import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
+import erogenousbeef.bigreactors.utils.intermod.ModHelperComputerCraft;
+import erogenousbeef.bigreactors.utils.intermod.ModHelperMekanism;
 import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 
 public class CommonProxy {
@@ -158,107 +157,12 @@ public class CommonProxy {
 		}
 
 		BRConfig.CONFIGURATION.save();
-
-		ItemIngot ingotGeneric = ((ItemIngot)BigReactors.ingotGeneric);
 		
-		ItemStack yelloriteOre 	= new ItemStack(BigReactors.blockYelloriteOre, 1);
-		ItemStack ingotYellorium= ingotGeneric.getItemStackForType("ingotYellorium");
-		ItemStack ingotCyanite 	= ingotGeneric.getItemStackForType("ingotCyanite");
-		ItemStack ingotGraphite = ingotGeneric.getItemStackForType("ingotGraphite");
-		ItemStack ingotBlutonium= ingotGeneric.getItemStackForType("ingotBlutonium");
-		ItemStack dustYellorium = ingotGeneric.getItemStackForType("dustYellorium");
-		ItemStack dustCyanite 	= ingotGeneric.getItemStackForType("dustCyanite");
-		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
-		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
-
-		// Some mods make me do this myself. :V
-		ItemStack doubledYelloriumDust = null;
-		if(dustYellorium != null) {
-			doubledYelloriumDust = dustYellorium.copy();
-			doubledYelloriumDust.stackSize = 2;
-		}
-		
-		if(Loader.isModLoaded("Mekanism")) {
-			if(yelloriteOre != null && doubledYelloriumDust != null) {
-				addMekanismEnrichmentChamberRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy());
-				addMekanismCombinerRecipe(doubledYelloriumDust.copy(), yelloriteOre.copy());
-			}
-		
-			if(ingotYellorium != null && dustYellorium != null) {
-				addMekanismCrusherRecipe(ingotYellorium.copy(), dustYellorium.copy());
-			}
-
-			if(ingotCyanite != null && dustCyanite != null) {
-				addMekanismCrusherRecipe(ingotCyanite.copy(), dustCyanite.copy());
-			}
-
-			if(ingotGraphite != null && dustGraphite != null) {
-				addMekanismCrusherRecipe(ingotGraphite.copy(), dustGraphite.copy());
-			}
-
-			if(ingotBlutonium != null && dustBlutonium != null) {
-				addMekanismCrusherRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
-			}
-		}
-		
-		if(Loader.isModLoaded("ComputerCraft")) {
-			ComputerCraftAPI.registerPeripheralProvider(BigReactors.blockReactorPart);
-			ComputerCraftAPI.registerPeripheralProvider(BigReactors.blockTurbinePart);
-		}
+		registerWithOtherMods();
 		
 		// Easter Egg - Check if today is valentine's day. If so, change all particles to hearts.
 		Calendar calendar = Calendar.getInstance();
 		BigReactors.isValentinesDay = (calendar.get(Calendar.MONTH) == 2 && calendar.get(Calendar.DAY_OF_MONTH) == 14);
-	}
-	
-	/// Mekanism Compat - taken from Mekanism's API. Extracted to allow compat with last known green build.
-	/**
-	 * Add an Enrichment Chamber recipe. (Ore -> 2 Dust)
-	 * @param input - input ItemStack
-	 * @param output - output ItemStack
-	 */
-	public static void addMekanismEnrichmentChamberRecipe(ItemStack input, ItemStack output)
-	{
-		try {
-			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
-			Method m = recipeClass.getMethod("addEnrichmentChamberRecipe", ItemStack.class, ItemStack.class);
-			m.invoke(null, input, output);
-		} catch(Exception e) {
-			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
-		}
-	}
-
-	
-	/**
-	 * Add a Combiner recipe. (2 Dust + Cobble -> Ore)
-	 * @param input - input ItemStack
-	 * @param output - output ItemStack
-	 */
-	public static void addMekanismCombinerRecipe(ItemStack input, ItemStack output)
-	{
-		try {
-			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
-			Method m = recipeClass.getMethod("addCombinerRecipe", ItemStack.class, ItemStack.class);
-			m.invoke(null, input, output);
-		} catch(Exception e) {
-			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
-		}
-	}
-	
-	/**
-	 * Add a Crusher recipe. (Ingot -> Dust)
-	 * @param input - input ItemStack
-	 * @param output - output ItemStack
-	 */
-	public static void addMekanismCrusherRecipe(ItemStack input, ItemStack output)
-	{
-		try {
-			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
-			Method m = recipeClass.getMethod("addCrusherRecipe", ItemStack.class, ItemStack.class);
-			m.invoke(null, input, output);
-		} catch(Exception e) {
-			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
-		}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -269,5 +173,16 @@ public class CommonProxy {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void setIcons(TextureStitchEvent.Post event) {
+	}
+	
+	/// Mod Interoperability ///
+	void registerWithOtherMods() {
+		ModHelperBase modHelper;
+		
+		modHelper = new ModHelperComputerCraft();
+		modHelper.register();
+		
+		modHelper = new ModHelperMekanism();
+		modHelper.register();
 	}
 }
