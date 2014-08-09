@@ -24,11 +24,6 @@ public class CommonPacketHandler {
 	
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(BigReactors.CHANNEL.toLowerCase());
 
-    public static void init() {
-    	initServer();
-    	initClient();
-    }
-    
     // server >> client, use odd numbers
     public static void initClient() {
         INSTANCE.registerMessage(DeviceUpdateMessage.Handler.class, DeviceUpdateMessage.class, 1, Side.CLIENT);
