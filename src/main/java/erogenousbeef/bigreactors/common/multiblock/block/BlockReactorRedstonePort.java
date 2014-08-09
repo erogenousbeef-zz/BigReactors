@@ -15,12 +15,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode;
 import powercrystals.minefactoryreloaded.api.rednet.connectivity.RedNetConnectionType;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 
+@Optional.InterfaceList({
+	@Optional.Interface(iface = "powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode", modid = "MineFactoryReloaded")	
+})
 public class BlockReactorRedstonePort extends BlockContainer implements IRedNetOmniNode {
 
 	protected IIcon blockIconLit;
@@ -163,6 +167,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 	}
 
 	// IRedNetOmniNode - for pretty cable connections
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
 			int z, ForgeDirection side) {
@@ -176,24 +181,28 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 		return RedNetConnectionType.None;
 	}
 
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public int[] getOutputValues(World world, int x, int y, int z,
 			ForgeDirection side) {
 		return null;
 	}
 
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public int getOutputValue(World world, int x, int y, int z,
 			ForgeDirection side, int subnet) {
 		return isProvidingWeakPower(world, x, y, z, side.ordinal());
 	}
 
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public void onInputsChanged(World world, int x, int y, int z,
 			ForgeDirection side, int[] inputValues) {
 		// Not used
 	}
 
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {

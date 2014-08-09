@@ -46,7 +46,7 @@ import erogenousbeef.core.multiblock.rectangular.PartPosition;
 
 @Optional.InterfaceList({
 	@Optional.Interface(iface = "dan200.computercraft.api.peripheral.IPeripheralProvider", modid = "ComputerCraft"),
-	@Optional.Interface(iface = "powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode", modid = "minefactoryreloaded")	
+	@Optional.Interface(iface = "powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode", modid = "MineFactoryReloaded")	
 })
 public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode, IPeripheralProvider {
 	
@@ -412,7 +412,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     }
 
 	// IConnectableRedNet
-	@Optional.Method(modid = "minefactoryreloaded")
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
 			int z, ForgeDirection side) {
@@ -424,7 +424,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 		return RedNetConnectionType.None;
 	}
 
-	@Optional.Method(modid = "minefactoryreloaded")
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public int[] getOutputValues(World world, int x, int y, int z,
 			ForgeDirection side) {
@@ -442,7 +442,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	// Never used. we're always in "all" mode.
-	@Optional.Method(modid = "minefactoryreloaded")
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public int getOutputValue(World world, int x, int y, int z,
 			ForgeDirection side, int subnet) {
@@ -454,7 +454,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	
-	@Optional.Method(modid = "minefactoryreloaded")
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public void onInputsChanged(World world, int x, int y, int z,
 			ForgeDirection side, int[] inputValues) {
@@ -465,7 +465,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 
 	// Never used, we're always in "all" mode.
-	@Optional.Method(modid = "minefactoryreloaded")
+	@Optional.Method(modid = "MineFactoryReloaded")
 	@Override
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
