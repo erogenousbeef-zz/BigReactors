@@ -64,7 +64,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		}
 		
 		if(tag.hasKey("isInlet")) {
-			setInlet(tag.getBoolean("isInlet"), false);
+			this.isInlet = tag.getBoolean("isInlet");
 		}
 	}
 	
@@ -303,17 +303,17 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public boolean isInlet() { return this.isInlet; }
 
 	public void setInlet(boolean shouldBeInlet) {
-		setInlet(shouldBeInlet, true);
-	}
-	
-	protected void setInlet(boolean shouldBeInlet, boolean markDirty) {
 		if(isInlet == shouldBeInlet) { return; }
 
 		isInlet = shouldBeInlet;
+		
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-			
-		if(markDirty && !worldObj.isRemote) {
+		
+		if(!worldObj.isRemote) {
 			markDirty();
+		}
+		else {
+			notifyNeighborsOfTileChange();
 		}
 	}
 }
