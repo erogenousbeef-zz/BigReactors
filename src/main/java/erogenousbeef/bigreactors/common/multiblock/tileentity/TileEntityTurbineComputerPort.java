@@ -17,9 +17,9 @@ import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine.VentStatus;
 
 @Optional.InterfaceList({
-		@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
-		@Optional.Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
-		@Optional.Interface(iface = "dan200.computer.api.IPeripheral", modid = "ComputerCraft")
+	@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
+	@Optional.Interface(iface = "li.cil.oc.api.network.ManagedPeripheral", modid = "OpenComputers"),
+	@Optional.Interface(iface = "dan200.computercraft.api.peripheral.IPeripheral", modid = "ComputerCraft")
 })
 public class TileEntityTurbineComputerPort extends
 		TileEntityTurbinePartStandard implements IPeripheral, SimpleComponent, ManagedPeripheral {

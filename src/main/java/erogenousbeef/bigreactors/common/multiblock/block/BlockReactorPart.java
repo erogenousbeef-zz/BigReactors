@@ -21,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode;
 import powercrystals.minefactoryreloaded.api.rednet.connectivity.RedNetConnectionType;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -43,6 +44,10 @@ import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.PartPosition;
 
+@Optional.InterfaceList({
+	@Optional.Interface(iface = "dan200.computercraft.api.peripheral.IPeripheralProvider", modid = "ComputerCraft"),
+	@Optional.Interface(iface = "powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode", modid = "minefactoryreloaded")	
+})
 public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode, IPeripheralProvider {
 	
 	public static final int METADATA_CASING = 0;
@@ -407,6 +412,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     }
 
 	// IConnectableRedNet
+	@Optional.Method(modid = "minefactoryreloaded")
 	@Override
 	public RedNetConnectionType getConnectionType(World world, int x, int y,
 			int z, ForgeDirection side) {
@@ -418,6 +424,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 		return RedNetConnectionType.None;
 	}
 
+	@Optional.Method(modid = "minefactoryreloaded")
 	@Override
 	public int[] getOutputValues(World world, int x, int y, int z,
 			ForgeDirection side) {
@@ -435,6 +442,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	// Never used. we're always in "all" mode.
+	@Optional.Method(modid = "minefactoryreloaded")
 	@Override
 	public int getOutputValue(World world, int x, int y, int z,
 			ForgeDirection side, int subnet) {
@@ -446,6 +454,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	
+	@Optional.Method(modid = "minefactoryreloaded")
 	@Override
 	public void onInputsChanged(World world, int x, int y, int z,
 			ForgeDirection side, int[] inputValues) {
@@ -456,6 +465,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 
 	// Never used, we're always in "all" mode.
+	@Optional.Method(modid = "minefactoryreloaded")
 	@Override
 	public void onInputChanged(World world, int x, int y, int z,
 			ForgeDirection side, int inputValue) {
@@ -463,6 +473,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	// IPeripheralProvider
+	@Optional.Method(modid ="ComputerCraft")
 	@Override
 	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
 		TileEntity te = world.getTileEntity(x, y, z);
