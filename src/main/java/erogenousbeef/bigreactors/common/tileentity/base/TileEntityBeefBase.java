@@ -82,6 +82,8 @@ public abstract class TileEntityBeefBase extends TileEntity implements IBeefGuiE
 		else {
 			this.notifyTileChange();
 		}
+		
+		this.notifyBlockChange();
 	}
 	
 	public int getRotatedSide(int side) {
