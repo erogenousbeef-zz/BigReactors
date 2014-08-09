@@ -13,6 +13,8 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
 import buildcraft.api.tools.IToolWrench;
+import cofh.api.item.IToolHammer;
+import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 import erogenousbeef.core.common.CoordTriplet;
 
 public class StaticUtils {
@@ -77,7 +79,8 @@ public class StaticUtils {
 				return false;
 			}
 			Item currentItem = player.inventory.getCurrentItem().getItem();
-			return currentItem instanceof IToolWrench;
+			return (ModHelperBase.useCofh && currentItem instanceof IToolHammer) ||
+					(ModHelperBase.useBuildcraftTools && currentItem instanceof IToolWrench);
 		}
 		
 		/**

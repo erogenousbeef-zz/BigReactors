@@ -22,6 +22,7 @@ import erogenousbeef.bigreactors.net.message.DeviceUpdateInvExposureMessage;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
+import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
 	
@@ -304,11 +305,11 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			if(invExposures[rotatedSide][0] != fromSlot) { continue; }
 			
 			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(te instanceof IItemDuct) {
+			if(ModHelperBase.useCofh && te instanceof IItemDuct) {
 				IItemDuct conduit = (IItemDuct)te;
 				itemToDistribute = conduit.insertItem(dir.getOpposite(), itemToDistribute);
 			}
-			else if(te instanceof IPipeTile) {
+			else if(ModHelperBase.useBuildcraftTransport && te instanceof IPipeTile) {
 				IPipeTile pipe = (IPipeTile)te;
 				if(pipe.isPipeConnected(dir.getOpposite())) {
 					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());

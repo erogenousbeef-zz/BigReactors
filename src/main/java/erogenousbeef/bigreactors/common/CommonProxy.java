@@ -179,6 +179,8 @@ public class CommonProxy {
 	void registerWithOtherMods() {
 		ModHelperBase modHelper;
 		
+		ModHelperBase.detectMods();
+		
 		modHelper = new ModHelperComputerCraft();
 		modHelper.register();
 		
