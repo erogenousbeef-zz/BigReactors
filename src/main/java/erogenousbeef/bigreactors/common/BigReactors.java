@@ -24,10 +24,10 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IHeatEntity;
+import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
-import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.data.ReactorFuel;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
@@ -68,10 +68,11 @@ import erogenousbeef.bigreactors.world.BRWorldGenerator;
 public class BigReactors {
 
 	public static final String NAME 	= "Big Reactors";
-	public static final String CHANNEL 	= "bigreactors";
+	public static final String MODID	= "BigReactors";
+	public static final String CHANNEL 	=  MODID.toLowerCase();
 	public static final String RESOURCE_PATH = "/assets/bigreactors/";
 	
-	public static final CreativeTabs TAB = new CreativeTabBR(CHANNEL);
+	public static final CreativeTabs TAB = new CreativeTabBR(MODID);
 
 	public static final String TEXTURE_NAME_PREFIX = "bigreactors:";
 	
