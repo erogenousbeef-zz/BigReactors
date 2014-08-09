@@ -21,6 +21,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -40,7 +41,9 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
-
+@Optional.InterfaceList({
+	@Optional.Interface(iface = "dan200.computercraft.api.peripheral.IPeripheralProvider", modid = "ComputerCraft"),
+})
 public class BlockTurbinePart extends BlockContainer implements IPeripheralProvider {
 
 	public static final int METADATA_HOUSING = 0;
@@ -490,6 +493,14 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
     }
 
 	@Override
+    public boolean canCreatureSpawn(EnumCreatureType type, IBlockAccess world, int x, int y, int z)
+    {
+		return false;
+    }
+
+    // IPeripheralProvider
+	@Optional.Method(modid = "ComputerCraft")
+	@Override
 	public IPeripheral getPeripheral(World world, int x, int y, int z, int side) {
 		TileEntity te = world.getTileEntity(x, y, z);
 		
@@ -499,9 +510,4 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 		return null;
 	}
 	
-	@Override
-    public boolean canCreatureSpawn(EnumCreatureType type, IBlockAccess world, int x, int y, int z)
-    {
-		return false;
-    }
 }
