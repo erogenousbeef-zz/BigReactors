@@ -38,6 +38,8 @@ public class ClientProxy extends CommonProxy {
 	{
 		super.init();
 
+		CommonPacketHandler.initClient();
+		
 		FMLCommonHandler.instance().bus().register(new MultiblockClientTickHandler());
         FMLCommonHandler.instance().bus().register(new BRRenderTickHandler());
 

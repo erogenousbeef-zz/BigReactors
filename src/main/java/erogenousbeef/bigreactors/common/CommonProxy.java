@@ -32,7 +32,7 @@ public class CommonProxy {
 	public void init() {
 		BigReactors.registerTileEntities();
 		
-		CommonPacketHandler.init();
+		CommonPacketHandler.initServer();
 
 		NetworkRegistry.INSTANCE.registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
 		BigReactors.tickHandler = new BigReactorsTickHandler();
