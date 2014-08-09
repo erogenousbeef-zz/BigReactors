@@ -25,7 +25,7 @@ import erogenousbeef.core.multiblock.MultiblockEventHandler;
 public class BRLoader {
 
 	public static final String MOD_ID = BigReactors.CHANNEL;
-    public static final String DEPENDENCIES = "required-after:Forge@[10.13.0.1180,);required-after:CoFHAPI|energy;";
+    public static final String DEPENDENCIES = "required-after:Forge@[10.13.0.1180,);required-after:CoFHAPI|energy;required-after:CoFHCore";
 	
 	@Instance(MOD_ID)
 	public static BRLoader instance;
