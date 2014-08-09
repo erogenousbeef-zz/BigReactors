@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -450,6 +449,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(this.active) { part.onMachineActivated(); }
 			else { part.onMachineDeactivated(); }
 		}
+		
+		if(worldObj.isRemote) {
+			// Force controllers to re-render on client
+			for(IMultiblockPart part : attachedControllers) {
+				worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
+			}
+		}
 	}
 
 	protected void addReactorHeat(float newCasingHeat) {
@@ -590,50 +596,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
-		data.setInteger("wasteEjection", this.wasteEjection.ordinal());
-		data.setFloat("energy", this.energyStored);
-		data.setFloat("heat", this.reactorHeat);
-		data.setBoolean("isActive", this.getActive());
-		data.setFloat("fuelHeat", fuelHeat);
-		data.setTag("fuelContainer", fuelContainer.writeToNBT(new NBTTagCompound()));
-		data.setTag("radiation", radiationHelper.writeToNBT(new NBTTagCompound()));
-		data.setTag("coolantContainer", coolantContainer.writeToNBT(new NBTTagCompound()));
+		writeToNBT(data);
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
-		if(data.hasKey("wasteEjection2")) {
-			this.wasteEjection = s_EjectionSettings[data.getInteger("wasteEjection2")];
-		}
-		
-		if(data.hasKey("isActive")) {
-			this.setActive(data.getBoolean("isActive"));
-		}
-		
-		if(data.hasKey("energy")) {
-			this.energyStored = data.getFloat("energy");
-		}
-		
-		if(data.hasKey("heat")) {
-			setReactorHeat(data.getFloat("heat"));
-		}
-		
-		if(data.hasKey("fuelHeat")) {
-			setFuelHeat(data.getFloat("fuelHeat"));
-		}
-		
-		if(data.hasKey("fuelContainer")) {
-			fuelContainer.readFromNBT(data.getCompoundTag("fuelContainer"));
-		}
-
-		if(data.hasKey("radiation")) {
-			radiationHelper.readFromNBT(data.getCompoundTag("radiation"));
-		}
-		
-		if(data.hasKey("coolantContainer")) {
-			coolantContainer.readFromNBT(data.getCompoundTag("coolantContainer"));
-		}
-		
+		readFromNBT(data);
 		onFuelStatusChanged();
 	}
 
