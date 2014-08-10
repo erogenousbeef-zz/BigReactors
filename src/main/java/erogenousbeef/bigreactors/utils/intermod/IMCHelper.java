@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.utils;
+package erogenousbeef.bigreactors.utils.intermod;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -35,7 +35,6 @@ public class IMCHelper {
 			message.setTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
 			sendInterModMessage("ThermalExpansion", "SmelterRecipe", message);
 		}
-		
 	}
 	
 	/// MineFactory Reloaded
