@@ -18,7 +18,7 @@ import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.utils.IMCHelper;
+import erogenousbeef.bigreactors.utils.intermod.IMCHelper;
 import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 import erogenousbeef.bigreactors.utils.intermod.ModHelperComputerCraft;
 import erogenousbeef.bigreactors.utils.intermod.ModHelperMekanism;
@@ -32,7 +32,7 @@ public class CommonProxy {
 	public void init() {
 		BigReactors.registerTileEntities();
 		
-		CommonPacketHandler.initServer();
+		CommonPacketHandler.init();
 
 		NetworkRegistry.INSTANCE.registerGuiHandler(BRLoader.instance, new BigReactorsGUIHandler());
 		BigReactors.tickHandler = new BigReactorsTickHandler();

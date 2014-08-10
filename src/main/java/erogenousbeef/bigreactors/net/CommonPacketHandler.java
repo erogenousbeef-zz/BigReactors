@@ -24,8 +24,14 @@ public class CommonPacketHandler {
 	
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(BigReactors.CHANNEL.toLowerCase());
 
+    public static void init() {
+    	// These must be done on BOTH SIDES.
+    	initClient();
+    	initServer();
+    }
+    
     // server >> client, use odd numbers
-    public static void initClient() {
+    protected static void initClient() {
         INSTANCE.registerMessage(DeviceUpdateMessage.Handler.class, DeviceUpdateMessage.class, 1, Side.CLIENT);
         INSTANCE.registerMessage(DeviceUpdateRotationMessage.Handler.class, DeviceUpdateRotationMessage.class, 3, Side.CLIENT);
         INSTANCE.registerMessage(DeviceUpdateInvExposureMessage.Handler.class, DeviceUpdateInvExposureMessage.class, 5, Side.CLIENT);
@@ -37,7 +43,7 @@ public class CommonPacketHandler {
     }
     
     // client >> server, use even numbers
-    public static void initServer() {
+    protected static void initServer() {
     	INSTANCE.registerMessage(MachineCommandActivateMessage.Handler.class, MachineCommandActivateMessage.class, 0, Side.SERVER);
         INSTANCE.registerMessage(DeviceChangeExposureMessage.Handler.class, DeviceChangeExposureMessage.class, 2, Side.SERVER);
         INSTANCE.registerMessage(ControlRodChangeNameMessage.Handler.class, ControlRodChangeNameMessage.class, 4, Side.SERVER);
