@@ -99,13 +99,21 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 
 	public int fill(int idx, String reactantName, int amount, boolean doFill) {
 		assert(idx >= 0 && idx < tanks.length);
-		if(reactantName == null || amount < 0) { return 0; }
+		if(reactantName == null || amount <= 0) {
+			return 0;
+		}
 		
-		if(!canAddToStack(idx, reactantName)) { return 0; }
+		if(!canAddToStack(idx, reactantName)) {
+			return 0;
+		}
 		
 		int amtToAdd = Math.min(amount, getRemainingSpace());
-		if(amtToAdd <= 0) { return 0; }
-		if(!doFill) { return amtToAdd; }
+		if(amtToAdd <= 0) {
+			return 0;
+		}
+		if(!doFill) {
+			return amtToAdd;
+		}
 		
 		if(tanks[idx] == null) {
 			tanks[idx] = new ReactantStack(reactantName, amtToAdd);
@@ -115,12 +123,6 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		}
 		
 		return amtToAdd;
-	}
-	
-	public int fill(int idx, ReactantStack incoming, boolean doFill) {
-		if(incoming == null) { return 0; }
-		
-		return fill(idx, incoming.getName(), incoming.amount, doFill);
 	}
 	
 	/**
@@ -164,7 +166,9 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 
 	protected boolean canAddToStack(int idx, String incoming) {
 		if(idx < 0 || idx >= tanks.length || incoming == null) { return false; }
-		else if(tanks[idx] == null) {return isReactantValidForStack(idx, incoming); }
+		else if(tanks[idx] == null) {
+			return isReactantValidForStack(idx, incoming);
+		}
 		return tanks[idx].isReactantEqual(incoming);
 	}
 	
@@ -194,21 +198,21 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		for(int i = 0; i < tankNames.length; i++) {
 			if(data.hasKey(tankNames[i])) {
 				tanks[i] = ReactantStack.createFromNBT(data.getCompoundTag(tankNames[i]));
-				levelAtLastUpdate[i] = tanks[i].amount;
+				levelAtLastUpdate[i] = tanks[i] != null ? tanks[i].amount : FORCE_UPDATE;
 			}
 			else {
 				tanks[i] = null;
-				levelAtLastUpdate[i] = 0;
+				levelAtLastUpdate[i] = FORCE_UPDATE;
 			}
 		}
 	}
 	
 	public void serialize(ByteBuf buffer) {
+		buffer.writeInt(capacity);
 		for(int i = 0; i < tankNames.length; i++) {
-			if(getReactantAmount(i) <= 0) {
-				buffer.writeBoolean(false);
-			}
-			else {
+			boolean hasReactant = getReactantAmount(i) > 0;
+			buffer.writeBoolean(hasReactant);
+			if(hasReactant) {
 				ByteBufUtils.writeUTF8String(buffer, tanks[i].getName());
 				buffer.writeInt(tanks[i].amount);
 			}
@@ -216,9 +220,12 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 	}
 	
 	public void deserialize(ByteBuf buffer) {
+		capacity = buffer.readInt();
 		for(int i = 0; i < tankNames.length; i++) {
-			boolean hasData = buffer.readBoolean();
-			if(hasData) {
+			tanks[i] = null;
+
+			boolean hasReactant = buffer.readBoolean();
+			if(hasReactant) {
 				String reactantName = ByteBufUtils.readUTF8String(buffer);
 				int amount = buffer.readInt();
 				

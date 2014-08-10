@@ -25,6 +25,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.api.registry.ReactorConversions;
 import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.api.registry.TurbineCoil;
 import erogenousbeef.bigreactors.common.block.BlockBRDevice;
@@ -734,6 +735,10 @@ public class BigReactors {
 		// Register fluid => reactant mappings
 		Reactants.registerFluid(fluidYellorium, StandardReactants.yellorium);
 		Reactants.registerFluid(fluidCyanite, StandardReactants.cyanite);
+		
+		// Register reactant => reactant conversions for making cyanite
+		ReactorConversions.register(StandardReactants.yellorium, StandardReactants.cyanite);
+		ReactorConversions.register(StandardReactants.blutonium, StandardReactants.cyanite);
 		
 		BRConfig.CONFIGURATION.load();
 		boolean enableFantasyMetals = BRConfig.CONFIGURATION.get("General", "enableMetallurgyFantasyMetalsInTurbines", true, "If true, allows Metallurgy's fantasy metals to be used as part of turbine coils. Default: true").getBoolean(true);

@@ -28,7 +28,6 @@ public class ReactantStack {
 			name = tag.getString("name");
 		}
 		else {
-			BRLog.warning("ReactantStack::createFromNBT - Received a tag with no name, ignoring");
 			return null;
 		}
 		

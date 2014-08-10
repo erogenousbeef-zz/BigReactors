@@ -18,7 +18,7 @@ public class StandardReactants {
 	
 	public static void register() {
 		Reactants.registerReactant(yellorium, 0, colorYellorium);
-		Reactants.registerReactant(cyanite, 0, colorCyanite);
+		Reactants.registerReactant(cyanite, 1, colorCyanite);
 		Reactants.registerReactant(blutonium, 0, colorYellorium);
 	}
 	
