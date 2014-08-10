@@ -20,6 +20,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.core.multiblock.MultiblockEventHandler;
 
 @Mod(modid = BRLoader.MOD_ID, name = BigReactors.NAME, version = BRConfig.VERSION, acceptedMinecraftVersions = BRConfig.MINECRAFT_VERSION, dependencies = BRLoader.DEPENDENCIES)
@@ -51,6 +52,8 @@ public class BRLoader {
 		BigReactors.registerFluids(0,  true);
 		BigReactors.registerCreativeParts(0, true);
 
+		StandardReactants.register();
+		
 		BigReactors.eventHandler = new BREventHandler();
 		MinecraftForge.EVENT_BUS.register(BigReactors.eventHandler);
 		MinecraftForge.EVENT_BUS.register(proxy);

@@ -29,7 +29,6 @@ import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 public class CommonProxy {
 
 	public void preInit() {
-		StandardReactants.register();
 	}
 
 	public void init() {

@@ -46,7 +46,8 @@ public class FuelContainer extends ReactantContainer {
 		case FUEL:
 			return Reactants.isFuel(name);
 		case WASTE:
-			return Reactants.isWaste(name);
+			// Allow anything into our output slot, in case someone wants to do breeders or something
+			return true;
 		default:
 			return false;
 		}
@@ -54,14 +55,11 @@ public class FuelContainer extends ReactantContainer {
 
 	/**
 	 * Add some fuel to the current pile, if possible.
-	 * @param incoming A FluidStack representing the fluid to fill, and the maximum amount to add to the tank.
-	 * @return The amount of fuel actually added
+	 * @param name The name of the reactant to add.
+	 * @param amount The quantity of reactant to add.
+	 * @param doAdd If true, this will only simulate a fill and will not alter the fuel amount.
+	 * @return The amount of reactant actually added
 	 */
-	public int addFuel(ReactantStack incoming) {
-		if(incoming == null) { return 0; }
-		return fill(FUEL, incoming, true);
-	}
-	
 	public int addFuel(String name, int amount, boolean doAdd) {
 		if(name == null || amount <= 0) { return 0; }
 		else {
@@ -74,14 +72,9 @@ public class FuelContainer extends ReactantContainer {
 	 * @param incoming A FluidStack representing the fluid to fill, and the maximum amount to add to the tank.
 	 * @return The amount of waste actually added
 	 */
-	public int addWaste(ReactantStack incoming) {
-		if(incoming == null) { return 0; }
-		
-		return fill(WASTE, incoming, true);
-	}
-	
 	public int addWaste(String name, int amount) {
-		return fill(WASTE, name, amount, true);
+		int wasteAdded = fill(WASTE, name, amount, true);
+		return wasteAdded;
 	}
 	
 	private int addWaste(int wasteAmt) {
