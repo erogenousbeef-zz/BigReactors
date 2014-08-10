@@ -23,14 +23,15 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import erogenousbeef.bigreactors.api.data.CoilPartData;
+import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.api.registry.TurbineCoil;
 import erogenousbeef.bigreactors.common.BRLog;
-import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
-import erogenousbeef.bigreactors.common.multiblock.helpers.CoilPartData;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FloatUpdateTracker;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
@@ -1012,8 +1013,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	
 	private CoilPartData getCoilPartData(int x, int y, int z, Block block, int metadata) {
 		// Allow vanilla iron and gold blocks
-		if(block == Blocks.iron_block) { return BRRegistry.getCoilPartData("blockIron"); }
-		if(block == Blocks.gold_block) { return BRRegistry.getCoilPartData("blockGold"); }
+		if(block == Blocks.iron_block) { return TurbineCoil.getBlockData("blockIron"); }
+		if(block == Blocks.gold_block) { return TurbineCoil.getBlockData("blockGold"); }
 		
 		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
 		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
@@ -1023,7 +1024,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		
 		// TODO: Registry lookup
 		String oreName = OreDictionary.getOreName(oreId);
-		return BRRegistry.getCoilPartData(oreName);
+		return TurbineCoil.getBlockData(oreName);
 	}
 	
 	/**

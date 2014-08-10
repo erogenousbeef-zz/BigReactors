@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common.multiblock.tileentity;
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
+import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,10 +19,15 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemDuct;
+import cofh.util.ItemHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.api.data.SourceProductMapping;
+import erogenousbeef.bigreactors.api.registry.Reactants;
 import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
-import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.common.BRLog;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
@@ -45,6 +51,132 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		isInlet = true;
 	}
 
+	// Return the name of the reactant to which the item in the input slot
+	public String getInputReactantType() {
+		ItemStack inputItem = getStackInSlot(SLOT_INLET);
+		if(inputItem == null) { return null; }
+		SourceProductMapping mapping = Reactants.getSolidToReactant(inputItem);
+		return mapping != null ? mapping.getProduct() : null;
+	}
+
+	// Returns the potential amount of reactant which can be produced from this port.
+	public int getInputReactantAmount() {
+		ItemStack inputItem = getStackInSlot(SLOT_INLET);
+		if(inputItem == null) { return 0; }
+
+		SourceProductMapping mapping = Reactants.getSolidToReactant(inputItem);
+		return mapping != null ? mapping.getProductAmount(inputItem.stackSize) : 0;
+	}
+
+	/**
+	 * Consume items from the input slot.
+	 * Returns the amount of reactant produced.
+	 * @param reactantDesired The amount of reactant desired, in reactant units (mB)
+	 * @return The amount of reactant actually produced, in reactant units (mB)
+	 */
+	public int consumeReactantItem(int reactantDesired) {
+		ItemStack inputItem = getStackInSlot(SLOT_INLET);
+		if(inputItem == null) { return 0; }
+		
+		SourceProductMapping mapping = Reactants.getSolidToReactant(inputItem);
+		if(mapping == null) { return 0; }
+		
+		int sourceItemsToConsume = Math.min(inputItem.stackSize, mapping.getSourceAmount(reactantDesired));
+		
+		if(sourceItemsToConsume <= 0) { return 0; }
+
+		decrStackSize(SLOT_INLET, sourceItemsToConsume);
+		return mapping.getProductAmount(sourceItemsToConsume);
+	}
+
+	/**
+	 * Try to emit a given amount of reactant as a solid item.
+	 * Will either match the item type already present, or will select
+	 * whatever type allows the most reactant to be ejected right now.
+	 * @param reactantType Type of reactant to emit.
+	 * @param amount
+	 * @return
+	 */
+	public int emitReactant(String reactantType, int amount) {
+		if(reactantType == null || amount <= 0) { return 0; }
+		
+		ItemStack outputItem = getStackInSlot(SLOT_OUTLET);
+		if(outputItem != null && outputItem.stackSize >= getInventoryStackLimit()) {
+			// Already full?
+			return 0;
+		}
+		
+		// If we have an output item, try to produce more of it, given its mapping
+		if(outputItem != null) {
+			// Find matching mapping
+			SourceProductMapping mapping = Reactants.getSolidToReactant(outputItem);
+			if(mapping == null || !reactantType.equals(mapping.getProduct())) {
+				// Items are incompatible!
+				return 0;
+			}
+			
+			// We're using the original source item >> reactant mapping here
+			// This means that source == item, and product == reactant
+			int amtToProduce = mapping.getSourceAmount(amount);
+			amtToProduce = Math.min(amtToProduce, getInventoryStackLimit() - outputItem.stackSize);
+			if(amtToProduce <= 0) {	return 0; }
+			
+			// Do we actually produce any reactant at this reduced amount?
+			int reactantToConsume = mapping.getProductAmount(amtToProduce);
+			if(reactantToConsume <= 0) { return 0; }
+			
+			outputItem.stackSize += amtToProduce;
+			onItemsReceived();
+			
+			return reactantToConsume;
+		}
+
+		// Ok, we have no items. We need to figure out candidate mappings.
+		// Below here, we're using the reactant >> source mappings.
+		// This means that source == reactant, and product == item.
+		SourceProductMapping bestMapping = null;
+
+		List<SourceProductMapping> mappings = Reactants.getSolidsForReactant(reactantType);
+		if(mappings != null) {
+			int bestReactantAmount = 0;
+			for(SourceProductMapping mapping: mappings) {
+				// How much product can we produce?
+				int potentialProducts = mapping.getProductAmount(amount);
+				
+				// And how much reactant will that consume?
+				int potentialReactant = mapping.getSourceAmount(potentialProducts);
+
+				if(bestMapping == null || bestReactantAmount < potentialReactant) {
+					mapping = bestMapping;
+					bestReactantAmount = potentialReactant;
+				}
+			}
+		}
+
+		if(bestMapping == null) {
+			BRLog.warning("There are no mapped item types for reactant %s. Using cyanite instead.", reactantType);
+			bestMapping = StandardReactants.cyaniteMapping;
+		}
+		
+		int itemsToProduce = Math.min(bestMapping.getProductAmount(amount), getInventoryStackLimit());
+		
+		// And clamp again in case we could produce more than 64 items
+		int reactantConsumed = bestMapping.getSourceAmount(itemsToProduce);
+		itemsToProduce = bestMapping.getProductAmount(reactantConsumed);
+
+		ItemStack newItem = ItemHelper.getOre(bestMapping.getProduct()).copy();
+		if(newItem == null) {
+			BRLog.warning("Could not find item for oredict entry %s, using cyanite instead.", bestMapping.getProduct());
+			newItem = BigReactors.ingotGeneric.getIngotItemStackForMaterial("ingotCyanite");
+		}
+		
+		newItem.stackSize = itemsToProduce;
+		setInventorySlotContents(SLOT_OUTLET, newItem);
+		onItemsReceived();
+		
+		return reactantConsumed;
+	}
+	
 	// TileEntity overrides
 	
 	@Override
@@ -105,7 +237,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(packetData.hasKey("inlet")) {
 			setInlet(packetData.getBoolean("inlet"));
 		}
-	}	
+	}
 	
 	// IInventory
 	
@@ -197,17 +329,15 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 
-		FluidStack data = null;
-		
-		
 		if(slot == SLOT_INLET) {
-			data = BRRegistry.getReactorMappingForFuel(itemstack);
+			return Reactants.isFuel(itemstack);
 		}
 		else if(slot == SLOT_OUTLET) {
-			data = BRRegistry.getReactorMappingForWaste(itemstack);
+			return Reactants.isWaste(itemstack);
 		}
-		
-		return data != null;
+		else {
+			return false;
+		}
 	}
 
 	// ISidedInventory

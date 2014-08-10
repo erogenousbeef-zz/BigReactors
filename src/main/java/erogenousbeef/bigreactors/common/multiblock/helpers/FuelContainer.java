@@ -4,9 +4,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.api.IReactorFuel;
+import erogenousbeef.bigreactors.api.data.FluidToReactantMapping;
+import erogenousbeef.bigreactors.api.data.ReactantData;
+import erogenousbeef.bigreactors.api.data.ReactorReaction;
+import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.api.registry.ReactorConversions;
 import erogenousbeef.bigreactors.common.BRLog;
-import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.data.ReactantStack;
+import erogenousbeef.bigreactors.common.data.StandardReactants;
 
 /**
  * Class to help with fuel/waste tracking in reactors.
@@ -14,65 +20,53 @@ import erogenousbeef.bigreactors.common.BigReactors;
  * @author ErogenousBeef
  *
  */
-public class FuelContainer extends FluidHelper {
+public class FuelContainer extends ReactantContainer {
+	private static final String[] tankNames = { "fuel", "waste" };
 	private static final int FUEL = 0;
 	private static final int WASTE = 1;
-	
-	private static final String[] tankNames = { "fuel", "waste" };
 	
 	private float radiationFuelUsage;
 	
 	public FuelContainer() {
-		super(false);
+		super(tankNames, 0);
 		radiationFuelUsage = 0f;
 	}
-	
-	public static boolean isAcceptedFuel(Fluid fuelType) {
-		if(fuelType == null) { return false; }
 
-		return BRRegistry.getReactorFluidInfo(fuelType.getName()) != null;
-	}
-	
-	public static boolean isAcceptedWaste(Fluid wasteType) {
-		if(wasteType == null) { return false; }
-
-		return BRRegistry.getReactorFluidInfo(wasteType.getName()) != null;
-	}
-	
 	public int getFuelAmount() {
-		return getFluidAmount(FUEL);
+		return getReactantAmount(FUEL);
 	}
 	
 	public int getWasteAmount() {
-		return getFluidAmount(WASTE);
+		return getReactantAmount(WASTE);
 	}
 	
-	/**
-	 * Is it possible to add this fuel to the container, at all? Does not account for the container being full.
-	 * @param incoming The fuel to add.
-	 * @return True if the fuel can be added to the container.
-	 */
-	public boolean canAddFuel(FluidStack incoming) {
-		return canAddToStack(FUEL, incoming);
+	@Override
+	public boolean isReactantValidForStack(int idx, String name) {
+		switch(idx) {
+		case FUEL:
+			return Reactants.isFuel(name);
+		case WASTE:
+			return Reactants.isWaste(name);
+		default:
+			return false;
+		}
 	}
 
-	/**
-	 * Is it possible to add this Waste to the container, at all? Does not account for the container being full.
-	 * @param incoming The waste to add.
-	 * @return True if the waste can be added to the container.
-	 */
-	public boolean canAddWaste(FluidStack incoming) {
-		return canAddToStack(WASTE, incoming);
-	}
-	
 	/**
 	 * Add some fuel to the current pile, if possible.
 	 * @param incoming A FluidStack representing the fluid to fill, and the maximum amount to add to the tank.
 	 * @return The amount of fuel actually added
 	 */
-	public int addFuel(FluidStack incoming) {
+	public int addFuel(ReactantStack incoming) {
 		if(incoming == null) { return 0; }
 		return fill(FUEL, incoming, true);
+	}
+	
+	public int addFuel(String name, int amount, boolean doAdd) {
+		if(name == null || amount <= 0) { return 0; }
+		else {
+			return fill(FUEL, name, amount, doAdd);
+		}
 	}
 	
 	/**
@@ -80,44 +74,48 @@ public class FuelContainer extends FluidHelper {
 	 * @param incoming A FluidStack representing the fluid to fill, and the maximum amount to add to the tank.
 	 * @return The amount of waste actually added
 	 */
-	public int addWaste(FluidStack incoming) {
+	public int addWaste(ReactantStack incoming) {
 		if(incoming == null) { return 0; }
 		
 		return fill(WASTE, incoming, true);
 	}
 	
+	public int addWaste(String name, int amount) {
+		return fill(WASTE, name, amount, true);
+	}
+	
 	private int addWaste(int wasteAmt) {
 		if(this.getWasteType() == null) {
 			BRLog.warning("System is using addWaste(int) when there's no waste present, defaulting to cyanite");
-			return fill(WASTE, new FluidStack(BigReactors.fluidCyanite, wasteAmt), true);
+			return fill(WASTE, StandardReactants.cyanite, wasteAmt, true);
 		}
 		else {
-			return addFluidToStack(WASTE, wasteAmt);
+			return addToStack(WASTE, wasteAmt);
 		}
 	}
 	
-	public int drainFuel(int amount) {
-		return drainFluidFromStack(FUEL, amount);
+	public int dumpFuel() {
+		return dump(FUEL);
 	}
 	
-	public int drainFuel(Fluid fuel, int amount) {
-		return drainFluidFromStack(FUEL, fuel, amount);
+	public int dumpFuel(int amount) {
+		return dump(FUEL, amount);
 	}
 	
-	public int drainWaste(int amount) {
-		return drainFluidFromStack(WASTE, amount);
+	public int dumpWaste() {
+		return dump(WASTE);
 	}
 	
-	public int drainWaste(Fluid waste, int amount) {
-		return drainFluidFromStack(WASTE, waste, amount);
+	public int dumpWaste(int amount) {
+		return dump(WASTE, amount);
 	}
 	
-	public Fluid getFuelType() {
-		return getFluidType(FUEL);
+	public String getFuelType() {
+		return getReactantType(FUEL);
 	}
 	
-	public Fluid getWasteType() {
-		return getFluidType(WASTE);
+	public String getWasteType() {
+		return getReactantType(WASTE);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
@@ -136,19 +134,19 @@ public class FuelContainer extends FluidHelper {
 	}
 	
 	public void emptyFuel() {
-		setFluid(FUEL, null);
+		setReactant(FUEL, null);
 	}
 	
 	public void emptyWaste() {
-		setFluid(WASTE, null);
+		setReactant(WASTE, null);
 	}
 	
-	public void setFuel(FluidStack newFuel) {
-		setFluid(FUEL, newFuel);
+	public void setFuel(ReactantStack newFuel) {
+		setReactant(FUEL, newFuel);
 	}
 	
-	public void setWaste(FluidStack newWaste) {
-		setFluid(WASTE, newWaste);
+	public void setWaste(ReactantStack newWaste) {
+		setReactant(WASTE, newWaste);
 	}
 	
 	public void merge(FuelContainer other) {
@@ -172,9 +170,9 @@ public class FuelContainer extends FluidHelper {
 		
 		radiationFuelUsage = Math.max(0f, radiationFuelUsage - fuelToConvert);
 
-		Fluid fuelType = getFuelType();
+		String fuelType = getFuelType();
 		if(fuelType != null) {
-			this.drainFuel(fuelToConvert);
+			this.dumpFuel(fuelToConvert);
 			
 			if(getWasteType() != null) {
 				// If there's already waste, just keep on producing the same type.
@@ -182,18 +180,15 @@ public class FuelContainer extends FluidHelper {
 			}
 			else {
 				// Create waste type from registry
-				IReactorFuel fuelData = BRRegistry.getReactorFluidInfo(fuelType.getName());
-				Fluid wasteFluid = null;
-				if(fuelData != null) {
-					wasteFluid = fuelData.getProductFluid();
+				ReactorReaction reaction = ReactorConversions.get(fuelType);
+				String wasteType = reaction == null ? null : reaction.getProduct();
+
+				if(wasteType == null) {
+					BRLog.warning("Could not locate waste for reaction of fuel type " + fuelType + "; using cyanite");
+					wasteType = StandardReactants.cyanite;
 				}
 				
-				if(wasteFluid == null) {
-					BRLog.warning("Unable to locate waste for fuel type " + fuelType.getName() + "; using cyanite instead");
-					wasteFluid = BigReactors.fluidCyanite;
-				}
-				
-				this.addWaste(new FluidStack(wasteFluid, fuelToConvert));
+				this.addWaste(wasteType, fuelToConvert);
 			}
 		}
 		else {
@@ -202,29 +197,14 @@ public class FuelContainer extends FluidHelper {
 	}
 
 	public float getFuelReactivity() {
-		// TODO: Fetch this from the fuel itself
-		return 1.05f;
-	}
-
-	@Override
-	public int getNumberOfFluidTanks() {
-		return 2;
-	}
-
-	@Override
-	protected String[] getNBTTankNames() {
-		return tankNames;
-	}
-
-	@Override
-	protected boolean isFluidValidForStack(int stackIdx, Fluid fluid) {
-		switch(stackIdx) {
-			case FUEL:
-				return isAcceptedFuel(fluid);
-			case WASTE:
-				return isAcceptedWaste(fluid);
-			default:
-				return false;
+		String reactant = getFuelType();
+		ReactorReaction reaction = ReactorConversions.get(reactant);
+		if(reaction == null) {
+			BRLog.warning("Could not locate reaction data for reactant type " + reactant + "; using default value for reactivity");
+			return ReactorReaction.standardReactivity;
+		}
+		else {
+			return reaction.getReactivity();
 		}
 	}
 }

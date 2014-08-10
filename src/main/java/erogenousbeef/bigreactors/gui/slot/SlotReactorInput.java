@@ -4,7 +4,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.api.registry.Reactants;
 
 public class SlotReactorInput extends Slot {
 
@@ -21,10 +21,8 @@ public class SlotReactorInput extends Slot {
 		FluidStack data;
 		
 		if(fuel)
-			data = BRRegistry.getReactorMappingForFuel(stack);
+			return Reactants.isFuel(stack);
 		else
-			data = BRRegistry.getReactorMappingForWaste(stack);
-		
-		return data != null;
+			return Reactants.isWaste(stack);
 	}
 }

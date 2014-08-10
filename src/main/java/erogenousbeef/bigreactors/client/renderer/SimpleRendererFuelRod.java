@@ -11,8 +11,10 @@ import net.minecraftforge.fluids.Fluid;
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
-import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.api.data.ReactantData;
+import erogenousbeef.bigreactors.api.registry.Reactants;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
@@ -105,16 +107,27 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         	        iconSide = iconBottom = null;
         	        red = green = blue = 1f;
 
-    	    		Fluid rodFuel = reactor.getFuelType();
-    	    		Fluid rodWaste = reactor.getWasteType();
+    	    		iconSide = BigReactors.fluidFuelColumn.getFlowingIcon();
+    	    		iconBottom = BigReactors.fluidFuelColumn.getStillIcon();
+
+    	    		ReactantData fuelData = Reactants.getReactant(reactor.getFuelType());
+    	    		ReactantData wasteData = Reactants.getReactant(reactor.getWasteType());
         	        
-        	    	if(rodFuel != null && rodWaste != null) {
-        	    		iconSide = BigReactors.fluidFuelColumn.getFlowingIcon();
-        	    		iconBottom = BigReactors.fluidFuelColumn.getStillIcon();
-        	        	
+    	    		int fuelColor = fuelData != null ? fuelData.getColor() : StandardReactants.colorYellorium;
+    	    		int wasteColor = wasteData != null ? wasteData.getColor() : StandardReactants.colorCyanite;
+    	    		
+        	    	if(fuelAmount == 0) {
+        	        	red = unpackR(wasteColor);
+        	        	green = unpackG(wasteColor);
+        	        	blue = unpackB(wasteColor);
+        	    	}
+        	    	else if(fuelAmount >= totalFluid) {
+        	        	red = unpackR(fuelColor);
+        	        	green = unpackG(fuelColor);
+        	        	blue = unpackB(fuelColor);
+        	    	}
+        	    	else {
         	        	// Blend the colors
-        	        	int fuelColor = BRRegistry.getReactorFluidInfo(rodFuel.getName()).getFuelColor();
-        	        	int wasteColor = BRRegistry.getReactorFluidInfo(rodWaste.getName()).getFuelColor();
         	        	float proportion = (float)fuelAmount / (float)totalFluid;
         	        	float fuelR, fuelG, fuelB;
         	        	float wasteR, wasteG, wasteB;
@@ -129,14 +142,6 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
         	        	red = lerp(wasteR, fuelR, proportion);
         	        	green = lerp(wasteG, fuelG, proportion);
         	        	blue = lerp(wasteB, fuelB, proportion);
-        	    	}
-        	    	else if(rodFuel != null) {
-        	    		iconSide = rodFuel.getFlowingIcon();
-        	    		iconBottom = rodFuel.getStillIcon();
-        	    	}
-        	    	else if(rodWaste != null) {
-        	    		iconSide = rodWaste.getFlowingIcon();
-        	    		iconBottom = rodWaste.getStillIcon();
         	    	}
 
     	    		float pctFilled = Math.min(1f, Math.max(0f, (float)totalFluid / (float)capacity));

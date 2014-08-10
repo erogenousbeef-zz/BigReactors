@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.multiblock.helpers;
+package erogenousbeef.bigreactors.api.data;
 
 public class CoilPartData {
 	

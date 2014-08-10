@@ -2,8 +2,10 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import io.netty.buffer.ByteBuf;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import net.minecraft.block.Block;
@@ -25,8 +27,10 @@ import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.api.IHeatEntity;
+import erogenousbeef.bigreactors.api.data.OreDictToReactantMapping;
+import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.common.BRLog;
-import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.RadiationData;
 import erogenousbeef.bigreactors.common.interfaces.IActivateable;
@@ -54,8 +58,7 @@ import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
 public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo, IMultipleFluidHandler, IActivateable {
-	public static final int AmountPerIngot = 1000; // 1 ingot = 1000 mB
-	public static final int FuelCapacityPerFuelRod = 4 * AmountPerIngot; // 4 ingots per rod
+	public static final int FuelCapacityPerFuelRod = 4 * Reactants.standardSolidReactantAmount; // 4 ingots per rod
 	
 	public static final int FLUID_SUPERHEATED = CoolantContainer.HOT;
 	public static final int FLUID_COOLANT = CoolantContainer.COLD;
@@ -388,7 +391,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			tickable.onMultiblockServerTick();
 		}
 
-		if(fuelContainer.shouldSendFuelingUpdate() || coolantContainer.shouldSendFuelingUpdate()) {
+		if(fuelContainer.shouldUpdate() || coolantContainer.shouldUpdate()) {
 			markReferenceCoordForUpdate();
 		}
 		
@@ -519,7 +522,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		int metadata = world.getBlockMetadata(x, y, z);
 		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
 
-		if(oreId >= 0 && BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreId)) != null) {
+		if(oreId >= 0 && ReactorInterior.getBlockData(OreDictionary.getOreName(oreId)) != null) {
 			return;
 		}
 		
@@ -528,7 +531,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(block instanceof IFluidBlock) {
 				Fluid fluid = ((IFluidBlock)block).getFluid();
 				String fluidName = fluid.getName();
-				if(BRRegistry.getReactorInteriorFluidData(fluidName) != null) { return; }
+				if(ReactorInterior.getFluidData(fluidName) != null) { return; }
 
 				throw new MultiblockValidationException(String.format("%d, %d, %d - The fluid %s is not valid for the reactor's interior", x, y, z, fluidName));
 			}
@@ -615,14 +618,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// Marshal fluid types into integers
 		{
-			Fluid fuelType, wasteType, coolantType, vaporType;
-			fuelType = fuelContainer.getFuelType();
-			wasteType = fuelContainer.getWasteType();
+			Fluid coolantType, vaporType;
 			coolantType = coolantContainer.getCoolantType();
-			vaporType = coolantContainer.getVaporType();
-			
-			fuelTypeID = fuelType == null ? -1 : fuelType.getID();
-			wasteTypeID = wasteType == null ? -1 : wasteType.getID();
+			vaporType = coolantContainer.getVaporType();			
 			coolantTypeID = coolantType == null ? -1 : coolantType.getID();
 			vaporTypeID = vaporType == null ? -1 : vaporType.getID();
 		}
@@ -638,17 +636,13 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		buf.writeFloat(energyGeneratedLastTick);
 		buf.writeFloat(fuelConsumedLastTick);
 		
-		// Fuel & waste data
-		buf.writeInt(fuelTypeID);
-		buf.writeInt(fuelContainer.getFuelAmount());
-		buf.writeInt(wasteTypeID);
-		buf.writeInt(fuelContainer.getWasteAmount());
-
 		// Coolant data
 		buf.writeInt(coolantTypeID);
 		buf.writeInt(coolantContainer.getCoolantAmount());
 		buf.writeInt(vaporTypeID);
 		buf.writeInt(coolantContainer.getVaporAmount());
+		
+		fuelContainer.serialize(buf);
 	}
 
 	/*
@@ -667,11 +661,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		setEnergyGeneratedLastTick(buf.readFloat());
 		setFuelConsumedLastTick(buf.readFloat());
 		
-		// Fuel & waste data
-		int fuelTypeID = buf.readInt();
-		int fuelAmt = buf.readInt();
-		int wasteTypeID = buf.readInt();
-		int wasteAmt = buf.readInt();
 
 		// Coolant data
 		int coolantTypeID = buf.readInt();
@@ -679,20 +668,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		int vaporTypeID = buf.readInt();
 		int vaporAmt = buf.readInt();
 
-		if(fuelTypeID == -1) {
-			fuelContainer.emptyFuel();
-		}
-		else {
-			fuelContainer.setFuel(new FluidStack(FluidRegistry.getFluid(fuelTypeID), fuelAmt));
-		}
-		
-		if(wasteTypeID == -1) {
-			fuelContainer.emptyWaste();
-		}
-		else {
-			fuelContainer.setWaste(new FluidStack(FluidRegistry.getFluid(wasteTypeID), wasteAmt));
-		}
-		
+		// Fuel & waste data
+		fuelContainer.deserialize(buf);
+
 		if(coolantTypeID == -1) {
 			coolantContainer.emptyCoolant();
 		}
@@ -706,6 +684,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		else {
 			coolantContainer.setVapor(new FluidStack(FluidRegistry.getFluid(vaporTypeID), vaporAmt));
 		}
+		
 	}
 	
 	protected IMessage getUpdatePacket() {
@@ -837,107 +816,40 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	}
 
 	protected void refuel() {
-		int freeFuelSpace = fuelContainer.getCapacity() - fuelContainer.getTotalAmount();
-
-		if(freeFuelSpace <= 0)
+		// For now, we only need to check fuel ports when we have more space than can accomodate 1 ingot
+		if(fuelContainer.getRemainingSpace() < Reactants.standardSolidReactantAmount) {
 			return;
+		}
 		
-		// Discover which fuel input we're actually going to consume.
-		// Criteria: Must match fluid type, maximum input size without exceeding available space.
-		ItemStack inputItem = null;
-		FluidStack inputFluid = null;
-		Fluid currentFuelType = fuelContainer.getFuelType();
+		int amtAdded = 0;
 		
+		// Loop: Consume input reactants from all ports
 		for(TileEntityReactorAccessPort port : attachedAccessPorts)
 		{
+			if(fuelContainer.getRemainingSpace() <= 0) { break; }
+
 			if(port == null || !port.isConnected())	{ continue; }
-			
-			ItemStack contents = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
-			if(contents == null || contents.stackSize <= 0) { continue; }
 
-			FluidStack mappedFluid = BRRegistry.getReactorMappingForFuel(contents);
-			if(mappedFluid == null || mappedFluid.getFluid() == null) { continue; } // Not a valid fluid
+			// See what type of reactant the port contains; if none, skip it.
+			String portReactantType = port.getInputReactantType();
+			int portReactantAmount = port.getInputReactantAmount();
+			if(portReactantType == null || portReactantAmount <= 0) { continue; }
 			
-			// If there is fuel in the reactor, is this fluid compatible?
-			// If there is no fuel in the reactor, take whatever has the smallest fluid stacksize, or whatever we encounter first.
-			if( (currentFuelType != null && mappedFluid.getFluid() != null && mappedFluid.getFluid().getName().equals(currentFuelType.getName()))
-				|| currentFuelType == null)
-			{
-				// Candidate found!
-				if(inputFluid == null)
-				{
-					inputItem = contents.copy();
-					inputFluid = mappedFluid.copy();
-				}
-				else if(inputFluid.isFluidStackIdentical(mappedFluid))
-				{
-					// JOIN US, BROTHERS
-					if(inputItem != null)
-						inputItem.stackSize += contents.stackSize;
-					else
-						inputItem = contents.copy();
-				}
-				else if(mappedFluid.amount < freeFuelSpace && inputFluid.amount < mappedFluid.amount)
-				{
-					// More fluid per item, but we can still take at least 1. Slurp this up first.
-					inputItem = contents.copy();
-					inputFluid = mappedFluid.copy();
-				}
-			}
-		}
+			if(!Reactants.isFuel(portReactantType)) { continue; } // Skip nonfuels
 
-		if(inputItem == null || inputFluid == null) {
-			return;
+			// How much fuel can we actually add from this type of reactant?
+			int amountToAdd = fuelContainer.addFuel(portReactantType, portReactantAmount, false);
+			if(amountToAdd <= 0) { continue; }
+			
+			int portCanAdd = port.consumeReactantItem(amountToAdd);
+			if(portCanAdd <= 0) { continue; }
+			
+			amtAdded = fuelContainer.addFuel(portReactantType, portReactantAmount, true);
 		}
 		
-		// Cap input based on free fuel space
-		if(freeFuelSpace < (inputItem.stackSize * inputFluid.amount)) {
-			inputItem.stackSize = freeFuelSpace / inputFluid.amount;
-
-			if(inputItem.stackSize <= 0) {
-				// Not enough space!
-				return;
-			}
-		}
-
-		// Ok, we know how much fuel to consume in total, and from which item type. Let's rock.
-		FluidStack fuelAdded = new FluidStack(inputFluid, 0);
-		
-		for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-			if(port == null || !port.isConnected()) { continue; }
-
-			if(inputItem == null || inputItem.stackSize <= 0) {
-				break;
-			}
-
-			// Is this the appropriate type of fuel to inject?
-			ItemStack fuelStack = port.getStackInSlot(TileEntityReactorAccessPort.SLOT_INLET);
-			if(fuelStack != null && fuelStack.isItemEqual(inputItem))
-			{
-				if(fuelStack.stackSize >= inputItem.stackSize)
-				{
-					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, inputItem.stackSize);
-					fuelAdded.amount += inputItem.stackSize * inputFluid.amount;
-					inputItem = null;
-				}
-				else
-				{
-					fuelAdded.amount += fuelStack.stackSize * inputFluid.amount;
-					inputItem.stackSize -= fuelStack.stackSize;
-					fuelStack = StaticUtils.Inventory.consumeItem(fuelStack, fuelStack.stackSize);
-					
-					if(inputItem.stackSize <= 0) {
-						inputItem = null;
-					}
-				}
-				
-				port.setInventorySlotContents(TileEntityReactorAccessPort.SLOT_INLET, fuelStack);
-			}			
-		} // End consumption loop over all access ports
-
-		// And now modify the fuel container
-		if(fuelAdded != null && fuelAdded.amount > 0) {
-			fuelContainer.addFuel(fuelAdded);
+		if(amtAdded > 0) {
+			markReferenceCoordForUpdate();
+			markReferenceCoordDirty();
 		}
 	}
 	
@@ -948,60 +860,60 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	 */
 	public void ejectWaste(boolean dumpAll, CoordTriplet destination)
 	{
-		int numIngots = fuelContainer.getWasteAmount() / AmountPerIngot;
-		if(numIngots <= 0 && !dumpAll) {
+		// For now, we can optimize by only running this when we have enough waste to product an ingot
+		int amtEjected = 0;
+
+		String wasteReactantType = fuelContainer.getWasteType();
+		if(wasteReactantType == null) { 
 			return;
 		}
 
-		if(numIngots > 0) {
-			Fluid fuelType = fuelContainer.getWasteType();
-			if(fuelType != null) {
-				ItemStack ingotsToDistribute = BRRegistry.getReactorSolidForFluid(fuelType.getName());
-				if(ingotsToDistribute == null) {
-					BRLog.warning("Unable to eject items for waste type %s, dumping all waste instead", fuelType.getName());
-					dumpAll = true;
+		int minimumReactantAmount = Reactants.getMinimumReactantToProduceSolid(wasteReactantType);
+		if(fuelContainer.getWasteAmount() >= minimumReactantAmount) {
+
+			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+				if(fuelContainer.getWasteAmount() < minimumReactantAmount) {
+					continue;
 				}
-				else {
-					ingotsToDistribute = ingotsToDistribute.copy();
-					ingotsToDistribute.stackSize = numIngots;
-
-					int ingotsDistributed = 0;
-					for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-						if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
-						if(port == null || !port.isConnected()) { continue; }
-						if(destination != null && (destination.x != port.xCoord || destination.y != port.yCoord || destination.z != port.zCoord))
-						{
-							continue;
-						}
-
-						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, destination != null);
-						if(ingotsToDistribute.stackSize <= 0) {
-							ingotsToDistribute = null;
-						}
+				
+				if(port == null || !port.isConnected()) { continue; }
+				if(destination != null && !destination.equals(port.xCoord, port.yCoord, port.zCoord)) {
+					continue;
+				}
+				
+				// First time through, we eject only to outlet ports
+				if(destination == null && !port.isInlet()) {
+					int reactantEjected = port.emitReactant(wasteReactantType, fuelContainer.getWasteAmount());
+					fuelContainer.dumpWaste(reactantEjected);
+					amtEjected += reactantEjected;
+				}
+			}
+			
+			if(destination == null && fuelContainer.getWasteAmount() > minimumReactantAmount) {
+				// Loop a second time when destination is null and we still have waste
+				for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+					if(fuelContainer.getWasteAmount() < minimumReactantAmount) {
+						continue;
 					}
-
-					if(ingotsToDistribute != null && ingotsToDistribute.stackSize > 0 && destination == null)
-					{
-						for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-							if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
-							if(port == null || !port.isConnected()) { continue; }
-							
-							ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
-						}
-					}
-
-					fuelContainer.drainWaste(ingotsDistributed * AmountPerIngot);
+					
+					if(port == null || !port.isConnected()) { continue; }
+					int reactantEjected = port.emitReactant(wasteReactantType, fuelContainer.getWasteAmount());
+					fuelContainer.dumpWaste(reactantEjected);
+					amtEjected += reactantEjected;
 				}
 			}
 		}
 
 		if(dumpAll)
 		{
+			amtEjected += fuelContainer.getWasteAmount();
 			fuelContainer.setWaste(null);
 		}
 
-		markReferenceCoordForUpdate();
-		markReferenceCoordDirty();
+		if(amtEjected > 0) {
+			markReferenceCoordForUpdate();
+			markReferenceCoordDirty();
+		}
 	}
 	
 	/**
@@ -1010,48 +922,43 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	 * @param destination If not null, then fuel will only be distributed to a port matching these coordinates.
 	 */
 	public void ejectFuel(boolean dumpAll, CoordTriplet destination) {
-		int numIngots = fuelContainer.getFuelAmount() / AmountPerIngot;
-		if(numIngots <= 0 && !dumpAll) {
+		// For now, we can optimize by only running this when we have enough waste to product an ingot
+		int amtEjected = 0;
+
+		String fuelReactantType = fuelContainer.getFuelType();
+		if(fuelReactantType == null) { 
 			return;
 		}
-		
-		if(numIngots > 0)
-		{
-			Fluid fuelType = fuelContainer.getFuelType();
-			if(fuelType != null) {
-				ItemStack ingotsToDistribute = BRRegistry.getReactorSolidForFluid(fuelType.getName());
-				if(ingotsToDistribute == null) {
-					BRLog.warning("Unable to eject items for fuel type %s, dumping all fuel instead", fuelType.getName());
-					dumpAll = true;
+
+		int minimumReactantAmount = Reactants.getMinimumReactantToProduceSolid(fuelReactantType);
+		if(fuelContainer.getFuelAmount() >= minimumReactantAmount) {
+
+			for(TileEntityReactorAccessPort port : attachedAccessPorts) {
+				if(fuelContainer.getFuelAmount() < minimumReactantAmount) {
+					continue;
 				}
-				else {
-					ingotsToDistribute = ingotsToDistribute.copy();
-					ingotsToDistribute.stackSize = numIngots;
-					
-					int ingotsDistributed = 0;
-					for(TileEntityReactorAccessPort port : attachedAccessPorts) {
-						if(ingotsToDistribute == null || ingotsToDistribute.stackSize <= 0) { break; }
-						if(port == null || !port.isConnected()) { continue; }
-						if(destination != null && (destination.x != port.xCoord || destination.y != port.yCoord || destination.z != port.zCoord))
-						{
-							continue;
-						}
-						
-						ingotsDistributed += tryDistributeItems(port, ingotsToDistribute, true);
-					}
-					
-					fuelContainer.drainFuel(ingotsDistributed * AmountPerIngot);
+				
+				if(port == null || !port.isConnected()) { continue; }
+				if(destination != null && !destination.equals(port.xCoord, port.yCoord, port.zCoord)) {
+					continue;
 				}
+				
+				int reactantEjected = port.emitReactant(fuelReactantType, fuelContainer.getFuelAmount());
+				fuelContainer.dumpWaste(reactantEjected);
+				amtEjected += reactantEjected;
 			}
 		}
 
 		if(dumpAll)
 		{
+			amtEjected += fuelContainer.getFuelAmount();
 			fuelContainer.setFuel(null);
 		}
 
-		markReferenceCoordForUpdate();
-		markReferenceCoordDirty();
+		if(amtEjected > 0) {
+			markReferenceCoordForUpdate();
+			markReferenceCoordDirty();
+		}
 	}
 
 	@Override
@@ -1265,11 +1172,11 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return fuelContainer.getWasteAmount();
 	}
 	
-	public Fluid getFuelType() {
+	public String getFuelType() {
 		return fuelContainer.getFuelType();
 	}
 	
-	public Fluid getWasteType() {
+	public String getWasteType() {
 		return fuelContainer.getWasteType();
 	}
 
