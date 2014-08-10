@@ -17,25 +17,6 @@ public class IMCHelper {
 	protected static void sendInterModMessage(String to, String type, NBTTagCompound message) {
 		FMLInterModComms.sendMessage(to, type, message);
 	}
-
-	public static class ThermalExpansion {
-		public static void addPulverizerRecipe(ItemStack from, ItemStack to, int energy) {
-			NBTTagCompound message = new NBTTagCompound();
-			message.setInteger("energy", energy);
-			message.setTag("input", from.writeToNBT(new NBTTagCompound()));
-			message.setTag("primaryOutput", to.writeToNBT(new NBTTagCompound()));
-			sendInterModMessage("ThermalExpansion", "PulverizerRecipe", message);
-		}
-		
-		public static void addInductionSmelterRecipe(ItemStack firstInput, ItemStack secondInput, ItemStack output, int energy) {
-			NBTTagCompound message = new NBTTagCompound();
-			message.setInteger("energy", energy);
-			message.setTag("primaryInput", firstInput.writeToNBT(new NBTTagCompound()));
-			message.setTag("secondaryInput", secondInput.writeToNBT(new NBTTagCompound()));
-			message.setTag("primaryOutput", output.writeToNBT(new NBTTagCompound()));
-			sendInterModMessage("ThermalExpansion", "SmelterRecipe", message);
-		}
-	}
 	
 	/// MineFactory Reloaded
 	public static class MFR {

@@ -83,7 +83,7 @@ public class BlockBRMetal extends Block {
 	public void registerIngotRecipes(ItemIngot ingotItem) {
 		for(int i = 0; i < NUM_BLOCKS; i++) {
 			ItemStack block = new ItemStack(this, 1, i);
-			ItemStack ingot = ingotItem.getIngotItemStackForMaterial(_materials[i]);
+			ItemStack ingot = ingotItem.getIngotItem(_materials[i]);
 			GameRegistry.addShapelessRecipe(block, ingot, ingot, ingot, ingot, ingot, ingot, ingot, ingot, ingot);
 			ingot.stackSize = 9;
 			GameRegistry.addShapelessRecipe(ingot, block);

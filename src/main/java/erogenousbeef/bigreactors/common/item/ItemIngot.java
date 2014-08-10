@@ -75,7 +75,7 @@ public class ItemIngot extends ItemBase
 		return null;
 	}
 	
-	public ItemStack getIngotItemStackForMaterial(String name) {
+	public ItemStack getIngotItem(String name) {
 		int i = 0;
 		for(i = 0; i < MATERIALS.length; i++) {
 			if(name.equals(MATERIALS[i])) {
@@ -85,4 +85,16 @@ public class ItemIngot extends ItemBase
 		
 		return new ItemStack(this, 1, i);
 	}
+	
+	public ItemStack getDustItem(String name) {
+		int i = 0;
+		for(i = 0; i < MATERIALS.length; i++) {
+			if(name.equals(MATERIALS[i])) {
+				break;
+			}
+		}
+		
+		return new ItemStack(this, 1, DUST_OFFSET + i);
+	}
+
 }

@@ -167,7 +167,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		ItemStack newItem = ItemHelper.getOre(bestMapping.getProduct()).copy();
 		if(newItem == null) {
 			BRLog.warning("Could not find item for oredict entry %s, using cyanite instead.", bestMapping.getProduct());
-			newItem = BigReactors.ingotGeneric.getIngotItemStackForMaterial("ingotCyanite");
+			newItem = BigReactors.ingotGeneric.getItemStackForType("ingotCyanite");
 		}
 		
 		newItem.stackSize = itemsToProduce;

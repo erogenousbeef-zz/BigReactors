@@ -3,6 +3,8 @@ package erogenousbeef.bigreactors.common;
 import java.util.Calendar;
 import java.util.List;
 
+import cofh.util.ThermalExpansionHelper;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -46,69 +48,55 @@ public class CommonProxy {
 
 	private void sendInterModAPIMessages() {
 		ItemIngot ingotGeneric = BigReactors.ingotGeneric;
-		
 		ItemStack yelloriteOre 	= new ItemStack(BigReactors.blockYelloriteOre, 1);
-		ItemStack ingotYellorium= ingotGeneric.getItemStackForType("ingotYellorium");
-		ItemStack ingotCyanite 	= ingotGeneric.getItemStackForType("ingotCyanite");
-		ItemStack ingotGraphite = ingotGeneric.getItemStackForType("ingotGraphite");
-		ItemStack ingotBlutonium= ingotGeneric.getItemStackForType("ingotBlutonium");
-		ItemStack dustYellorium = ingotGeneric.getItemStackForType("dustYellorium");
-		ItemStack dustCyanite 	= ingotGeneric.getItemStackForType("dustCyanite");
-		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
-		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
 
+		final int YELLORIUM = 0;
+		
+		String[] names = { "Yellorium", "Cyanite", "Graphite", "Blutonium" };
+		ItemStack[] ingots = new ItemStack[names.length];
+		ItemStack[] dusts = new ItemStack[names.length];
+		
+		for(int i = 0; i < names.length; i++) {
+			ingots[i] = ingotGeneric.getIngotItem(names[i]);
+			dusts[i] = ingotGeneric.getDustItem(names[i]);
+		}
+		
 		ItemStack doubledYelloriumDust = null;
-		if(dustYellorium != null) {
-			doubledYelloriumDust = dustYellorium.copy();
+		if(ingots[YELLORIUM] != null) {
+			doubledYelloriumDust = ingots[YELLORIUM].copy();
 			doubledYelloriumDust.stackSize = 2;
 		}
 
 		if(Loader.isModLoaded("ThermalExpansion")) {
 			ItemStack sandStack = new ItemStack(Blocks.sand, 1);
-			ItemStack doubleYellorium = ingotYellorium.copy();
+			ItemStack doubleYellorium = ingots[YELLORIUM].copy();
 			doubleYellorium.stackSize = 2;
 
-			if(yelloriteOre != null && ingotYellorium != null) {
-				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(yelloriteOre, sandStack, doubleYellorium, 1600);
+			if(yelloriteOre != null && ingots[YELLORIUM] != null) {
+				ThermalExpansionHelper.addFurnaceRecipe(400, yelloriteOre, ingots[YELLORIUM]);
+				ThermalExpansionHelper.addSmelterRecipe(1600, yelloriteOre, sandStack, doubleYellorium);
 			}
 			
 			if(yelloriteOre != null && doubledYelloriumDust != null) {
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(yelloriteOre, doubledYelloriumDust, 4000);
-			}
-			
-			if(ingotYellorium != null && dustYellorium != null) {
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotYellorium, dustYellorium, 2400);
-				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubledYelloriumDust, sandStack, doubleYellorium, 200);
+				ThermalExpansionHelper.addPulverizerRecipe(4000, yelloriteOre, doubledYelloriumDust);
 			}
 
-			if(ingotCyanite != null && dustCyanite != null) {
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotCyanite, dustCyanite, 2400);
-				
-				ItemStack doubleDust = dustCyanite.copy();
+			if(doubledYelloriumDust != null && doubleYellorium != null) {
+				ThermalExpansionHelper.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
+			}
+
+			for(int i = 0; i < ingots.length; i++) {
+				if(ingots[i] == null || dusts[i] == null) { continue; }
+
+				ThermalExpansionHelper.addPulverizerRecipe(2400, ingots[i], dusts[i]);
+				ThermalExpansionHelper.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
+
+				ItemStack doubleDust = dusts[i].copy();
 				doubleDust.stackSize = 2;
-				ItemStack doubleIngot = ingotCyanite.copy();
-				doubleIngot.stackSize = 2;
-				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
-			}
+				ItemStack doubleIngot = ingots[i].copy();
+				doubleIngot.stackSize = 2;				
 
-			if(ingotGraphite != null && dustGraphite != null) {
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotGraphite, dustGraphite, 2400);
-
-				ItemStack doubleDust = dustGraphite.copy();
-				doubleDust.stackSize = 2;
-				ItemStack doubleIngot = ingotGraphite.copy();
-				doubleIngot.stackSize = 2;
-				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
-			}
-
-			if(ingotBlutonium != null && dustBlutonium != null) {
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(ingotBlutonium, dustBlutonium, 2400);
-
-				ItemStack doubleDust = dustBlutonium.copy();
-				doubleDust.stackSize = 2;
-				ItemStack doubleIngot = ingotBlutonium.copy();
-				doubleIngot.stackSize = 2;
-				IMCHelper.ThermalExpansion.addInductionSmelterRecipe(doubleDust, sandStack, doubleIngot, 200);
+				ThermalExpansionHelper.addSmelterRecipe(200, doubleDust, sandStack, doubleIngot);
 			}
 		} // END: IsModLoaded - ThermalExpansion
 		
@@ -121,24 +109,13 @@ public class CommonProxy {
 		} // END: IsModLoaded - MineFactoryReloaded
 		
 		if(Loader.isModLoaded("appliedenergistics2")) {
-			if(yelloriteOre != null && dustYellorium != null) {
+			if(yelloriteOre != null && doubledYelloriumDust != null) {
 				IMCHelper.AE2.addGrinderRecipe(yelloriteOre, doubledYelloriumDust, 4);
 			}
 		
-			if(ingotYellorium != null && dustYellorium != null) {
-				IMCHelper.AE2.addGrinderRecipe(ingotYellorium, dustYellorium, 2);
-			}
-
-			if(ingotCyanite != null && dustCyanite != null) {
-				IMCHelper.AE2.addGrinderRecipe(ingotCyanite, dustCyanite, 2);
-			}
-
-			if(ingotGraphite != null && dustGraphite != null) {
-				IMCHelper.AE2.addGrinderRecipe(ingotGraphite, dustGraphite, 2);
-			}
-
-			if(ingotBlutonium != null && dustBlutonium != null) {
-				IMCHelper.AE2.addGrinderRecipe(ingotBlutonium, dustBlutonium, 2);
+			for(int i = 0; i < ingots.length; i++) {
+				if(ingots[i] == null || dusts[i] == null) { continue; }
+				IMCHelper.AE2.addGrinderRecipe(ingots[i], dusts[i], 2);
 			}
 		} // END: IsModLoaded - AE2
 	}
