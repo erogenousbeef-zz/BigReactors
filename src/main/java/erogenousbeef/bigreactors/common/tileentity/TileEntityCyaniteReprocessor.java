@@ -13,8 +13,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.api.registry.Reactants;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
-import erogenousbeef.bigreactors.common.BRRegistry;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.container.ContainerCyaniteReprocessor;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -49,10 +49,10 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 		FluidStack data = null;
 		
 		if(slot == SLOT_OUTLET) {
-			data = BRRegistry.getReactorMappingForFuel(itemstack);
+			return Reactants.isFuel(itemstack);
 		}
 		else if(slot == SLOT_INLET) {
-			data = BRRegistry.getReactorMappingForWaste(itemstack);
+			return Reactants.isWaste(itemstack);
 		}
 
 		return data != null;
@@ -102,6 +102,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			}
 		}
 		else {
+			ItemStack sourceItem = _inventories[SLOT_INLET];
 			// TODO: Make this query the input for the right type of output to create.
 			ArrayList<ItemStack> candidates = OreDictionary.getOres("ingotBlutonium");
 			if(candidates.isEmpty()) {

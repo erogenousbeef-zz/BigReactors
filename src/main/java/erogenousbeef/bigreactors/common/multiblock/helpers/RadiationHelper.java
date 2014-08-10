@@ -12,7 +12,9 @@ import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.api.data.ReactorInteriorData;
+import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.RadiationData;
 import erogenousbeef.bigreactors.common.data.RadiationPacket;
@@ -158,23 +160,23 @@ public class RadiationHelper {
 		ReactorInteriorData moderatorData = null;
 
 		if(block == Blocks.iron_block) {
-			moderatorData = BRRegistry.getReactorInteriorBlockData("blockIron");
+			moderatorData = ReactorInterior.getBlockData("blockIron");
 		}
 		else if(block == Blocks.gold_block) {
-			moderatorData = BRRegistry.getReactorInteriorBlockData("blockGold");
+			moderatorData = ReactorInterior.getBlockData("blockGold");
 		}
 		else if(block == Blocks.diamond_block) {
-			moderatorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
+			moderatorData = ReactorInterior.getBlockData("blockDiamond");
 		}
 		else if(block == Blocks.emerald_block) {
-			moderatorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
+			moderatorData = ReactorInterior.getBlockData("blockEmerald");
 		}
 		else {
 			// Oredict?
 			int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
 
 			if(oreId >= 0) {
-				moderatorData = BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreId));
+				moderatorData = ReactorInterior.getBlockData(OreDictionary.getOreName(oreId));
 			}
 		}
 		
@@ -190,7 +192,7 @@ public class RadiationHelper {
 		float absorption, heatEfficiency, moderation;
 		String name = fluid.getName();
 
-		ReactorInteriorData moderatorData = BRRegistry.getReactorInteriorFluidData(fluid.getName());
+		ReactorInteriorData moderatorData = ReactorInterior.getFluidData(fluid.getName());
 		
 		if(moderatorData == null) {
 			moderatorData = waterData;

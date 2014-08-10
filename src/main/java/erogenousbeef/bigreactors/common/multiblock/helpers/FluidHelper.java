@@ -1,11 +1,12 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IConditionalUpdater;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 
-public abstract class FluidHelper {
+public abstract class FluidHelper implements IConditionalUpdater {
 
 	private FluidStack[] fluids;
 	private int capacity;
@@ -42,7 +43,8 @@ public abstract class FluidHelper {
 	public abstract int getNumberOfFluidTanks();
 	protected abstract String[] getNBTTankNames();
 	
-	public boolean shouldSendFuelingUpdate() {
+	// Implementation: IConditionalUpdater
+	public boolean shouldUpdate() {
 		ticksSinceLastUpdate++;
 		if(minimumTicksBetweenUpdates < ticksSinceLastUpdate) {
 			int dev = 0;

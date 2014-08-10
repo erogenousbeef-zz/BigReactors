@@ -10,12 +10,13 @@ import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
-import erogenousbeef.bigreactors.common.BRRegistry;
+import erogenousbeef.bigreactors.api.data.ReactorInteriorData;
+import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.common.data.RadiationData;
 import erogenousbeef.bigreactors.common.data.RadiationPacket;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
-import erogenousbeef.bigreactors.common.multiblock.helpers.ReactorInteriorData;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
@@ -182,27 +183,27 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		ReactorInteriorData interiorData = null;
 		
 		if(block == Blocks.iron_block) {
-			interiorData = BRRegistry.getReactorInteriorBlockData("blockIron");
+			interiorData = ReactorInterior.getBlockData("blockIron");
 		}
 		else if(block == Blocks.gold_block) {
-			interiorData = BRRegistry.getReactorInteriorBlockData("blockGold");
+			interiorData = ReactorInterior.getBlockData("blockGold");
 		}
 		else if(block == Blocks.diamond_block) {
-			interiorData = BRRegistry.getReactorInteriorBlockData("blockDiamond");
+			interiorData = ReactorInterior.getBlockData("blockDiamond");
 		}
 		else if(block == Blocks.emerald_block) {
-			interiorData = BRRegistry.getReactorInteriorBlockData("blockEmerald");
+			interiorData = ReactorInterior.getBlockData("blockEmerald");
 		}
 		else {
 			int oreID = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
 			if(oreID >= 0) {
-				interiorData = BRRegistry.getReactorInteriorBlockData(OreDictionary.getOreName(oreID));
+				interiorData = ReactorInterior.getBlockData(OreDictionary.getOreName(oreID));
 			}
 			else {
 				if(block instanceof IFluidBlock) {
 					Fluid fluid = ((IFluidBlock)block).getFluid();
 					if(fluid != null) {
-						interiorData = BRRegistry.getReactorInteriorFluidData(fluid.getName());
+						interiorData = ReactorInterior.getFluidData(fluid.getName());
 					}
 				}
 			}

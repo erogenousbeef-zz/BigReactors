@@ -14,7 +14,9 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.api.registry.Reactants;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
+import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.gui.BigReactorsGUIHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
@@ -27,6 +29,7 @@ import erogenousbeef.core.multiblock.MultiblockServerTickHandler;
 public class CommonProxy {
 
 	public void preInit() {
+		StandardReactants.register();
 	}
 
 	public void init() {
@@ -149,11 +152,7 @@ public class CommonProxy {
 															+"unregistered ingots found as clones"
 															+"of standard yellorium fuel").getBoolean(true);
 		if(autoAddUranium) {
-			List<ItemStack> candidates = OreDictionary.getOres("ingotUranium");
-			for(ItemStack candidate : candidates) {
-				// If they're already registered, this will NOT overwrite the existing registration
-				BRRegistry.registerReactorSolidToFuelMapping(new ReactorSolidMapping(candidate, new FluidStack(BigReactors.fluidYellorium, 1000)));
-			}
+			Reactants.registerSolid("ingotUranium", StandardReactants.yellorium);
 		}
 
 		BRConfig.CONFIGURATION.save();
