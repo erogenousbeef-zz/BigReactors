@@ -23,8 +23,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
+import cofh.lib.util.helpers.ItemHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.data.OreDictToReactantMapping;
@@ -520,9 +520,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		// Permit registered moderator blocks
 		int metadata = world.getBlockMetadata(x, y, z);
-		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
 
-		if(oreId >= 0 && ReactorInterior.getBlockData(OreDictionary.getOreName(oreId)) != null) {
+		if(ReactorInterior.getBlockData(ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata))) != null) {
 			return;
 		}
 		

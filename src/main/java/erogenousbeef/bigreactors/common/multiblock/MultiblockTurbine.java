@@ -20,8 +20,8 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.oredict.OreDictionary;
 import cofh.api.energy.IEnergyHandler;
+import cofh.lib.util.helpers.ItemHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.api.data.CoilPartData;
 import erogenousbeef.bigreactors.api.registry.Reactants;
@@ -1017,13 +1017,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		if(block == Blocks.gold_block) { return TurbineCoil.getBlockData("blockGold"); }
 		
 		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
-		int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
-
-		// Not oredicted? Buzz off.
-		if(oreId < 0) { return null; }
-		
-		// TODO: Registry lookup
-		String oreName = OreDictionary.getOreName(oreId);
+		String oreName = ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata));
 		return TurbineCoil.getBlockData(oreName);
 	}
 	
