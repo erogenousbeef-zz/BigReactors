@@ -5,14 +5,14 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import erogenousbeef.bigreactors.common.BRLog;
-import erogenousbeef.bigreactors.common.interfaces.IActivateable;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable;
 import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
 import erogenousbeef.core.common.CoordTriplet;
 
 /**
  * Send a "setActive" command to any IActivateable machine.
  * Currently used for multiblock reactors and turbines.
- * @see erogenousbeef.bigreactors.common.interfaces.IActivateable
+ * @see erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable
  * @author Erogenous Beef
  *
  */

@@ -41,9 +41,9 @@ public class BeefGuiIconManager extends BeefIconManager {
 	public static final int FLOW_RATE = 34;
 	public static final int COIL = 35;
 
-	public BeefGuiIconManager() {
-		super();
-		iconNames = new String[] {
+	@Override
+	protected String[] getIconNames() {
+		return new String[] {
 				"coolantIn",
 				"coolantOut",
 				"coolantTemperature",

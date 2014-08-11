@@ -1,5 +1,7 @@
 package erogenousbeef.bigreactors.net.message;
 
+import cofh.api.tileentity.IReconfigurableFacing;
+import cofh.api.tileentity.IReconfigurableSides;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -35,8 +37,8 @@ public class DeviceUpdateRotationMessage extends WorldMessageClient {
     public static class Handler extends WorldMessageClient.Handler<DeviceUpdateRotationMessage> {
         @Override
         public IMessage handleMessage(DeviceUpdateRotationMessage message, MessageContext ctx, TileEntity te) {
-            if(te instanceof TileEntityBeefBase) {
-                ((TileEntityBeefBase)te).rotateTowards(ForgeDirection.getOrientation(message.newOrientation));
+            if(te instanceof IReconfigurableFacing) {
+                ((IReconfigurableFacing)te).setFacing(message.newOrientation);
                 getWorld(ctx).markBlockForUpdate(message.x, message.y, message.z);
             }
             return null;

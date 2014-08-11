@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 
+import scala.actors.threadpool.Arrays;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -18,7 +20,6 @@ import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemDuct;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.DeviceUpdateInvExposureMessage;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -26,21 +27,20 @@ import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
 	
-	protected static final int[] kEmptyIntArray = new int[0];
-	
-	// Configurable Sides
-	protected int[][] invExposures;
-	public static final int INVENTORY_UNEXPOSED = -1;
-	
 	// Inventory
 	protected ItemStack[] _inventories;
+	protected int[][] invSlotExposures;
+	
+	protected static final int SLOT_NONE = -1;
 	
 	public TileEntityInventory() {
 		super();
 		_inventories = new ItemStack[getSizeInventory()];
-		invExposures = new int[6][1]; // 6 forge directions - we keep them in 1-length arrays because some stuff uses it that way
-		
-		resetInventoryExposures();
+		invSlotExposures = new int[getSizeInventory()][1];
+		for(int i = 0; i < invSlotExposures.length; i++) {
+			// Set up a cached array with all possible exposed inventory slots, so we don't have to alloc at runtime
+			invSlotExposures[i][0] = i;
+		}
 	}
 	
 	// TileEntity overrides
@@ -60,16 +60,6 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 					itemStack.readFromNBT(itemTag);
 					_inventories[slot] = itemStack;
 				}
-			}
-		}
-		
-		resetInventoryExposures();
-		if(tag.hasKey("invExposures")) {
-			NBTTagList exposureList = tag.getTagList("invExposures", 10);
-			for(int i = 0; i < exposureList.tagCount(); i++) {
-				NBTTagCompound exposureTag = (NBTTagCompound) exposureList.getCompoundTagAt(i);
-				int exposureIdx = exposureTag.getInteger("exposureIdx");
-				invExposures[exposureIdx][0] = exposureTag.getInteger("direction");
 			}
 		}
 	}
@@ -92,82 +82,9 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		if(tagList.tagCount() > 0) {
 			tag.setTag("Items", tagList);
 		}
-		
-		// Save inventory exposure orientations
-		NBTTagList exposureTagList = new NBTTagList();
-		for(int i = 0; i < 6; i++) {
-			if(invExposures[i][0] == INVENTORY_UNEXPOSED) {
-				continue;
-			}
-			NBTTagCompound exposureTag = new NBTTagCompound();
-			exposureTag.setInteger("exposureIdx", i);
-			exposureTag.setInteger("direction", invExposures[i][0]);
-			exposureTagList.appendTag(exposureTag);
-		}
-		
-		if(exposureTagList.tagCount() > 0) {
-			tag.setTag("invExposures", exposureTagList);			
-		}
-	}
-	
-	// Inventory Exposures
-	/**
-	 * Set the exposed inventory slot on a given side.
-	 * @param side Unrotated (world) side to set
-	 * @param slot The inventory slot to expose, or -1 (INVENTORY_UNEXPOSED) if none.
-	 */
-	public void setExposedInventorySlot(int side, int slot) {
-		if(side < 0 || side > 5) {
-			return;
-		}
-		
-		if(side == this.forwardFace.ordinal()) {
-			return;
-		}
-		
-		int rotatedSide = this.getRotatedSide(side);
-		setExposedInventorySlotReference(rotatedSide, slot);
-	}
-
-	/**
-	 * Set the exposed inventory slot on a given side, using the reference side index.
-	 * Only use this if you know what you're doing.
-	 * @param referenceSide Reference side. 2 = North, 3 = South, 4 = East, 5 = West
-	 * @param slot The inventory slot to expose, or -1 (INVENTORY_UNEXPOSED) if none.
-	 */
-	public void setExposedInventorySlotReference(int referenceSide, int slot) {
-		if(referenceSide < 0 || referenceSide >= invExposures.length) { return; }
-		if(invExposures[referenceSide][0] == slot) {
-			return;
-		}
-
-		invExposures[referenceSide][0] = slot;
-		
-		if(!this.worldObj.isRemote) {
-			// Send unrotated, as the rotation will be re-applied on the client
-            CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateInvExposureMessage(xCoord, yCoord, zCoord, referenceSide, slot), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
-            this.markDirty();
-		}
-		else {
-			this.notifyTileChange();
-		}
-		
-		this.notifyBlockChange();
-	}
-
-	/**
-	 * Get the exposed inventory slot from the REFERENCE side; i.e. the unrotated side, as if the machine faced north
-	 * @param side Reference side. 2 = North, 3 = South, 4 = East, 5 = West
-	 * @return The exposed inventory slot index on that side, or INVENTORY_UNEXPOSED if none.
-	 */
-	public int getExposedSlotFromReferenceSide(int side) {
-		if(side < 0 || side > 5) { return INVENTORY_UNEXPOSED; }
-		
-		return invExposures[side][0];
 	}
 	
 	// IInventory
-	
 	@Override
 	public abstract int getSizeInventory();
 
@@ -247,13 +164,23 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public abstract boolean isItemValidForSlot(int slot, ItemStack itemstack);
 
 	// ISidedInventory
+	/**
+	 * Get the exposed inventory slot from a given world side.
+	 * Remember to translate this into a reference side!
+	 * @param side The side being queried for exposure.
+	 * @return The index of the exposed slot, -1 (SLOT_UNEXPOSED) if none.
+	 */
+	protected abstract int getExposedInventorySlotFromSide(int side);
+	
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
-		int rotatedSide = this.getRotatedSide(side);
-		
-		if(invExposures[rotatedSide][0] == INVENTORY_UNEXPOSED) { return kEmptyIntArray; }
-		
-		return invExposures[rotatedSide];
+		int exposedSlot = getExposedInventorySlotFromSide(side);
+		if(exposedSlot > 0 && exposedSlot < invSlotExposures.length) {
+			return invSlotExposures[exposedSlot];
+		}
+		else {
+			return kEmptyIntArray;
+		}
 	}
 
 	@Override
@@ -271,23 +198,6 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		return from != ForgeDirection.UNKNOWN;
 	}
 	
-	// Network Message
-	public void onChangeInventorySide(int side) {
-		iterateInventoryExposure(side);
-	}
-	
-	// Helpers
-	protected void iterateInventoryExposure(int side) {
-		int slot = invExposures[side][0];
-		slot++;
-		if(slot >= getSizeInventory()) {
-			slot = INVENTORY_UNEXPOSED;
-		}
-		
-		this.setExposedInventorySlotReference(side, slot);
-	}
-	
-	
 	/**
 	 * @param fromSlot The inventory slot into which this object would normally go.
 	 * @param itemToDistribute An ItemStack to distribute to pipes
@@ -301,8 +211,18 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			// Are we exposed on that side?
 			if(itemToDistribute == null) { return null; }
 
-			int rotatedSide = this.getRotatedSide(dir.ordinal());
-			if(invExposures[rotatedSide][0] != fromSlot) { continue; }
+			int[] accessibleSlots = getAccessibleSlotsFromSide(dir.ordinal());
+			if(accessibleSlots == null || accessibleSlots.length < 1) { continue; }
+			
+			boolean allowed = false;
+			for(int i = 0; i < accessibleSlots.length; i++) {
+				if(accessibleSlots[i] == fromSlot) {
+					allowed = true;
+					break;
+				}
+			}
+			
+			if(!allowed) { continue; }
 			
 			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 			if(ModHelperBase.useCofh && te instanceof IItemDuct) {
@@ -338,10 +258,4 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 		return itemToDistribute;
 	}
 
-	private void resetInventoryExposures() {
-		for(int i = 0; i < 6; i++) {
-			invExposures[i][0] = INVENTORY_UNEXPOSED;
-		}
-		
-	}
 }

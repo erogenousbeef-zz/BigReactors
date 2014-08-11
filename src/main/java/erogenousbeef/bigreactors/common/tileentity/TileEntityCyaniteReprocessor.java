@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -15,7 +16,9 @@ import net.minecraftforge.fluids.FluidStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.client.ClientProxy;
 import erogenousbeef.bigreactors.client.gui.GuiCyaniteReprocessor;
+import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.gui.container.ContainerCyaniteReprocessor;
 import erogenousbeef.bigreactors.utils.StaticUtils;
@@ -25,6 +28,9 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	public static final int SLOT_INLET = 0;
 	public static final int SLOT_OUTLET = 1;
 	public static final int NUM_SLOTS = 2;
+
+	public static final int FLUIDTANK_WATER = 0;
+	public static final int NUM_TANKS = 1;
 	
 	protected static final int FLUID_CONSUMED = FluidContainerRegistry.BUCKET_VOLUME * 1;
 	protected static final int INGOTS_CONSUMED = 2;
@@ -106,7 +112,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			ItemStack sourceItem = _inventories[SLOT_INLET];
 			// TODO: Make this query the input for the right type of output to create.
 			ArrayList<ItemStack> candidates = OreDictionaryArbiter.getOres("ingotBlutonium");
-			if(candidates.isEmpty()) {
+			if(candidates == null || candidates.isEmpty()) {
 				// WTF?
 				return;
 			}
@@ -129,7 +135,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 
 	@Override
 	public int getNumTanks() {
-		return 1;
+		return NUM_TANKS;
 	}
 
 	@Override
@@ -142,7 +148,8 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 		if(type == null) { return false; }
 		return type.getFluid().getID() == FluidRegistry.getFluid("water").getID();
 	}
-
+	
+	/// BeefGUI
 	@SideOnly(Side.CLIENT)
 	@Override
 	public GuiScreen getGUI(EntityPlayer player) {
@@ -160,5 +167,52 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			return 0;
 		else
 			return FLUIDTANK_NONE;
+	}
+	
+	// IReconfigurableSides & IBeefReconfigurableSides
+	@SideOnly(Side.CLIENT)
+	public IIcon getIconForSide(int side) {
+		if(side == facing) {
+			// This should never happen
+			return getBlockType().getIcon(side, getBlockMetadata());
+		}
+
+		int exposure = getExposure(side);
+		
+		switch(exposure) {
+		case 0:
+			return ClientProxy.CommonBlockIcons.getIcon(ClientProxy.CommonBlockIcons.ITEM_RED);
+		case 1:
+			return ClientProxy.CommonBlockIcons.getIcon(ClientProxy.CommonBlockIcons.ITEM_GREEN);
+		case 2:
+			return ClientProxy.CommonBlockIcons.getIcon(ClientProxy.CommonBlockIcons.FLUID_BLUE);
+		default:
+			return ClientProxy.CommonBlockIcons.getIcon(ClientProxy.CommonBlockIcons.DEFAULT);
+		}
+	}
+	
+	@Override
+	public int getNumConfig(int side) {
+		if(facing == side) {
+			return 0;
+		}
+		else {
+			return 3;
+		}
+	}
+
+	@Override
+	public int getExposedTankFromSide(int side) {
+		int exposure = getExposure(side);
+		if(exposure == 2) { return FLUIDTANK_WATER; }
+		return FLUIDTANK_NONE;
+	}
+
+	@Override
+	protected int getExposedInventorySlotFromSide(int side) {
+		int exposure = getExposure(side);
+		if(exposure == 0) { return SLOT_INLET; }
+		if(exposure == 1) { return SLOT_OUTLET; }
+		return SLOT_NONE;
 	}
 }

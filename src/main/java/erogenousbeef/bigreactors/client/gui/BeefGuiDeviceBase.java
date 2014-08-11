@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.client.gui;
 
+import cofh.lib.util.helpers.BlockHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -15,12 +16,6 @@ public abstract class BeefGuiDeviceBase extends BeefGuiBase {
 	protected static final int EXPOSURE_BUTTON_ID_BASE = 100;
 	private GuiIconButton[] exposureButtons;
 	
-	private GuiIconButton leftInvExposureButton;
-	private GuiIconButton rightInvExposureButton;
-	private GuiIconButton topInvExposureButton;
-	private GuiIconButton bottomInvExposureButton;
-	private GuiIconButton rearInvExposureButton;
-	
 	TileEntityBeefBase _entity;
 	
 	public BeefGuiDeviceBase(Container container, TileEntityBeefBase tileEntity) {
@@ -34,12 +29,12 @@ public abstract class BeefGuiDeviceBase extends BeefGuiBase {
 	 */
 	protected abstract int getBlockMetadata();
 	
-	private void createInventoryExposureButton(ForgeDirection dir, int x, int y) {
-		if(exposureButtons[dir.ordinal()] != null) { throw new IllegalArgumentException("Direction already exposed"); }
+	private void createInventoryExposureButton(int side, int x, int y) {
+		if(exposureButtons[side] != null) { throw new IllegalArgumentException("Direction already exposed"); }
 
-		GuiIconButton newBtn = new GuiIconButton(EXPOSURE_BUTTON_ID_BASE + dir.ordinal(), x, y, 20, 20, null);
+		GuiIconButton newBtn = new GuiIconButton(EXPOSURE_BUTTON_ID_BASE + side, x, y, 20, 20, null);
 		buttonList.add(newBtn);
-		exposureButtons[dir.ordinal()] = newBtn;
+		exposureButtons[side] = newBtn;
 	}
 	
 	/**
@@ -54,17 +49,18 @@ public abstract class BeefGuiDeviceBase extends BeefGuiBase {
 			exposureButtons[i] = null;
 		}
 
-		createInventoryExposureButton(ForgeDirection.WEST, minLeft, minTop + 21);
-		createInventoryExposureButton(ForgeDirection.EAST, minLeft + 42, minTop + 21);
-		createInventoryExposureButton(ForgeDirection.NORTH, minLeft + 21, minTop + 21);
-		createInventoryExposureButton(ForgeDirection.UP, minLeft + 21, minTop);
-		createInventoryExposureButton(ForgeDirection.DOWN, minLeft + 21, minTop + 42);
-		createInventoryExposureButton(ForgeDirection.SOUTH, minLeft + 42, minTop + 42);
+		int facing = _entity.getFacing();		
+		createInventoryExposureButton(BlockHelper.SIDE_LEFT[facing], minLeft, minTop + 21);
+		createInventoryExposureButton(BlockHelper.SIDE_RIGHT[facing], minLeft + 42, minTop + 21);
+		createInventoryExposureButton(facing, minLeft + 21, minTop + 21);
+		createInventoryExposureButton(BlockHelper.SIDE_ABOVE[facing], minLeft + 21, minTop);
+		createInventoryExposureButton(BlockHelper.SIDE_BELOW[facing], minLeft + 21, minTop + 42);
+		createInventoryExposureButton(BlockHelper.SIDE_OPPOSITE[facing], minLeft + 42, minTop + 42);
 
-		exposureButtons[ForgeDirection.NORTH.ordinal()].setIcon(BigReactors.blockDevice.getIcon(4, getBlockMetadata()));
-		exposureButtons[ForgeDirection.NORTH.ordinal()].enabled = false;
+		exposureButtons[facing].setIcon(BigReactors.blockDevice.getIcon(4, getBlockMetadata()));
+		exposureButtons[facing].enabled = false;
 	}
-	
+
 	@Override
 	public void updateScreen() {
 		super.updateScreen();
@@ -75,17 +71,17 @@ public abstract class BeefGuiDeviceBase extends BeefGuiBase {
 	protected void actionPerformed(GuiButton button) {
 		super.actionPerformed(button);
 		if(button.id >= EXPOSURE_BUTTON_ID_BASE && button.id < EXPOSURE_BUTTON_ID_BASE + 6) {
-            CommonPacketHandler.INSTANCE.sendToServer(new DeviceChangeExposureMessage(_entity.xCoord, _entity.yCoord, _entity.zCoord, button.id - EXPOSURE_BUTTON_ID_BASE));
+			// TODO: Figure out how to detect rightclicks
+            CommonPacketHandler.INSTANCE.sendToServer(new DeviceChangeExposureMessage(_entity.xCoord, _entity.yCoord, _entity.zCoord, button.id - EXPOSURE_BUTTON_ID_BASE, true));
 		}
 	}
 	
 	protected void updateInventoryExposures() {
+		int facing = _entity.getFacing();
 		BlockBRDevice deviceBlock = (BlockBRDevice)BigReactors.blockDevice;
-		for(ForgeDirection dir : ForgeDirection.values()) {
-			if(dir == ForgeDirection.UNKNOWN || dir == ForgeDirection.NORTH) { continue; }
-			int rotatedSide = _entity.getRotatedSide(dir.ordinal());
-			
-			exposureButtons[dir.ordinal()].setIcon( deviceBlock.getIconFromTileEntity(_entity, BlockBRDevice.META_CYANITE_REPROCESSOR, rotatedSide) );
+		for(int side = 0; side < 6; side++) {
+			if(side == facing) { continue; }
+			exposureButtons[side].setIcon( deviceBlock.getIconFromTileEntity(_entity, BlockBRDevice.META_CYANITE_REPROCESSOR, side) );
 		}
 	}
 }

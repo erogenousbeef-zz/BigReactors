@@ -24,10 +24,13 @@ import erogenousbeef.core.multiblock.MultiblockClientTickHandler;
 @SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy {
 	public static BeefGuiIconManager GuiIcons;
+	public static CommonBlockIconManager CommonBlockIcons;
+
 	public static long lastRenderTime = Minecraft.getSystemTime();
 	
 	public ClientProxy() {
 		GuiIcons = new BeefGuiIconManager();
+		CommonBlockIcons = new CommonBlockIconManager();
 	}
 	
 	@Override
@@ -61,6 +64,7 @@ public class ClientProxy extends CommonProxy {
 		if(event.map.getTextureType() == BeefIconManager.TERRAIN_TEXTURE) {
 			BigReactors.registerNonBlockFluidIcons(event.map);
 			GuiIcons.registerIcons(event.map);
+			CommonBlockIcons.registerIcons(event.map);
 		}
 		// else if(event.map.textureType == BeefIconManager.ITEM_TEXTURE) { }
 	}

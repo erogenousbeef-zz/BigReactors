@@ -1,41 +1,38 @@
 package erogenousbeef.bigreactors.common.block;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
+import cofh.api.tileentity.IReconfigurableFacing;
+import cofh.core.block.BlockCoFHBase;
+import cofh.lib.util.helpers.BlockHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.interfaces.IBeefReconfigurableSides;
+import erogenousbeef.bigreactors.common.interfaces.IWrenchable;
 import erogenousbeef.bigreactors.common.tileentity.TileEntityCyaniteReprocessor;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventory;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityPoweredInventoryFluid;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 
-public class BlockBRDevice extends BlockContainer {
+public class BlockBRDevice extends BlockCoFHBase {
 
 	public static final int META_CYANITE_REPROCESSOR = 0;
 	
@@ -45,8 +42,6 @@ public class BlockBRDevice extends BlockContainer {
 	
 	private IIcon[] _icons = new IIcon[_subBlocks.length];
 	private IIcon[] _activeIcons = new IIcon[_subBlocks.length];
-	private IIcon[] _inventorySideIcons = new IIcon[3];
-	private IIcon[] _fluidSideIcons = new IIcon[2];
 	
 	public BlockBRDevice(Material material) {
 		super(material);
@@ -57,50 +52,44 @@ public class BlockBRDevice extends BlockContainer {
 		setCreativeTab(BigReactors.TAB);
 	}
 	
+	public static final int SIDE_FRONT = ForgeDirection.NORTH.ordinal();
+
+	private IIcon safeGetIcon(IIcon[] list, int idx, int x, int y, int z) {
+		if(idx < 0 || idx >= list.length) {
+			BRLog.info("Invalid metadata (%d) for block at %d, %d, %d!", idx, x, y, z);
+			return blockIcon;
+		}
+		else {
+			return list[idx];
+		}
+	}
 	public IIcon getIconFromTileEntity(TileEntity te, int metadata, int side) {
 		if(metadata < 0) { return blockIcon; }
 
-		if(te instanceof TileEntityBeefBase)
-		{
-			if(side == ((TileEntityBeefBase)te).getFacingDirection().ordinal()) {
-				if(te instanceof TileEntityPoweredInventory) {
-					if(((TileEntityPoweredInventory)te).isActive()) {
-						if(metadata >= _activeIcons.length) {
-							BRLog.warning("Block at %d, %d, %d has invalid metadata (%d)", te.xCoord, te.yCoord, te.zCoord, metadata);
-							return blockIcon;
-						}
-						else {
-							return _activeIcons[metadata];
-						}
-					}
-				}
-				
-				if(metadata >= _icons.length) {
-					BRLog.warning("Block at %d, %d, %d has invalid metadata (%d)", te.xCoord, te.yCoord, te.zCoord, metadata);
-					return blockIcon;
-				}
-				else {
-					return _icons[metadata];
-				}
-			}
+		// Tracks the actual index of the current side, after rotation
+		int front = -1;
+
+		if(te instanceof IReconfigurableFacing) {
+			IReconfigurableFacing teFacing = (IReconfigurableFacing)te;
+			front = teFacing.getFacing();
 		}
 		
-		if(te instanceof TileEntityInventory) {
-			int[] slots = ((TileEntityInventory)te).getAccessibleSlotsFromSide(side);
-			if(slots != null && slots.length > 0 && slots[0] != TileEntityInventory.INVENTORY_UNEXPOSED) {
-				return _inventorySideIcons[slots[0]];
+		if(side == front) {
+			if(te instanceof TileEntityBeefBase) {
+				TileEntityBeefBase beefTe = (TileEntityBeefBase)te;
+				if(beefTe.isActive()) {
+					return safeGetIcon(_activeIcons, metadata, te.xCoord, te.yCoord, te.zCoord);
+				}
 			}
+			return safeGetIcon(_icons, metadata, te.xCoord, te.yCoord, te.zCoord);
 		}
 		
-		if(te instanceof TileEntityPoweredInventoryFluid) {
-			TileEntityPoweredInventoryFluid fluidTe = (TileEntityPoweredInventoryFluid)te;
-			int tank = fluidTe.getExposedTankFromReferenceSide(ForgeDirection.getOrientation(fluidTe.getRotatedSide(side)));
-			if(tank != -1) {
-				return _fluidSideIcons[tank];
-			}
+		if(te instanceof IBeefReconfigurableSides) {
+			IBeefReconfigurableSides teSides = (IBeefReconfigurableSides)te;
+			return teSides.getIconForSide(side);
 		}
 
-		return this.blockIcon;
+		return blockIcon;
 	}
 	
 	@Override
@@ -131,14 +120,6 @@ public class BlockBRDevice extends BlockContainer {
 			_icons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i]);
 			_activeIcons[i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + _subBlocks[i] + ".active");
 		}
-		
-		// TODO: Better icons for these
-		_inventorySideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".redPort");
-		_inventorySideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".greenPort");
-		_inventorySideIcons[2] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".openPort");
-
-		_fluidSideIcons[0] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".bluePort");
-		_fluidSideIcons[1] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".fluidTank2");
 	}
 
 	@Override
@@ -149,24 +130,6 @@ public class BlockBRDevice extends BlockContainer {
 		default:
 			throw new IllegalArgumentException("Unknown metadata for tile entity");
 		}
-	}
-
-	@Override
-	public boolean isOpaqueCube()
-	{
-		return true;
-	}
-
-	@Override
-	public boolean renderAsNormalBlock()
-	{
-		return true;
-	}
-
-	@Override
-	public int damageDropped(int metadata)
-	{
-		return metadata;
 	}
 
 	public ItemStack getCyaniteReprocessorItemStack() {
@@ -186,20 +149,15 @@ public class BlockBRDevice extends BlockContainer {
 
 		if(entityPlayer.isSneaking()) {
 			// Empty-handed sneaking also works to rotate the machine, because it's easier on pre-wrench players.
-			if(entityPlayer.inventory.getCurrentItem() == null && te instanceof TileEntityBeefBase) {
-				ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
-				((TileEntityBeefBase)te).rotateTowards(newFacing);
-				return true;
+			if(entityPlayer.inventory.getCurrentItem() == null && te instanceof IReconfigurableFacing) {
+				return ((IReconfigurableFacing)te).rotateBlock();
 			}
 			
 			return false;
 		}
 
-		// WRENCH SUPPORT HAH.
-		if(te instanceof TileEntityBeefBase && StaticUtils.Inventory.isPlayerHoldingWrench(entityPlayer)) {
-			ForgeDirection newFacing = getDirectionFacingEntity(entityPlayer);
-			((TileEntityBeefBase)te).rotateTowards(newFacing);
-			return true;
+		if(te instanceof IWrenchable && StaticUtils.Inventory.isPlayerHoldingWrench(entityPlayer)) {
+			return ((IWrenchable)te).onWrench(entityPlayer, side);
 		}
 
 		// Handle buckets
@@ -230,86 +188,23 @@ public class BlockBRDevice extends BlockContainer {
 		
 		return false;
 	}
-	
-	@Override
-	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
-		if(entity == null) { return; }
-		
-		TileEntity te = world.getTileEntity(x, y, z);
-		
-		// ???
-		if(stack.getTagCompound() != null)
-		{
-			stack.getTagCompound().setInteger("x", x);
-			stack.getTagCompound().setInteger("y", y);
-			stack.getTagCompound().setInteger("z", z);
-			te.readFromNBT(stack.getTagCompound());
-		}
-		
-		if(te != null && te instanceof TileEntityBeefBase) {
-			ForgeDirection newFacing = getDirectionFacingEntity(entity);
-			((TileEntityBeefBase)te).rotateTowards(newFacing);
-		}
-	}
-	
-	protected ForgeDirection getDirectionFacingEntity(Entity entity) {
-		int facingAngle = (MathHelper.floor_double((entity.rotationYaw * 4F) / 360F + 0.5D) & 3);
-		switch(facingAngle) {
-		case 1:
-			return ForgeDirection.EAST;
-		case 2:
-			return ForgeDirection.SOUTH;
-		case 3:
-			return ForgeDirection.WEST;
-		default:
-			return ForgeDirection.NORTH;
-		}
-	}
-	
-	@Override
-	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
-	{
-		// Drop everything inside inventory blocks
-		TileEntity te = world.getTileEntity(x, y, z);
-		if(te instanceof IInventory)
-		{
-			IInventory inventory = ((IInventory)te);
-inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
-			{
-				ItemStack itemstack = inventory.getStackInSlot(i);
-				if(itemstack == null)
-				{
-					continue;
-				}
-				float xOffset = world.rand.nextFloat() * 0.8F + 0.1F;
-				float yOffset = world.rand.nextFloat() * 0.8F + 0.1F;
-				float zOffset = world.rand.nextFloat() * 0.8F + 0.1F;
-				do
-				{
-					if(itemstack.stackSize <= 0)
-					{
-						continue inv;
-					}
-					int amountToDrop = world.rand.nextInt(21) + 10;
-					if(amountToDrop > itemstack.stackSize)
-					{
-						amountToDrop = itemstack.stackSize;
-					}
-					itemstack.stackSize -= amountToDrop;
-					EntityItem entityitem = new EntityItem(world, (float)x + xOffset, (float)y + yOffset, (float)z + zOffset, new ItemStack(itemstack.getItem(), amountToDrop, itemstack.getItemDamage()));
-					if(itemstack.getTagCompound() != null)
-					{
-						entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound());
-					}
-					float motionMultiplier = 0.05F;
-					entityitem.motionX = (float)world.rand.nextGaussian() * motionMultiplier;
-					entityitem.motionY = (float)world.rand.nextGaussian() * motionMultiplier + 0.2F;
-					entityitem.motionZ = (float)world.rand.nextGaussian() * motionMultiplier;
-					world.spawnEntityInWorld(entityitem);
-				} while(true);
-			}
-		}
 
-		super.breakBlock(world, x, y, z, block, meta);
+	// IDismantleable
+	@Override
+	public ArrayList<ItemStack> dismantleBlock(EntityPlayer player, NBTTagCompound blockTag,
+			World world, int x, int y, int z, boolean returnDrops, boolean unknown) {
+		// TODO figure this out
+		return null;
+	}
+	
+	// IInitializer (unused)
+	@Override
+	public boolean initialize() {
+		return false;
+	}
+
+	@Override
+	public boolean postInit() {
+		return false;
 	}
 }
