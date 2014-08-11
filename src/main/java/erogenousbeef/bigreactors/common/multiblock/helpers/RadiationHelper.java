@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
+import cofh.lib.util.helpers.ItemHelper;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -9,7 +10,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
-import net.minecraftforge.oredict.OreDictionary;
 import erogenousbeef.bigreactors.api.IHeatEntity;
 import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.data.ReactorInteriorData;
@@ -172,12 +172,8 @@ public class RadiationHelper {
 			moderatorData = ReactorInterior.getBlockData("blockEmerald");
 		}
 		else {
-			// Oredict?
-			int oreId = OreDictionary.getOreID(new ItemStack(block, 1, metadata));
-
-			if(oreId >= 0) {
-				moderatorData = ReactorInterior.getBlockData(OreDictionary.getOreName(oreId));
-			}
+			// Check the ore dictionary.
+			moderatorData = ReactorInterior.getBlockData(ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata)));
 		}
 		
 		if(moderatorData == null) {

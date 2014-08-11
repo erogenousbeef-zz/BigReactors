@@ -2,6 +2,8 @@ package erogenousbeef.bigreactors.common.tileentity;
 
 import java.util.ArrayList;
 
+import cofh.core.util.oredict.OreDictionaryArbiter;
+
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -10,7 +12,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.registry.Reactants;
@@ -104,7 +105,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 		else {
 			ItemStack sourceItem = _inventories[SLOT_INLET];
 			// TODO: Make this query the input for the right type of output to create.
-			ArrayList<ItemStack> candidates = OreDictionary.getOres("ingotBlutonium");
+			ArrayList<ItemStack> candidates = OreDictionaryArbiter.getOres("ingotBlutonium");
 			if(candidates.isEmpty()) {
 				// WTF?
 				return;

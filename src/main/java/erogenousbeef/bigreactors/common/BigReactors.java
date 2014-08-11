@@ -2,6 +2,8 @@ package erogenousbeef.bigreactors.common;
 
 import java.util.ArrayList;
 
+import cofh.core.util.oredict.OreDictionaryArbiter;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -16,7 +18,6 @@ import net.minecraft.util.IIcon;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.Loader;
@@ -208,29 +209,29 @@ public class BigReactors {
 			}
 			
 			// Patch up vanilla being stupid - most mods already do this, so it's usually a no-op
-			if(OreDictionary.getOres("ingotIron").size() <= 0) {
-				OreDictionary.registerOre("ingotIron", Items.iron_ingot);
+			if(OreDictionaryArbiter.getOres("ingotIron").size() <= 0) {
+				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Items.iron_ingot, 1), "ingotIron");
 			}
 			
-			if(OreDictionary.getOres("ingotGold").size() <= 0) {
-				OreDictionary.registerOre("ingotGold", Items.gold_ingot);
+			if(OreDictionaryArbiter.getOres("ingotGold").size() <= 0) {
+				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Items.gold_ingot, 1), "ingotGold");
 			}
 			
-			if(OreDictionary.getOres("blockSnow").size() <= 0) {
-				OreDictionary.registerOre("blockSnow", Blocks.snow);
+			if(OreDictionaryArbiter.getOres("blockSnow").size() <= 0) {
+				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.snow, 1), "blockSnow");
 			}
 			
-			if(OreDictionary.getOres("blockIce").size() <= 0) {
-				OreDictionary.registerOre("blockIce", Blocks.ice);
+			if(OreDictionaryArbiter.getOres("blockIce").size() <= 0) {
+				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.ice, 1), "blockIce");
 			}
 
-			if(OreDictionary.getOreID(new ItemStack(Blocks.glass)) < 0) {
-				OreDictionary.registerOre("glass", Blocks.glass);
+			if(OreDictionaryArbiter.getOreID(new ItemStack(Blocks.glass)) < 0) {
+				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.glass, 1), "glass");
 			}
 			
 			// Use steel if the players are masochists and someone else has supplied steel.
 			String ironOrSteelIngot = "ingotIron";
-			if(useSteelForIron && OreDictionary.getOres("ingotSteel").size() > 0) {
+			if(useSteelForIron && OreDictionaryArbiter.getOres("ingotSteel").size() > 0) {
 				ironOrSteelIngot = "ingotSteel";
 			}
 			
@@ -252,15 +253,15 @@ public class BigReactors {
 				ItemStack product;
 
 				if(registerYelloriteSmeltToUranium) {
-					ArrayList<ItemStack> candidateOres = OreDictionary.getOres("ingotUranium");
+					ArrayList<ItemStack> candidateOres = OreDictionaryArbiter.getOres("ingotUranium");
 					if(candidateOres == null || candidateOres.size() <= 0) {
 						BRLog.warning("Config value registerYelloriteSmeltToUranium is set to True, but there are no ores registered as ingotUranium in the ore dictionary! Falling back to using standard yellorium only.");
-						candidateOres = OreDictionary.getOres("ingotYellorium");
+						candidateOres = OreDictionaryArbiter.getOres("ingotYellorium");
 					}
 					product = candidateOres.get(0).copy();
 				}
 				else {
-					product = OreDictionary.getOres("ingotYellorium").get(0).copy();
+					product = OreDictionaryArbiter.getOres("ingotYellorium").get(0).copy();
 				}
 
 				GameRegistry.addSmelting(blockYelloriteOre, product, 0.5f);
@@ -279,8 +280,8 @@ public class BigReactors {
 				}
 			}
 			
-			ItemStack ingotGraphite = OreDictionary.getOres("ingotGraphite").get(0).copy();
-			ItemStack ingotCyanite = OreDictionary.getOres("ingotCyanite").get(0).copy();
+			ItemStack ingotGraphite = OreDictionaryArbiter.getOres("ingotGraphite").get(0).copy();
+			ItemStack ingotCyanite = OreDictionaryArbiter.getOres("ingotCyanite").get(0).copy();
 			
 			if(registerCoalFurnaceRecipe) {
 				// Coal -> Graphite
@@ -350,7 +351,7 @@ public class BigReactors {
 				ItemStack reactorGlassStack = blockMultiblockGlass.getItemStack("reactor");
 				ItemStack turbineGlassStack = blockMultiblockGlass.getItemStack("turbine");
 				
-				if(useExpensiveGlass && (OreDictionary.getOres("glassReinforced").size() > 0 || OreDictionary.getOres("glassHardened").size() > 0)) {
+				if(useExpensiveGlass && (OreDictionaryArbiter.getOres("glassReinforced").size() > 0 || OreDictionaryArbiter.getOres("glassHardened").size() > 0)) {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glassReinforced", 'C', "reactorCasing"));
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glassHardened", 'C', "reactorCasing"));
 					
@@ -450,7 +451,7 @@ public class BigReactors {
 		if (blockYelloriteOre == null) {
 			blockYelloriteOre = new BlockBROre();
 			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBigReactors.class, "YelloriteOre");
-			OreDictionary.registerOre("oreYellorite", blockYelloriteOre);
+			OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(blockYelloriteOre, 1), "oreYellorite");
 		}
 
 		if(blockMetal == null) {
@@ -508,15 +509,15 @@ public class BigReactors {
 			String itemName;
 			for(int i = 0; i < ItemIngot.TYPES.length; i++) {
 				itemName = ItemIngot.TYPES[i];
-				OreDictionary.registerOre(itemName, ingotGeneric.getItemStackForType(itemName));
+				OreDictionaryArbiter.registerOreDictionaryEntry(ingotGeneric.getItemStackForType(itemName), itemName);
 			}
 			
 			// Add aliases, if appropriate
 			if(registerYelloriumAsUranium) {
-				OreDictionary.registerOre("ingotUranium", ingotGeneric.getItemStackForType("ingotYellorium"));
-				OreDictionary.registerOre("ingotPlutonium", ingotGeneric.getItemStackForType("ingotBlutonium"));
-				OreDictionary.registerOre("dustUranium", ingotGeneric.getItemStackForType("dustYellorium"));
-				OreDictionary.registerOre("dustPlutonium", ingotGeneric.getItemStackForType("dustBlutonium"));
+				OreDictionaryArbiter.registerOreDictionaryEntry(ingotGeneric.getItemStackForType("ingotYellorium"), "ingotYellorium");
+				OreDictionaryArbiter.registerOreDictionaryEntry(ingotGeneric.getItemStackForType("ingotBlutonium"), "ingotBlutonium");
+				OreDictionaryArbiter.registerOreDictionaryEntry(ingotGeneric.getItemStackForType("dustYellorium"), "dustYellorium");
+				OreDictionaryArbiter.registerOreDictionaryEntry(ingotGeneric.getItemStackForType("dustBlutonium"), "dustBlutonium");
 			}
 
 			BRConfig.CONFIGURATION.save();
@@ -542,13 +543,13 @@ public class BigReactors {
 			BigReactors.blockReactorPart = new BlockReactorPart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockReactorPart, ItemBlockBigReactors.class, "BRReactorPart");
 
-			OreDictionary.registerOre("reactorCasing", 		 BigReactors.blockReactorPart.getReactorCasingItemStack());
-			OreDictionary.registerOre("reactorController", 	 BigReactors.blockReactorPart.getReactorControllerItemStack());
-			OreDictionary.registerOre("reactorPowerTap", 	 BigReactors.blockReactorPart.getReactorPowerTapItemStack());
-			OreDictionary.registerOre("reactorRedNetPort", 	 BigReactors.blockReactorPart.getRedNetPortItemStack());
-			OreDictionary.registerOre("reactorComputerPort", BigReactors.blockReactorPart.getComputerPortItemStack());
-			OreDictionary.registerOre("reactorCoolantPort",  BigReactors.blockReactorPart.getCoolantPortItemStack());
-			OreDictionary.registerOre("reactorControlRod",	 BigReactors.blockReactorPart.getControlRodItemStack());
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getReactorCasingItemStack(), 		"reactorCasing");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getReactorControllerItemStack(), 	"reactorController");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getReactorPowerTapItemStack(), 	"reactorPowerTap");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getRedNetPortItemStack(), 			"reactorRedNetPort");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getComputerPortItemStack(), 		"reactorComputerPort");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getCoolantPortItemStack(), 		"reactorCoolantPort");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockReactorPart.getControlRodItemStack(), 			"reactorControlRod");
 
 			BRConfig.CONFIGURATION.save();
 		}
@@ -559,8 +560,8 @@ public class BigReactors {
 			BigReactors.blockMultiblockGlass = new BlockMultiblockGlass(Material.glass);
 			GameRegistry.registerBlock(BigReactors.blockMultiblockGlass, ItemBlockBigReactors.class, "BRMultiblockGlass");
 			
-			OreDictionary.registerOre("glassReactor", blockMultiblockGlass.getItemStack("reactor"));
-			OreDictionary.registerOre("glassTurbine", blockMultiblockGlass.getItemStack("turbine"));
+			OreDictionaryArbiter.registerOreDictionaryEntry(blockMultiblockGlass.getItemStack("reactor"), "glassReactor");
+			OreDictionaryArbiter.registerOreDictionaryEntry(blockMultiblockGlass.getItemStack("turbine"), "glassTurbine");
 			
 			BRConfig.CONFIGURATION.save();
 		}
@@ -570,7 +571,7 @@ public class BigReactors {
 			
 			BigReactors.blockReactorRedstonePort = new BlockReactorRedstonePort(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlock.class, "BRReactorRedstonePort");
-			OreDictionary.registerOre("reactorRedstonePort", new ItemStack(blockReactorRedstonePort, 1));
+			OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(blockReactorRedstonePort, 1), "reactorRedstonePort");
 			
 			BRConfig.CONFIGURATION.save();
 		}
@@ -582,11 +583,11 @@ public class BigReactors {
 			BigReactors.blockTurbinePart = new BlockTurbinePart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbinePart, ItemBlockBigReactors.class, "BRTurbinePart");
 
-			OreDictionary.registerOre("turbineHousing", 	BigReactors.blockTurbinePart.getItemStack("housing"));
-			OreDictionary.registerOre("turbineController", 	BigReactors.blockTurbinePart.getItemStack("controller"));
-			OreDictionary.registerOre("turbinePowerTap", 	BigReactors.blockTurbinePart.getItemStack("powerTap"));
-			OreDictionary.registerOre("turbineFluidPort", 	BigReactors.blockTurbinePart.getItemStack("fluidPort"));
-			OreDictionary.registerOre("turbineBearing", 	BigReactors.blockTurbinePart.getItemStack("bearing"));
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbinePart.getItemStack("housing"), "turbineHousing");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbinePart.getItemStack("controller"), "turbineController");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbinePart.getItemStack("powerTap"), "turbinePowerTap");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbinePart.getItemStack("fluidPort"), "turbineFluidPort");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbinePart.getItemStack("bearing"), "turbineBearing");
 
 			BRConfig.CONFIGURATION.save();
 		}
@@ -596,8 +597,8 @@ public class BigReactors {
 			BigReactors.blockTurbineRotorPart = new BlockTurbineRotorPart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockBigReactors.class, "BRTurbineRotorPart");
 
-			OreDictionary.registerOre("turbineRotorShaft", 	BigReactors.blockTurbineRotorPart.getItemStack("rotor"));
-			OreDictionary.registerOre("turbineRotorBlade", 	BigReactors.blockTurbineRotorPart.getItemStack("blade"));
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbineRotorPart.getItemStack("rotor"), "turbineRotorShaft");
+			OreDictionaryArbiter.registerOreDictionaryEntry(BigReactors.blockTurbineRotorPart.getItemStack("blade"), "turbineRotorBlade");
 
 			BRConfig.CONFIGURATION.save();
 		}
@@ -610,7 +611,7 @@ public class BigReactors {
 			BigReactors.blockDevice = new BlockBRDevice(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockDevice, ItemBlockBigReactors.class, "BRDevice");
 			
-			OreDictionary.registerOre("brDeviceCyaniteProcessor", ((BlockBRDevice)BigReactors.blockDevice).getCyaniteReprocessorItemStack());
+			OreDictionaryArbiter.registerOreDictionaryEntry(((BlockBRDevice)BigReactors.blockDevice).getCyaniteReprocessorItemStack(), "brDeviceCyaniteProcessor");
 			
 			BRConfig.CONFIGURATION.save();
 		}
