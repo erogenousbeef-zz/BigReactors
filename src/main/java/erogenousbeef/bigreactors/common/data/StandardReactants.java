@@ -2,6 +2,7 @@ package erogenousbeef.bigreactors.common.data;
 
 import erogenousbeef.bigreactors.api.data.SourceProductMapping;
 import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.common.BigReactors;
 
 public class StandardReactants {
 
@@ -9,8 +10,8 @@ public class StandardReactants {
 	public static final String cyanite = "cyanite";
 	public static final String blutonium = "blutonium";
 	
-	public static final int colorYellorium = 0;
-	public static final int colorCyanite = 0;
+	public static final int colorYellorium = BigReactors.defaultFluidColorFuel;
+	public static final int colorCyanite = BigReactors.defaultFluidColorWaste;
 	
 	// These are used as fallbacks
 	public static SourceProductMapping yelloriumMapping;
