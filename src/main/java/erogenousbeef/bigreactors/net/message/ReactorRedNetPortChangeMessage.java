@@ -10,46 +10,55 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort.CircuitType;
+import erogenousbeef.bigreactors.net.helpers.RedNetChange;
 import erogenousbeef.bigreactors.net.message.base.TileMessageServer;
 import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
-import erogenousbeef.bigreactors.utils.NetworkUtils;
+import erogenousbeef.core.common.CoordTriplet;
 
 public class ReactorRedNetPortChangeMessage extends TileMessageServer<TileEntityReactorRedNetPort> {
-    private Object[] data;
-    private ByteBuf bytes;
-
-    public ReactorRedNetPortChangeMessage() { super(); data = null; bytes = null; }
+    private RedNetChange[] changes;
     
-    public ReactorRedNetPortChangeMessage(TileEntityReactorRedNetPort port, Object... data) {
+    public ReactorRedNetPortChangeMessage() { super(); changes = null; }
+    
+    public ReactorRedNetPortChangeMessage(TileEntityReactorRedNetPort port, RedNetChange[] changes) {
     	super(port);
-        this.data = data;
+    	this.changes = changes;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
     	super.fromBytes(buf);
-        this.bytes = buf.readBytes(buf.readableBytes());
+    	
+    	int numChanges = buf.readInt();
+    	if(numChanges < 1) { return; }
+    	
+    	changes = new RedNetChange[numChanges];
+    	for(int i = 0; i < numChanges; i++) {
+    		changes[i] = RedNetChange.fromBytes(buf);
+    	}
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
     	super.toBytes(buf);
 
-        for(Object obj : data) {
-            NetworkUtils.writeObjectToByteBuf(buf, obj);
-        }
+    	if(changes == null || changes.length < 1) {
+    		buf.writeInt(0);
+    		return;
+    	}
+    	
+    	buf.writeInt(changes.length);
+    	for(int i = 0; i < changes.length; i++) {
+    		changes[i].toBytes(buf);
+    	}
     }
 
     public static class Handler extends TileMessageServer.Handler<ReactorRedNetPortChangeMessage,
     															  TileEntityReactorRedNetPort> {
         @Override
         public IMessage handle(ReactorRedNetPortChangeMessage message, MessageContext ctx, TileEntityReactorRedNetPort port) {
-            try {
-                port.decodeSettings(message.bytes, true);
-            } catch(IOException e) {
-            	BRLog.warning("Error while changing rednet data on block @ %d, %d, %d: %s", message.x, message.y, message.z, e.getMessage());
-                e.printStackTrace();
-            }
+            port.onCircuitUpdate(message.changes);
             return null;
         }
         
