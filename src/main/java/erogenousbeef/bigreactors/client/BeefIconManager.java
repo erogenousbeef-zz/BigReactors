@@ -21,8 +21,8 @@ public abstract class BeefIconManager {
 	public static final int TERRAIN_TEXTURE = 0;
 	public static final int ITEM_TEXTURE = 1;
 	
-	private static HashMap<String, Integer> nameToIdMap;
-	private static HashMap<Integer, IIcon> idToIconMap;
+	private HashMap<String, Integer> nameToIdMap;
+	private HashMap<Integer, IIcon> idToIconMap;
 	
 	public String[] iconNames = null;
 
