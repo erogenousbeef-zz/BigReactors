@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.utils;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -7,6 +8,7 @@ import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -294,6 +296,27 @@ public class StaticUtils {
 				else {
 					return String.format("%.0f B", number);
 				}
+			}
+		}
+	}
+	
+	// Mob = Mobile = Entity
+	public static class Mob {
+		/**
+		 * @param entity The entity whose facing you wish to query.
+		 * @return The ForgeDirection which entity is facing (north/south/east/west)
+		 */
+		protected ForgeDirection getFacingDirection(Entity entity) {
+			int facingAngle = (MathHelper.floor_double((entity.rotationYaw * 4F) / 360F + 0.5D) & 3);
+			switch(facingAngle) {
+			case 1:
+				return ForgeDirection.EAST;
+			case 2:
+				return ForgeDirection.SOUTH;
+			case 3:
+				return ForgeDirection.WEST;
+			default:
+				return ForgeDirection.NORTH;
 			}
 		}
 	}

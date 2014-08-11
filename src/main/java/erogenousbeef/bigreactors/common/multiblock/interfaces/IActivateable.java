@@ -1,4 +1,4 @@
-package erogenousbeef.bigreactors.common.interfaces;
+package erogenousbeef.bigreactors.common.multiblock.interfaces;
 
 import erogenousbeef.core.common.CoordTriplet;
 

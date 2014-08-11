@@ -16,73 +16,28 @@ import net.minecraftforge.fluids.IFluidTank;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.net.message.DeviceUpdateFluidExposureMessage;
 
 public abstract class TileEntityPoweredInventoryFluid extends
 		TileEntityPoweredInventory implements IFluidHandler, IMultipleFluidHandler {
 
 	private FluidTank[] tanks;
-	private int[] tankExposure;
-	private FluidTank[] exposedTankCache;
+	private FluidTank[][] tankExposureCache;
 
 	protected static final FluidTank[] kEmptyFluidTankList = new FluidTank[0];
-	
-	public static final int FLUIDTANK_NONE = -1;
+	protected static final int FLUIDTANK_NONE = -1;
 	
 	public TileEntityPoweredInventoryFluid() {
 		super();
 		
 		tanks = new FluidTank[getNumTanks()];
+		tankExposureCache = new FluidTank[getNumTanks()][1];
+
 		for(int i = 0; i < getNumTanks(); i++) {
 			tanks[i] = new FluidTank(getTankSize(i));
-		}
-
-		tankExposure = new int[6];
-		resetFluidExposures();
-	}
-
-	// Tank Accessors
-	/**
-	 * Set the externally-accessible fluid tank for a given reference direction.
-	 * @param side Reference direction (north/front, south/back, west/left, east/right)
-	 * @param tankIdx The index of the tank which can be accessed from that direction.
-	 */
-	public void setExposedTank(ForgeDirection side, int tankIdx) {
-		if(side == ForgeDirection.UNKNOWN) {
-			return;
-		}
-
-		if(tankExposure[side.ordinal()] == tankIdx) {
-			return;
-		}
-
-		tankExposure[side.ordinal()] = tankIdx;
-		
-		if(!this.worldObj.isRemote) {
-            CommonPacketHandler.INSTANCE.sendToAllAround(new DeviceUpdateFluidExposureMessage(xCoord, yCoord, zCoord, side.ordinal(), tankIdx), new NetworkRegistry.TargetPoint(worldObj.provider.dimensionId, xCoord, yCoord, zCoord, 50));
-            this.markDirty();
-		}
-		else {
-			this.notifyTileChange();
-		}
-		
-		this.notifyBlockChange();
-	}
-	
-	/**
-	 * Get the externally-accessible fluid tank for a given reference direction
-	 * @param side Reference direction (north/front, south/back, west/left, east/right)
-	 * @return The index of the exposed tank, or -1 (FLUIDTANK_NONE) if none
-	 */
-	public int getExposedTankFromReferenceSide(ForgeDirection side) {
-		if(side == ForgeDirection.UNKNOWN) {
-			return FLUIDTANK_NONE;
-		}
-		else {
-			return tankExposure[side.ordinal()];
+			tankExposureCache[i][0] = tanks[i];
 		}
 	}
-	
+
 	// Internal Helpers
 	
 	private void readFluidsFromNBT(NBTTagCompound tag) {
@@ -100,16 +55,6 @@ public abstract class TileEntityPoweredInventoryFluid extends
 				tanks[fluidIdx].setFluid(newFluid);
 			}
 		}
-		
-		resetFluidExposures();
-		if(tag.hasKey("fluidExposures")) {
-			NBTTagList exposureList = tag.getTagList("fluidExposures", 10);
-			for(int i = 0; i < exposureList.tagCount(); i++) {
-				NBTTagCompound exposureTag = exposureList.getCompoundTagAt(i);
-				int exposureIdx = exposureTag.getInteger("exposureIdx");
-				tankExposure[exposureIdx] = exposureTag.getInteger("direction");
-			}
-		}		
 	}
 	
 	private void writeFluidsToNBT(NBTTagCompound tag) {
@@ -125,20 +70,6 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		
 		if(fluidTagList.tagCount() > 0) {
 			tag.setTag("fluids", fluidTagList);
-		}
-		
-		// Save fluid tank exposure orientations
-		NBTTagList exposureTagList = new NBTTagList();
-		for(int i = 0; i < 6; i++) {
-			if(tankExposure[i] == FLUIDTANK_NONE) { continue; } 
-
-			NBTTagCompound exposureTag = new NBTTagCompound();
-			exposureTag.setInteger("exposureIdx", i);
-			exposureTag.setInteger("direction", tankExposure[i]);
-			exposureTagList.appendTag(exposureTag);
-		}
-		if(exposureTagList.tagCount() > 0) {
-			tag.setTag("fluidExposures", exposureTagList);
 		}
 	}
 	
@@ -168,44 +99,6 @@ public abstract class TileEntityPoweredInventoryFluid extends
 		readFluidsFromNBT(updateTag);
 	}
 
-	// Network Message
-	public void onChangeInventorySide(int side) {
-		if(tankExposure[side] != FLUIDTANK_NONE) {
-			// Clicked on something we're already exposing, iterate the exposure
-			iterateFluidTankExposure(side);
-		}
-		else if(this.getSizeInventory() <= 0) {
-			iterateFluidTankExposure(side);
-		}
-		else {
-			boolean wasExposed = this.getExposedSlotFromReferenceSide(side) != TileEntityInventory.INVENTORY_UNEXPOSED;
-			iterateInventoryExposure(side);
-			
-			// If an inventory was exposed, but now no inventory is exposed, it's our turn to shine.
-			if(wasExposed && this.getExposedSlotFromReferenceSide(side) == TileEntityInventory.INVENTORY_UNEXPOSED) {
-				// Ah, it cycled back around. Our turn.
-				iterateFluidTankExposure(side);
-			}
-			// Else: Inventory's still using the exposure.
-		}
-	}
-	
-	protected void iterateFluidTankExposure(int side) {
-		int newExposure;
-		if(tankExposure[side] == FLUIDTANK_NONE) {
-			newExposure = 0;
-		}
-		else {
-			newExposure = tankExposure[side] + 1;
-		}
-
-		if(newExposure >= getNumTanks()) {
-			newExposure = FLUIDTANK_NONE;
-		}
-		
-		this.setExposedTank(ForgeDirection.getOrientation(side), newExposure);
-	}
-	
 	// IFluidHandler
 	
 	/**
@@ -221,6 +114,14 @@ public abstract class TileEntityPoweredInventoryFluid extends
 	  */
 	 public abstract int getTankSize(int tankIndex);
 
+	 /**
+	  * Returns the index of the tank which is exposed on a given world side.
+	  * Remember to translate this into a reference side!
+	  * @param side The world side on which the device is being queried for fluid tank exposures.
+	  * @return The index of the exposed tank, or -1 for none.
+	  */
+	 public abstract int getExposedTankFromSide(int side);
+	 
 	/**
      * Fills fluid into internal tanks, distribution is left to the ITankContainer.
      * @param from Orientation the fluid is pumped in from.
@@ -231,13 +132,13 @@ public abstract class TileEntityPoweredInventoryFluid extends
     public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
     	int tankToFill = FLUIDTANK_NONE;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankToFill = tankExposure[this.getRotatedSide(from.ordinal())];
+    		tankToFill = getExposedTankFromSide(from.ordinal());
     	}
     	else {
     		tankToFill = getDefaultTankForFluid(resource.getFluid());
     	}
 
-    	if(tankToFill == FLUIDTANK_NONE) {
+    	if(tankToFill <= FLUIDTANK_NONE) {
     		return 0;
     	} else {
     		return fill(tankToFill, resource, doFill);
@@ -271,10 +172,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
     public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
     	int tankToDrain = 0;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankToDrain = tankExposure[this.getRotatedSide(from.ordinal())];
+    		tankToDrain = getExposedTankFromSide(from.ordinal());
     	}
 
-    	if(tankToDrain == FLUIDTANK_NONE) {
+    	if(tankToDrain <= FLUIDTANK_NONE) {
     		return null;
     	} else {
     		return drain(tankToDrain, maxDrain, doDrain);
@@ -307,7 +208,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain) {
     	int tankToDrain = 0;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankToDrain = tankExposure[this.getRotatedSide(from.ordinal())];
+    		tankToDrain = getExposedTankFromSide(from.ordinal());
     	}
     	
     	if(tankToDrain == FLUIDTANK_NONE) {
@@ -332,14 +233,12 @@ public abstract class TileEntityPoweredInventoryFluid extends
     		return tanks;
     	}
     	else {
-    		int exposure = tankExposure[this.getRotatedSide(direction.ordinal())];
+    		int exposure = getExposedTankFromSide(direction.ordinal());
     		if(exposure == FLUIDTANK_NONE) {
     			return kEmptyFluidTankList;
     		}
-
-    		IFluidTank[] exposedTanks = new IFluidTank[1];
-    		exposedTanks[0] = tanks[exposure];
-    		return exposedTanks;
+    		
+    		return tankExposureCache[exposure];
     	}
     }
 
@@ -355,7 +254,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     		return null;
     	}
     	else {
-    		int tankIdx = tankExposure[this.getRotatedSide(direction.ordinal())];
+    		int tankIdx = getExposedTankFromSide(direction.ordinal());
     		if(tankIdx == FLUIDTANK_NONE) {
     			return null;
     		}
@@ -377,7 +276,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     public boolean canFill(ForgeDirection from, Fluid fluid) {
     	int tankIdx = 0;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankIdx = tankExposure[this.getRotatedSide(from.ordinal())];
+    		tankIdx = getExposedTankFromSide(from.ordinal());
     	}
 
     	if(tankIdx == FLUIDTANK_NONE) { return false; }
@@ -399,7 +298,7 @@ public abstract class TileEntityPoweredInventoryFluid extends
     public boolean canDrain(ForgeDirection from, Fluid fluid) {
     	int tankIdx = 0;
     	if(from != ForgeDirection.UNKNOWN) {
-    		tankIdx = tankExposure[this.getRotatedSide(from.ordinal())];
+    		tankIdx = getExposedTankFromSide(from.ordinal());
     	}
 
     	if(tankIdx == FLUIDTANK_NONE) { return false; }
@@ -451,13 +350,6 @@ public abstract class TileEntityPoweredInventoryFluid extends
 	protected abstract boolean isFluidValidForTank(int tankIdx, FluidStack type);
 	
 	// Helpers
-	
-	private void resetFluidExposures() {
-		for(int i = 0; i < 6; i++) {
-			tankExposure[i] = FLUIDTANK_NONE;
-		}
-	}
-	
 	/**
 	 * @param fluid The fluid whose default tank is being queried.
 	 * @return The index of the tank into which a given fluid should be deposited by default.

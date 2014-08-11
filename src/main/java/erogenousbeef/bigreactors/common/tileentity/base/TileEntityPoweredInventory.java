@@ -64,6 +64,7 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 		return cycledTicks;
 	}
 	
+	@Override
 	public boolean isActive() {
 		return cycledTicks >= 0;
 	}

@@ -3,6 +3,7 @@ package erogenousbeef.bigreactors.common;
 import java.util.ArrayList;
 
 import cofh.core.util.oredict.OreDictionaryArbiter;
+import cofh.lib.util.helpers.ItemHelper;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -209,29 +210,29 @@ public class BigReactors {
 			}
 			
 			// Patch up vanilla being stupid - most mods already do this, so it's usually a no-op
-			if(OreDictionaryArbiter.getOres("ingotIron").size() <= 0) {
+			if(!ItemHelper.oreProxy.oreNameExists("ingotIron")) {
 				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Items.iron_ingot, 1), "ingotIron");
 			}
 			
-			if(OreDictionaryArbiter.getOres("ingotGold").size() <= 0) {
+			if(!ItemHelper.oreProxy.oreNameExists("ingotGold")) {
 				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Items.gold_ingot, 1), "ingotGold");
 			}
 			
-			if(OreDictionaryArbiter.getOres("blockSnow").size() <= 0) {
+			if(!ItemHelper.oreProxy.oreNameExists("blockSnow")) {
 				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.snow, 1), "blockSnow");
 			}
 			
-			if(OreDictionaryArbiter.getOres("blockIce").size() <= 0) {
+			if(!ItemHelper.oreProxy.oreNameExists("blockIce")) {
 				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.ice, 1), "blockIce");
 			}
 
-			if(OreDictionaryArbiter.getOreID(new ItemStack(Blocks.glass)) < 0) {
+			if(ItemHelper.oreProxy.getOreID(new ItemStack(Blocks.glass)) < 0) {
 				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.glass, 1), "glass");
 			}
 			
 			// Use steel if the players are masochists and someone else has supplied steel.
 			String ironOrSteelIngot = "ingotIron";
-			if(useSteelForIron && OreDictionaryArbiter.getOres("ingotSteel").size() > 0) {
+			if(useSteelForIron && ItemHelper.oreProxy.oreNameExists("ingotSteel")) {
 				ironOrSteelIngot = "ingotSteel";
 			}
 			
@@ -351,7 +352,7 @@ public class BigReactors {
 				ItemStack reactorGlassStack = blockMultiblockGlass.getItemStack("reactor");
 				ItemStack turbineGlassStack = blockMultiblockGlass.getItemStack("turbine");
 				
-				if(useExpensiveGlass && (OreDictionaryArbiter.getOres("glassReinforced").size() > 0 || OreDictionaryArbiter.getOres("glassHardened").size() > 0)) {
+				if(useExpensiveGlass && (ItemHelper.oreProxy.oreNameExists("glassReinforced") || ItemHelper.oreProxy.oreNameExists("glassHardened"))) {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glassReinforced", 'C', "reactorCasing"));
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glassHardened", 'C', "reactorCasing"));
 					

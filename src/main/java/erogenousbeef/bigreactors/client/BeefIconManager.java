@@ -16,19 +16,23 @@ import erogenousbeef.bigreactors.common.BigReactors;
  * @author Erogenous Beef
  * 
  */
-public class BeefIconManager {
+public abstract class BeefIconManager {
 
 	public static final int TERRAIN_TEXTURE = 0;
 	public static final int ITEM_TEXTURE = 1;
 	
-	private HashMap<String, Integer> nameToIdMap;
-	private HashMap<Integer, IIcon> idToIconMap;
+	private static HashMap<String, Integer> nameToIdMap;
+	private static HashMap<Integer, IIcon> idToIconMap;
 	
-	protected String[] iconNames = null;
+	public String[] iconNames = null;
+
+	protected abstract String[] getIconNames();
+	protected abstract String getPath();
 	
 	public BeefIconManager() {
 		nameToIdMap = Maps.newHashMap();
         idToIconMap = Maps.newHashMap();
+        iconNames = getIconNames();
 	}
 	
 	public void registerIcons(TextureMap textureMap) {
@@ -39,8 +43,6 @@ public class BeefIconManager {
 			idToIconMap.put(i, textureMap.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getPath() + iconNames[i]));
 		}
 	}
-	
-	protected String getPath() { return ""; }
 	
 	public IIcon getIcon(String name) {
 		if(name == null || name.isEmpty()) { return null; }
