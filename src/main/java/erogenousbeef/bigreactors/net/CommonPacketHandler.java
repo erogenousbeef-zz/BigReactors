@@ -24,40 +24,35 @@ public class CommonPacketHandler {
 	
     public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(BigReactors.CHANNEL.toLowerCase());
 
-    public static void initMessages(Side side) {
+    /**
+     * Initialize the messages. Note that all messages (server>client and client>server)
+     * must be initialized on _both_ the client and the server.
+     */
+    // Be careful not to reference any client code in your message handlers, such as WorldClient!
+    public static void init() {
     	// Server >> Client Messages
-        INSTANCE.registerMessage(DeviceUpdateMessage.Handler.class, DeviceUpdateMessage.class, 1, side);
-        INSTANCE.registerMessage(DeviceUpdateRotationMessage.Handler.class, DeviceUpdateRotationMessage.class, 3, side);
-        INSTANCE.registerMessage(DeviceUpdateInvExposureMessage.Handler.class, DeviceUpdateInvExposureMessage.class, 5, side);
-        INSTANCE.registerMessage(DeviceUpdateFluidExposureMessage.Handler.class, DeviceUpdateFluidExposureMessage.class, 7, side);
-        INSTANCE.registerMessage(ControlRodUpdateMessage.Handler.class, ControlRodUpdateMessage.class, 9, side);
-        INSTANCE.registerMessage(ReactorUpdateMessage.Handler.class, ReactorUpdateMessage.class, 11, side);
-        INSTANCE.registerMessage(ReactorUpdateWasteEjectionMessage.Handler.class, ReactorUpdateWasteEjectionMessage.class, 13, side);
-        INSTANCE.registerMessage(TurbineUpdateMessage.Handler.class, TurbineUpdateMessage.class, 15, side);
+        INSTANCE.registerMessage(DeviceUpdateMessage.Handler.class, DeviceUpdateMessage.class, 1, Side.CLIENT);
+        INSTANCE.registerMessage(DeviceUpdateRotationMessage.Handler.class, DeviceUpdateRotationMessage.class, 3, Side.CLIENT);
+        INSTANCE.registerMessage(DeviceUpdateInvExposureMessage.Handler.class, DeviceUpdateInvExposureMessage.class, 5, Side.CLIENT);
+        INSTANCE.registerMessage(DeviceUpdateFluidExposureMessage.Handler.class, DeviceUpdateFluidExposureMessage.class, 7, Side.CLIENT);
+        INSTANCE.registerMessage(ControlRodUpdateMessage.Handler.class, ControlRodUpdateMessage.class, 9, Side.CLIENT);
+        INSTANCE.registerMessage(ReactorUpdateMessage.Handler.class, ReactorUpdateMessage.class, 11, Side.CLIENT);
+        INSTANCE.registerMessage(ReactorUpdateWasteEjectionMessage.Handler.class, ReactorUpdateWasteEjectionMessage.class, 13, Side.CLIENT);
+        INSTANCE.registerMessage(TurbineUpdateMessage.Handler.class, TurbineUpdateMessage.class, 15, Side.CLIENT);
 
         // Client >> Server Messages
-    	INSTANCE.registerMessage(MachineCommandActivateMessage.Handler.class, MachineCommandActivateMessage.class, 0, side);
-        INSTANCE.registerMessage(DeviceChangeExposureMessage.Handler.class, DeviceChangeExposureMessage.class, 2, side);
-        INSTANCE.registerMessage(ControlRodChangeNameMessage.Handler.class, ControlRodChangeNameMessage.class, 4, side);
-        INSTANCE.registerMessage(ControlRodChangeInsertionMessage.Handler.class, ControlRodChangeInsertionMessage.class, 6, side);
-        INSTANCE.registerMessage(ReactorRedNetPortChangeMessage.Handler.class, ReactorRedNetPortChangeMessage.class, 8, side);
-        INSTANCE.registerMessage(ReactorRedstonePortChangeMessage.Handler.class, ReactorRedstonePortChangeMessage.class, 10, side);
-        INSTANCE.registerMessage(ReactorCommandEjectMessage.Handler.class, ReactorCommandEjectMessage.class, 12, side);
-        INSTANCE.registerMessage(ReactorCommandEjectToPortMessage.Handler.class, ReactorCommandEjectToPortMessage.class, 14, side);
-        INSTANCE.registerMessage(ReactorChangeWasteEjectionMessage.Handler.class, ReactorChangeWasteEjectionMessage.class, 16, side);
-        INSTANCE.registerMessage(ReactorAccessPortChangeDirectionMessage.Handler.class, ReactorAccessPortChangeDirectionMessage.class, 18, side);
-        INSTANCE.registerMessage(TurbineChangeMaxIntakeMessage.Handler.class, TurbineChangeMaxIntakeMessage.class, 20, side);
-        INSTANCE.registerMessage(TurbineChangeVentMessage.Handler.class, TurbineChangeVentMessage.class, 22, side);
-        INSTANCE.registerMessage(TurbineChangeInductorMessage.Handler.class, TurbineChangeInductorMessage.class, 24, side);
-    }
-    
-    // server >> client, use odd numbers
-    protected static void initClient() {
-    	initMessages(Side.CLIENT);
-    }
-    
-    // client >> server, use even numbers
-    protected static void initServer() {
-    	initMessages(Side.SERVER);
+    	INSTANCE.registerMessage(MachineCommandActivateMessage.Handler.class, MachineCommandActivateMessage.class, 0, Side.SERVER);
+        INSTANCE.registerMessage(DeviceChangeExposureMessage.Handler.class, DeviceChangeExposureMessage.class, 2, Side.SERVER);
+        INSTANCE.registerMessage(ControlRodChangeNameMessage.Handler.class, ControlRodChangeNameMessage.class, 4, Side.SERVER);
+        INSTANCE.registerMessage(ControlRodChangeInsertionMessage.Handler.class, ControlRodChangeInsertionMessage.class, 6, Side.SERVER);
+        INSTANCE.registerMessage(ReactorRedNetPortChangeMessage.Handler.class, ReactorRedNetPortChangeMessage.class, 8, Side.SERVER);
+        INSTANCE.registerMessage(ReactorRedstonePortChangeMessage.Handler.class, ReactorRedstonePortChangeMessage.class, 10, Side.SERVER);
+        INSTANCE.registerMessage(ReactorCommandEjectMessage.Handler.class, ReactorCommandEjectMessage.class, 12, Side.SERVER);
+        INSTANCE.registerMessage(ReactorCommandEjectToPortMessage.Handler.class, ReactorCommandEjectToPortMessage.class, 14, Side.SERVER);
+        INSTANCE.registerMessage(ReactorChangeWasteEjectionMessage.Handler.class, ReactorChangeWasteEjectionMessage.class, 16, Side.SERVER);
+        INSTANCE.registerMessage(ReactorAccessPortChangeDirectionMessage.Handler.class, ReactorAccessPortChangeDirectionMessage.class, 18, Side.SERVER);
+        INSTANCE.registerMessage(TurbineChangeMaxIntakeMessage.Handler.class, TurbineChangeMaxIntakeMessage.class, 20, Side.SERVER);
+        INSTANCE.registerMessage(TurbineChangeVentMessage.Handler.class, TurbineChangeVentMessage.class, 22, Side.SERVER);
+        INSTANCE.registerMessage(TurbineChangeInductorMessage.Handler.class, TurbineChangeInductorMessage.class, 24, Side.SERVER);
     }
 }

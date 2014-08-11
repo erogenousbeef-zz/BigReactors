@@ -37,7 +37,7 @@ public class DeviceUpdateRotationMessage extends WorldMessageClient {
         public IMessage handleMessage(DeviceUpdateRotationMessage message, MessageContext ctx, TileEntity te) {
             if(te instanceof TileEntityBeefBase) {
                 ((TileEntityBeefBase)te).rotateTowards(ForgeDirection.getOrientation(message.newOrientation));
-                FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
+                getWorld(ctx).markBlockForUpdate(message.x, message.y, message.z);
             }
             return null;
         }
