@@ -20,13 +20,14 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.interfaces.IBeefReconfigurableSides;
+import erogenousbeef.bigreactors.common.interfaces.IWrenchable;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
 import erogenousbeef.bigreactors.net.message.DeviceUpdateExposureMessage;
 import erogenousbeef.bigreactors.net.message.DeviceUpdateMessage;
 import erogenousbeef.bigreactors.net.message.DeviceUpdateRotationMessage;
 
-public abstract class TileEntityBeefBase extends TileCoFHBase implements IBeefGuiEntity, IBeefReconfigurableSides, IReconfigurableFacing {
+public abstract class TileEntityBeefBase extends TileCoFHBase implements IBeefGuiEntity, IBeefReconfigurableSides, IReconfigurableFacing, IWrenchable {
 	private Set<EntityPlayer> updatePlayers;
 	private int ticksSinceLastUpdate;
 	private static final int ticksBetweenUpdates = 3;
@@ -80,6 +81,11 @@ public abstract class TileEntityBeefBase extends TileCoFHBase implements IBeefGu
 	@Override
 	public boolean rotateBlock() {
 		return setFacing(BlockHelper.SIDE_LEFT[facing]);
+	}
+	
+	@Override
+	public boolean onWrench(EntityPlayer player, int hitSide) {
+		return rotateBlock();
 	}
 	
 	@Override
