@@ -40,7 +40,7 @@ public class DeviceUpdateFluidExposureMessage extends WorldMessageClient {
         public IMessage handleMessage(DeviceUpdateFluidExposureMessage message, MessageContext ctx, TileEntity te) {
             if(te instanceof TileEntityPoweredInventoryFluid) {
                 ((TileEntityPoweredInventoryFluid)te).setExposedTank(ForgeDirection.getOrientation(message.side), message.tankIdx);
-                FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
+                getWorld(ctx).markBlockForUpdate(message.x, message.y, message.z);
             }
             return null;
         }

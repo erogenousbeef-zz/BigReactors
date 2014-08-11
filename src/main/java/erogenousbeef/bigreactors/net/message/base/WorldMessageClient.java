@@ -3,6 +3,8 @@ package erogenousbeef.bigreactors.net.message.base;
 import net.minecraft.world.World;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * A message to a client user which is grounded in world-space.
@@ -16,9 +18,10 @@ public abstract class WorldMessageClient extends WorldMessage {
 	}
 
 	public abstract static class Handler<M extends WorldMessageClient> extends WorldMessage.Handler<M> {
-		@Override 
+		@SideOnly(Side.CLIENT)
+		@Override
 		protected World getWorld(MessageContext ctx) {
-			return FMLClientHandler.instance().getWorldClient();
+			return FMLClientHandler.instance().getClient().theWorld;
 		}
 	}
 }

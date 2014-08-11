@@ -39,7 +39,7 @@ public class DeviceUpdateInvExposureMessage extends WorldMessageClient {
         public IMessage handleMessage(DeviceUpdateInvExposureMessage message, MessageContext ctx, TileEntity te) {
             if(te instanceof TileEntityInventory) {
                 ((TileEntityInventory)te).setExposedInventorySlotReference(message.referenceSide, message.slot);
-                FMLClientHandler.instance().getWorldClient().markBlockForUpdate(message.x, message.y, message.z);
+                getWorld(ctx).markBlockForUpdate(message.x, message.y, message.z);
             }
             return null;
         }
