@@ -574,7 +574,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 			TileEntityReactorPart part = (TileEntityReactorPart)te;
 			PartPosition position = part.getPartPosition();
 			MultiblockReactor reactor = part.getReactorController();
-			if(!reactor.isAssembled()) {
+			if(reactor == null || !reactor.isAssembled()) {
 				return _icons[METADATA_CASING][DEFAULT];
 			}
 			
@@ -600,7 +600,7 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 	}
 	
 	private IIcon getCasingEdgeIcon(TileEntityReactorPart part, MultiblockReactor reactor, int side) {
-		if(!reactor.isAssembled()) { return _icons[METADATA_CASING][DEFAULT]; }
+		if(reactor == null || !reactor.isAssembled()) { return _icons[METADATA_CASING][DEFAULT]; }
 
 		CoordTriplet minCoord = reactor.getMinimumCoord();
 		CoordTriplet maxCoord = reactor.getMaximumCoord();
