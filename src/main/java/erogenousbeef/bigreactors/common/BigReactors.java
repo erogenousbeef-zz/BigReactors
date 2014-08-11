@@ -212,23 +212,23 @@ public class BigReactors {
 			
 			// Patch up vanilla being stupid - most mods already do this, so it's usually a no-op
 			if(!ItemHelper.oreNameExists("ingotIron")) {
-				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Items.iron_ingot, 1), "ingotIron");
+				OreDictionary.registerOre("ingotIron", new ItemStack(Items.iron_ingot, 1));
 			}
 			
 			if(!ItemHelper.oreNameExists("ingotGold")) {
-				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Items.gold_ingot, 1), "ingotGold");
+				OreDictionary.registerOre("ingotGold", new ItemStack(Items.gold_ingot, 1));
 			}
 			
 			if(!ItemHelper.oreNameExists("blockSnow")) {
-				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.snow, 1), "blockSnow");
+				OreDictionary.registerOre("blockSnow", new ItemStack(Blocks.snow, 1));
 			}
 			
 			if(!ItemHelper.oreNameExists("blockIce")) {
-				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.ice, 1), "blockIce");
+				OreDictionary.registerOre("blockIce", new ItemStack(Blocks.ice, 1));
 			}
 
 			if(ItemHelper.oreProxy.getOreID(new ItemStack(Blocks.glass)) < 0) {
-				OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(Blocks.glass, 1), "glass");
+				OreDictionary.registerOre("glass", new ItemStack(Blocks.glass, 1));
 			}
 			
 			// Use steel if the players are masochists and someone else has supplied steel.
@@ -453,7 +453,7 @@ public class BigReactors {
 		if (blockYelloriteOre == null) {
 			blockYelloriteOre = new BlockBROre();
 			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBigReactors.class, "YelloriteOre");
-			OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(blockYelloriteOre, 1), "oreYellorite");
+			OreDictionary.registerOre("oreYellorite", new ItemStack(blockYelloriteOre, 1));
 		}
 
 		if(blockMetal == null) {
@@ -511,7 +511,7 @@ public class BigReactors {
 			String itemName;
 			for(int i = 0; i < ItemIngot.TYPES.length; i++) {
 				itemName = ItemIngot.TYPES[i];
-				OreDictionaryArbiter.registerOreDictionaryEntry(ingotGeneric.getItemStackForType(itemName), itemName);
+				OreDictionary.registerOre(itemName, ingotGeneric.getItemStackForType(itemName));
 			}
 			
 			// Add aliases, if appropriate
@@ -573,7 +573,7 @@ public class BigReactors {
 			
 			BigReactors.blockReactorRedstonePort = new BlockReactorRedstonePort(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockReactorRedstonePort, ItemBlock.class, "BRReactorRedstonePort");
-			OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(blockReactorRedstonePort, 1), "reactorRedstonePort");
+			OreDictionary.registerOre("reactorRedstonePort", new ItemStack(blockReactorRedstonePort, 1));
 			
 			BRConfig.CONFIGURATION.save();
 		}
