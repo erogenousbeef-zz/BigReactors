@@ -18,12 +18,14 @@ import powercrystals.minefactoryreloaded.api.rednet.IRedNetNetworkContainer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.client.gui.GuiReactorRedNetPort;
+import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.gui.container.ContainerBasic;
+import erogenousbeef.bigreactors.net.helpers.RedNetChange;
 import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
@@ -40,7 +42,17 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		outputFuelMix, 		// Output: Fuel mix, % of contents that is fuel (0-100, 100 = 100% fuel)
 		outputFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
 		outputWasteAmount, 	// Output: Waste amount in a control rod, raw value, (0-4*height)
-		outputEnergyAmount // Output: Energy in the reactor's buffer, percentile (0-100, 100 = 100% full)
+		outputEnergyAmount; // Output: Energy in the reactor's buffer, percentile (0-100, 100 = 100% full)
+		
+		public static final CircuitType[] s_Types = CircuitType.values();
+		
+		public static boolean hasCoordinate(TileEntityReactorRedNetPort.CircuitType circuitType) {
+			return circuitType == CircuitType.inputSetControlRod;
+		}
+
+		public static boolean canBeToggledBetweenPulseAndNormal(CircuitType circuitType) {
+			return circuitType == CircuitType.inputActive;
+		}
 	}
 
 	protected final static int minInputEnumValue = CircuitType.inputActive.ordinal();
@@ -325,10 +337,10 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		
 		entry.setInteger("channel", channel);
 		entry.setInteger("setting", this.channelCircuitTypes[channel].ordinal());
-		if(isInput(this.channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
+		if(isInput(this.channelCircuitTypes[channel]) && CircuitType.canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
 			entry.setBoolean("pulse", this.inputActivatesOnPulse[channel]);
 		}
-		if( circuitTypeHasSubSetting(this.channelCircuitTypes[channel]) ) {
+		if( CircuitType.hasCoordinate(this.channelCircuitTypes[channel]) ) {
 			CoordTriplet coord = this.coordMappings[channel];
 			if(coord != null) {
 				entry.setInteger("x", coord.x);
@@ -348,11 +360,11 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		
 		channelCircuitTypes[channel] = CircuitType.values()[settingIdx];
 		
-		if(isInput(this.channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
+		if(isInput(this.channelCircuitTypes[channel]) && CircuitType.canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
 			inputActivatesOnPulse[channel] = settingTag.getBoolean("pulse");
 		}
 
-		if( circuitTypeHasSubSetting(channelCircuitTypes[channel]) ) {
+		if( CircuitType.hasCoordinate(channelCircuitTypes[channel]) ) {
 			if(settingTag.hasKey("x")) {
 				int x, y, z;
 				x = settingTag.getInteger("x");
@@ -363,47 +375,41 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		}
 	}
 
-	// Decodes setting changes from an update packet
-	public void decodeSettings(ByteBuf dis, boolean doValidation) throws IOException {
-		int channel;
-		for(;;) {
-			try {
-				channel = dis.readInt();
-				CircuitType newSetting = CircuitType.values()[ dis.readInt() ];
-				clearChannel(channel);
-
-				channelCircuitTypes[channel] = newSetting;
-
-				if(isInput(channelCircuitTypes[channel]) && canBeToggledBetweenPulseAndNormal(channelCircuitTypes[channel])) {
-					inputActivatesOnPulse[channel] = dis.readBoolean();
-				}
-				
-				if(circuitTypeHasSubSetting(newSetting)) {
-					boolean hasSubSettingData = dis.readBoolean();
-					CoordTriplet coord = null;
-					if(hasSubSettingData) {
-						coord = new CoordTriplet( dis.readInt(), dis.readInt(), dis.readInt() );					
-					}
-					
-					if(doValidation) {
-						if(coord != null) {
-							TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
-							if(!(te instanceof TileEntityReactorControlRod)) {
-								throw new IOException("Invalid TileEntity for RedNet Port settings at " + coord.toString());
-							}
-						}
-					}
-					
-					coordMappings[channel] = coord;
-				}
+	// Receives settings from a client via an update packet
+	public void onCircuitUpdate(RedNetChange[] changes) {
+		if(changes == null || changes.length < 1) { return; }
+		
+		for(int i = 0; i < changes.length; i++) {
+			int channelID = changes[i].getChannel();
+			CircuitType newType = changes[i].getType();
+			
+			channelCircuitTypes[channelID] = newType;
+			
+			if(CircuitType.canBeToggledBetweenPulseAndNormal(newType)) {
+				inputActivatesOnPulse[channelID] = changes[i].getPulseOrToggle();
 			}
-			catch(EOFException e) {
-				// Expected, halt execution
-				// And send the update to all nearby clients
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-				return;
+			
+			if(CircuitType.hasCoordinate(newType)) {
+				CoordTriplet coord = changes[i].getCoord();
+				
+				// Validate that we're pointing at the right thing, just in case.
+				if(coord != null) {
+					TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
+					if(!(te instanceof TileEntityReactorControlRod)) {
+						BRLog.warning("Invalid tile entity reference at coordinate %s - rednet circuit expected a control rod", coord);
+						coord = null;
+					}
+				}
+
+				coordMappings[channelID] = coord;
+			}
+			else {
+				coordMappings[channelID] = null;
 			}
 		}
+		
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+		markDirty();
 	}
 	
 	// Helpers
@@ -456,14 +462,6 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	}
 
 	// Static Helpers
-	public static boolean circuitTypeHasSubSetting(TileEntityReactorRedNetPort.CircuitType circuitType) {
-		return circuitType == CircuitType.inputSetControlRod;
-	}
-
-	public static boolean canBeToggledBetweenPulseAndNormal(CircuitType circuitType) {
-		return circuitType == CircuitType.inputActive;
-	}
-
 	public static boolean isInput(CircuitType type) { return type.ordinal() >= minInputEnumValue && type.ordinal() <= maxInputEnumValue; }
 	public static boolean isOutput(CircuitType type) { return type.ordinal() >= minOutputEnumValue && type.ordinal() <= maxOutputEnumValue; }
 }
