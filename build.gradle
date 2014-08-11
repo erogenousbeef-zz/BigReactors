@@ -17,6 +17,9 @@ buildscript {
 
 apply plugin: 'forge'
 
+sourceSets.main.java.srcDirs += 'BeefCore/src/main/java'
+
+
 version = "0.4.0X3"
 group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
@@ -43,7 +46,6 @@ dependencies { //The first two were added because one of the mods below them (I 
 		
 	// Remember to use the non-obfuscated dev versions!
 	compile files('lib/CoFHCore-[1.7.10]3.0.0B3-dev-26.jar');		// CoFHCore - general libraries
-	compile project(':BeefCore');
 }
 
 processResources
@@ -66,16 +68,16 @@ processResources
     }
 }
 
-task copyBeefCore(type: Copy) {
-    from("BeefCore/src/main/java/erogenousbeef/") {
-        include "**/*"
-        destinationDir = file("src/main/java/erogenousbeef/")
-    }
-}
+//task copyBeefCore(type: Copy) {
+//    from("BeefCore/src/main/java/erogenousbeef/") {
+//        include "**/*"
+//        destinationDir = file("src/main/java/erogenousbeef/")
+//    }
+//}
 
-task deleteBeefCore(type: Delete) {
-    delete 'src/main/java/erogenousbeef/core'
-}
+//task deleteBeefCore(type: Delete) {
+//    delete 'src/main/java/erogenousbeef/core'
+//}
 
-tasks.compileApiJava.dependsOn copyBeefCore
-tasks.build.dependsOn deleteBeefCore
+//tasks.compileApiJava.dependsOn copyBeefCore
+//tasks.build.dependsOn deleteBeefCore
