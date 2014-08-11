@@ -16,17 +16,8 @@ public class OreDictToReactantMapping extends SourceProductMapping {
 		super(oreDictName, oreAmount, reactantName, reactantAmount);
 	}
 
-	public OreDictToReactantMapping(ItemStack item, String reactantName, int reactantAmount) {
-		super(ItemHelper.oreProxy.getOreName(item), item.stackSize, reactantName, reactantAmount);
-	}
-	
 	public OreDictToReactantMapping(String oreDictName, int oreAmount, String reactantName) {
 		super(oreDictName, oreAmount, reactantName, Reactants.standardSolidReactantAmount);
-	}
-
-	public OreDictToReactantMapping(ItemStack item, String reactantName) {
-		super(ItemHelper.oreProxy.getOreName(item), item.stackSize,
-				reactantName, Reactants.standardSolidReactantAmount);
 	}
 
 	public OreDictToReactantMapping(String oreDictName, String reactantName, int reactantAmount) {

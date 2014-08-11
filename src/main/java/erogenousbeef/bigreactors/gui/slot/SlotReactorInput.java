@@ -1,10 +1,15 @@
 package erogenousbeef.bigreactors.gui.slot;
 
+import java.util.ArrayList;
+
+import cofh.core.util.oredict.OreDictionaryArbiter;
+import cofh.lib.util.helpers.ItemHelper;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.api.registry.Reactants;
+import erogenousbeef.bigreactors.common.BRLog;
 
 public class SlotReactorInput extends Slot {
 
@@ -18,11 +23,13 @@ public class SlotReactorInput extends Slot {
 
 	@Override
 	public boolean isItemValid(ItemStack stack) {
-		FluidStack data;
+		if(stack == null) { return false; }
 		
-		if(fuel)
+		if(fuel) {
 			return Reactants.isFuel(stack);
-		else
+		}
+		else {
 			return Reactants.isWaste(stack);
+		}
 	}
 }
