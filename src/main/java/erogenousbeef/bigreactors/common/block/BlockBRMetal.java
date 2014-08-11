@@ -12,6 +12,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.registry.GameRegistry;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
@@ -78,7 +79,7 @@ public class BlockBRMetal extends Block {
 	
 	public void registerOreDictEntries() {
 		for(int i = 0; i < NUM_BLOCKS; i++) {
-			OreDictionaryArbiter.registerOreDictionaryEntry(new ItemStack(this, 1, i), _subBlocks[i]);
+			OreDictionary.registerOre(_subBlocks[i], new ItemStack(this, 1, i));
 		}
 	}
 

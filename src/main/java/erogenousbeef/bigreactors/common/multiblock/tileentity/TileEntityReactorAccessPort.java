@@ -44,6 +44,9 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public static final int SLOT_OUTLET = 1;
 	public static final int NUM_SLOTS = 2;
 	
+	private static final int[] kInletExposed = {SLOT_INLET};
+	private static final int[] kOutletExposed = {SLOT_OUTLET};
+	
 	public TileEntityReactorAccessPort() {
 		super();
 		
@@ -346,10 +349,10 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public int[] getAccessibleSlotsFromSide(int side) {
 		int metadata = this.getBlockMetadata();
 		if(isInlet()) {
-			return new int[] {SLOT_INLET};
+			return kInletExposed;
 		}
 		else {
-			return new int[] {SLOT_OUTLET};
+			return kOutletExposed;
 		}
 	}
 

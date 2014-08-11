@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import cofh.core.util.oredict.OreDictionaryArbiter;
 import cofh.util.ItemHelper;
 
 import net.minecraft.item.ItemStack;
@@ -91,12 +92,24 @@ public class Reactants {
 			throw new IllegalArgumentException("Unknown reactantName " + reactantName);
 		}
 		
-		OreDictToReactantMapping mapping = new OreDictToReactantMapping(itemStack, reactantName);
-		SourceProductMapping reverseMapping = mapping.getReverse();
+		ArrayList<String> oreDictNames = OreDictionaryArbiter.getAllOreNames(itemStack);
+		if(oreDictNames == null || oreDictNames.size() < 1) {
+			BRLog.warning("Reactants.registerSolid: Could not resolve ore dict name for %s", itemStack.getUnlocalizedName());
+			return null;
+		}
+
+		SourceProductMapping firstMapping = null;
+
+		for(String name : oreDictNames) {
+			OreDictToReactantMapping mapping = new OreDictToReactantMapping(name, reactantName);
+			SourceProductMapping reverseMapping = mapping.getReverse();
+			_solidToReactant.put(mapping.getSource(), mapping);
+			mapReactant(reverseMapping.getSource(), reverseMapping, _reactantToSolid);
+
+			if(firstMapping == null) { firstMapping = mapping; }
+		}
 		
-		_solidToReactant.put(mapping.getSource(), mapping);
-		mapReactant(reverseMapping.getSource(), reverseMapping, _reactantToSolid);
-		return mapping;
+		return firstMapping;
 	}
 
 	/**
@@ -112,12 +125,24 @@ public class Reactants {
 			throw new IllegalArgumentException("Unknown reactantName " + reactantName);
 		}
 
-		OreDictToReactantMapping mapping = new OreDictToReactantMapping(itemStack, reactantName, reactantQty);
-		SourceProductMapping reverseMapping = mapping.getReverse();
+		ArrayList<String> oreDictNames = OreDictionaryArbiter.getAllOreNames(itemStack);
+		if(oreDictNames == null || oreDictNames.size() < 1) {
+			BRLog.warning("Reactants.registerSolid: Could not resolve ore dict name for %s", itemStack.getUnlocalizedName());
+			return null;
+		}
+
+		SourceProductMapping firstMapping = null;
+
+		for(String name : oreDictNames) {
+			OreDictToReactantMapping mapping = new OreDictToReactantMapping(name, reactantName, reactantQty);
+			SourceProductMapping reverseMapping = mapping.getReverse();
+			_solidToReactant.put(mapping.getSource(), mapping);
+			mapReactant(reverseMapping.getSource(), reverseMapping, _reactantToSolid);
+
+			if(firstMapping == null) { firstMapping = mapping; }
+		}
 		
-		_solidToReactant.put(mapping.getSource(), mapping);
-		mapReactant(reverseMapping.getSource(), reverseMapping, _reactantToSolid);
-		return mapping;
+		return firstMapping;		
 	}
 
 	/**
@@ -231,13 +256,25 @@ public class Reactants {
 	public static boolean isFuel(ItemStack stack) {
 		if(stack == null) { return false; }
 		
-		String oreDictName = ItemHelper.oreProxy.getOreName(stack);
-		if(oreDictName == null) { return false; }
-		else {
-			return isFuel(oreDictName);
-		}
+		return isFuel(getReactantName(stack));
 	}
 
+	/**
+	 * Returns the first registered reactant name for a given item stack,
+	 * based on its ore dictionary entry.
+	 * @param stack The item stack to query.
+	 * @return The name of the reactant represented by this item stack, or null.
+	 */
+	public static String getReactantName(ItemStack stack) {
+		SourceProductMapping mapping = getSolidToReactant(stack);
+		return mapping != null ? mapping.getProduct() : null;
+	}
+	
+	/**
+	 * Returns true if a given name represents a reactant.
+	 * @param name
+	 * @return
+	 */
 	public static boolean isFuel(String name) {
 		if(name == null) { return false; }
 		else {
@@ -249,11 +286,7 @@ public class Reactants {
 	public static boolean isWaste(ItemStack stack) {
 		if(stack == null) { return false; }
 		
-		String oreDictName = ItemHelper.oreProxy.getOreName(stack);
-		if(oreDictName == null) { return false; }
-		else {
-			return isWaste(oreDictName);
-		}
+		return isWaste(getReactantName(stack));
 	}
 	
 	public static boolean isWaste(String name) {
