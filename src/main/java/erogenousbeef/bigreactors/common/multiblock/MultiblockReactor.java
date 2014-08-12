@@ -45,6 +45,7 @@ import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorA
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorFuelRod;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
@@ -105,6 +106,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	
 	private Set<TileEntityReactorFuelRod> attachedFuelRods;
 	private Set<TileEntityReactorCoolantPort> attachedCoolantPorts;
+	
+	private Set<TileEntityReactorGlass> attachedGlass;
 
 	// Updates
 	private Set<EntityPlayer> updatePlayers;
@@ -139,6 +142,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		attachedControllers = new HashSet<TileEntityReactorPart>();
 		attachedFuelRods = new HashSet<TileEntityReactorFuelRod>();
 		attachedCoolantPorts = new HashSet<TileEntityReactorCoolantPort>();
+		attachedGlass = new HashSet<TileEntityReactorGlass>();
 		
 		currentFuelRod = null;
 
@@ -202,6 +206,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(part instanceof TileEntityReactorCoolantPort) {
 			attachedCoolantPorts.add((TileEntityReactorCoolantPort) part);
 		}
+		
+		if(part instanceof TileEntityReactorGlass) {
+			attachedGlass.add((TileEntityReactorGlass)part);
+		}
 	}
 	
 	@Override
@@ -236,6 +244,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		
 		if(part instanceof TileEntityReactorCoolantPort) {
 			attachedCoolantPorts.remove((TileEntityReactorCoolantPort)part);
+		}
+		
+		if(part instanceof TileEntityReactorGlass) {
+			attachedGlass.remove((TileEntityReactorGlass)part);
 		}
 	}
 	
@@ -391,7 +403,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			tickable.onMultiblockServerTick();
 		}
 
-		if(fuelContainer.shouldUpdate() || coolantContainer.shouldUpdate()) {
+		if(attachedGlass.size() > 0 && fuelContainer.shouldUpdate()) {
 			markReferenceCoordForUpdate();
 		}
 		
@@ -1043,8 +1055,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		else {
 			coolantContainer.setCapacity(0);
 		}
-
-		
 	}
 
 	@Override
