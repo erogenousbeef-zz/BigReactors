@@ -139,7 +139,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		// This means that source == reactant, and product == item.
 		SourceProductMapping bestMapping = null;
 
-		List<SourceProductMapping> mappings = Reactants.getSolidsForReactant(reactantType);
+		List<SourceProductMapping> mappings = Reactants.getReactantToSolids(reactantType);
 		if(mappings != null) {
 			int bestReactantAmount = 0;
 			for(SourceProductMapping mapping: mappings) {
@@ -150,7 +150,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				int potentialReactant = mapping.getSourceAmount(potentialProducts);
 
 				if(bestMapping == null || bestReactantAmount < potentialReactant) {
-					mapping = bestMapping;
+					bestMapping = mapping;
 					bestReactantAmount = potentialReactant;
 				}
 			}
@@ -160,17 +160,24 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			BRLog.warning("There are no mapped item types for reactant %s. Using cyanite instead.", reactantType);
 			bestMapping = StandardReactants.cyaniteMapping;
 		}
-		
+
 		int itemsToProduce = Math.min(bestMapping.getProductAmount(amount), getInventoryStackLimit());
-		
+		if(itemsToProduce <= 0) {
+			// Can't produce even one ingot? Ok then.
+			return 0;
+		}
+
 		// And clamp again in case we could produce more than 64 items
 		int reactantConsumed = bestMapping.getSourceAmount(itemsToProduce);
 		itemsToProduce = bestMapping.getProductAmount(reactantConsumed);
 
-		ItemStack newItem = ItemHelper.getOre(bestMapping.getProduct()).copy();
+		ItemStack newItem = ItemHelper.getOre(bestMapping.getProduct());
 		if(newItem == null) {
-			BRLog.warning("Could not find item for oredict entry %s, using cyanite instead.", bestMapping.getProduct());
+			BRLog.warning("Could not find item for oredict entry %s, using cyanite instead.", bestMapping.getSource());
 			newItem = BigReactors.ingotGeneric.getItemStackForType("ingotCyanite");
+		}
+		else {
+			newItem = newItem.copy(); // Don't stomp the oredict
 		}
 		
 		newItem.stackSize = itemsToProduce;

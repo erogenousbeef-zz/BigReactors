@@ -244,7 +244,11 @@ public class Reactants {
 		return _fluidToReactant.get(fluid.getName());
 	}
 	
-	public static List<SourceProductMapping> getSolidsForReactant(String reactant) {
+	/**
+	 * @param reactant The reactant to query
+	 * @return A. list of Reactant => OreDict mappings. Note that reactant is the source and OreDict names are the product.
+	 */
+	public static List<SourceProductMapping> getReactantToSolids(String reactant) {
 		return _reactantToSolid.get(reactant);
 	}
 	
@@ -302,7 +306,7 @@ public class Reactants {
 	 * @throws IllegalArgumentException if no reactants were mapped.
 	 */
 	public static int getMinimumReactantToProduceSolid(String reactantName) {
-		List<SourceProductMapping> mappings = getSolidsForReactant(reactantName);
+		List<SourceProductMapping> mappings = getReactantToSolids(reactantName);
 		if(mappings == null || mappings.size() <= 0) {
 			throw new IllegalArgumentException("No solid products mapped for reactant " + reactantName);
 		}
