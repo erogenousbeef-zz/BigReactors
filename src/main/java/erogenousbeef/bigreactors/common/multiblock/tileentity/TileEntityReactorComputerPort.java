@@ -46,6 +46,8 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		getHotFluidType,		// No arguments
 		getFuelReactivity,		// No arguments
 		getFuelConsumedLastTick,// No arguments
+		getMinimumCoordinate,	// No arguments
+		getMaximumCoordinate,	// No arguments
 		isActivelyCooled,		// No arguments
 		setActive,				// Required Arg: integer (active)
 		setControlRodLevel,		// Required Args: fuel rod index, integer (insertion)
@@ -173,6 +175,18 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 
 		case getFuelConsumedLastTick:
 			return new Object[] { reactor.getFuelConsumedLastTick() };
+			
+		case getMinimumCoordinate:
+		{
+			CoordTriplet coord = reactor.getMinimumCoord();
+			return new Object[] { coord.x, coord.y, coord.z };
+		}
+			
+		case getMaximumCoordinate:
+		{
+			CoordTriplet coord = reactor.getMaximumCoord();
+			return new Object[] { coord.x, coord.y, coord.z };
+		}
 			
 		case setActive:
 			if(arguments.length < 1) {
