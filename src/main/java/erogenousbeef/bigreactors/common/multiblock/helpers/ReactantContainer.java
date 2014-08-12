@@ -26,7 +26,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 
 	private int ticksSinceLastUpdate;
 	private static final int minimumTicksBetweenUpdates = 60;
-	private static final int minimumDevianceForUpdate = 50; // at least 50mB difference before we send a fueling update to the client
+	private static final float minimumDevianceForUpdate = 0.05f; // at least 5% difference before we send a fueling update to the client
 
 	int[] levelAtLastUpdate;
 
@@ -270,7 +270,10 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 				}
 				// else, both levels are zero, no-op
 				
-				if(dev >= minimumDevianceForUpdate) {
+				float divisor = capacity;
+				if(divisor == 0) { divisor = 4000; } // totally arbitrary 4kmb
+				if(((float)dev/divisor) >= minimumDevianceForUpdate) {
+					// Only update if we're more than 5% off our current amount
 					shouldUpdate = true;
 				}
 			}
