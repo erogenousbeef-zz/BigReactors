@@ -20,7 +20,7 @@ apply plugin: 'forge'
 sourceSets.main.java.srcDirs += 'BeefCore/src/main/java'
 
 
-version = "0.4.0X5"
+version = "0.4.0X6"
 group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 
