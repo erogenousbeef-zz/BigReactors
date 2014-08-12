@@ -187,7 +187,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			CoordTriplet coord = reactor.getMaximumCoord();
 			return new Object[] { coord.x, coord.y, coord.z };
 		}
-			
+
 		case setActive:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
