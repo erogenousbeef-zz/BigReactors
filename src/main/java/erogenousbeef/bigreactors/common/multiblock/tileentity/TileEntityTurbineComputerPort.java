@@ -15,6 +15,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine.VentStatus;
+import erogenousbeef.core.common.CoordTriplet;
 
 @Optional.InterfaceList({
 	@Optional.Interface(iface = "li.cil.oc.api.network.SimpleComponent", modid = "OpenComputers"),
@@ -42,6 +43,8 @@ public class TileEntityTurbineComputerPort extends
 		getBladeEfficiency,		// No arguments
 		getRotorMass,			// No arguments
 		getInductorEngaged,		// No arguments
+		getMaximumCoordinate,	// No arguments
+		getMinimumCoordinate,	// No arguments
 		setActive,				// Required Arg: integer (active)
 		setFluidFlowRateMax,	// Required Arg: integer (active)
 		setVentNone,			// No arguments
@@ -144,6 +147,18 @@ public class TileEntityTurbineComputerPort extends
 			return new Object[] { turbine.getRotorMass() };
 		case getInductorEngaged:
 			return new Object[] { turbine.getInductorEngaged() };
+		case getMinimumCoordinate:
+		{
+			CoordTriplet coord = turbine.getMinimumCoord();
+			return new Object[] { coord.x, coord.y, coord.z };
+		}
+			
+		case getMaximumCoordinate:
+		{
+			CoordTriplet coord = turbine.getMaximumCoord();
+			return new Object[] { coord.x, coord.y, coord.z };
+		}
+
 		case setActive:
 			if(arguments.length < 1) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
