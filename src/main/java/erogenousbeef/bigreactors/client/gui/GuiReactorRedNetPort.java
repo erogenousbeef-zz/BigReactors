@@ -225,7 +225,8 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	protected void actionPerformed(GuiButton button) {
 		if(button.id == 0) {
 			RedNetChange[] packetData = getUpdatePacketData();
-
+			
+			if(packetData == null) { return; }
             CommonPacketHandler.INSTANCE.sendToServer(new ReactorRedNetPortChangeMessage(port, packetData));
         }
 		
@@ -241,10 +242,15 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 			if(hasSettingChanged(i)) {
 				CircuitType circuitType = grabTargets[i].getCircuitType();
 				RedNetChange change = new RedNetChange(i, circuitType, pulseActivated[i], subSettingCoords[i]);
+				packetData.add(change);
 			}
 		}
 		
-		return (RedNetChange[]) packetData.toArray();
+		if(packetData.size() < 1) { return null; }
+		
+		RedNetChange[] changes = new RedNetChange[packetData.size()];
+		changes = packetData.toArray(changes);
+		return changes;
 	}
 
 	@Override
