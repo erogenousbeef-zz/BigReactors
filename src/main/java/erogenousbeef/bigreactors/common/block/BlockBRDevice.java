@@ -3,10 +3,12 @@ package erogenousbeef.bigreactors.common.block;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,6 +22,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 import cofh.api.tileentity.IReconfigurableFacing;
 import cofh.core.block.BlockCoFHBase;
+import cofh.core.util.CoreUtils;
 import cofh.lib.util.helpers.BlockHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -56,7 +59,7 @@ public class BlockBRDevice extends BlockCoFHBase {
 
 	private IIcon safeGetIcon(IIcon[] list, int idx, int x, int y, int z) {
 		if(idx < 0 || idx >= list.length) {
-			BRLog.info("Invalid metadata (%d) for block at %d, %d, %d!", idx, x, y, z);
+			BRLog.warning("Invalid metadata (%d) for block at %d, %d, %d!", idx, x, y, z);
 			return blockIcon;
 		}
 		else {
@@ -148,36 +151,33 @@ public class BlockBRDevice extends BlockCoFHBase {
 		if(te == null) { return false; }
 
 		if(entityPlayer.isSneaking()) {
-			// Empty-handed sneaking also works to rotate the machine, because it's easier on pre-wrench players.
-			if(entityPlayer.inventory.getCurrentItem() == null && te instanceof IReconfigurableFacing) {
-				return ((IReconfigurableFacing)te).rotateBlock();
-			}
-			
 			return false;
 		}
-
+		
 		if(te instanceof IWrenchable && StaticUtils.Inventory.isPlayerHoldingWrench(entityPlayer)) {
 			return ((IWrenchable)te).onWrench(entityPlayer, side);
 		}
 
 		// Handle buckets
-		if(te instanceof IFluidHandler && FluidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem()))
+		if(te instanceof IFluidHandler)
 		{
-			IFluidHandler fluidHandler = (IFluidHandler)te;
-			FluidTankInfo[] infoz = fluidHandler.getTankInfo(ForgeDirection.UNKNOWN);
-			for(FluidTankInfo info : infoz) {
-				if(StaticUtils.Fluids.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
+			if(FluidContainerRegistry.isEmptyContainer(entityPlayer.inventory.getCurrentItem())) {
+				IFluidHandler fluidHandler = (IFluidHandler)te;
+				FluidTankInfo[] infoz = fluidHandler.getTankInfo(ForgeDirection.UNKNOWN);
+				for(FluidTankInfo info : infoz) {
+					if(StaticUtils.Fluids.fillContainerFromTank(world, fluidHandler, entityPlayer, info.fluid)) {
+						return true;
+					}
+				}
+			}
+			else if(FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
+			{
+				if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer)) {
 					return true;
 				}
 			}
 		}
-		else if(te instanceof IFluidHandler && FluidContainerRegistry.isFilledContainer(entityPlayer.inventory.getCurrentItem()))
-		{
-			if(StaticUtils.Fluids.fillTankWithContainer(world, (IFluidHandler)te, entityPlayer)) {
-				return true;
-			}
-		}
-		
+
 		// Show GUI
 		if(te instanceof TileEntityBeefBase) {
 			if(!world.isRemote) {
@@ -193,8 +193,32 @@ public class BlockBRDevice extends BlockCoFHBase {
 	@Override
 	public ArrayList<ItemStack> dismantleBlock(EntityPlayer player, NBTTagCompound blockTag,
 			World world, int x, int y, int z, boolean returnDrops, boolean unknown) {
-		// TODO figure this out
-		return null;
+		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+		int metadata = world.getBlockMetadata(x, y, z);
+		stacks.add(new ItemStack(getItemDropped(metadata, world.rand, 0), 1, damageDropped(metadata)));
+		
+		TileEntity te = world.getTileEntity(x, y, z);
+		
+		if(te instanceof IInventory) {
+			IInventory invTe = (IInventory)te;
+			for(int i = 0; i < invTe.getSizeInventory(); i++) {
+				ItemStack stack = invTe.getStackInSlot(i);
+				if(stack != null) {
+					stacks.add(stack);
+				}
+			}
+		}
+		
+		world.setBlockToAir(x, y, z);
+		
+		if(!returnDrops) {
+			for(ItemStack stack: stacks) {
+				CoreUtils.dropItemStackIntoWorldWithVelocity(stack, world, x, y, z);
+			}
+			stacks.clear();
+		}
+		
+		return stacks;
 	}
 	
 	// IInitializer (unused)
