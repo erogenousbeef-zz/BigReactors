@@ -1,9 +1,8 @@
 package erogenousbeef.bigreactors.client.gui;
 
-import cofh.lib.util.helpers.BlockHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.inventory.Container;
-import net.minecraftforge.common.util.ForgeDirection;
+import cofh.lib.util.helpers.BlockHelper;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;

@@ -1,9 +1,5 @@
 package erogenousbeef.bigreactors.gui;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;

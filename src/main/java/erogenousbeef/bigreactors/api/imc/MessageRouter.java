@@ -2,9 +2,7 @@ package erogenousbeef.bigreactors.api.imc;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import cpw.mods.fml.common.event.FMLInterModComms.IMCEvent;

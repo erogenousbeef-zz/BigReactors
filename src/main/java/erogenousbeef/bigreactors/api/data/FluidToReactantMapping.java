@@ -1,8 +1,8 @@
 package erogenousbeef.bigreactors.api.data;
 
-import erogenousbeef.bigreactors.api.registry.Reactants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import erogenousbeef.bigreactors.api.registry.Reactants;
 
 public class FluidToReactantMapping extends SourceProductMapping {
 

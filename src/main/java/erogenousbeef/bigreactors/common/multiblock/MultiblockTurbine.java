@@ -2,7 +2,6 @@ package erogenousbeef.bigreactors.common.multiblock;
 
 import io.netty.buffer.ByteBuf;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import cofh.api.energy.IEnergyHandler;
 import cofh.lib.util.helpers.ItemHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.api.data.CoilPartData;
-import erogenousbeef.bigreactors.api.registry.Reactants;
 import erogenousbeef.bigreactors.api.registry.TurbineCoil;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import erogenousbeef.bigreactors.api.data.ReactorReaction;
-import erogenousbeef.bigreactors.api.data.SourceProductMapping;
 import erogenousbeef.bigreactors.common.BRLog;
 
 public class ReactorConversions {

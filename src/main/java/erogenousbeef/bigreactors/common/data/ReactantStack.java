@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.common.data;
 
-import erogenousbeef.bigreactors.common.BRLog;
 import net.minecraft.nbt.NBTTagCompound;
+import erogenousbeef.bigreactors.common.BRLog;
 
 public class ReactantStack {
 

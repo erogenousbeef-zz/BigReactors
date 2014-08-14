@@ -7,22 +7,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import cofh.core.util.oredict.OreDictionaryArbiter;
-import cofh.util.ItemHelper;
-
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
+import cofh.core.util.oredict.OreDictionaryArbiter;
+import cofh.util.ItemHelper;
 import erogenousbeef.bigreactors.api.IReactorFuel;
-import erogenousbeef.bigreactors.api.data.CoilPartData;
 import erogenousbeef.bigreactors.api.data.FluidToReactantMapping;
 import erogenousbeef.bigreactors.api.data.OreDictToReactantMapping;
 import erogenousbeef.bigreactors.api.data.ReactantData;
-import erogenousbeef.bigreactors.api.data.ReactorInteriorData;
 import erogenousbeef.bigreactors.api.data.SourceProductMapping;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.data.ReactantStack;
 import erogenousbeef.bigreactors.common.data.ReactorSolidMapping;
 
 public class Reactants {

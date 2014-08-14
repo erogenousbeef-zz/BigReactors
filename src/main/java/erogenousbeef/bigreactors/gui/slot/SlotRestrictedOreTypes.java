@@ -3,14 +3,11 @@ package erogenousbeef.bigreactors.gui.slot;
 import java.util.ArrayList;
 import java.util.List;
 
-import scala.actors.threadpool.Arrays;
-
-import cofh.core.util.oredict.OreDictionaryArbiter;
-import cofh.util.ItemHelper;
-
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import scala.actors.threadpool.Arrays;
+import cofh.core.util.oredict.OreDictionaryArbiter;
 
 public class SlotRestrictedOreTypes extends Slot {
 

@@ -1,14 +1,10 @@
 package erogenousbeef.bigreactors.net.message.multiblock;
 
-import net.minecraft.tileentity.TileEntity;
+import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import io.netty.buffer.ByteBuf;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPartBase;
 import erogenousbeef.bigreactors.net.message.base.ReactorMessageClient;
-import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
-import erogenousbeef.core.common.CoordTriplet;
 
 public class ReactorUpdateMessage extends ReactorMessageClient {
 	ByteBuf data;

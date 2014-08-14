@@ -1,16 +1,10 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import erogenousbeef.bigreactors.api.IReactorFuel;
-import erogenousbeef.bigreactors.api.data.FluidToReactantMapping;
-import erogenousbeef.bigreactors.api.data.ReactantData;
 import erogenousbeef.bigreactors.api.data.ReactorReaction;
 import erogenousbeef.bigreactors.api.registry.Reactants;
 import erogenousbeef.bigreactors.api.registry.ReactorConversions;
 import erogenousbeef.bigreactors.common.BRLog;
-import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.ReactantStack;
 import erogenousbeef.bigreactors.common.data.StandardReactants;
 

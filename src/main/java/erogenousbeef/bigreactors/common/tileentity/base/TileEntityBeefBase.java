@@ -3,22 +3,18 @@ package erogenousbeef.bigreactors.common.tileentity.base;
 import java.util.HashSet;
 import java.util.Set;
 
-import cofh.api.tileentity.IReconfigurableFacing;
-import cofh.core.block.TileCoFHBase;
-import cofh.lib.util.helpers.BlockHelper;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
+import cofh.api.tileentity.IReconfigurableFacing;
+import cofh.core.block.TileCoFHBase;
+import cofh.lib.util.helpers.BlockHelper;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.interfaces.IBeefReconfigurableSides;
 import erogenousbeef.bigreactors.common.interfaces.IWrenchable;
 import erogenousbeef.bigreactors.gui.IBeefGuiEntity;

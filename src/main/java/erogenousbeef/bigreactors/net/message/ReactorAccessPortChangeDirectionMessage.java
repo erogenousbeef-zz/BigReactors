@@ -4,9 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.net.message.base.ReactorMessageServer;
 import erogenousbeef.bigreactors.net.message.base.TileMessageServer;
 
 public class ReactorAccessPortChangeDirectionMessage extends TileMessageServer<TileEntityReactorAccessPort> {

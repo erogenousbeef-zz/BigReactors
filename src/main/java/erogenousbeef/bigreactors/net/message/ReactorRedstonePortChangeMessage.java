@@ -3,11 +3,9 @@ package erogenousbeef.bigreactors.net.message;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 import erogenousbeef.bigreactors.net.message.base.TileMessageServer;
-import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
 
 public class ReactorRedstonePortChangeMessage extends TileMessageServer<TileEntityReactorRedstonePort> {
     private int newCircut, newLevel;

@@ -1,9 +1,9 @@
 package erogenousbeef.bigreactors.net.message.base;
 
+import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.BRLog;
-import net.minecraft.tileentity.TileEntity;
 
 public class TileMessageClient<TE extends TileEntity> extends WorldMessageClient {
 

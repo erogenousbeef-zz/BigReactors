@@ -1,15 +1,10 @@
 package erogenousbeef.bigreactors.net.message;
 
-import cofh.api.tileentity.IReconfigurableFacing;
-import cofh.api.tileentity.IReconfigurableSides;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.ForgeDirection;
-import cpw.mods.fml.client.FMLClientHandler;
+import cofh.api.tileentity.IReconfigurableFacing;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
 import erogenousbeef.bigreactors.net.message.base.WorldMessageClient;
 
 public class DeviceUpdateRotationMessage extends WorldMessageClient {
