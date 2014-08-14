@@ -123,7 +123,8 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			}
 		}
 		
-		_inventories[SLOT_OUTLET] = distributeItemToPipes(SLOT_OUTLET, _inventories[SLOT_OUTLET]);
+		distributeItems();
+		markChunkDirty();
 	}
 	
 	private boolean consumeInputs() {
