@@ -15,10 +15,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemDuct;
+import cofh.lib.util.helpers.BlockHelper;
 import cofh.util.ItemHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -29,16 +32,20 @@ import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
+import erogenousbeef.bigreactors.utils.AdjacentInventoryHelper;
 import erogenousbeef.bigreactors.utils.InventoryHelper;
 import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
 import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory {
+public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, INeighborUpdatableEntity {
 
 	protected ItemStack[] _inventories;
 	protected boolean isInlet;
+	protected AdjacentInventoryHelper adjacencyHelper;
 	
 	public static final int SLOT_INLET = 0;
 	public static final int SLOT_OUTLET = 1;
@@ -187,6 +194,21 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		return reactantConsumed;
 	}
 	
+	// Multiblock overrides
+	@Override
+	public void onMachineAssembled(MultiblockControllerBase controller) {
+		super.onMachineAssembled(controller);
+
+		adjacencyHelper = new AdjacentInventoryHelper(this.getOutwardsDir());
+		checkForAdjacentInventories();
+	}
+	
+	@Override
+	public void onMachineBroken() {
+		super.onMachineBroken();
+		adjacencyHelper = null;
+	}
+
 	// TileEntity overrides
 	
 	@Override
@@ -384,63 +406,15 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		return new GuiReactorAccessPort(new ContainerReactorAccessPort(this, inventoryPlayer), this);
 	}
-	
-	/**
-	 * @param itemToDistribute An ItemStack to distribute to pipes
-	 * @return Null if the stack was distributed, the same ItemStack otherwise.
-	 */
-	protected ItemStack distributeItemToPipes(ItemStack itemToDistribute) {
-		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
-										ForgeDirection.EAST, ForgeDirection.WEST };
-
-		for(ForgeDirection dir : dirsToCheck) {
-			if(itemToDistribute == null) { return null; }
-
-			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(ModHelperBase.useCofh && te instanceof IItemDuct) {
-				IItemDuct conduit = (IItemDuct)te;
-				itemToDistribute = conduit.insertItem(dir.getOpposite(), itemToDistribute);
-			}
-			else if(ModHelperBase.useBuildcraftTransport && te instanceof IPipeTile) {
-				IPipeTile pipe = (IPipeTile)te;
-				if(pipe.isPipeConnected(dir.getOpposite())) {
-					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
-					
-					if(itemToDistribute.stackSize <= 0) {
-						return null;
-					}
-				}				
-			}
-			else if(te instanceof IInventory) {
-				InventoryHelper helper;
-				if(te instanceof ISidedInventory) {
-					helper = new SidedInventoryHelper((ISidedInventory)te, dir.getOpposite());
-				}
-				else {
-					IInventory inv = (IInventory)te;
-					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Blocks.chest) {
-						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-					}
-					helper = new InventoryHelper(inv);
-				}
-				itemToDistribute = helper.addItem(itemToDistribute);
-			}
-		}
-		
-		return itemToDistribute;
-	}
 
 	/**
 	 * Called when stuff has been placed in the access port
 	 */
 	public void onItemsReceived() {
-		if(!isInlet()) {
-			_inventories[SLOT_OUTLET] = distributeItemToPipes(_inventories[SLOT_OUTLET]);
-		}
-
-		markDirty();
+		distributeItems();
+		markChunkDirty();
 	}
-	
+
 	public boolean isInlet() { return this.isInlet; }
 
 	public void setInlet(boolean shouldBeInlet) {
@@ -451,10 +425,55 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		
 		if(!worldObj.isRemote) {
-			markDirty();
+			distributeItems();
+			markChunkDirty();
 		}
-		else {
-			notifyNeighborsOfTileChange();
+
+		notifyNeighborsOfTileChange();
+	}
+	
+	protected void distributeItems() {
+		if(worldObj.isRemote) { return; }
+		if(adjacencyHelper == null) { return; }
+		
+		if(this.isInlet()) { return; }
+		
+		_inventories[SLOT_OUTLET] = adjacencyHelper.distribute(_inventories[SLOT_OUTLET]);
+		markChunkDirty();
+	}
+	
+	protected void checkForAdjacentInventories() {
+		ForgeDirection outDir = getOutwardsDir();
+
+		if(adjacencyHelper == null && outDir != ForgeDirection.UNKNOWN) {
+			adjacencyHelper = new AdjacentInventoryHelper(outDir);
+		}
+
+		if(adjacencyHelper != null && outDir != ForgeDirection.UNKNOWN) {
+			TileEntity te = worldObj.getTileEntity(xCoord + outDir.offsetX, yCoord + outDir.offsetY, zCoord + outDir.offsetZ);
+			if(adjacencyHelper.set(te)) {
+				distributeItems();
+			}
+		}
+	}
+	
+	protected void markChunkDirty() {
+		worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
+	}
+
+	// INeighborUpdateableEntity
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z,
+			Block neighborBlock) {
+		checkForAdjacentInventories();
+	}
+
+	@Override
+	public void onNeighborTileChange(IBlockAccess world, int x, int y, int z,
+			int neighborX, int neighborY, int neighborZ) {
+		int side = BlockHelper.determineAdjacentSide(this, neighborX, neighborY, neighborZ);
+		if(side == getOutwardsDir().ordinal()) {
+			checkForAdjacentInventories();
 		}
 	}
 }

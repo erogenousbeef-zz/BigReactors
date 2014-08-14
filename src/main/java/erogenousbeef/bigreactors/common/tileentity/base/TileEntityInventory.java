@@ -1,14 +1,7 @@
 package erogenousbeef.bigreactors.common.tileentity.base;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-
-import scala.actors.threadpool.Arrays;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -16,23 +9,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
-import buildcraft.api.transport.IPipeTile;
-import cofh.api.transport.IItemDuct;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import erogenousbeef.bigreactors.net.CommonPacketHandler;
-import erogenousbeef.bigreactors.utils.InventoryHelper;
-import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
-import erogenousbeef.bigreactors.utils.StaticUtils;
-import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
+import cofh.lib.util.helpers.BlockHelper;
+import erogenousbeef.bigreactors.utils.AdjacentInventoryHelper;
 
 public abstract class TileEntityInventory extends TileEntityBeefBase implements IInventory, ISidedInventory {
 	
 	// Inventory
 	protected ItemStack[] _inventories;
 	protected int[][] invSlotExposures;
+
+	private AdjacentInventoryHelper[] adjacentInvs;
 	
-	protected static final int SLOT_NONE = -1;
-	
+	protected static final int SLOT_NONE = TileEntityBeefBase.SIDE_UNEXPOSED;
+
 	public TileEntityInventory() {
 		super();
 		_inventories = new ItemStack[getSizeInventory()];
@@ -41,6 +30,27 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			// Set up a cached array with all possible exposed inventory slots, so we don't have to alloc at runtime
 			invSlotExposures[i][0] = i;
 		}
+		
+		adjacentInvs = new AdjacentInventoryHelper[ForgeDirection.VALID_DIRECTIONS.length];
+		for(ForgeDirection dir: ForgeDirection.VALID_DIRECTIONS) {
+			adjacentInvs[dir.ordinal()] = new AdjacentInventoryHelper(dir);
+		}
+
+		resetAdjacentInventories();
+	}
+
+	@Override
+	public void onNeighborBlockChange() {
+		super.onNeighborBlockChange();
+		
+		checkAdjacentInventories();
+	}
+	
+	@Override
+	public void onNeighborTileChange(int x, int y, int z) {
+		super.onNeighborTileChange(x, y, z);
+		int side = BlockHelper.determineAdjacentSide(this, x, y, z);
+		checkAdjacentInventory(ForgeDirection.getOrientation(side));
 	}
 	
 	// TileEntity overrides
@@ -197,65 +207,62 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	public boolean canConduitConnect(ForgeDirection from) {
 		return from != ForgeDirection.UNKNOWN;
 	}
-	
+
 	/**
-	 * @param fromSlot The inventory slot into which this object would normally go.
-	 * @param itemToDistribute An ItemStack to distribute to pipes
-	 * @return Null if the stack was distributed, an ItemStack indicating the remainder otherwise.
+	 * This method distributes items from all exposed slots to linked inventories
+	 * on their respective sides.
 	 */
-	protected ItemStack distributeItemToPipes(int fromSlot, ItemStack itemToDistribute) {
-		ForgeDirection[] dirsToCheck = { ForgeDirection.NORTH, ForgeDirection.SOUTH,
-										ForgeDirection.EAST, ForgeDirection.WEST, ForgeDirection.UP, ForgeDirection.DOWN };
-
-		for(ForgeDirection dir : dirsToCheck) {
-			// Are we exposed on that side?
-			if(itemToDistribute == null) { return null; }
-
-			int[] accessibleSlots = getAccessibleSlotsFromSide(dir.ordinal());
-			if(accessibleSlots == null || accessibleSlots.length < 1) { continue; }
-			
-			boolean allowed = false;
-			for(int i = 0; i < accessibleSlots.length; i++) {
-				if(accessibleSlots[i] == fromSlot) {
-					allowed = true;
-					break;
-				}
-			}
-			
-			if(!allowed) { continue; }
-			
-			TileEntity te = this.worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-			if(ModHelperBase.useCofh && te instanceof IItemDuct) {
-				IItemDuct conduit = (IItemDuct)te;
-				itemToDistribute = conduit.insertItem(dir.getOpposite(), itemToDistribute);
-			}
-			else if(ModHelperBase.useBuildcraftTransport && te instanceof IPipeTile) {
-				IPipeTile pipe = (IPipeTile)te;
-				if(pipe.isPipeConnected(dir.getOpposite())) {
-					itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
-					
-					if(itemToDistribute.stackSize <= 0) {
-						return null;
-					}
-				}
-			}
-			else if(te instanceof IInventory) {
-				InventoryHelper helper;
-				if(te instanceof ISidedInventory) {
-					helper = new SidedInventoryHelper((ISidedInventory)te, dir.getOpposite());
-				}
-				else {
-					IInventory inv = (IInventory)te;
-					if(worldObj.getBlock(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ) == Blocks.chest) {
-						inv = StaticUtils.Inventory.checkForDoubleChest(worldObj, inv, xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-					}
-					helper = new InventoryHelper(inv);
-				}
-				itemToDistribute = helper.addItem(itemToDistribute);
-			}
+	protected void distributeItems()
+	{
+		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
+			distributeSide(dir);
 		}
-		
-		return itemToDistribute;
 	}
 
+	/**
+	 * Distributes items from whichever slot is currently exposed on a given
+	 * side to any adjacent pipes/ducts/inventories.
+	 * @param dir The side whose exposed items you wish to distribute.
+	 */
+	protected void distributeSide(ForgeDirection dir) {
+		int slot = getExposedInventorySlotFromSide(dir.ordinal());
+		if(slot == SLOT_NONE) { return; }
+		if(_inventories[slot] == null) { return; }
+		
+		_inventories[slot] = distributeItemToSide(dir, _inventories[slot]);
+	}
+	
+	/**
+	 * Distributes a given item stack to a given side.
+	 * Note that this method does not check for exposures.
+	 * @param dir Direction/side to which you wish to distribute items.
+	 * @param itemstack An item stack to distribute.
+	 * @return An itemstack containing the undistributed items, or null if all items were distributed.
+	 */
+	protected ItemStack distributeItemToSide(ForgeDirection dir, ItemStack itemstack) {
+		return adjacentInvs[dir.ordinal()].distribute(itemstack);
+	}
+	
+	// Adjacent Inventory Detection
+	private void checkAdjacentInventories() {
+		boolean changed = false;
+		for(ForgeDirection dir: ForgeDirection.VALID_DIRECTIONS) {
+			checkAdjacentInventory(dir);
+		}
+	}
+	
+	private void checkAdjacentInventory(ForgeDirection dir) {
+		int side = dir.ordinal();
+		
+		TileEntity te = worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+		if(adjacentInvs[dir.ordinal()].set(te)) {
+			distributeSide(dir);
+		}
+	}
+	
+	private void resetAdjacentInventories() {
+		for(int i = 0; i < ForgeDirection.VALID_DIRECTIONS.length; i++) {
+			adjacentInvs[i].set(null);
+		}
+	}
 }
