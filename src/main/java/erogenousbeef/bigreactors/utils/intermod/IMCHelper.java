@@ -18,6 +18,46 @@ public class IMCHelper {
 		FMLInterModComms.sendMessage(to, type, message);
 	}
 	
+	public static class ThermalExpansion {
+		public static void addPulverizerRecipe(int energy, ItemStack input, ItemStack primaryOutput) {
+
+			if (input == null || primaryOutput == null) {
+				return;
+			}
+			NBTTagCompound toSend = new NBTTagCompound();
+
+			toSend.setInteger("energy", energy);
+			toSend.setTag("input", new NBTTagCompound());
+			toSend.setTag("primaryOutput", new NBTTagCompound());
+			toSend.setTag("secondaryOutput", new NBTTagCompound());
+
+			input.writeToNBT(toSend.getCompoundTag("input"));
+			primaryOutput.writeToNBT(toSend.getCompoundTag("primaryOutput"));
+
+			FMLInterModComms.sendMessage("ThermalExpansion", "PulverizerRecipe", toSend);
+		}
+		
+		public static void addSmelterRecipe(int energy, ItemStack primaryInput, ItemStack secondaryInput, ItemStack primaryOutput) {
+
+			if (primaryInput == null || secondaryInput == null || primaryOutput == null) {
+				return;
+			}
+			NBTTagCompound toSend = new NBTTagCompound();
+
+			toSend.setInteger("energy", energy);
+			toSend.setTag("primaryInput", new NBTTagCompound());
+			toSend.setTag("secondaryInput", new NBTTagCompound());
+			toSend.setTag("primaryOutput", new NBTTagCompound());
+			toSend.setTag("secondaryOutput", new NBTTagCompound());
+
+			primaryInput.writeToNBT(toSend.getCompoundTag("primaryInput"));
+			secondaryInput.writeToNBT(toSend.getCompoundTag("secondaryInput"));
+			primaryOutput.writeToNBT(toSend.getCompoundTag("primaryOutput"));
+
+			FMLInterModComms.sendMessage("ThermalExpansion", "SmelterRecipe", toSend);
+		}
+	}
+	
 	/// MineFactory Reloaded
 	public static class MFR {
 		public static void addOreToMiningLaserFocus(ItemStack stack, int color) {
