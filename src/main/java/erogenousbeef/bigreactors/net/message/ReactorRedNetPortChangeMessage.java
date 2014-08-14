@@ -1,20 +1,12 @@
 package erogenousbeef.bigreactors.net.message;
 
 import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort.CircuitType;
 import erogenousbeef.bigreactors.net.helpers.RedNetChange;
 import erogenousbeef.bigreactors.net.message.base.TileMessageServer;
-import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
-import erogenousbeef.core.common.CoordTriplet;
 
 public class ReactorRedNetPortChangeMessage extends TileMessageServer<TileEntityReactorRedNetPort> {
     private RedNetChange[] changes;

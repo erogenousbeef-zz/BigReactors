@@ -1,7 +1,7 @@
 package erogenousbeef.bigreactors.net.message.base;
 
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import net.minecraft.world.World;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 /**
  * A user-generated message to the server which is grounded in world-space.

@@ -1,7 +1,5 @@
 package erogenousbeef.bigreactors.api.data;
 
-import net.minecraft.item.ItemStack;
-import cofh.util.ItemHelper;
 import erogenousbeef.bigreactors.api.registry.Reactants;
 
 /**

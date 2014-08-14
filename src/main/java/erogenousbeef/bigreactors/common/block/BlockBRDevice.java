@@ -3,7 +3,6 @@ package erogenousbeef.bigreactors.common.block;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -23,7 +22,6 @@ import net.minecraftforge.fluids.IFluidHandler;
 import cofh.api.tileentity.IReconfigurableFacing;
 import cofh.core.block.BlockCoFHBase;
 import cofh.core.util.CoreUtils;
-import cofh.lib.util.helpers.BlockHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLoader;

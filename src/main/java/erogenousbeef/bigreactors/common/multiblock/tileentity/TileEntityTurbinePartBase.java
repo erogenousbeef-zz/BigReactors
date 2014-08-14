@@ -1,9 +1,5 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
-
 import net.minecraft.entity.player.InventoryPlayer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;

@@ -1,15 +1,11 @@
 package erogenousbeef.bigreactors.net.message;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.tileentity.base.TileEntityBeefBase;
-import erogenousbeef.bigreactors.common.tileentity.base.TileEntityInventory;
-import erogenousbeef.bigreactors.net.message.base.WorldMessage;
 import erogenousbeef.bigreactors.net.message.base.WorldMessageServer;
 
 /**

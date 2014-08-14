@@ -1,10 +1,5 @@
 package erogenousbeef.bigreactors.client;
 
-import java.util.HashMap;
-
-import erogenousbeef.bigreactors.common.BigReactors;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.IIcon;
 
 public class CommonBlockIconManager extends BeefIconManager {
 

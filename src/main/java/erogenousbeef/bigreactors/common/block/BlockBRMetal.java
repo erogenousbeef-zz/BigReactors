@@ -2,9 +2,6 @@ package erogenousbeef.bigreactors.common.block;
 
 import java.util.List;
 
-import cofh.core.util.oredict.OreDictionaryArbiter;
-import cofh.util.ItemHelper;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;

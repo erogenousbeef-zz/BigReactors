@@ -1,8 +1,8 @@
 package erogenousbeef.bigreactors.net.message.multiblock;
 
+import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import io.netty.buffer.ByteBuf;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor.WasteEjectionSetting;
 import erogenousbeef.bigreactors.net.message.base.ReactorMessageServer;

@@ -1,10 +1,5 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.EOFException;
-import java.io.IOException;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;

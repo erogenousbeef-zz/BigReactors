@@ -4,8 +4,26 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.net.message.*;
-import erogenousbeef.bigreactors.net.message.multiblock.*;
+import erogenousbeef.bigreactors.net.message.ControlRodChangeInsertionMessage;
+import erogenousbeef.bigreactors.net.message.ControlRodChangeNameMessage;
+import erogenousbeef.bigreactors.net.message.ControlRodUpdateMessage;
+import erogenousbeef.bigreactors.net.message.DeviceChangeExposureMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateExposureMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateMessage;
+import erogenousbeef.bigreactors.net.message.DeviceUpdateRotationMessage;
+import erogenousbeef.bigreactors.net.message.MachineCommandActivateMessage;
+import erogenousbeef.bigreactors.net.message.ReactorAccessPortChangeDirectionMessage;
+import erogenousbeef.bigreactors.net.message.ReactorRedNetPortChangeMessage;
+import erogenousbeef.bigreactors.net.message.ReactorRedstonePortChangeMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorChangeWasteEjectionMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorCommandEjectMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorCommandEjectToPortMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorUpdateMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.ReactorUpdateWasteEjectionMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeInductorMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeMaxIntakeMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeVentMessage;
+import erogenousbeef.bigreactors.net.message.multiblock.TurbineUpdateMessage;
 
 public class CommonPacketHandler {
 

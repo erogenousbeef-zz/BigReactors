@@ -1,10 +1,10 @@
 package erogenousbeef.bigreactors.common.multiblock.helpers;
 
-import erogenousbeef.bigreactors.common.multiblock.interfaces.IConditionalUpdater;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.IConditionalUpdater;
 
 public abstract class FluidHelper implements IConditionalUpdater {
 

@@ -1,14 +1,10 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
-import io.netty.buffer.ByteBuf;
-
-import java.io.IOException;
 import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -18,9 +14,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.FluidStack;
-import buildcraft.api.transport.IPipeTile;
-import cofh.api.transport.IItemDuct;
 import cofh.lib.util.helpers.BlockHelper;
 import cofh.util.ItemHelper;
 import cpw.mods.fml.relauncher.Side;
@@ -31,14 +24,9 @@ import erogenousbeef.bigreactors.client.gui.GuiReactorAccessPort;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.StandardReactants;
-import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.utils.AdjacentInventoryHelper;
-import erogenousbeef.bigreactors.utils.InventoryHelper;
-import erogenousbeef.bigreactors.utils.SidedInventoryHelper;
-import erogenousbeef.bigreactors.utils.StaticUtils;
-import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, INeighborUpdatableEntity {
