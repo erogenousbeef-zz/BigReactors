@@ -19,28 +19,8 @@ Known Issues
 
 TODO - 0.4: The 1.7.10 Update
 -----------------------------
-- *DONE* Fully rewritten networking and message-routing system
-- *DONE* Reactor part rewritten to not do stupid things with metadata
-  - *DONE* MUCH faster to assemble/disassemble, like 90% less network traffic on your average reactor
-  - *DONE* Exponential reduction on very large reactors (99%+ less traffic)
-- *DONE* Reactor part icon selection rewritten thanks to above
-- *DONE* Reactor control rod merged into base reactor part, lots of dead code removed
-- *DONE* Enabled reactor parts on top/bottom faces thanks to all of the above
-- *DONE* Control Rod GUI has been overhauled
-  - *DONE* Can set all control rods from single GUI
-  - *DONE* Has tooltips explaining WTF control rod insertion does
-- Migrate APIs to operate via IMC instead of requiring direct calls
-
-Remaining Test Items:
-- *DONE* Ensure that multiblocks still reform when build across chunk boundaries
-- *DONE* Ensure that multiblocks still reform on chunk loads
-- *DONE* Ensure that turbines still assemble and operate
-- *DONE* Ensure that reactors operate properly and GUI updates propagate properly
-- *DONE* Ensure that cyanite reprocessor still works & inventory/fluid side changes still work
-- **Partially Done** Ensure that all of the above also work on multiplayer servers
-- *DONE* Test interoperability with TE 1.7.10 beta
-
-When all of the above are marked **done**, I'll release a public experimental (i.e. test) build. It will be *0.4.0X1*.
+- Add an IMC API for coil and reactor interior blocks to proof out the IMC handler system
+- Remove workarounds for TE IMC API when CoFHCore 3.0.0B4 comes out.
 
 TODO - 0.5: The Exotic Coolant Update
 ------------------------------

@@ -4,8 +4,11 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc1)
+Current Release (0.4.0rc2)
 --------------------------------
+- Bugfix: Cyanite reprocessors were unable to accept inputs from hoppers, pipes, etc. This has been fixed.
+
+### 0.4.0rc1
 - **CoFHCore is now a hard dependency**. Big Reactors will *not* work without CoFHCore installed.
 - Upgrade: Upgraded to Forge 10.13.0.1198. Thanks to Parker8283 for the help!
 - Refactor: Completely new network messaging system, originally based on Pahimar and Parker8283's systems.
