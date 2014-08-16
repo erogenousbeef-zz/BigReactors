@@ -185,7 +185,7 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
 		int exposedSlot = getExposedInventorySlotFromSide(side);
-		if(exposedSlot > 0 && exposedSlot < invSlotExposures.length) {
+		if(exposedSlot >= 0 && exposedSlot < invSlotExposures.length) {
 			return invSlotExposures[exposedSlot];
 		}
 		else {
