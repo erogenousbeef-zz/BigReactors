@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -51,8 +52,6 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		if(itemstack == null) { return true; }
 		
-		FluidStack data = null;
-		
 		if(slot == SLOT_OUTLET) {
 			return Reactants.isFuel(itemstack);
 		}
@@ -60,7 +59,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			return Reactants.isWaste(itemstack);
 		}
 
-		return data != null;
+		return false;
 	}
 
 	@Override
