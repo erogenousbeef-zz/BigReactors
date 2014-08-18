@@ -4,8 +4,12 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc2)
+Current Release (0.4.0rc3)
 --------------------------------
+- Bugfix: Cyanite reprocessors erroneously dismantled themselves when NEI's new overlay system queried them, causing them to dismantle whenever a player looked at them. This has been fixed.
+- Bugfix: Rebuilt with SunJDK, which seems to fix odd, unexplainable errors when rc2 (which was the first and only release built on openJDK) runs on plain-vanilla Forge servers. (Installing Cauldron resolves the odd errors. Go figure.)
+
+### 0.4.0rc2
 - Bugfix: Cyanite reprocessors were unable to accept inputs from hoppers, pipes, etc. This has been fixed.
 
 ### 0.4.0rc1
