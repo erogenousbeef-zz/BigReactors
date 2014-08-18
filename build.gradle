@@ -19,8 +19,9 @@ apply plugin: 'forge'
 
 sourceSets.main.java.srcDirs += 'BeefCore/src/main/java'
 
+ant.loadproperties(srcFile: "version.properties")
+version = ant.properties['vMajor'] + "." + ant.properties['vMinor'] + "." + ant.properties['vPatch'] + ant.properties['vSuffix']
 
-version = "0.4.0rc3"
 group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 
@@ -65,5 +66,22 @@ processResources
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+// NOTE: When using the addVersion task, it MUST be run in a separate gradle run
+// from build, or else the mod will have a mismatched version number.
+// This is because the minecraft project's replaceIn system runs at
+// configuration time, and you cannot specify which tasks run
+// during configuration time. This blows, but it works for now.
+
+task addVersion {
+    inputs.property "version", project.version
+    outputs.file "version.properties"
+}
+
+addVersion << {
+    ant.propertyfile(file: "version.properties") {
+        entry( key: "vPatch", type: int, value: 1, operation: "+" )
     }
 }
