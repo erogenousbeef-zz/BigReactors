@@ -3,6 +3,8 @@ package erogenousbeef.bigreactors.common.block;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -190,7 +192,7 @@ public class BlockBRDevice extends BlockCoFHBase {
 	// IDismantleable
 	@Override
 	public ArrayList<ItemStack> dismantleBlock(EntityPlayer player, NBTTagCompound blockTag,
-			World world, int x, int y, int z, boolean returnDrops, boolean unknown) {
+			World world, int x, int y, int z, boolean returnDrops, boolean simulate) {
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
 		int metadata = world.getBlockMetadata(x, y, z);
 		stacks.add(new ItemStack(getItemDropped(metadata, world.rand, 0), 1, damageDropped(metadata)));
@@ -206,16 +208,17 @@ public class BlockBRDevice extends BlockCoFHBase {
 				}
 			}
 		}
+
+		if(!simulate) {
+			world.setBlockToAir(x, y, z);
 		
-		world.setBlockToAir(x, y, z);
-		
-		if(!returnDrops) {
-			for(ItemStack stack: stacks) {
-				CoreUtils.dropItemStackIntoWorldWithVelocity(stack, world, x, y, z);
+			if(!returnDrops) {
+				for(ItemStack stack: stacks) {
+					CoreUtils.dropItemStackIntoWorldWithVelocity(stack, world, x, y, z);
+				}
 			}
-			stacks.clear();
 		}
-		
+
 		return stacks;
 	}
 	
