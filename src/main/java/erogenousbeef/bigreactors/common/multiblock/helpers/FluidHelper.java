@@ -365,4 +365,22 @@ public abstract class FluidHelper implements IConditionalUpdater {
 
 		return info;
 	}
+	
+	public String getDebugInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Capacity (per): ").append(Integer.toString(getCapacity()));
+		String[] tankNames = getNBTTankNames();
+		for(int i = 0; i < fluids.length; i++) {
+			sb.append("[").append(Integer.toString(i)).append("] ").append(tankNames[i]).append(": ");
+			if(fluids[i] == null) {
+				sb.append("NULL");
+			}
+			else {
+				FluidStack stack = fluids[i];
+				sb.append(stack.getFluid().getName()).append(", ").append(Integer.toString(stack.amount)).append(" mB");
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 }

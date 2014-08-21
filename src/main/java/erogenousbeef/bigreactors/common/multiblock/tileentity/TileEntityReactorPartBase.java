@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -8,6 +9,7 @@ import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.data.RadiationData;
 import erogenousbeef.bigreactors.common.data.RadiationPacket;
+import erogenousbeef.bigreactors.common.interfaces.IBeefDebuggableTile;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
@@ -16,7 +18,9 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
 public abstract class TileEntityReactorPartBase extends
-		RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, IHeatEntity, IRadiationModerator, IActivateable {
+		RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, IHeatEntity,
+														IRadiationModerator, IActivateable,
+														IBeefDebuggableTile {
 
 	public TileEntityReactorPartBase() {
 	}
@@ -117,5 +121,18 @@ public abstract class TileEntityReactorPartBase extends
 		else {
 			BRLog.error("Received a setActive command at %d, %d, %d, but not connected to a multiblock controller!", xCoord, yCoord, zCoord);
 		}
+	}
+	
+	@Override
+	public String getDebugInfo() {
+		MultiblockReactor r = getReactorController();
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().toString()).append("\n");
+		if(r == null) {
+			sb.append("Not attached to controller!");
+			return sb.toString();
+		}
+		sb.append(r.getDebugInfo());
+		return sb.toString();
 	}
 }

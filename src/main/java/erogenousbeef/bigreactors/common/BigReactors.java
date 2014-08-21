@@ -35,6 +35,7 @@ import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
 import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
+import erogenousbeef.bigreactors.common.item.ItemBeefDebugTool;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
@@ -127,6 +128,8 @@ public class BigReactors {
 	public static final int ITEM_ID_PREFIX = 17750;
 	public static ItemIngot ingotGeneric;
 
+	public static ItemBeefDebugTool itemDebugTool;
+	
 	public static BRSimpleOreGenerator yelloriteOreGeneration;
 	
 	public static boolean INITIALIZED = false;
@@ -828,6 +831,13 @@ public class BigReactors {
 			ReactorInterior.registerFluid("meat",			0.40f, 0.60f, 1.33f, IHeatEntity.conductivityStone);
 			ReactorInterior.registerFluid("pinkSlime",	0.45f, 0.70f, 1.50f, IHeatEntity.conductivityIron);
 			ReactorInterior.registerFluid("sewage",		0.50f, 0.65f, 1.44f, IHeatEntity.conductivityIron);
+		}
+	}
+	
+	public static void registerItems() {
+		if(itemDebugTool == null) {
+			itemDebugTool = new ItemBeefDebugTool();
+			GameRegistry.registerItem(itemDebugTool, "BRDebugTool");
 		}
 	}
 

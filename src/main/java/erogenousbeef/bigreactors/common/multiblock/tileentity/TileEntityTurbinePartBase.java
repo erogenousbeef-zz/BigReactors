@@ -4,6 +4,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.common.BRLog;
+import erogenousbeef.bigreactors.common.interfaces.IBeefDebuggableTile;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IMultiblockGuiHandler;
@@ -11,7 +12,8 @@ import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, IActivateable {
+public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTileEntityBase implements IMultiblockGuiHandler, 
+		IActivateable, IBeefDebuggableTile {
 
 	public TileEntityTurbinePartBase() {
 	}
@@ -103,5 +105,18 @@ public abstract class TileEntityTurbinePartBase extends RectangularMultiblockTil
 		else {
 			BRLog.error("Received a setActive command at %d, %d, %d, but not connected to a multiblock controller!", xCoord, yCoord, zCoord);
 		}
+	}
+	
+	@Override
+	public String getDebugInfo() {
+		MultiblockTurbine t = getTurbine();
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().toString()).append("\n");
+		if(t == null) {
+			sb.append("Not attached to controller!");
+			return sb.toString();
+		}
+		sb.append(t.getDebugInfo());
+		return sb.toString();
 	}
 }
