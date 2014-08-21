@@ -45,6 +45,7 @@ item.dustBlutonium.name=Blutonium Dust
 item.dustGraphite.name=Graphite Dust
 item.bucket.cyanite.name=Fluid Cyanite Bucket
 item.bucket.yellorium.name=Fluid Yellorium Bucket
+item.beefDebugTool.name=BeefTronic™ Diagnostics Tool
 
 # Fluids
 fluid.tile.water=Water

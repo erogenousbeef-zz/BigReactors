@@ -1151,4 +1151,45 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	}
 	
 	public boolean hasGlass() { return attachedGlass.size() > 0; }
+	
+	public String getDebugInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Assembled: ").append(Boolean.toString(isAssembled())).append("\n");
+		sb.append("Attached Blocks: ").append(Integer.toString(connectedParts.size())).append("\n");
+		if(getLastValidationException() != null) {
+			sb.append("Validation Exception:\n").append(getLastValidationException().getMessage()).append("\n");
+		}
+		
+		if(isAssembled()) {
+			sb.append("\nActive: ").append(Boolean.toString(getActive()));
+			sb.append("\nStored Energy: ").append(Float.toString(getEnergyStored()));
+			sb.append("\nRotor Energy: ").append(Float.toString(rotorEnergy));
+			sb.append("\nRotor Speed: ").append(Float.toString(getRotorSpeed())).append(" rpm");
+			sb.append("\nInductor Engaged: ").append(Boolean.toString(inductorEngaged));
+			sb.append("\nVent Status: ").append(ventStatus.toString());
+			sb.append("\nMax Intake Rate: ").append(Integer.toString(maxIntakeRate));
+			sb.append("\nCoil Size: ").append(Integer.toString(coilSize));
+			sb.append("\nRotor Mass: ").append(Integer.toString(rotorMass));
+			sb.append("\nBlade SurfArea: ").append(Integer.toString(bladeSurfaceArea));
+			sb.append("\n# Blades: ").append(Integer.toString(attachedRotorBlades.size()));
+			sb.append("\n# Shafts: ").append(Integer.toString(attachedRotorShafts.size()));
+			sb.append("\nRotor Drag CoEff: ").append(Float.toString(rotorDragCoefficient));
+			sb.append("\nBlade Drag CoEff: ").append(Float.toString(bladeDragCoefficient));
+			sb.append("\nFrict Drag CoEff: ").append(Float.toString(frictionalDrag));
+			sb.append("\n\nFluid Tanks:\n");
+			for(int i = 0; i < tanks.length; i++) {
+				sb.append(String.format("[%d] %s ", i, i == TANK_OUTPUT ? "outlet":"inlet"));
+				if(tanks[i] == null || tanks[i].getFluid() == null) {
+					sb.append("empty");
+				}
+				else {
+					FluidStack stack = tanks[i].getFluid();
+					sb.append(String.format("%s, %d mB", stack.getFluid().getName(), stack.amount));
+				}
+				sb.append("\n");
+			}
+		}
+
+		return sb.toString();
+	}
 }

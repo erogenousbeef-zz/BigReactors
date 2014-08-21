@@ -88,4 +88,11 @@ public class ReactantStack {
 			return newStack;
 		}
 	}
+	
+	public String toString() {
+		if(reactant == null) {
+			return "UNKNOWN";
+		}
+		return String.format("%s, %d mB", reactant, amount);
+	}
 }

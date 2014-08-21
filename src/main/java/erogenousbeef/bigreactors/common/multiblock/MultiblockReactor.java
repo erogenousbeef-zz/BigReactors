@@ -1291,4 +1291,29 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	public boolean getActive() {
 		return this.active;
 	}
+	
+	public String getDebugInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Assembled: ").append(Boolean.toString(isAssembled())).append("\n");
+		sb.append("Attached Blocks: ").append(Integer.toString(connectedParts.size())).append("\n");
+		if(getLastValidationException() != null) {
+			sb.append("Validation Exception:\n").append(getLastValidationException().getMessage()).append("\n");
+		}
+		
+		if(isAssembled()) {
+			sb.append("\nActive: ").append(Boolean.toString(getActive()));
+			sb.append("\nStored Energy: ").append(Float.toString(getEnergyStored()));
+			sb.append("\nCasing Heat: ").append(Float.toString(getReactorHeat()));
+			sb.append("\nFuel Heat: ").append(Float.toString(getFuelHeat()));
+			sb.append("\n\nReactant Tanks:\n");
+			sb.append( fuelContainer.getDebugInfo() );
+			sb.append("\n\nActively Cooled: ").append(Boolean.toString(!isPassivelyCooled()));
+			if(!isPassivelyCooled()) {
+				sb.append("\n\nCoolant Tanks:\n");
+				sb.append( coolantContainer.getDebugInfo() );
+			}
+		}
+
+		return sb.toString();
+	}
 }

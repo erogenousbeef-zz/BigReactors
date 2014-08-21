@@ -330,4 +330,20 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			}
 		}
 	}
+	
+	public String getDebugInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Capacity: ").append(Integer.toString(getCapacity()));
+		for(int i = 0; i < tanks.length; i++) {
+			sb.append("[").append(Integer.toString(i)).append("] ").append(tankNames[i]).append(": ");
+			if(tanks[i] == null) {
+				sb.append("NULL");
+			}
+			else {
+				sb.append(tanks[i].toString());
+			}
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
 }
