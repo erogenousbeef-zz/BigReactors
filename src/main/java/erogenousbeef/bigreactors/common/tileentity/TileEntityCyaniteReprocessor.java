@@ -120,7 +120,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			}
 		}
 		
-		distributeItems();
+		distributeItemsFromSlot(SLOT_OUTLET);
 		markChunkDirty();
 	}
 	
