@@ -4,8 +4,21 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc3)
+Current Release (0.4.0rc5)
 --------------------------------
+- **Dependency:** Forge dependency update to **10.13.0.1205**.
+- **Dependency:** CoFHCore dependency update to **3.0.0B5-30**. Thanks, _mysticdrew_!
+- Bugfix: Fuel ejection was duping fuel. This has been fixed.
+- Bugfix: Reactor controller GUI was triggering fuel ejection instead of waste ejection. Fixed.
+- Bugfix: Yellorite Ore texture was improperly sized at 32x32. It is now 16x16, as vanilla textures should be.
+- Bugfix: Cyanite reprocessors were kicking their inputs out of the input slot when distributing blutonium. This has been fixed.
+- Bugfix: `requireSteelForIron` config was not always being obeyed, depending on mod load order. Fixed.
+- Change: Turbine fluid ports can now only be toggled with wrenches (and wrench-like tools, e.g. Crescent Hammers), not by hand
+
+### 0.4.0rc4
+- Debugging: Added 'BeefTronic(tm) Debugging Tool' to help debug strange BR issues.
+
+### 0.4.0rc3
 - Bugfix: Cyanite reprocessors erroneously dismantled themselves when NEI's new overlay system queried them, causing them to dismantle whenever a player looked at them. This has been fixed.
 - Bugfix: Rebuilt with SunJDK, which seems to fix odd, unexplainable errors when rc2 (which was the first and only release built on openJDK) runs on plain-vanilla Forge servers. (Installing Cauldron resolves the odd errors. Go figure.)
 
