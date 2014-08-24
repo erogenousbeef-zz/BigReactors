@@ -11,7 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import cofh.core.util.oredict.OreDictionaryArbiter;
-import cofh.util.ItemHelper;
+import cofh.lib.util.helpers.ItemHelper;
 import erogenousbeef.bigreactors.api.IReactorFuel;
 import erogenousbeef.bigreactors.api.data.FluidToReactantMapping;
 import erogenousbeef.bigreactors.api.data.OreDictToReactantMapping;
