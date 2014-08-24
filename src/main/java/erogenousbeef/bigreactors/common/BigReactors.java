@@ -226,8 +226,8 @@ public class BigReactors {
 				OreDictionary.registerOre("blockIce", new ItemStack(Blocks.ice, 1));
 			}
 
-			if(ItemHelper.oreProxy.getOreID(new ItemStack(Blocks.glass)) < 0) {
-				OreDictionary.registerOre("glass", new ItemStack(Blocks.glass, 1));
+			if(!ItemHelper.oreNameExists("blockGlassColorless")) {
+				OreDictionary.registerOre("blockGlassColorless", new ItemStack(Blocks.glass, 1));
 			}
 			
 			// Use steel if the players are masochists and someone else has supplied steel.
@@ -360,8 +360,8 @@ public class BigReactors {
 					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "glassHardened", 'C', "turbineHousing"));
 				}
 				else {
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glass", 'C', "reactorCasing"));
-					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "glass", 'C', "turbineHousing"));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "blockGlassColorless", 'C', "reactorCasing"));
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "blockGlassColorless", 'C', "turbineHousing"));
 				}
 			}
 			
@@ -783,7 +783,7 @@ public class BigReactors {
 		ReactorInterior.registerBlock("blockDiamond",		0.55f, 0.85f, 1.50f, IHeatEntity.conductivityDiamond);
 		ReactorInterior.registerBlock("blockEmerald",		0.55f, 0.85f, 1.50f, IHeatEntity.conductivityEmerald);
 		ReactorInterior.registerBlock("blockGraphite",	0.10f, 0.50f, 2.00f, IHeatEntity.conductivityGold); // Graphite: a great moderator!
-		ReactorInterior.registerBlock("glass",			0.20f, 0.25f, 1.10f, IHeatEntity.conductivityGlass);
+		ReactorInterior.registerBlock("blockGlassColorless", 0.20f, 0.25f, 1.10f, IHeatEntity.conductivityGlass);
 		ReactorInterior.registerBlock("blockIce",			0.33f, 0.33f, 1.15f, IHeatEntity.conductivityWater);
 		ReactorInterior.registerBlock("blockSnow",		0.15f, 0.33f, 1.05f, IHeatEntity.conductivityWater / 2f);
 		
