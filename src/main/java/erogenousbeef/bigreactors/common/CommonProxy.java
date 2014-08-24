@@ -5,7 +5,7 @@ import java.util.Calendar;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import cofh.util.ThermalExpansionHelper;
+import cofh.api.modhelpers.ThermalExpansionHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
