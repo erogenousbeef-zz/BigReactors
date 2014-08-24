@@ -287,7 +287,7 @@ public class BlockTurbinePart extends BlockContainer implements IPeripheralProvi
 		
 		int metadata = world.getBlockMetadata(x, y, z);
 		
-		if(metadata == METADATA_FLUIDPORT && (player.getCurrentEquippedItem() == null || StaticUtils.Inventory.isPlayerHoldingWrench(player))) {
+		if(metadata == METADATA_FLUIDPORT && StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
 			TileEntity te = world.getTileEntity(x, y, z);
 			if(te instanceof TileEntityTurbineFluidPort) {
 				TileEntityTurbineFluidPort fluidPort = (TileEntityTurbineFluidPort)te; 
