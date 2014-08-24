@@ -1,0 +1,28 @@
+# ForgeGradle
+/.gradle
+/build
+/run
+
+# Eclipse
+.classpath
+.project
+/.settings
+/bin
+/eclipse
+
+# IntelliJ
+/.idea
+*.iml
+*.ipr
+*.iws
+/out
+
+# Mac Stuff
+.DS_Store
+*.command
+
+# External APIs
+/lib
+
+# BeefCore, when it's copied into the source tree
+/src/main/java/erogenousbeef/core

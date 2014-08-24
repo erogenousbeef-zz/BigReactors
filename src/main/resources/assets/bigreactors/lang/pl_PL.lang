@@ -1,0 +1,55 @@
+# Big Reactors Language File - Polish
+# @author kostek00
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Ruda Yelloritu
+tile.brMetal.0.name=Blok Yellorium
+tile.brMetal.1.name=Blok Cyanitu
+tile.brMetal.2.name=Blok Grafitu
+tile.brMetal.3.name=Blok Blutonium
+tile.yelloriumFuelRod.name=Reaktor: pręt paliwowy
+tile.multiblockGlass.0.name=Reaktor: szyba
+tile.multiblockGlass.1.name=Turbina: szyba
+tile.blockReactorRedstonePort.name=Reaktor: kontroler sygnału
+tile.blockReactorPart.0.name=Reaktor: osłona
+tile.blockReactorPart.1.name=Reaktor: gniazdo kontrolne
+tile.blockReactorPart.2.name=Reaktor: kontroler prętów paliwowych
+tile.blockReactorPart.3.name=Reaktor: gniazdo energii
+tile.blockReactorPart.4.name=Reaktor: gniazdo dostępu
+tile.blockReactorPart.6.name=Reaktor: gniazdo RedNet
+tile.blockReactorPart.7.name=Reaktor: gniazdo komputera
+tile.blockReactorPart.5.name=Reaktor: gniazdo chłodziwa
+tile.blockRadiothermalGen.0=Radioizotopowy generator termoelektryczny
+tile.blockBRDevice.0.name=Przetwarzacz Cyanitu
+tile.blockTurbinePart.0.name=Turbina: osłona
+tile.blockTurbinePart.1.name=Turbina: gniazdo kontrolne
+tile.blockTurbinePart.2.name=Turbina: gniazdo energii
+tile.blockTurbinePart.3.name=Turbina: gniazdo cieczy
+tile.blockTurbinePart.4.name=Turbina: łożysko wirnika
+tile.blockTurbinePart.5.name=Turbina: gniazdo komputera
+tile.blockTurbineRotorPart.0.name=Turbina: wał wirnika
+tile.blockTurbineRotorPart.1.name=Turbina: łopatka wirnika
+tile.blockMBCreativePart.0.name=Reaktor: kreatywne gniazdo chłodziwa
+tile.blockMBCreativePart.1.name=Turbina: kreatywny generator pary
+
+# Items
+item.ingotYellorium.name=Sztabka Yellorium
+item.ingotCyanite.name=Sztabka Cyanitu
+item.ingotGraphite.name=Sztabka Grafitu
+item.ingotBlutonium.name=Sztabka Blutonium
+item.dustYellorium.name=Sproszkowane Yellorium
+item.dustCyanite.name=Sproszkowany Cyanit
+item.dustBlutonium.name=Sproszkowane Blutonium
+item.dustGraphite.name=Sproszkowany Grafit
+item.bucket.cyanite.name=Wiaderko ciekłego Cyanitu
+item.bucket.yellorium.name=Wiaderko ciekłego Yellorium
+
+# Fluids
+fluid.tile.water=Woda
+fluid.tile.lava=Lawa
+fluid.tile.yellorium=Ciekłe Yellorium
+fluid.tile.cyanite=Ciekły Cyanit
+fluid.tile.blutonium=Ciekłe Blutonium
+fluid.steam=Para

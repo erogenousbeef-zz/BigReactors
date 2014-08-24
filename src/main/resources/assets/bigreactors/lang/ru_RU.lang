@@ -1,0 +1,55 @@
+# Big Reactors Language File - Russian
+# @author Vladimir Gendel
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Йелоритовая руда
+tile.brMetal.0.name=Блок йеллориума
+tile.brMetal.1.name=Блок цианита
+tile.brMetal.2.name=Блок графита
+tile.brMetal.3.name=Блок блутония
+tile.yelloriumFuelRod.name=Топливный стержень
+tile.blockReactorControlRod.name=Блок управления стержнями
+tile.multiblockGlass.0.name=Стекло реактора
+tile.multiblockGlass.1.name=Стекло турбины
+tile.blockReactorRedstonePort.name=Красный порт реактора
+tile.blockReactorPart.0.name=Корпус реактора
+tile.blockReactorPart.1.name=Блок управления реактором
+tile.blockReactorPart.2.name=Розетка реактора
+tile.blockReactorPart.3.name=Порт доступа
+tile.blockReactorPart.4.name=RedNet порт
+tile.blockReactorPart.5.name=Компьютерный порт реактора
+tile.blockReactorPart.6.name=Порт охлаждения
+tile.blockRadiothermalGen.0=Радиотепловой генератор
+tile.blockBRSmallMachine.0.name=Переработчик цианита
+tile.blockTurbinePart.0.name=Корпус турбины
+tile.blockTurbinePart.1.name=Порт управления турбиной
+tile.blockTurbinePart.2.name=Порт питания турбины
+tile.blockTurbinePart.3.name=Порт жидкостей
+tile.blockTurbinePart.4.name=Роторный подшипник
+tile.blockTurbinePart.5.name=Компьютерный порт турбины
+tile.blockTurbineRotorPart.0.name=Вал ротора
+tile.blockTurbineRotorPart.1.name=Лезвие ротора
+tile.blockMBCreativePart.0.name=Творческий порт охлаждения
+tile.blockMBCreativePart.1.name=Творческий генератор пара турбины
+
+# Items
+item.ingotYellorium.name=Слиток йеллориума
+item.ingotCyanite.name=Слиток цианита
+item.ingotGraphite.name=Слиток графита
+item.ingotBlutonium.name=Слиток блутония
+item.dustYellorium.name=Пыль йеллориума
+item.dustCyanite.name=Пыль цианита
+item.dustBlutonium.name=Пыль блутония
+item.dustGraphite.name=Пыль графита
+item.bucket.cyanite.name=Ведро цианита
+item.bucket.yellorium.name=Ведро йеллориума
+
+# Fluids
+fluid.tile.water=Вода
+fluid.tile.lava=Лава
+fluid.tile.yellorium=Жидкий йеллориум
+fluid.tile.cyanite=Жидкий цианит
+fluid.tile.blutonium=Жидкий блутоний
+fluid.steam=Пар

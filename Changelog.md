@@ -4,12 +4,43 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.3.4A2)
+Current Release (0.4.0rc3)
 --------------------------------
-- Bugfix: Proxy network code fixed. Coil clutch now works properly.
+- Bugfix: Cyanite reprocessors erroneously dismantled themselves when NEI's new overlay system queried them, causing them to dismantle whenever a player looked at them. This has been fixed.
+- Bugfix: Rebuilt with SunJDK, which seems to fix odd, unexplainable errors when rc2 (which was the first and only release built on openJDK) runs on plain-vanilla Forge servers. (Installing Cauldron resolves the odd errors. Go figure.)
+
+### 0.4.0rc2
+- Bugfix: Cyanite reprocessors were unable to accept inputs from hoppers, pipes, etc. This has been fixed.
+
+### 0.4.0rc1
+- **CoFHCore is now a hard dependency**. Big Reactors will *not* work without CoFHCore installed.
+- Upgrade: Upgraded to Forge 10.13.0.1198. Thanks to Parker8283 for the help!
+- Refactor: Completely new network messaging system, originally based on Pahimar and Parker8283's systems.
+- Refactor: Gradle build system modernized and properly uses Git submodules now.
+- Refactor: Reactor icon selection mechanism moved to client-side. Reactors no longer change metadata on assembly. Reduces reactor assembly CPU and network load by many orders of magnitude.
+- Refactor: Reactor control rod is now a subblock of the regular reactor parts instead of its own block.
+- Refactor: Cyanite reprocessor now based on CoFHCore classes. Can be dismantled with TE crescent hammer (shift+rightclick).
+- Refactor: Rewrote inventory/fluid port exposure mechanism on reprocessors. Faster, cleaner code.
+- Refactor: Added @Optional annotations so BR no longer needs to include any external API code.
+- Refactor: Rewrote reactor fuel/waste tracking to use new "reactant" system instead of fluids. Faster, cleaner, and allows for easier addition of more fuels and reactions.
+- Refactor: Made most reactor functionality data-driven in preparation for 0.5.
+- Refactor: Eliminated direct reads from Ore Dictionary; now using CoFHCore's OreDict helper for significant speed improvements.
+- Refactor: Reprocessors and access ports now cache adjacent inventory connections instead of querying every time. Lighter on servers, esp. when a reactor's access port fills up.
+- Usability: Control rod GUI now has visible control rod meter. Can also step the control rod in/out by 1, 5, 10 or 100 percent, and can also set ALL control rods on a reactor at once.
+- Bugfix: RF/t gauge on turbines and reactors was inaccurate at very high (megaRF+) values. This has been fixed.
+- Bugfix: Appropriate tile-change events are now scattered when access ports and fluid ports (coolant & turbine) load; should fix "pipe does not connect" issues.
+- Bugfix: A rare combination of config settings could cause startup crashes. This has been fixed.
+- Bugfix: Pipes can no longer fill up turbine fluid ports in outlet mode by accident.
+- Enhancement: Lead, Zinc and Manyullyn blocks added to list of accepted blocks for reactor interiors and turbine coils.
+- Enhancement: Reactor parts (controllers, power taps, etc.) can now be placed on top and bottom faces of the reactor, just like turbines.
+- Enhancement: Turbine and Reactor computer ports now expose `getMinimumCoordinate` and `getMaximumCoordinate` commands for machine-size computations.
+- Localization: Russian translation updated. Thanks Adaptivity!
 
 Older Releases
 --------------
+### Release 0.3.4A2
+- Bugfix: Proxy network code fixed. Coil clutch now works properly.
+
 ### Release 0.3.4A
 - Bugfix: Fixed rare crash when the Forge fluid registry has not finished initializing (race condition)
 - Bugfix: Reactors properly prioritize ejecting waste to outlet ports when outlets are available

@@ -1,0 +1,55 @@
+# Big Reactors Language File - Korean
+# @Team MMKP(for @puyo061)
+
+itemGroup.BigReactors=빅 리액터
+
+# Blocks
+tile.brOre.0.name=옐로이트 광석
+tile.brMetal.0.name=옐로리움 블럭
+tile.brMetal.1.name=싸이언이트 블럭
+tile.brMetal.2.name=그라파이트 블럭
+tile.brMetal.3.name=블루토니움 블럭
+tile.yelloriumFuelRod.name=옐로리움 연료봉
+tile.multiblockGlass.0.name=원자로 유리
+tile.multiblockGlass.1.name=터빈 유리
+tile.blockReactorRedstonePort.name=원자로 레드스톤 포트
+tile.blockReactorPart.0.name=원자로 케이싱
+tile.blockReactorPart.1.name=원자로 제어장치
+tile.blockReactorPart.2.name=원자로 제어 봉
+tile.blockReactorPart.3.name=원자로 파워 탭
+tile.blockReactorPart.4.name=원자로 엑세스 포트
+tile.blockReactorPart.6.name=원자로 레드넷 포트
+tile.blockReactorPart.7.name=원자로 컴퓨터 포트
+tile.blockReactorPart.5.name=원자로 냉각수 포트
+tile.blockRadiothermalGen.0=방사열 발전기
+tile.blockBRDevice.0.name=싸이언이트 재처리기
+tile.blockTurbinePart.0.name=터빈 하우징
+tile.blockTurbinePart.1.name=터빈 제어장치
+tile.blockTurbinePart.2.name=터빈 파워 포트
+tile.blockTurbinePart.3.name=터빈 액체 포트
+tile.blockTurbinePart.4.name=터빈 라우터 베어링
+tile.blockTurbinePart.5.name=터빈 컴퓨터 포트
+tile.blockTurbineRotorPart.0.name=터빈 라우터 샤프트
+tile.blockTurbineRotorPart.1.name=터빈 라우터 블레이드
+tile.blockMBCreativePart.0.name=원자로 크리에이티브 냉각수 포트
+tile.blockMBCreativePart.1.name=터빈 크리에이티브 증기 발전기
+
+# Items
+item.ingotYellorium.name=옐로리움 주괴
+item.ingotCyanite.name=싸이언이트 주괴
+item.ingotGraphite.name=그라파이트 바
+item.ingotBlutonium.name=블루토니움 주괴
+item.dustYellorium.name=옐로리움 가루
+item.dustCyanite.name=싸이언이트 가루
+item.dustBlutonium.name=블루토니움 가루
+item.dustGraphite.name=그라파이트 가루
+item.bucket.cyanite.name=액체 싸이언이트 양동이
+item.bucket.yellorium.name=액체 옐로리움 양동이
+
+# Fluids
+fluid.tile.water=물
+fluid.tile.lava=용암
+fluid.tile.yellorium=액체 옐로리움
+fluid.tile.cyanite=액체 싸이언이트
+fluid.tile.blutonium=액체 블루토니움
+fluid.steam=증기

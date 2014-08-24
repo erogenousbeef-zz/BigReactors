@@ -1,0 +1,55 @@
+# Big Reactors Language File - German
+# @author Erogenous Beef and Vexatos
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Yelloriterz
+tile.brMetal.0.name=Yelloriumblock
+tile.brMetal.1.name=Cyanitblock
+tile.brMetal.2.name=Graphitblock
+tile.brMetal.3.name=Blutoniumblock
+tile.yelloriumFuelRod.name=Yelloriumbrennstab
+tile.multiblockGlass.0.name=Reaktorglas
+tile.multiblockGlass.1.name=Turbinenglas
+tile.blockReactorRedstonePort.name=Reaktor-Redstoneanschluss
+tile.blockReactorPart.0.name=Reaktorgehäuse
+tile.blockReactorPart.1.name=Reaktorsteuerung
+tile.blockReactorPart.2.name=Reaktorsteuerstab
+tile.blockReactorPart.3.name=Reaktorstromanschluss
+tile.blockReactorPart.4.name=Reaktorzugang
+tile.blockReactorPart.6.name=Reaktor-RedNet-Anschluss
+tile.blockReactorPart.7.name=Reaktor-Computeranschluss
+tile.blockReactorPart.5.name=Reaktor-Kühlanschluss
+tile.blockRadiothermalGen.0=Radiothermalgenerator
+tile.blockBRDevice.0.name=Cyanit-Wiederaufarbeiter
+tile.blockTurbinePart.0.name=Turbinengehäuse
+tile.blockTurbinePart.1.name=Turbinensteuerung
+tile.blockTurbinePart.2.name=Turbinenstromanschluss
+tile.blockTurbinePart.3.name=Turbinen-Flüssigkeitsanschluss
+tile.blockTurbinePart.4.name=Turbinenrotorlager
+tile.blockTurbinePart.5.name=Turbinen-Computeranschluss
+tile.blockTurbineRotorPart.0.name=Turbinenrotorschaft
+tile.blockTurbineRotorPart.1.name=Turbinenrotorblatt
+tile.blockMBCreativePart.0.name=Kreativ-Reaktorkühlport
+tile.blockMBCreativePart.1.name=Kreativ-Turbinendampfgenerator
+
+# Items
+item.ingotYellorium.name=Yelloriumbarren
+item.ingotCyanite.name=Cyanitbarren
+item.ingotGraphite.name=Graphitbarren
+item.ingotBlutonium.name=Blutoniumbarren
+item.dustYellorium.name=Yelloriumstaub
+item.dustCyanite.name=Cyanitstaub
+item.dustBlutonium.name=Blutoniumstaub
+item.dustGraphite.name=Graphitstaub
+item.bucket.cyanite.name=Eimer mit flüssigem Cyanit
+item.bucket.yellorium.name=Eimer mit flüssigem Yellorium
+
+# Fluids
+fluid.tile.water=Wasser
+fluid.tile.lava=Lava
+fluid.tile.yellorium=Flüssiges Yellorium
+fluid.tile.cyanite=Flüssiges Cyanit
+fluid.tile.blutonium=Flüssiges Blutonium
+fluid.steam=Dampf
