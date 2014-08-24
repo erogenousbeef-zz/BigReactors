@@ -433,6 +433,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			foundCoils.add(new CoordTriplet(x,y,z));
 			return;
 		}
+		else {
+			BRLog.info("Could not find coil part data @ %d, %d, %d for ore name %s", x, y, z, ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata))); 
+		}
 
 		// Everything else, gtfo
 		throw new MultiblockValidationException(String.format("%d, %d, %d is invalid for a turbine interior. Only rotor parts, metal blocks and empty space are allowed.", x, y, z));
