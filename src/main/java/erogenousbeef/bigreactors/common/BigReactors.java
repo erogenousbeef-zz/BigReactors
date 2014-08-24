@@ -232,7 +232,7 @@ public class BigReactors {
 			
 			// Use steel if the players are masochists and someone else has supplied steel.
 			String ironOrSteelIngot = "ingotIron";
-			if(useSteelForIron && ItemHelper.oreNameExists("ingotSteel")) {
+			if(useSteelForIron) {
 				ironOrSteelIngot = "ingotSteel";
 			}
 			
