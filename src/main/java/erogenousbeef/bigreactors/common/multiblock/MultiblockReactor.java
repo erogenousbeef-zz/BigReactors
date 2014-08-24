@@ -955,7 +955,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				}
 				
 				int reactantEjected = port.emitReactant(fuelReactantType, fuelContainer.getFuelAmount());
-				fuelContainer.dumpWaste(reactantEjected);
+				fuelContainer.dumpFuel(reactantEjected);
 				amtEjected += reactantEjected;
 			}
 		}

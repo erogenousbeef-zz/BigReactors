@@ -218,7 +218,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 			}
 		}
 		else if(button.id == 5) {
-            CommonPacketHandler.INSTANCE.sendToServer(new ReactorCommandEjectMessage(reactor, true, isShiftKeyDown()));
+            CommonPacketHandler.INSTANCE.sendToServer(new ReactorCommandEjectMessage(reactor, false, isShiftKeyDown()));
 		}
 	}
 	
