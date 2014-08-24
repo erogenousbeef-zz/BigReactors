@@ -218,6 +218,18 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 			distributeSide(dir);
 		}
 	}
+	
+	protected void distributeItemsFromSlot(int slot) {
+		if(slot == SLOT_NONE) { return; }
+		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
+			int sideSlot = getExposedInventorySlotFromSide(dir.ordinal());
+			if(slot == sideSlot) {
+				_inventories[slot] = distributeItemToSide(dir, _inventories[slot]);
+			}
+			
+			if(_inventories[slot] == null) { break; }
+		}
+	}
 
 	/**
 	 * Distributes items from whichever slot is currently exposed on a given
