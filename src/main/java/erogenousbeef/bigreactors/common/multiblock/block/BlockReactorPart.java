@@ -216,7 +216,8 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 	
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) {
-		TileEntity te = world.getTileEntity(x, y, z);
+		TileEntity te = StaticUtils.TE.getTileEntityUnsafe(world, x, y, z);
+
 		// Signal power taps when their neighbors change, etc.
 		if(te instanceof INeighborUpdatableEntity) {
 			((INeighborUpdatableEntity)te).onNeighborBlockChange(world, x, y, z, neighborBlock);
@@ -225,7 +226,8 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 
 	@Override
 	public void onNeighborChange(IBlockAccess world, int x, int y, int z, int neighborX, int neighborY, int neighborZ) {
-		TileEntity te = world.getTileEntity(x, y, z);
+		TileEntity te = StaticUtils.TE.getTileEntityUnsafe(world, x, y, z);
+
 		// Signal power taps when their neighbors change, etc.
 		if(te instanceof INeighborUpdatableEntity) {
 			((INeighborUpdatableEntity)te).onNeighborTileChange(world, x, y, z, neighborX, neighborY, neighborZ);
