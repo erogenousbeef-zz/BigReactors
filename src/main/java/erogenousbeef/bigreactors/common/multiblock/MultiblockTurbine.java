@@ -94,15 +94,16 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	// Rotor dynamic constants - calculate on assembly
 	float rotorDragCoefficient = 0.01f; // RF/t lost to friction per unit of mass in the rotor.
-	float bladeDragCoefficient = 0.00025f; // RF/t lost to friction per blade block, multiplied by rotor speed squared. - includes a 50% reduction to factor in constant parts of the drag equation
+	float bladeDrag			   = 0.00025f; // RF/t lost to friction, multiplied by rotor speed squared. 
 	float frictionalDrag	   = 0f;
 
 	// Penalize suboptimal shapes with worse drag (i.e. increased drag without increasing lift)
 	// Suboptimal is defined as "not a christmas-tree shape". At worst, drag is increased 4x.
 	
-	// Game balance constants
-	public final static int inputFluidPerBlade = 25; // mB
-	public static final float inductorBaseDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
+	// Game balance constants - some of these are modified by configs at startup
+	public static int inputFluidPerBlade = 25; // mB
+	public static float inductorBaseDragCoefficient = 0.1f; // RF/t extracted per coil block, multiplied by rotor speed squared.
+	public static final float baseBladeDragCoefficient = 0.00025f; // RF/t base lost to aero drag per blade block. Includes a 50% reduction to factor in constant parts of the drag equation
 	
 	float energyGeneratedLastTick;
 	int fluidConsumedLastTick;
@@ -517,7 +518,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			float rotorSpeed = getRotorSpeed();
 
 			// RFs lost to aerodynamic drag.
-			float aerodynamicDragTorque = (float)rotorSpeed * bladeDragCoefficient * bladeSurfaceArea;
+			float aerodynamicDragTorque = (float)rotorSpeed * bladeDrag;
 
 			float liftTorque = 0f;
 			if(steamIn > 0) {
@@ -1065,7 +1066,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			} // end y
 		} // end x loop - looping over interior
 		
-		frictionalDrag = rotorMass * rotorDragCoefficient;
+		// Precalculate some stuff now that we know how big the rotor and blades are
+		frictionalDrag = rotorMass * rotorDragCoefficient * BigReactors.turbineMassDragMultiplier;
+		bladeDrag = baseBladeDragCoefficient * bladeSurfaceArea * BigReactors.turbineAeroDragMultiplier;
 
 		if(coilSize <= 0)
 		{
@@ -1177,8 +1180,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			sb.append("\n# Blades: ").append(Integer.toString(attachedRotorBlades.size()));
 			sb.append("\n# Shafts: ").append(Integer.toString(attachedRotorShafts.size()));
 			sb.append("\nRotor Drag CoEff: ").append(Float.toString(rotorDragCoefficient));
-			sb.append("\nBlade Drag CoEff: ").append(Float.toString(bladeDragCoefficient));
-			sb.append("\nFrict Drag CoEff: ").append(Float.toString(frictionalDrag));
+			sb.append("\nBlade Drag: ").append(Float.toString(bladeDrag));
+			sb.append("\nFrict Drag: ").append(Float.toString(frictionalDrag));
 			sb.append("\n\nFluid Tanks:\n");
 			for(int i = 0; i < tanks.length; i++) {
 				sb.append(String.format("[%d] %s ", i, i == TANK_OUTPUT ? "outlet":"inlet"));

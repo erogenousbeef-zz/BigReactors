@@ -39,6 +39,7 @@ import erogenousbeef.bigreactors.common.item.ItemBeefDebugTool;
 import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMBCreativePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMultiblockGlass;
@@ -153,6 +154,11 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	public static float fuelUsageMultiplier = 1.0f;
 	
+	public static float turbineCoilDragMultiplier = 1.0f;
+	public static float turbineAeroDragMultiplier = 1.0f;
+	public static float turbineMassDragMultiplier = 1.0f;
+	public static float	turbineFluidPerBladeMultiplier = 1.0f;
+	
 	public static boolean isValentinesDay = false; // Easter Egg :)
 	
 	// Game Balance values
@@ -202,6 +208,14 @@ public class BigReactors {
 			maximumTurbineSize = BRConfig.CONFIGURATION.get("General",  "maxTurbineSize", 16, "The maximum valid size of a turbine in the X/Z plane, in blocks. Lower this for smaller turbines, which means lower max output.").getInt();
 			maximumTurbineHeight = BRConfig.CONFIGURATION.get("General",  "maxTurbineHeight", 32, "The maximum valid height of a turbine (Y axis), in blocks. (Default: 32)").getInt();
 			
+			turbineCoilDragMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbineCoilDragMultiplier", 1.0, "A multiplier for balancing coil size. Multiplies the amount of energy drawn per coil block per tick. (Default: 1)").getDouble(1.0);
+			turbineAeroDragMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbineAeroDragMultiplier", 1.0, "A multiplier for balancing rotor sizes. Multiplies the amount of energy lost to aerodynamic drag per tick. (Default: 1)").getDouble(1.0);
+			turbineMassDragMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbineMassDragMultiplier", 1.0, "A multiplier for balancing rotor sizes. Multiplies the amount of energy lost to friction per tick. (Default: 1)").getDouble(1.0);
+			turbineFluidPerBladeMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbineFluidPerBladeMultiplier", 1.0, "A multiplier for balancing coil size. Multiplies the amount of fluid each blade block can process (base of 25 will be multiplied, then rounded down to the nearest integer). (Default: 1)").getDouble(1.0);
+
+			MultiblockTurbine.inputFluidPerBlade = (int) Math.floor(MultiblockTurbine.inputFluidPerBlade * turbineFluidPerBladeMultiplier);
+			MultiblockTurbine.inductorBaseDragCoefficient *= turbineCoilDragMultiplier;
+
 			BRConfig.CONFIGURATION.save();
 
 			if(enableWorldGen) {
