@@ -20,7 +20,6 @@ Known Issues
 TODO - 0.4: The 1.7.10 Update
 -----------------------------
 - Add an IMC API for coil and reactor interior blocks to proof out the IMC handler system
-- Remove workarounds for TE IMC API when CoFHCore 3.0.0B4 comes out.
 
 TODO - 0.5: The Exotic Coolant Update
 ------------------------------
