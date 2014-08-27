@@ -67,32 +67,32 @@ public class CommonProxy {
 			ItemStack doubleYellorium = ingots[YELLORIUM].copy();
 			doubleYellorium.stackSize = 2;
 
-			// TODO: Remove IMCHelper.ThermalExpansion once addSmelterRecipe and addPulverizerRecipe aren't broken
+			// TODO: Remove ThermalExpansionHelper once addSmelterRecipe and addPulverizerRecipe aren't broken
 			if(yelloriteOre != null && ingots[YELLORIUM] != null) {
 				ThermalExpansionHelper.addFurnaceRecipe(400, yelloriteOre, ingots[YELLORIUM]);
-				IMCHelper.ThermalExpansion.addSmelterRecipe(1600, yelloriteOre, sandStack, doubleYellorium);
+				ThermalExpansionHelper.addSmelterRecipe(1600, yelloriteOre, sandStack, doubleYellorium);
 			}
 
 			if(yelloriteOre != null && doubledYelloriumDust != null) {
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(4000, yelloriteOre, doubledYelloriumDust);
+				ThermalExpansionHelper.addPulverizerRecipe(4000, yelloriteOre, doubledYelloriumDust);
 			}
 
 			if(doubledYelloriumDust != null && doubleYellorium != null) {
-				IMCHelper.ThermalExpansion.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
+				ThermalExpansionHelper.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
 			}
 
 			for(int i = 0; i < ingots.length; i++) {
 				if(ingots[i] == null || dusts[i] == null) { continue; }
 
-				IMCHelper.ThermalExpansion.addPulverizerRecipe(2400, ingots[i], dusts[i]);
-				IMCHelper.ThermalExpansion.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
+				ThermalExpansionHelper.addPulverizerRecipe(2400, ingots[i], dusts[i]);
+				ThermalExpansionHelper.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
 
 				ItemStack doubleDust = dusts[i].copy();
 				doubleDust.stackSize = 2;
 				ItemStack doubleIngot = ingots[i].copy();
 				doubleIngot.stackSize = 2;				
 
-				IMCHelper.ThermalExpansion.addSmelterRecipe(200, doubleDust, sandStack, doubleIngot);
+				ThermalExpansionHelper.addSmelterRecipe(200, doubleDust, sandStack, doubleIngot);
 			}
 		} // END: IsModLoaded - ThermalExpansion
 		
