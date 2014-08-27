@@ -8,6 +8,7 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import cofh.api.modhelpers.ThermalExpansionHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -39,6 +40,10 @@ public class CommonProxy {
         FMLCommonHandler.instance().bus().register(new MultiblockServerTickHandler());
 		
 		sendInterModAPIMessages();
+
+		if(Loader.isModLoaded("VersionChecker")) {
+			FMLInterModComms.sendRuntimeMessage(BRLoader.MOD_ID, "VersionChecker", "addVersionCheck", "http://big-reactors.com/version.json");
+		}
 	}
 
 	private void sendInterModAPIMessages() {
