@@ -25,6 +25,9 @@ public class TileEntityTurbineRotorBearing extends
 	public void setDisplayList(int newList) { displayList = new Integer(newList); }
 	
 	@SideOnly(Side.CLIENT)
+	public void clearDisplayList() { displayList = null; }
+	
+	@SideOnly(Side.CLIENT)
 	public float getAngle() { return angle; }
 	
 	@SideOnly(Side.CLIENT)
