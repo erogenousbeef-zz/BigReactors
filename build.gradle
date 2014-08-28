@@ -46,7 +46,7 @@ dependencies { //The first two were added because one of the mods below them (I 
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.3.2.43'
 		
 	// Remember to use the non-obfuscated dev versions!
-	compile files('lib/CoFHCore-[1.7.10]3.0.0B5-dev-30.jar');		// CoFHCore - general libraries
+	compile files('lib/CoFHCore-[1.7.10]3.0.0B6-dev-32.jar');		// CoFHCore - general libraries
 }
 
 processResources
