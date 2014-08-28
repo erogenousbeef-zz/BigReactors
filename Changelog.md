@@ -4,8 +4,18 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc5)
+Current Release (0.4.0rc7)
 --------------------------------
+- **Dependency**: CoFHCore dependency update to **3.0.0B6-32**.
+- Bugfix: Reactors and turbines should no longer appear disassembled on the client when using non-Vanilla blocks in SMP.
+- Bugfix: Turbine blades should no longer have their textures corrupted when left running while loading/unloading texture packs at runtime.
+- Bugfix: Fixed crash when loading extremely large turbines/reactors on the client.
+- Bugfix: Fixed turbine/reactor glass being uncraftable in some modpack configurations
+- Enhancement: Added `turbineCoilDragMultiplier`, `turbineAeroDragMultiplier`, `turbineMassDragMultiplier`, and `turbineFluidPerBladeMultiplier` settings.
+- Enhancement: Added Version Checker integration!
+- Enhancement: BeefTronic(tm) Diagnostics Tool now has (really crappy) icon
+
+### 0.4.0rc5
 - **Dependency:** Forge dependency update to **10.13.0.1205**.
 - **Dependency:** CoFHCore dependency update to **3.0.0B5-30**. Thanks, _mysticdrew_!
 - Bugfix: Fuel ejection was duping fuel. This has been fixed.
