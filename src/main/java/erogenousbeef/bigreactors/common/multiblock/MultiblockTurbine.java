@@ -22,12 +22,13 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import cofh.api.energy.IEnergyHandler;
 import cofh.lib.util.helpers.ItemHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import erogenousbeef.bigreactors.api.data.CoilPartData;
 import erogenousbeef.bigreactors.api.registry.TurbineCoil;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
-import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FloatUpdateTracker;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable;
@@ -35,6 +36,7 @@ import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultibloc
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartBase;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePartGlass;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbinePowerTap;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorBearing;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorPart;
 import erogenousbeef.bigreactors.gui.container.ISlotlessUpdater;
 import erogenousbeef.bigreactors.net.CommonPacketHandler;
@@ -110,7 +112,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	float rotorEfficiencyLastTick;
 	
 	private Set<IMultiblockPart> attachedControllers;
-	private Set<TileEntityTurbinePartBase> attachedRotorBearings;
+	private Set<TileEntityTurbineRotorBearing> attachedRotorBearings;
 	
 	private Set<TileEntityTurbinePowerTap> attachedPowerTaps;
 	private Set<ITickableMultiblockPart> attachedTickables;
@@ -140,7 +142,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			tanks[i] = new FluidTank(TANK_SIZE);
 		
 		attachedControllers = new HashSet<IMultiblockPart>();
-		attachedRotorBearings = new HashSet<TileEntityTurbinePartBase>();
+		attachedRotorBearings = new HashSet<TileEntityTurbineRotorBearing>();
 		attachedPowerTaps = new HashSet<TileEntityTurbinePowerTap>();
 		attachedTickables = new HashSet<ITickableMultiblockPart>();
 		attachedRotorShafts = new HashSet<TileEntityTurbineRotorPart>();
@@ -199,12 +201,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	@Override
 	protected void onBlockAdded(IMultiblockPart newPart) {
-		if(newPart instanceof TileEntityTurbinePartBase) {
-			CoordTriplet coord = newPart.getWorldLocation();
-			int metadata = worldObj.getBlockMetadata(coord.x, coord.y, coord.z);
-			if(metadata == BlockTurbinePart.METADATA_BEARING) {
-				this.attachedRotorBearings.add((TileEntityTurbinePartBase)newPart);
-			}
+		if(newPart instanceof TileEntityTurbineRotorBearing) {
+			this.attachedRotorBearings.add((TileEntityTurbineRotorBearing)newPart);
 		}
 		
 		if(newPart instanceof TileEntityTurbinePowerTap) {
@@ -234,7 +232,9 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 
 	@Override
 	protected void onBlockRemoved(IMultiblockPart oldPart) {
-		this.attachedRotorBearings.remove(oldPart);
+		if(oldPart instanceof TileEntityTurbineRotorBearing) {
+			this.attachedRotorBearings.remove(oldPart);
+		}
 		
 		if(oldPart instanceof TileEntityTurbinePowerTap) {
 			attachedPowerTaps.remove((TileEntityTurbinePowerTap)oldPart);
@@ -299,7 +299,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		// Now do additional validation based on the coils/blades/rotors that were found
 		
 		// Check that we have a rotor that goes all the way up the bearing
-		TileEntityTurbinePartBase rotorPart = (TileEntityTurbinePartBase)attachedRotorBearings.iterator().next();
+		TileEntityTurbinePartBase rotorPart = attachedRotorBearings.iterator().next();
 		
 		// Rotor bearing must calculate outwards dir, as this is normally only calculated in onMachineAssembled().
 		rotorPart.recalculateOutwardsDirection(getMinimumCoord(), getMaximumCoord());
@@ -1152,7 +1152,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 			return ForgeDirection.UNKNOWN;
 		}
 		
-		TileEntityTurbinePartBase rotorBearing = attachedRotorBearings.iterator().next();
+		TileEntityTurbineRotorBearing rotorBearing = attachedRotorBearings.iterator().next();
 		return rotorBearing.getOutwardsDir().getOpposite();
 	}
 	
@@ -1197,5 +1197,12 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		}
 
 		return sb.toString();
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void resetCachedRotors() {
+		for(TileEntityTurbineRotorBearing bearing: attachedRotorBearings) {
+			bearing.clearDisplayList();
+		}
 	}
 }
