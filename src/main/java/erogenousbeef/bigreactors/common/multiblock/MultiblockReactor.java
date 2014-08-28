@@ -531,7 +531,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		int metadata = world.getBlockMetadata(x, y, z);
 
 		if(ReactorInterior.getBlockData(ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata))) != null) {
-			BRLog.info("[DEBUG] Block @ %d, %d, %d failed validation - no block data for ore name %s", x, y, z, ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata)));
 			return;
 		}
 
