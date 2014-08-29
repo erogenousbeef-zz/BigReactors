@@ -4,8 +4,11 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc7)
+Current Release (0.4.0rc8)
 --------------------------------
+- Bugfix: Everything. Literally anything that involves adjacent blocks (power taps, access ports, fluid ports) was broken.
+
+### 0.4.0rc7
 - **Dependency**: CoFHCore dependency update to **3.0.0B6-32**.
 - Bugfix: Reactors and turbines should no longer appear disassembled on the client when using non-Vanilla blocks in SMP.
 - Bugfix: Turbine blades should no longer have their textures corrupted when left running while loading/unloading texture packs at runtime.
