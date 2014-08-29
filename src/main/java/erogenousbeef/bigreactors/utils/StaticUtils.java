@@ -345,7 +345,7 @@ public class StaticUtils {
 			
 			Chunk chunk = world.getChunkFromBlockCoords(x, z);
 			if(chunk != null) {
-				te = chunk.getTileEntityUnsafe(x, y, z);
+				te = chunk.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
 			}
 			
 			return te;
