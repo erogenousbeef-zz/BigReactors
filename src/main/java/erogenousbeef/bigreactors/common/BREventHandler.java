@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BREventHandler {
 
@@ -29,7 +30,7 @@ public class BREventHandler {
 			return;
 		}
 		
-		if(!BigReactors.enableWorldGenInNegativeDimensions && loadEvent.world.provider.dimensionId < 0) {
+		if(!StaticUtils.WorldGen.shouldGenerateInDimension(loadEvent.world.provider.dimensionId)) {
 			return;
 		}
 		
