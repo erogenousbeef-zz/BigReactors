@@ -1,6 +1,7 @@
 package erogenousbeef.bigreactors.common;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -142,6 +143,7 @@ public class BigReactors {
 	public static BREventHandler eventHandler = null;
 	public static BigReactorsTickHandler tickHandler = null;
 	public static BRWorldGenerator worldGenerator = null;
+	public static HashSet<Integer> dimensionWhitelist = new HashSet<Integer>();
 	
 	private static boolean registeredTileEntities = false;
 	public static int maximumReactorSize = MultiblockReactor.DIMENSION_UNBOUNDED;
@@ -186,6 +188,10 @@ public class BigReactors {
 			enableWorldGenInNegativeDimensions = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldGenInNegativeDims", false, "Run BR world generation in negative dimension IDs? (default: false) If you don't know what this is, leave it alone.").getBoolean(false);
 			enableWorldRegeneration = BRConfig.CONFIGURATION.get("WorldGen", "enableWorldRegeneration", false, "Run BR World Generation in chunks that have already been generated, but have not been modified by Big Reactors before. This is largely useful for worlds that existed before BigReactors was released.").getBoolean(false);
 			userWorldGenVersion = BRConfig.CONFIGURATION.get("WorldGen", "userWorldGenVersion", 0, "User-set world generation version. Increase this by 1 if you want Big Reactors to re-run world generation in your world.").getInt();
+			int[] worldGenDimensionWhitelist = BRConfig.CONFIGURATION.get("WorldGen", "dimensionWhitelist", new int[] {}, "If enableWorldGenInNegativeDimensions is false, you may add negative dimensions to this whitelist to selectively enable worldgen in them.").getIntList();
+			for(int i : worldGenDimensionWhitelist) {
+				dimensionWhitelist.add(i);
+			}
 
 			boolean registerCoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCoalForSmelting", true, "If set, coal will be smeltable into graphite bars. Disable this if other mods need to smelt coal into their own products. (Default: true)").getBoolean(true);
 			boolean registerCharcoalFurnaceRecipe = BRConfig.CONFIGURATION.get("Recipes", "registerCharcoalForSmelting", true, "If set, charcoal will be smeltable into graphite bars. Disable this if other mods need to smelt charcoal into their own products. (Default: true)").getBoolean(true);

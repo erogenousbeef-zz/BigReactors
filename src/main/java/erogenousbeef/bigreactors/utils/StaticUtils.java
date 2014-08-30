@@ -18,6 +18,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
 import buildcraft.api.tools.IToolWrench;
 import cofh.api.item.IToolHammer;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
 import erogenousbeef.core.common.CoordTriplet;
 
@@ -349,6 +350,19 @@ public class StaticUtils {
 			}
 			
 			return te;
+		}
+	}
+	
+	public static class WorldGen {
+		/**
+		 * Check if a Big Reactors world generator should even bother to run
+		 * in a given dimension.
+		 * @param dimensionId The dimension being queried for WorldGen.
+		 * @return True if world generation should proceed, false if it should be skipped altogether.
+		 */
+		public static boolean shouldGenerateInDimension(int dimensionId) {
+			return dimensionId >= 0 || BigReactors.enableWorldGenInNegativeDimensions ||
+					BigReactors.dimensionWhitelist.contains(dimensionId);
 		}
 	}
 }

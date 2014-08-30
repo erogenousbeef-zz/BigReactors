@@ -7,7 +7,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.IWorldGenerator;
-import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BRWorldGenerator implements IWorldGenerator {
 
@@ -31,10 +31,12 @@ public class BRWorldGenerator implements IWorldGenerator {
 			return;
 		}
 
-		if(world.provider.dimensionId < 0 && !BigReactors.enableWorldGenInNegativeDimensions) {
+		// Ignore negative dimension IDs if we're disallowing negative dimensions
+		// OR if this dimensionID is not on the whitelist.
+		if(!StaticUtils.WorldGen.shouldGenerateInDimension(world.provider.dimensionId)) {
 			return;
 		}
-		
+
 		for(BRSimpleOreGenerator generator : oreGenerators) {
 			if(generator.shouldGenerateInWorld(world)) {
 				generator.generateChunk(world, random, chunkX, chunkZ);
