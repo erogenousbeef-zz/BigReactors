@@ -468,6 +468,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 				worldObj.markBlockForUpdate(part.xCoord, part.yCoord, part.zCoord);
 			}
 		}
+		else {
+			this.markReferenceCoordForUpdate();
+		}
 	}
 
 	protected void addReactorHeat(float newCasingHeat) {
