@@ -219,6 +219,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		if(!this.worldObj.isRemote) {
 			// Propagate the new settings
 			this.worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			this.worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
 		}
 	}
 	
@@ -348,10 +349,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	@Override
 	public void encodeDescriptionPacket(NBTTagCompound data) {
 		super.encodeDescriptionPacket(data);
-		data.setInteger("circuitType", this.circuitType.ordinal());
-		data.setInteger("outputLevel", this.outputLevel);
-		data.setBoolean("greaterThan", this.greaterThan);
-		data.setBoolean("activeOnPulse", this.activeOnPulse);
+		this.writeData(data);
 	}
 	
 	@Override
