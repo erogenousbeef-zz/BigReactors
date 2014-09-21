@@ -10,19 +10,19 @@ tile.brMetal.1.name=蓝晶块
 tile.brMetal.2.name=石墨块
 tile.brMetal.3.name=蓝钚块
 tile.yelloriumFuelRod.name=黄铀燃料棒
-tile.blockReactorControlRod.name=反应堆控制棒
 tile.multiblockGlass.0.name=反应堆玻璃
 tile.multiblockGlass.1.name=涡轮机玻璃
 tile.blockReactorRedstonePort.name=反应堆红石端口
 tile.blockReactorPart.0.name=反应堆外壳
 tile.blockReactorPart.1.name=反应堆控制器
-tile.blockReactorPart.2.name=反应堆能量接口
-tile.blockReactorPart.3.name=反应堆访问端口
-tile.blockReactorPart.4.name=反应堆红石网络端口
-tile.blockReactorPart.5.name=反应堆电脑端口
-tile.blockReactorPart.6.name=反应堆冷却端口
+tile.blockReactorPart.2.name=反应堆控制杆
+tile.blockReactorPart.3.name=反应堆能量接口
+tile.blockReactorPart.4.name=反应堆访问端口
+tile.blockReactorPart.6.name=反应堆红石网络端口
+tile.blockReactorPart.7.name=反应堆电脑端口
+tile.blockReactorPart.5.name=反应堆冷却端口
 tile.blockRadiothermalGen.0=放射性同位素热电机
-tile.blockBRSmallMachine.0.name=蓝晶再加工机
+tile.blockBRDevice.0.name=蓝晶再加工机
 tile.blockTurbinePart.0.name=涡轮机外壳
 tile.blockTurbinePart.1.name=涡轮机控制器
 tile.blockTurbinePart.2.name=涡轮机能量端口
@@ -32,7 +32,7 @@ tile.blockTurbinePart.5.name=涡轮机电脑端口
 tile.blockTurbineRotorPart.0.name=涡轮机转轴
 tile.blockTurbineRotorPart.1.name=涡轮机叶片
 tile.blockMBCreativePart.0.name=创造模式冷却端口
-tile.blockMBCreativePart.1.name=创造模式涡轮蒸汽发生器
+tile.blockMBCreativePart.1.name=创造模式涡轮蒸汽发电机
 
 # Items
 item.ingotYellorium.name=黄铀锭
@@ -45,14 +45,17 @@ item.dustBlutonium.name=蓝钚粉
 item.dustGraphite.name=石墨粉
 item.bucket.cyanite.name=液态蓝晶桶
 item.bucket.yellorium.name=液态黄铀桶
+item.beefDebugTool.name=BeefTronic™公司故障排除工具
 
 # Fluids
 fluid.tile.water=水
 fluid.tile.lava=岩浆
 fluid.tile.yellorium=液态黄铀
-tile.fluid.yellorium.still.name=液态黄铀
 fluid.tile.cyanite=液态蓝晶
-tile.fluid.cyanite.still.name=液态蓝晶
 fluid.tile.blutonium=液态蓝钚
-tile.fluid.blutonium.still.name=液态蓝钚
 fluid.steam=蒸汽
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=液态黄铀
+tile.fluid.cyanite.still.name=液态蓝晶
+tile.fluid.blutonium.still.name=液态蓝钚
