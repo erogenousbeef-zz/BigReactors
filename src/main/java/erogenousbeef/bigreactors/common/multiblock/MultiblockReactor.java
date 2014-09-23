@@ -920,9 +920,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			amtEjected += fuelContainer.getWasteAmount();
 			fuelContainer.setWaste(null);
 		}
-		else {
-			fuelContainer.dumpWaste(amtEjected);
-		}
 
 		if(amtEjected > 0) {
 			markReferenceCoordForUpdate();
@@ -967,9 +964,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		{
 			amtEjected += fuelContainer.getFuelAmount();
 			fuelContainer.setFuel(null);
-		}
-		else {
-			fuelContainer.dumpFuel(amtEjected);
 		}
 
 		if(amtEjected > 0) {
