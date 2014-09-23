@@ -44,8 +44,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 		super.onMachineAssembled(multiblockControllerBase);
 
-		if(this.worldObj.isRemote) { return; } 
-		
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 		
 		// Force a connection to the power taps
