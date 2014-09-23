@@ -28,6 +28,7 @@ import erogenousbeef.bigreactors.api.data.CoilPartData;
 import erogenousbeef.bigreactors.api.registry.TurbineCoil;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.FloatUpdateTracker;
@@ -1014,6 +1015,8 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		// Allow vanilla iron and gold blocks
 		if(block == Blocks.iron_block) { return TurbineCoil.getBlockData("blockIron"); }
 		if(block == Blocks.gold_block) { return TurbineCoil.getBlockData("blockGold"); }
+		
+		if(block == BigReactors.blockMetal && metadata == BlockBRMetal.METADATA_LUDICRITE) { return TurbineCoil.getBlockData("blockLudicrite"); }
 		
 		// Check the oredict to see if it's copper, or a funky kind of gold/iron block
 		String oreName = ItemHelper.oreProxy.getOreName(new ItemStack(block, 1, metadata));

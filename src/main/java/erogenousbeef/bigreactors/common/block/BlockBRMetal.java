@@ -20,9 +20,10 @@ public class BlockBRMetal extends Block {
 	public static final int METADATA_CYANITE 	= 1;
 	public static final int METADATA_GRAPHITE 	= 2;
 	public static final int METADATA_BLUTONIUM 	= 3;
+	public static final int METADATA_LUDICRITE = 4;
 	
-	private static final String[] _subBlocks = new String[] { "blockYellorium", "blockCyanite", "blockGraphite", "blockBlutonium" };
-	private static final String[] _materials = new String[] { "Yellorium", "Cyanite", "Graphite", "Blutonium" };
+	private static final String[] _subBlocks = new String[] { "blockYellorium", "blockCyanite", "blockGraphite", "blockBlutonium", "blockLudicrite" };
+	private static final String[] _materials = new String[] { "Yellorium", "Cyanite", "Graphite", "Blutonium", "Ludicrite" };
 	private IIcon[] _icons = new IIcon[_subBlocks.length];
 	private static final int NUM_BLOCKS = _subBlocks.length;
 	
@@ -36,7 +37,7 @@ public class BlockBRMetal extends Block {
 	@Override
 	public IIcon getIcon(int side, int metadata)
 	{
-		metadata = Math.max(0, Math.min(3, metadata));
+		metadata = Math.max(0, Math.min(NUM_BLOCKS, metadata));
 		return _icons[metadata];
 	}
 	
