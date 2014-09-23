@@ -9,6 +9,7 @@ tile.brMetal.0.name=Yelloriumblock
 tile.brMetal.1.name=Cyanitblock
 tile.brMetal.2.name=Grafitblock
 tile.brMetal.3.name=Blutoniumblock
+tile.brMetal.4.name=Ludicriteblock
 tile.yelloriumFuelRod.name=Yellorium Bränslestav
 tile.multiblockGlass.0.name=Reaktorglas
 tile.multiblockGlass.1.name=Turbinglas

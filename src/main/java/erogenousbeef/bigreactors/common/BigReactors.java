@@ -294,6 +294,11 @@ public class BigReactors {
 				blockMetal.registerIngotRecipes(ingotGeneric);
 			}
 			
+			if(blockMetal != null) {
+				// Ludicrite block. Because.
+				GameRegistry.addRecipe(new ShapedOreRecipe(blockMetal.getItemStackForMaterial("Ludicrite"), "BPB", "ENE", "BPB", 'N', Items.nether_star, 'P', Items.ender_pearl, 'E', Blocks.emerald_block, 'B', blutoniumIngot));
+			}
+			
 			if(ingotGeneric != null) {
 				// Kind of a hack. Maps all ItemIngot dusts to ingots.
 				for(int i = 0; i < ItemIngot.DUST_OFFSET; i++) {
@@ -787,6 +792,8 @@ public class BigReactors {
 		TurbineCoil.registerBlock("blockTitanium",	3.1f, 1f, 2.7f);	// Mariculture
 		TurbineCoil.registerBlock("blockEnderium",	3.0f, 1.02f, 3.0f);	// TE, note tiny energy bonus!	(14% at 1000RF/t output)
 
+		TurbineCoil.registerBlock("blockLudicrite",  3.5f, 1.02f, 3.5f);
+		
 		if(enableFantasyMetals) {
 			// Metallurgy fantasy metals
 			TurbineCoil.registerBlock("blockMithril", 	2.2f, 1f, 1.5f);
