@@ -242,8 +242,6 @@ public class GuiTurbineController extends BeefGuiBase {
 
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		CoordTriplet saveDelegate = turbine.getReferenceCoord();
-
 		if(button.id == 0 || button.id == 1) {
 			boolean setActive = button.id == 0;
 			if(setActive != turbine.getActive()) {

@@ -330,7 +330,6 @@ public class StaticUtils {
 
 			if(iba instanceof World) {
 				// We don't want to trigger tile entity loads in this method
-				World w = (World)iba;
 				te = getTileEntityUnsafe((World)iba, x, y, z);
 			}
 			else {

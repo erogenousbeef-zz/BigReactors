@@ -22,7 +22,7 @@ public class TileEntityTurbineRotorBearing extends
 	public Integer getDisplayList() { return displayList; }
 	
 	@SideOnly(Side.CLIENT)
-	public void setDisplayList(int newList) { displayList = new Integer(newList); }
+	public void setDisplayList(int newList) { displayList = newList; }
 	
 	@SideOnly(Side.CLIENT)
 	public void clearDisplayList() { displayList = null; }

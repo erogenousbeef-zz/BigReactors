@@ -21,7 +21,7 @@ public class BeefGuiLabel extends BeefGuiControlBase implements IBeefTooltipCont
 	public String getLabelTooltip() { return labelTooltip; }
 
 	public void setLabelText(String newText) { 
-		if(newText == labelText) { return; }
+		if(newText.equals(labelText)) { return; }
 		labelText = newText;
 		recalculateSize();
 	}

@@ -277,8 +277,6 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 	public void onChannelChanged(int changedChannel) {
 		if(this.selectedChannel != changedChannel) { return; }
 
-		CoordTriplet[] controlRodLocations = port.getReactorController().getControlRodLocations();
-		
 		CircuitType currentCircuitType = grabTargets[selectedChannel].getCircuitType();
 		
 		if(CircuitType.hasCoordinate(currentCircuitType)) {
@@ -303,7 +301,7 @@ public class GuiReactorRedNetPort extends BeefGuiBase {
 		}
 
 		updateSubSettingValueText();
-}
+	}
 	
 	private String getControlRodLabelFromLocation(CircuitType circuitType, CoordTriplet location) {
 		if(location == null) {

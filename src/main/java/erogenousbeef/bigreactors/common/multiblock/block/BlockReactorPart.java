@@ -274,7 +274,6 @@ public class BlockReactorPart extends BlockContainer implements IRedNetOmniNode,
 
 		// Do toggly fiddly things for access/coolant ports
 		if(!world.isRemote && (isAccessPort(metadata) || isCoolantPort(metadata))) {
-			ItemStack currentEquippedItem = player.getCurrentEquippedItem();
 			if(StaticUtils.Inventory.isPlayerHoldingWrench(player)) {
 				if(te instanceof TileEntityReactorCoolantPort) {
 					TileEntityReactorCoolantPort cp = (TileEntityReactorCoolantPort)te;

@@ -106,7 +106,6 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 			}
 		}
 		else {
-			ItemStack sourceItem = _inventories[SLOT_INLET];
 			// TODO: Make this query the input for the right type of output to create.
 			ArrayList<ItemStack> candidates = OreDictionaryArbiter.getOres("ingotBlutonium");
 			if(candidates == null || candidates.isEmpty()) {

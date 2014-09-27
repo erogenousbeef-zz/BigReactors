@@ -17,18 +17,13 @@ public class GuiSelectableButton extends GuiButton implements IBeefTooltipContro
 	private IIcon icon;
 	
 	private BeefGuiBase window;
-	private int relativeX;
-	private int relativeY;
-	
+
 	public GuiSelectableButton(int id, int x, int y, IIcon icon, int selectedColor, BeefGuiBase containingWindow) {
 		super(id, x, y, 24, 24, "");
 		selected = false;
 		this.icon = icon;
 		this.selectedColor = selectedColor;
 		window = containingWindow;
-		
-		relativeX = x - window.getGuiLeft();
-		relativeY = y - window.getGuiTop();
 	}
 	
 	public void setSelected(boolean selected) {

@@ -191,7 +191,6 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	 * @param greaterThan For outputs, whether to activate when greater than or less than the outputLevel value. For input/control rods, whether to set (true) or change (false) the values.
 	 */
 	public void onReceiveUpdatePacket(int newType, int outputLevel, boolean greaterThan, boolean activeOnPulse) {
-		boolean oldTypeWasInput = this.isInput();
 		this.circuitType = CircuitType.values()[newType];
 		this.outputLevel = outputLevel;
 		this.greaterThan = greaterThan;

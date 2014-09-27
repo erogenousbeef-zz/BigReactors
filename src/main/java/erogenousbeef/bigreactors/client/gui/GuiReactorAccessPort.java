@@ -34,12 +34,7 @@ public class GuiReactorAccessPort extends BeefGuiBase {
 	@Override
 	public void initGui() {
 		super.initGui();
-		
-		int xCenter = guiLeft + this.xSize / 2;
-		int yCenter = this.ySize / 2;
 
-		int metadata = _port.getWorldObj().getBlockMetadata(_port.xCoord, _port.yCoord, _port.zCoord);
-		
 		ejectFuel = new GuiIconButton(2, guiLeft + xSize - 97, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("fuelEject"), new String[] { EnumChatFormatting.AQUA + "Eject Fuel", "", "Ejects fuel contained in the", "reactor, placing ingots in the", "reactor's access ports.", "", "SHIFT: Dump excess fuel."});
 		ejectWaste = new GuiIconButton(3, guiLeft + xSize - 77, guiTop + 53, 18, 18, ClientProxy.GuiIcons.getIcon("wasteEject"), new String[] { EnumChatFormatting.AQUA + "Eject Waste", "", "Ejects waste contained in the", "reactor, placing ingots in the", "reactor's access ports.", "", "SHIFT: Dump excess waste."});
 		

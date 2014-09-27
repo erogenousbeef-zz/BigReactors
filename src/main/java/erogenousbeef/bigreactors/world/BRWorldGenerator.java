@@ -11,7 +11,7 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 
 public class BRWorldGenerator implements IWorldGenerator {
 
-	protected static Set<BRSimpleOreGenerator> oreGenerators = null;
+	protected static volatile Set<BRSimpleOreGenerator> oreGenerators = null;
 	
 	public static void addGenerator(BRSimpleOreGenerator newGenerator) {
 		if(oreGenerators == null) {
