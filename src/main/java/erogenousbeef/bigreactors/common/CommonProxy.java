@@ -80,9 +80,6 @@ public class CommonProxy {
 
 			if(doubledYelloriumDust != null) {
 				ThermalExpansionHelper.addPulverizerRecipe(4000, yelloriteOre, doubledYelloriumDust);
-			}
-
-			if(doubledYelloriumDust != null) {
 				ThermalExpansionHelper.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
 			}
 
