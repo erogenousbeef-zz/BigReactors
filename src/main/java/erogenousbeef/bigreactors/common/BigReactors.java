@@ -297,8 +297,12 @@ public class BigReactors {
 			if(blockMetal != null) {
 				// Ludicrite block. Because.
 				GameRegistry.addRecipe(new ShapedOreRecipe(blockMetal.getItemStackForMaterial("Ludicrite"), "BPB", "ENE", "BPB", 'N', Items.nether_star, 'P', Items.ender_pearl, 'E', Blocks.emerald_block, 'B', blutoniumIngot));
+				if(ItemHelper.getOre("blockEnderium") != null) {
+					// Ok, how about some ludicrous shit here. Enderium and blaze rods. Have fun, bucko.
+					GameRegistry.addRecipe(new ShapedOreRecipe(blockMetal.getItemStackForMaterial("Ludicrite"), "BRB", "EME", "BRB", 'B', blutoniumIngot, 'R', Items.blaze_rod, 'E', "blockEnderium"));
+				}
 			}
-			
+
 			if(ingotGeneric != null) {
 				// Kind of a hack. Maps all ItemIngot dusts to ingots.
 				for(int i = 0; i < ItemIngot.DUST_OFFSET; i++) {
