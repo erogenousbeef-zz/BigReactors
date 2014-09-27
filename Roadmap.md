@@ -17,9 +17,7 @@ Known Issues
 
 - Setting the dormantChunkCacheSize Forge setting to something other than 0 (which is the default) will cause Big Reactors to break in strange and unusual ways. This setting is not supported.
 
-TODO - 0.4: The 1.7.10 Update
------------------------------
-- Add an IMC API for coil and reactor interior blocks to proof out the IMC handler system
+- Turbines do not properly (visually) assemble and have spotty UI updates if mod blocks are used as coils. This can be worked around prior to rc9 by using vanilla blocks, and after rc9 by using vanilla blocks or ludicrite blocks. This is due to a bug in CoFHCore and will be fixed in CoFHCore 3.0.0B7 (or newer).
 
 TODO - 0.5: The Exotic Coolant Update
 ------------------------------

@@ -4,8 +4,19 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc8)
+Current Release (0.4.0rc9)
 --------------------------------
+- Bugfix: Fixed reactor controller not turning green or red when reactors were activated/deactivated via computer, redstone or rednet
+- Bugfix: Fixed some bugs whereby rednet/redstone port settings would not be saved properly
+- Bugfix: Fixed in-game requirement checks. BigReactors will now properly make Minecraft complain if CoFHCore is missing.
+- Bugfix: In some cases, power taps were not re-rendering on chunk reloads, which would cause power taps to not work
+- Bugfix: Fixed reactors dumping too much waste/fuel when ejecting waste/fuel.
+- Enhancement: Added **ludicrite** blocks, which can serve as a very-high-end coil material in turbines. They cannot go in reactors, though.
+- Enhancement: Added `dimensionWhitelist` setting, which allows you to specify exceptions to the `enableWorldGenInNegativeDimensions` setting. If `enableWorldGenInNegativeDimensions` is true, you may add dimensions to the `dimensionWhitelist` to permit BR world generation to operate in those dimensions.
+- Workaround: OreDict problems (which will be fixed in CoFHCore 3.0.0B7) can be worked around in turbines by using Ludicrite blocks.
+- Localization: Russian and Chinese translations updated (thanks Adaptivity & ViKaleidoscope!)
+
+### 0.4.0rc8
 - Bugfix: Everything. Literally anything that involves adjacent blocks (power taps, access ports, fluid ports) was broken.
 
 ### 0.4.0rc7
