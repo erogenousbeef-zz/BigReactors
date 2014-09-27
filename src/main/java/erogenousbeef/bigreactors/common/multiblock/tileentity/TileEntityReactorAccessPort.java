@@ -364,7 +364,6 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
-		int metadata = this.getBlockMetadata();
 		if(isInlet()) {
 			return kInletExposed;
 		}

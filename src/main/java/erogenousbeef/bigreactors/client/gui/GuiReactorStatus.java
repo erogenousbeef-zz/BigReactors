@@ -71,10 +71,7 @@ public class GuiReactorStatus extends BeefGuiBase {
 	@Override
 	public void initGui() {
 		super.initGui();
-		
-		int xCenter = guiLeft + this.xSize / 2;
-		int yCenter = this.ySize / 2;
-		
+
 		btnReactorOn = new GuiIconButton(0, guiLeft + 4, guiTop + 164, 18, 18, ClientProxy.GuiIcons.getIcon("On_off"));
 		btnReactorOff = new GuiIconButton(1, guiLeft + 22, guiTop + 164, 18, 18, ClientProxy.GuiIcons.getIcon("Off_off"));
 		
@@ -195,7 +192,6 @@ public class GuiReactorStatus extends BeefGuiBase {
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
-		CoordTriplet saveDelegate = reactor.getReferenceCoord();
 		if(button.id == 0 || button.id == 1) {
 			boolean newSetting = button.id == 0;
 			if(newSetting != reactor.getActive()) {

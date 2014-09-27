@@ -32,7 +32,7 @@ public class RedNetConfigGrabTarget extends BeefGuiGrabTarget implements IBeefTo
 
 	@Override
 	public void onSlotSet() {
-		currentCircuitType = ((RedNetConfigGrabbable)this.grabbable).GetCircuitType();
+		currentCircuitType = ((RedNetConfigGrabbable)this.grabbable).getCircuitType();
 		tooltip = ((RedNetConfigGrabbable)this.grabbable).getName();
 		
 		if(guiContainer instanceof GuiReactorRedNetPort) {

@@ -1006,11 +1006,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 	public boolean isUseableByPlayer(EntityPlayer player) {
 		return true;
 	}
-	
-	private CoilPartData getCoilPartData(int x, int y, int z) {
-		return getCoilPartData(x, y, z, worldObj.getBlock(x, y, z), worldObj.getBlockMetadata(x, y, z));
-	}
-	
+
 	private CoilPartData getCoilPartData(int x, int y, int z, Block block, int metadata) {
 		// Allow vanilla iron and gold blocks
 		if(block == Blocks.iron_block) { return TurbineCoil.getBlockData("blockIron"); }
