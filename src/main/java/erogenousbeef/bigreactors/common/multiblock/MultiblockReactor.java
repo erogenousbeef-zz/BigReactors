@@ -30,6 +30,7 @@ import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.data.RadiationData;
+import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
 import erogenousbeef.bigreactors.common.interfaces.IReactorFuelInfo;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorPart;
@@ -848,6 +849,12 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			
 			if(!Reactants.isFuel(portReactantType)) { continue; } // Skip nonfuels
 
+			// HACK; TEMPORARY
+			// Alias blutonium to yellorium temporarily, until mixed fuels are implemented
+			if(portReactantType.equals(StandardReactants.blutonium)) {
+				portReactantType = StandardReactants.yellorium;
+			}
+			
 			// How much fuel can we actually add from this type of reactant?
 			int amountToAdd = fuelContainer.addFuel(portReactantType, portReactantAmount, false);
 			if(amountToAdd <= 0) { continue; }
