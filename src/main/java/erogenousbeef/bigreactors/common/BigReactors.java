@@ -200,7 +200,7 @@ public class BigReactors {
 			registerYelloriteSmeltToUranium = BRConfig.CONFIGURATION.get("Recipes", "registerYelloriteSmeltToUranium", true, "If set, yellorite ore will smelt into whichever item is registered as ingotUranium in the ore dictionary. If false, it will smelt into ingotYellorium. (Default: true)").getBoolean(true);
 			
 			boolean useSteelForIron = BRConfig.CONFIGURATION.get("Recipes", "requireSteelInsteadOfIron", false, "If set, then all Big Reactors components will require steel ingots (ingotSteel) in place of iron ingots. Will be ignored if no other mod registers steel ingots. (default: false)").getBoolean(false);
-			boolean useExpensiveGlass = BRConfig.CONFIGURATION.get("Recipes", "requireObsidianGlass", false, "If set, then Big Reactors will require hardened or reinforced glass (glassHardened or glassReinforced) instead of plain glass. Will be ignored if no other mod registers those glass types. (default: false)").getBoolean(false);
+			boolean useExpensiveGlass = BRConfig.CONFIGURATION.get("Recipes", "requireObsidianGlass", false, "If set, then Big Reactors will require hardened or reinforced glass (blockGlassHardened or glassReinforced) instead of plain glass. Will be ignored if no other mod registers those glass types. (default: false)").getBoolean(false);
 			
 			boolean enableReactorPowerTapRecipe = BRConfig.CONFIGURATION.get("Recipes", "enableReactorPowerTapRecipe", true, "If set, reactor power taps can be crafted, allowing players to use passive-cooled reactors.").getBoolean(true);
 			boolean enableCyaniteFromYelloriumRecipe = BRConfig.CONFIGURATION.get("Recipes", "enableCyaniteFromYelloriumRecipe", true, "If set, cyanite will be craftable from yellorium ingots and sand.").getBoolean(true);
@@ -383,12 +383,12 @@ public class BigReactors {
 				ItemStack reactorGlassStack = blockMultiblockGlass.getItemStack("reactor");
 				ItemStack turbineGlassStack = blockMultiblockGlass.getItemStack("turbine");
 				
-				if(useExpensiveGlass && (ItemHelper.oreNameExists("glassReinforced") || ItemHelper.oreNameExists("glassHardened"))) {
+				if(useExpensiveGlass && (ItemHelper.oreNameExists("glassReinforced") || ItemHelper.oreNameExists("blockGlassHardened"))) {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glassReinforced", 'C', "reactorCasing"));
-					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "glassHardened", 'C', "reactorCasing"));
+					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "blockGlassHardened", 'C', "reactorCasing"));
 					
 					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "glassReinforced", 'C', "turbineHousing"));
-					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "glassHardened", 'C', "turbineHousing"));
+					GameRegistry.addRecipe(new ShapedOreRecipe(turbineGlassStack, "GCG", 'G', "blockGlassHardened", 'C', "turbineHousing"));
 				}
 				else {
 					GameRegistry.addRecipe(new ShapedOreRecipe(reactorGlassStack, "GCG", 'G', "blockGlassColorless", 'C', "reactorCasing"));
