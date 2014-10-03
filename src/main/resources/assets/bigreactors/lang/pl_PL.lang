@@ -40,10 +40,12 @@ item.ingotYellorium.name=Sztabka Yellorium
 item.ingotCyanite.name=Sztabka Cyanitu
 item.ingotGraphite.name=Sztabka Grafitu
 item.ingotBlutonium.name=Sztabka Blutonium
+item.ingotLudicrite.name=Sztabka Ludicritu
 item.dustYellorium.name=Sproszkowane Yellorium
 item.dustCyanite.name=Sproszkowany Cyanit
 item.dustBlutonium.name=Sproszkowane Blutonium
 item.dustGraphite.name=Sproszkowany Grafit
+item.dustLudicrite.name=Sproszkowany Ludicri
 item.bucket.cyanite.name=Wiaderko ciekłego Cyanitu
 item.bucket.yellorium.name=Wiaderko ciekłego Yellorium
 

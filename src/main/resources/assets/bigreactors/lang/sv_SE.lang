@@ -40,10 +40,12 @@ item.ingotYellorium.name=Yelloriumtacka
 item.ingotCyanite.name=Cyanittacka
 item.ingotGraphite.name=Grafittacka
 item.ingotBlutonium.name=Blutoniumtacka
+item.ingotLudicrite.name=Ludicrittacka
 item.dustYellorium.name=Yelloriumstoft
 item.dustCyanite.name=Cyanitstoft
 item.dustBlutonium.name=Blutoniumstoft
 item.dustGraphite.name=Grafitstoft
+item.dustLudicrite.name=Ludicritstoft
 item.bucket.cyanite.name=Flytande Cyanit Hink
 item.bucket.yellorium.name=Flytande Yellorium Hink
 

@@ -8,11 +8,11 @@ import net.minecraft.item.ItemStack;
 
 public class ItemIngot extends ItemBase
 {
-	public static final int DUST_OFFSET = 4;
 	public static final String[] TYPES = { "ingotYellorium", "ingotCyanite", "ingotGraphite", "ingotBlutonium",
-											"dustYellorium", "dustCyanite", "dustGraphite", "dustBlutonium" };
+											"dustYellorium", "dustCyanite", "dustGraphite", "dustBlutonium",
+											"ingotLudicrite", "dustLudicrite" };
 
-	public static final String[] MATERIALS = { "Yellorium", "Cyanite", "Graphite", "Blutonium" };
+	public static final String[] MATERIALS = { "Yellorium", "Cyanite", "Graphite", "Blutonium", "Ludicrite" };
 
 	public ItemIngot()
 	{
@@ -76,25 +76,11 @@ public class ItemIngot extends ItemBase
 	}
 	
 	public ItemStack getIngotItem(String name) {
-		int i = 0;
-		for(i = 0; i < MATERIALS.length; i++) {
-			if(name.equals(MATERIALS[i])) {
-				break;
-			}
-		}
-		
-		return new ItemStack(this, 1, i);
+		return getItemStackForType("ingot" + name);
 	}
 	
 	public ItemStack getDustItem(String name) {
-		int i = 0;
-		for(i = 0; i < MATERIALS.length; i++) {
-			if(name.equals(MATERIALS[i])) {
-				break;
-			}
-		}
-		
-		return new ItemStack(this, 1, DUST_OFFSET + i);
+		return getItemStackForType("dust" + name);
 	}
 
 }
