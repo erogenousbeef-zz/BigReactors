@@ -299,14 +299,16 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(blockMetal.getItemStackForMaterial("Ludicrite"), "BPB", "ENE", "BPB", 'N', Items.nether_star, 'P', Items.ender_pearl, 'E', Blocks.emerald_block, 'B', blutoniumIngot));
 				if(ItemHelper.getOre("blockEnderium") != null) {
 					// Ok, how about some ludicrous shit here. Enderium and blaze rods. Have fun, bucko.
-					GameRegistry.addRecipe(new ShapedOreRecipe(blockMetal.getItemStackForMaterial("Ludicrite"), "BRB", "EME", "BRB", 'B', blutoniumIngot, 'R', Items.blaze_rod, 'E', "blockEnderium"));
+					GameRegistry.addRecipe(new ShapedOreRecipe(blockMetal.getItemStackForMaterial("Ludicrite"), "BRB", "E E", "BRB", 'B', blutoniumIngot, 'R', Items.blaze_rod, 'E', "blockEnderium"));
 				}
 			}
 
 			if(ingotGeneric != null) {
-				// Kind of a hack. Maps all ItemIngot dusts to ingots.
-				for(int i = 0; i < ItemIngot.DUST_OFFSET; i++) {
-					GameRegistry.addSmelting(new ItemStack(ingotGeneric, 1, i + ItemIngot.DUST_OFFSET), new ItemStack(ingotGeneric, 1, i), 0f);
+				// Map all dusts to ingots.
+				for(int i = 0; i < ItemIngot.MATERIALS.length; i++) {
+					ItemStack ingotStack = ingotGeneric.getIngotItem(ItemIngot.MATERIALS[i]);
+					ItemStack dustStack = ingotGeneric.getDustItem(ItemIngot.MATERIALS[i]);
+					GameRegistry.addSmelting(dustStack, ingotStack, 0f);
 				}
 			}
 			

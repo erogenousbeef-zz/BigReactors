@@ -52,7 +52,7 @@ public class CommonProxy {
 
 		final int YELLORIUM = 0;
 		
-		String[] names = { "Yellorium", "Cyanite", "Graphite", "Blutonium" };
+		String[] names = ItemIngot.MATERIALS;
 		ItemStack[] ingots = new ItemStack[names.length];
 		ItemStack[] dusts = new ItemStack[names.length];
 		

@@ -40,10 +40,12 @@ item.ingotYellorium.name=Yelloriumbarren
 item.ingotCyanite.name=Cyanitbarren
 item.ingotGraphite.name=Graphitbarren
 item.ingotBlutonium.name=Blutoniumbarren
+item.ingotLudicrite.name=Ludicritbarren
 item.dustYellorium.name=Yelloriumstaub
 item.dustCyanite.name=Cyanitstaub
 item.dustBlutonium.name=Blutoniumstaub
 item.dustGraphite.name=Graphitstaub
+item.dustLudicrite.name=Ludicritstaub
 item.bucket.cyanite.name=Eimer mit flüssigem Cyanit
 item.bucket.yellorium.name=Eimer mit flüssigem Yellorium
 

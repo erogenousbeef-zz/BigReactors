@@ -40,10 +40,12 @@ item.ingotYellorium.name=Barra de Yellorium
 item.ingotCyanite.name=Barra de Cyanite
 item.ingotGraphite.name=Barra de Grafite
 item.ingotBlutonium.name=Barra de Blutonium
+item.ingotLudicrite.name=Barra de Ludicrite
 item.dustYellorium.name=Pó de Yellorium
 item.dustCyanite.name=Pó de Cyanite
 item.dustBlutonium.name=Pó de Blutonium
 item.dustGraphite.name=Pó de Grafite
+item.dustLudicrite.name=Pó de Ludicrite
 item.bucket.cyanite.name=Balde do Fluído de Cyanite
 item.bucket.yellorium.name=Balde do Fluído de Yellorium
 

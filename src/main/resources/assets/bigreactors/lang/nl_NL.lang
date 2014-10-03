@@ -40,10 +40,12 @@ item.ingotYellorium.name=Gelium Ingot
 item.ingotCyanite.name=Cyanide Ingot
 item.ingotGraphite.name=Grafeen Staaf
 item.ingotBlutonium.name=Blautonium Ingot
+item.ingotLudicrite.name=Ludicride Ingot
 item.dustYellorium.name=Geliumpoeder
 item.dustCyanite.name=Cyanidepoeder
 item.dustBlutonium.name=Blautoniumpoeder
 item.dustGraphite.name=Grafeenpoeder
+item.dustLudicrite.name=Ludicridepoeder
 item.bucket.cyanite.name=Emmer Vloeibaar Cyanide
 item.bucket.yellorium.name=Emmer Vloeibaar Gelium
 
