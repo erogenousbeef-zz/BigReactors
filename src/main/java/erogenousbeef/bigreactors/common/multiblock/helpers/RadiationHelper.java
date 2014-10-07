@@ -185,7 +185,6 @@ public class RadiationHelper {
 	private void moderateByFluid(RadiationData data, RadiationPacket radiation, Fluid fluid) {
 		
 		float absorption, heatEfficiency, moderation;
-		String name = fluid.getName();
 
 		ReactorInteriorData moderatorData = ReactorInterior.getFluidData(fluid.getName());
 		

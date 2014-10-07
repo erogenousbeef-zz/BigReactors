@@ -289,7 +289,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			// Radiate from that control rod
 			TileEntityReactorFuelRod source  = currentFuelRod.next();
 			TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod)worldObj.getTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
-			if(source != null && sourceControlRod != null)
+			if(sourceControlRod != null)
 			{
 				RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
 
@@ -366,7 +366,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			int splitEnergy = energyRemaining / attachedPowerTaps.size();
 			for(TileEntityReactorPowerTap powerTap : attachedPowerTaps) {
 				if(energyRemaining <= 0) { break; }
-				if(powerTap == null || !powerTap.isConnected()) { continue; }
+				if(!powerTap.isConnected()) { continue; }
 
 				energyRemaining -= splitEnergy - powerTap.onProvidePower(splitEnergy);
 			}
@@ -375,7 +375,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(energyRemaining > 0) {
 				for(TileEntityReactorPowerTap powerTap : attachedPowerTaps) {
 					if(energyRemaining <= 0) { break; }
-					if(powerTap == null || !powerTap.isConnected()) { continue; }
+					if(!powerTap.isConnected()) { continue; }
 
 					energyRemaining = powerTap.onProvidePower(energyRemaining);
 				}
@@ -397,7 +397,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 		// Update any connected tickables
 		for(ITickableMultiblockPart tickable : attachedTickables) {
-			if(tickable == null) { continue; }
 			tickable.onMultiblockServerTick();
 		}
 
@@ -813,8 +812,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			
 			if(!this.worldObj.isRemote) {
 				if(this.updatePlayers.size() > 0) {
-					CoordTriplet coord = getReferenceCoord();
-					
 					for(EntityPlayer player : updatePlayers) {
                         CommonPacketHandler.INSTANCE.sendTo(new ReactorUpdateWasteEjectionMessage(this), (EntityPlayerMP)player);
 					}
@@ -840,7 +837,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		{
 			if(fuelContainer.getRemainingSpace() <= 0) { break; }
 
-			if(port == null || !port.isConnected())	{ continue; }
+			if(!port.isConnected())	{ continue; }
 
 			// See what type of reactant the port contains; if none, skip it.
 			String portReactantType = port.getInputReactantType();
@@ -894,7 +891,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					continue;
 				}
 				
-				if(port == null || !port.isConnected()) { continue; }
+				if(!port.isConnected()) { continue; }
 				if(destination != null && !destination.equals(port.xCoord, port.yCoord, port.zCoord)) {
 					continue;
 				}
@@ -914,7 +911,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 						continue;
 					}
 					
-					if(port == null || !port.isConnected()) { continue; }
+					if(!port.isConnected()) { continue; }
 					int reactantEjected = port.emitReactant(wasteReactantType, fuelContainer.getWasteAmount());
 					fuelContainer.dumpWaste(reactantEjected);
 					amtEjected += reactantEjected;
@@ -956,7 +953,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 					continue;
 				}
 				
-				if(port == null || !port.isConnected()) { continue; }
+				if(!port.isConnected()) { continue; }
 				if(destination != null && !destination.equals(port.xCoord, port.yCoord, port.zCoord)) {
 					continue;
 				}
@@ -1013,12 +1010,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		for(TileEntityReactorFuelRod fuelRod : attachedFuelRods) {
 			fuelToReactorHeatTransferCoefficient += fuelRod.getHeatTransferRate();
 		}
-		
-		// Pick a random fuel rod Y as a starting point
-		int maxFuelRodY = maxCoord.y - 1;
-		int minFuelRodY = minCoord.y + 1;
-		currentFuelRod = attachedFuelRods.iterator();
-		
+
 		// Calculate heat transfer to coolant system based on reactor interior surface area.
 		// This is pretty simple to start with - surface area of the rectangular prism defining the interior.
 		int xSize = maxCoord.x - minCoord.x - 1;
@@ -1155,7 +1147,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(this.assemblyState != AssemblyState.Assembled) { return; }
 		
 		for(TileEntityReactorControlRod cr : attachedControlRods) {
-			if(cr != null && cr.isConnected()) {
+			if(cr.isConnected()) {
 				cr.setControlRodInsertion((short)newValue);
 			}
 		}
@@ -1165,7 +1157,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		if(this.assemblyState != AssemblyState.Assembled) { return; }
 		
 		for(TileEntityReactorControlRod cr : attachedControlRods) {
-			if(cr != null && cr.isConnected()) {
+			if(cr.isConnected()) {
 				cr.setControlRodInsertion( (short) (cr.getControlRodInsertion() + delta) );
 			}
 		}

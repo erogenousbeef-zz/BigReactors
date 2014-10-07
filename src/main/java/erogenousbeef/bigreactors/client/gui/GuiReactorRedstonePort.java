@@ -564,7 +564,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			val1 = 0;
 		}
 		else {
-			val1 = Integer.valueOf(in1);
+			val1 = Integer.parseInt(in1);
 			if(val1 < 0) { val1 = 0; }
 			else if(val1 > 100) { val1 = 100; }
 		}
@@ -577,7 +577,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 				val2 = 0;
 			}
 			else {
-				val2 = Integer.valueOf(in2);
+				val2 = Integer.parseInt(in2);
 				if(val2 < 0) { val2 = 0; }
 				else if(val2 > 100) { val2 = 100; }
 			}
@@ -609,7 +609,7 @@ public class GuiReactorRedstonePort extends BeefGuiBase {
 			val1 = 0;
 		}
 		else {
-			val1 = Integer.valueOf(in1);
+			val1 = Integer.parseInt(in1);
 			if(val1 < 0) { val1 = 0; }
 			else if(val1 > maxVal) { val1 = maxVal; }
 		}

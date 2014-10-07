@@ -64,7 +64,6 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 		if(!(block instanceof BlockFuelRod)) { return false; }
 
         Tessellator tessellator = Tessellator.instance;
-		BlockFuelRod blockFuelRod = (BlockFuelRod)block;
 
         boolean renderTop = block.shouldSideBeRendered(world, x, y + 1, z, 0);
         boolean renderBottom = block.shouldSideBeRendered(world, x, y - 1, z, 0);

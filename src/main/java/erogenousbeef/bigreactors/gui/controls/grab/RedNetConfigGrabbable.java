@@ -20,7 +20,7 @@ public class RedNetConfigGrabbable implements IBeefGuiGrabbable {
 		return icon;
 	}
 	
-	public TileEntityReactorRedNetPort.CircuitType GetCircuitType() {
+	public TileEntityReactorRedNetPort.CircuitType getCircuitType() {
 		return circuitType;
 	}
 	
