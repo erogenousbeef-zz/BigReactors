@@ -73,16 +73,13 @@ public class CommonProxy {
 			doubleYellorium.stackSize = 2;
 
 			// TODO: Remove ThermalExpansionHelper once addSmelterRecipe and addPulverizerRecipe aren't broken
-			if(yelloriteOre != null && ingots[YELLORIUM] != null) {
+			if(ingots[YELLORIUM] != null) {
 				ThermalExpansionHelper.addFurnaceRecipe(400, yelloriteOre, ingots[YELLORIUM]);
 				ThermalExpansionHelper.addSmelterRecipe(1600, yelloriteOre, sandStack, doubleYellorium);
 			}
 
-			if(yelloriteOre != null && doubledYelloriumDust != null) {
+			if(doubledYelloriumDust != null) {
 				ThermalExpansionHelper.addPulverizerRecipe(4000, yelloriteOre, doubledYelloriumDust);
-			}
-
-			if(doubledYelloriumDust != null && doubleYellorium != null) {
 				ThermalExpansionHelper.addSmelterRecipe(200, doubledYelloriumDust, sandStack, doubleYellorium);
 			}
 
@@ -95,7 +92,7 @@ public class CommonProxy {
 				ItemStack doubleDust = dusts[i].copy();
 				doubleDust.stackSize = 2;
 				ItemStack doubleIngot = ingots[i].copy();
-				doubleIngot.stackSize = 2;				
+				doubleIngot.stackSize = 2;
 
 				ThermalExpansionHelper.addSmelterRecipe(200, doubleDust, sandStack, doubleIngot);
 			}
@@ -110,7 +107,7 @@ public class CommonProxy {
 		} // END: IsModLoaded - MineFactoryReloaded
 		
 		if(Loader.isModLoaded("appliedenergistics2")) {
-			if(yelloriteOre != null && doubledYelloriumDust != null) {
+			if(doubledYelloriumDust != null) {
 				IMCHelper.AE2.addGrinderRecipe(yelloriteOre, doubledYelloriumDust, 4);
 			}
 		

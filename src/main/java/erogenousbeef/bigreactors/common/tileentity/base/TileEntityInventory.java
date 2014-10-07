@@ -264,8 +264,6 @@ public abstract class TileEntityInventory extends TileEntityBeefBase implements 
 	}
 	
 	private void checkAdjacentInventory(ForgeDirection dir) {
-		int side = dir.ordinal();
-		
 		TileEntity te = worldObj.getTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
 		if(adjacentInvs[dir.ordinal()].set(te)) {
 			distributeSide(dir);
