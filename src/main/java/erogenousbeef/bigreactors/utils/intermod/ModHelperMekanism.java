@@ -62,7 +62,7 @@ public class ModHelperMekanism extends ModHelperBase {
 	public static void addMekanismEnrichmentChamberRecipe(ItemStack input, ItemStack output)
 	{
 		try {
-			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
+			Class recipeClass = Class.forName("mekanism.api.RecipeHelper");
 			Method m = recipeClass.getMethod("addEnrichmentChamberRecipe", ItemStack.class, ItemStack.class);
 			m.invoke(null, input, output);
 		} catch(Exception e) {
@@ -78,7 +78,7 @@ public class ModHelperMekanism extends ModHelperBase {
 	public static void addMekanismCombinerRecipe(ItemStack input, ItemStack output)
 	{
 		try {
-			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
+			Class recipeClass = Class.forName("mekanism.api.RecipeHelper");
 			Method m = recipeClass.getMethod("addCombinerRecipe", ItemStack.class, ItemStack.class);
 			m.invoke(null, input, output);
 		} catch(Exception e) {
@@ -94,7 +94,7 @@ public class ModHelperMekanism extends ModHelperBase {
 	public static void addMekanismCrusherRecipe(ItemStack input, ItemStack output)
 	{
 		try {
-			Class recipeClass = Class.forName("mekanism.common.RecipeHandler");
+			Class recipeClass = Class.forName("mekanism.api.RecipeHelper");
 			Method m = recipeClass.getMethod("addCrusherRecipe", ItemStack.class, ItemStack.class);
 			m.invoke(null, input, output);
 		} catch(Exception e) {
