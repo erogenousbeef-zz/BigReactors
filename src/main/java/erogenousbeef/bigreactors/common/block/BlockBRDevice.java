@@ -205,6 +205,9 @@ public class BlockBRDevice extends BlockCoFHBase {
 				ItemStack stack = invTe.getStackInSlot(i);
 				if(stack != null) {
 					stacks.add(stack);
+					if(!simulate) {
+						invTe.setInventorySlotContents(i, null);
+					}
 				}
 			}
 		}
@@ -219,6 +222,10 @@ public class BlockBRDevice extends BlockCoFHBase {
 			}
 		}
 
+		if(!returnDrops) {
+			stacks.clear();
+		}
+		
 		return stacks;
 	}
 	
