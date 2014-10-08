@@ -4,8 +4,16 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc9)
+Current Release (0.4.0rc10)
 --------------------------------
+- Bugfix: Cyanite reprocessors no longer drop twice as many ingots as they should
+- Bugfix: BR now correctly registers recipes with both Mekanism 7.1.1 and 7.1.0
+- Bugfix: `useExpensiveGlass` setting now works properly with Thermal Expansion Hardened Glass again
+- Bugfix: Blutonium can again be used as a fuel and can be inserted into reactors which already contain yellorium or other fuels
+- Bugfix: Ludicrite can no longer be crafted out of 9 yellorium dusts
+- Enhancement: Ingots and dusts are now available for ludicrite. They do nothing, for now.
+
+### 0.4.0rc9
 - Bugfix: Fixed reactor controller not turning green or red when reactors were activated/deactivated via computer, redstone or rednet
 - Bugfix: Fixed some bugs whereby rednet/redstone port settings would not be saved properly
 - Bugfix: Fixed in-game requirement checks. BigReactors will now properly make Minecraft complain if CoFHCore is missing.
