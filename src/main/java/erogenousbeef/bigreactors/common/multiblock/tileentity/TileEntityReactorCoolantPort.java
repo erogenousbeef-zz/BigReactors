@@ -39,6 +39,9 @@ public class TileEntityReactorCoolantPort extends TileEntityReactorPart implemen
 			if(!inlet) {
 				checkForAdjacentTank();
 			}
+			else {
+				pumpDestination = null;
+			}
 
 			if(markDirty) {
 				markDirty();
