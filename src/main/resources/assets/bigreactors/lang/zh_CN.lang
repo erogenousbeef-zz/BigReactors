@@ -9,7 +9,7 @@ tile.brMetal.0.name=黄铀块
 tile.brMetal.1.name=蓝晶块
 tile.brMetal.2.name=石墨块
 tile.brMetal.3.name=蓝钚块
-tile.brMetal.4.name=Ludicrite block
+tile.brMetal.4.name=纯镥块
 tile.yelloriumFuelRod.name=黄铀燃料棒
 tile.multiblockGlass.0.name=反应堆玻璃
 tile.multiblockGlass.1.name=涡轮机玻璃
@@ -40,15 +40,15 @@ item.ingotYellorium.name=黄铀锭
 item.ingotCyanite.name=蓝晶锭
 item.ingotGraphite.name=石墨棒
 item.ingotBlutonium.name=蓝钚锭
-item.ingotLudicrite.name=Ludicrite Ingot
+item.ingotLudicrite.name=纯镥锭
 item.dustYellorium.name=黄铀粉
 item.dustCyanite.name=蓝晶粉
 item.dustBlutonium.name=蓝钚粉
 item.dustGraphite.name=石墨粉
-item.dustLudicrite.name=Ludicrite Dust
+item.dustLudicrite.name=纯镥粉
 item.bucket.cyanite.name=液态蓝晶桶
 item.bucket.yellorium.name=液态黄铀桶
-item.beefDebugTool.name=BeefTronic™公司故障排除工具
+item.beefDebugTool.name=BeefTronic™公司调试工具
 
 # Fluids
 fluid.tile.water=水
