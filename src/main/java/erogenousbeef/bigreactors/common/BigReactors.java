@@ -34,6 +34,7 @@ import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
+import erogenousbeef.bigreactors.common.data.StandardFluids;
 import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBeefDebugTool;
@@ -753,6 +754,9 @@ public class BigReactors {
 
 	// This must be done in init or later
 	protected static void registerGameBalanceData() {
+		// Register water<>steam
+		StandardFluids.register();
+
 		// Register ingot & block => reactant mappings
 		StandardReactants.yelloriumMapping = Reactants.registerSolid("ingotYellorium", StandardReactants.yellorium);
 		StandardReactants.cyaniteMapping = Reactants.registerSolid("ingotCyanite", StandardReactants.cyanite);

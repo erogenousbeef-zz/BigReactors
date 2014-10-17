@@ -12,7 +12,7 @@ public class TileEntityExchangerPart extends TileEntityExchangerPartBase {
 	public TileEntityExchangerPart() {
 		super();
 	}
-	
+
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		int metadata = worldObj.getBlockMetadata(xCoord, yCoord, zCoord);

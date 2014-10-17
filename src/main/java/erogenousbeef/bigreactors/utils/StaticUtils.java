@@ -13,6 +13,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidHandler;
@@ -196,6 +197,14 @@ public class StaticUtils {
 			}
 			return false;
 		}
+		
+		public static boolean areFluidsEqual(Fluid a, Fluid b) {
+			if(a == null && b == null) { return true; }
+			else if(a == null || b == null) { return false; }
+			else {
+				return a.getName().equals(b.getName());
+			}
+		}
 	}
 	
 	public static class ExtraMath {
@@ -230,6 +239,7 @@ public class StaticUtils {
 	
 	public static class Energy {
 		public static float RFPerCentigradePerUnitVolume = 10f;
+		public static float RFPerCentigradePerUnitMass = 10f;
 
 		public static float getRFFromVolumeAndTemp(int volume, float temperature) {
 			return temperature * (float)volume * RFPerCentigradePerUnitVolume;
@@ -237,6 +247,10 @@ public class StaticUtils {
 		
 		public static float getTempFromVolumeAndRF(int volume, float rf) {
 			return rf / ((float)volume * RFPerCentigradePerUnitVolume);
+		}
+		
+		public static float getTemp(int mass, float rf) {
+			return getTempFromVolumeAndRF(mass, rf);
 		}
 	}
 	
