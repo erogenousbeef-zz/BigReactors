@@ -1,0 +1,64 @@
+# Big Reactors Language File - Čeština
+# @author Erogenous Beef
+
+itemGroup.BigReactors=Velké reaktory
+
+# Blocks
+tile.brOre.0.name=Yelloritová ruda
+tile.brMetal.0.name=Yelloritový blok
+tile.brMetal.1.name=Kyanitový blok
+tile.brMetal.2.name=Grafitový blok
+tile.brMetal.3.name=Blutóniový blok
+tile.brMetal.4.name=Ludikritový blok
+tile.yelloriumFuelRod.name=Yelloriová palivová tyč
+tile.multiblockGlass.0.name=Reaktorové sklo
+tile.multiblockGlass.1.name=Turbínové sklo
+tile.blockReactorRedstonePort.name=Reaktorový ruditový přesuvník
+tile.blockReactorPart.0.name=Reaktorový plášť
+tile.blockReactorPart.1.name=Reaktorový ovladač
+tile.blockReactorPart.2.name=Reaktorová ovládací tyč
+tile.blockReactorPart.3.name=Reaktorové zapínací tlačítko
+tile.blockReactorPart.4.name=Reaktorový přístupový přesuvník
+tile.blockReactorPart.6.name=Reaktorový rednetový přesuvník
+tile.blockReactorPart.7.name=Reaktorový počítačový přesuvník
+tile.blockReactorPart.5.name=Reaktorový chladící přesuvník
+tile.blockRadiothermalGen.0=Radio-tepelný generátor
+tile.blockBRDevice.0.name=Kyanitový zpracovávač
+tile.blockTurbinePart.0.name=Turbínové pouzdro
+tile.blockTurbinePart.1.name=Turbínový ovladač
+tile.blockTurbinePart.2.name=Turbánový silový přesuvník
+tile.blockTurbinePart.3.name=Turbínový tekutinový přesuvník
+tile.blockTurbinePart.4.name=Turbínové rotorové ložisko
+tile.blockTurbinePart.5.name=Turbínový počítačový přesuvník
+tile.blockTurbineRotorPart.0.name=Turbínová rotorová hřídel
+tile.blockTurbineRotorPart.1.name=Turbínová rotorová čepel
+tile.blockMBCreativePart.0.name=Reaktorový kreativní chladící převodník
+tile.blockMBCreativePart.1.name=Turbínový kreativní parní generátor
+
+# Items
+item.ingotYellorium.name=Yelloriová cihlička
+item.ingotCyanite.name=Kyanitová cihlička
+item.ingotGraphite.name=Grafitová cihlička
+item.ingotBlutonium.name=Blutoniová cihlička
+item.ingotLudicrite.name=Ludikritová cihlička
+item.dustYellorium.name=Yelloritový prach
+item.dustCyanite.name=Kyanitový prach
+item.dustBlutonium.name=Blutoniový prach
+item.dustGraphite.name=Grafitový prach
+item.dustLudicrite.name=Ludikritový prach
+item.bucket.cyanite.name=Kbelík tekutého Kyanitu
+item.bucket.yellorium.name=Kbelík tekutého Yelloria
+item.beefDebugTool.name=BeefTronický™ diagnostický nástroj
+
+# Fluids
+fluid.tile.water=Voda
+fluid.tile.lava=Láva
+fluid.tile.yellorium=Tekuté Yellorium
+fluid.tile.cyanite=Tekutý Kyanit
+fluid.tile.blutonium=Tekuté Blutonium
+fluid.steam=Pára
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Tekuté Yellorium
+tile.fluid.cyanite.still.name=Tekutý Kyanit
+tile.fluid.blutonium.still.name=Tekuté Blutonium
