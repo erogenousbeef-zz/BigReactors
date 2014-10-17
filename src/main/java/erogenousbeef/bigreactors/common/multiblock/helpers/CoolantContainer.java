@@ -4,6 +4,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import erogenousbeef.bigreactors.api.data.FluidStateData;
+import erogenousbeef.bigreactors.api.registry.FluidStates;
 import erogenousbeef.bigreactors.common.BRLog;
 import erogenousbeef.bigreactors.common.BigReactors;
 
@@ -34,8 +36,11 @@ public class CoolantContainer extends FluidHelper {
 	public boolean isAcceptedCoolant(Fluid fluid) {
 		if(fluid == null) { return false; }
 		
-		// TODO: Lookup
-		return fluid.getID() == FluidRegistry.WATER.getID();
+		FluidStateData fsd = FluidStates.get(fluid);
+		if(fsd != null) {
+			return fsd.getLiquid().getName().equals(fluid.getName());
+		}
+		return false;
 	}
 
 	public int addCoolant(FluidStack incoming) {
@@ -61,16 +66,6 @@ public class CoolantContainer extends FluidHelper {
 	
 	public int getVaporAmount() {
 		return getFluidAmount(HOT);
-	}
-	
-	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
-		super.writeToNBT(destination);
-
-		return destination;
-	}
-	
-	public void readFromNBT(NBTTagCompound data) {
-		super.readFromNBT(data);
 	}
 	
 	public void emptyCoolant() {
@@ -158,8 +153,15 @@ public class CoolantContainer extends FluidHelper {
 	private float getBoilingPoint(Fluid fluid) {
 		if(fluid == null) { throw new IllegalArgumentException("Cannot pass a null fluid to getBoilingPoint"); } // just in case
 
-		// TODO: Lookup
-		return 100f;
+		FluidStateData fsd = FluidStates.get(fluid);
+		if(fsd != null) {
+			return fsd.getBoilingPoint();
+		}
+		else {
+			// WTF?
+			BRLog.warning("No fluid state data found for fluid %s", fluid.getName());
+			return 100f;
+		}
 	}
 	
 	/**
@@ -169,14 +171,26 @@ public class CoolantContainer extends FluidHelper {
 	private float getHeatOfVaporization(Fluid fluid) {
 		if(fluid == null) { throw new IllegalArgumentException("Cannot pass a null fluid to getHeatOfVaporization"); } // just in case
 
-		// TODO: Make a registry for this, do a lookup
-		return 4f; // TE converts 1mB steam into 2 RF of work in a steam turbine, so we assume it's 50% efficient.
+		FluidStateData fsd = FluidStates.get(fluid);
+		if(fsd != null) {
+			return fsd.getHeatOfVaporization();
+		}
+		else {
+			BRLog.warning("No fluid state data for fluid %s", fluid.getName());
+			return 4f;
+		}
 	}
 	
 	private Fluid getVaporizedCoolantFluid(Fluid fluid) {
 		if(fluid == null) { throw new IllegalArgumentException("Cannot pass a null fluid to getVaporizedCoolantFluid"); } // just in case
 
-		return BigReactors.fluidSteam;
+		FluidStateData fsd = FluidStates.get(fluid);
+		if(fsd != null) {
+			return fsd.getGas();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override

@@ -1,11 +1,15 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
+import java.util.HashSet;
+
 import cofh.api.energy.IEnergyHandler;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidTankInfo;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
+import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
@@ -14,9 +18,20 @@ public class MultiblockHeatExchanger extends
 		RectangularMultiblockControllerBase 
 		implements IActivateable, IMultipleFluidHandler {
 
+	private HashSet<ITickableMultiblockPart> m_TickableParts;
+	private boolean m_Active;
+	
+	private CoolantContainer m_Primary;
+	private CoolantContainer m_Secondary;
+	private CoolantContainer[] m_Containers;
+
 	public MultiblockHeatExchanger(World world) {
 		super(world);
-		// TODO Auto-generated constructor stub
+		m_TickableParts = new HashSet<ITickableMultiblockPart>();
+		m_Active = false;
+		m_Primary = new CoolantContainer();
+		m_Secondary = new CoolantContainer();
+		m_Containers = new CoolantContainer[] { m_Primary, m_Secondary };
 	}
 
 	@Override
@@ -27,127 +42,115 @@ public class MultiblockHeatExchanger extends
 
 	@Override
 	protected void onBlockAdded(IMultiblockPart newPart) {
-		// TODO Auto-generated method stub
+		if(newPart instanceof ITickableMultiblockPart) {
+			m_TickableParts.add((ITickableMultiblockPart)newPart);
+		}
 	}
 
 	@Override
 	protected void onBlockRemoved(IMultiblockPart oldPart) {
-		// TODO Auto-generated method stub
-
+		m_TickableParts.remove(oldPart);
 	}
 
 	@Override
 	protected void onMachineAssembled() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	protected void onMachineRestored() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	protected void onMachinePaused() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	protected void onMachineDisassembled() {
-		// TODO Auto-generated method stub
-
+		setActive(false);
 	}
 
 	@Override
 	protected int getMinimumNumberOfBlocksForAssembledMachine() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 36; // 4 x 3 x 3, which translates to a filled 2x1x1 interior
 	}
 
 	@Override
 	protected int getMaximumXSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 15; // TODO: Setting
 	}
 
 	@Override
 	protected int getMaximumZSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 15; // TODO: Setting
 	}
 
 	@Override
 	protected int getMaximumYSize() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 32; // TODO: Setting
 	}
 
 	@Override
 	protected void onAssimilate(MultiblockControllerBase assimilated) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	protected void onAssimilated(MultiblockControllerBase assimilator) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	protected boolean updateServer() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	protected void updateClient() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void writeToNBT(NBTTagCompound data) {
-		// TODO Auto-generated method stub
-
+		data.setBoolean("active", m_Active);
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound data) {
-		// TODO Auto-generated method stub
-
+		if(data.hasKey("active")) {
+			setActive(data.getBoolean("active"));
+		}
 	}
 
 	@Override
 	public void formatDescriptionPacket(NBTTagCompound data) {
-		// TODO Auto-generated method stub
-
+		writeToNBT(data);
 	}
 
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
-		// TODO Auto-generated method stub
-
+		readFromNBT(data);
 	}
 
 	@Override
 	public FluidTankInfo[] getTankInfo() {
-		// TODO Auto-generated method stub
-		return null;
+		FluidTankInfo[] tankInfo = new FluidTankInfo[4];
+		for(int i = 0; i < 2; i++) {
+			for(int j = 0; j < 2; j++) {
+				tankInfo[i * 2 + j] = m_Containers[i].getSingleTankInfo(j);
+			}
+		}
+
+		return tankInfo;
 	}
 
 	@Override
 	public boolean getActive() {
-		// TODO Auto-generated method stub
-		return false;
+		return m_Active;
 	}
 
 	@Override
 	public void setActive(boolean active) {
-		// TODO Auto-generated method stub
-		
+		if(active != m_Active) {
+			m_Active = active;
+			markReferenceCoordDirty();
+		}
 	}
 
 	public String getDebugInfo() {

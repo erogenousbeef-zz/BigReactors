@@ -107,7 +107,7 @@ public abstract class FluidHelper implements IConditionalUpdater {
 		return amt;
 	}
 	
-	protected NBTTagCompound writeToNBT(NBTTagCompound destination) {
+	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
 		String[] tankNames = getNBTTankNames();
 		
 		if(tankNames.length != fluids.length) { throw new IllegalArgumentException("getNBTTankNames must return the same number of strings as there are fluid stacks"); }
@@ -123,7 +123,7 @@ public abstract class FluidHelper implements IConditionalUpdater {
 		return destination;
 	}
 	
-	protected void readFromNBT(NBTTagCompound data) {
+	public void readFromNBT(NBTTagCompound data) {
 		String[] tankNames = getNBTTankNames();
 		
 		if(tankNames.length != fluids.length) { throw new IllegalArgumentException("getNBTTankNames must return the same number of strings as there are fluid stacks"); }
@@ -364,6 +364,11 @@ public abstract class FluidHelper implements IConditionalUpdater {
 		}
 
 		return info;
+	}
+	
+	public FluidTankInfo getSingleTankInfo(int idx) {
+		if(idx >= fluids.length || idx < 0) { return null; }
+		return new FluidTankInfo(fluids[idx] == null ? null : fluids[idx].copy(), getCapacity());
 	}
 	
 	public String getDebugInfo() {
