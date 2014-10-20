@@ -484,7 +484,9 @@ public class BigReactors {
 		if (blockYelloriteOre == null) {
 			blockYelloriteOre = new BlockBROre();
 			GameRegistry.registerBlock(BigReactors.blockYelloriteOre, ItemBlockBigReactors.class, "YelloriteOre");
-			OreDictionary.registerOre("oreYellorite", new ItemStack(blockYelloriteOre, 1));
+			ItemStack yelloriteStack = new ItemStack(blockYelloriteOre, 1);
+			OreDictionary.registerOre("oreYellorite", yelloriteStack);
+			OreDictionary.registerOre("oreYellorium", yelloriteStack); // For convenience of mods which fiddle with recipes
 		}
 
 		if(blockMetal == null) {
