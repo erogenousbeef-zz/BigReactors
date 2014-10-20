@@ -100,6 +100,7 @@ public class CondenserContainer extends FluidHelper {
 		float transferRfT = Math.min(availableRfT, maximumTransferRfT);
 		
 		// Finally, clamp by the amount of fluid we'll actually condense, since we have discrete fluids
+		// TODO: Handle expansion coefficients.
 		int unitsToCondense = (int)(transferRfT / fsd.getHeatOfVaporization());
 		transferRfT = fsd.getCondensationRf(unitsToCondense);
 		
