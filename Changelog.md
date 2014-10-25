@@ -4,8 +4,15 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.4.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc10)
+Current Release (0.4.0rc11)
 --------------------------------
+- **Dependency**: Forge dependency update to **10.13.2.1232**
+- Compatibility: OpenComputers support upgraded from 1.3 to 1.4. Big Reactors now works with OC 1.4 instead of 1.3.
+- Compatiblity: Yellorite ore now has the additional oredict name `oreYellorium`, for the convenience of mods which automatically add ore/dust/ingot recipes based on names, such as AOBD.
+- Localization: Updates to Russian, Chinese and Korean translations (thanks Adaptivity, ViKaleidoscope and puyo061!)
+- Localization: Czech translation added (thanks nalimleinad!)
+
+### 0.4.0rc10
 - Bugfix: Cyanite reprocessors no longer drop twice as many ingots as they should
 - Bugfix: BR now correctly registers recipes with both Mekanism 7.1.1 and 7.1.0
 - Bugfix: `useExpensiveGlass` setting now works properly with Thermal Expansion Hardened Glass again
