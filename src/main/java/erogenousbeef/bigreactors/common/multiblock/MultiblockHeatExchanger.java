@@ -3,15 +3,23 @@ package erogenousbeef.bigreactors.common.multiblock;
 import java.util.HashSet;
 
 import cofh.api.energy.IEnergyHandler;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidTankInfo;
+import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.interfaces.IMultipleFluidHandler;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockExchangerPart;
+import erogenousbeef.bigreactors.common.multiblock.helpers.CondenserContainer;
 import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
+import erogenousbeef.bigreactors.common.multiblock.helpers.SteamEvapContainer;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.IActivateable;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
+import erogenousbeef.core.common.CoordTriplet;
 import erogenousbeef.core.multiblock.IMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
 public class MultiblockHeatExchanger extends
@@ -21,19 +29,51 @@ public class MultiblockHeatExchanger extends
 	private HashSet<ITickableMultiblockPart> m_TickableParts;
 	private boolean m_Active;
 	
-	private CoolantContainer m_Primary;
-	private CoolantContainer m_Secondary;
-	private CoolantContainer[] m_Containers;
+	private CondenserContainer m_Condenser;
+	private SteamEvapContainer m_Evaporator;
 
 	public MultiblockHeatExchanger(World world) {
 		super(world);
 		m_TickableParts = new HashSet<ITickableMultiblockPart>();
 		m_Active = false;
-		m_Primary = new CoolantContainer();
-		m_Secondary = new CoolantContainer();
-		m_Containers = new CoolantContainer[] { m_Primary, m_Secondary };
+		m_Condenser = new CondenserContainer();
+		m_Evaporator = new SteamEvapContainer();
 	}
 
+	// Ensure that heat/steam pipes only have two connections.
+	@Override
+	protected void isBlockGoodForInterior(World world, int x, int y, int z) throws MultiblockValidationException {
+		Block b = world.getBlock(x, y, z);
+		if(b == BigReactors.blockExchangerInteriorPart) {
+			// Check neighbors
+			CoordTriplet center = new CoordTriplet(x, y, z);
+			int connectedAdjoiningBlocks = 0;
+			int metadata = world.getBlockMetadata(x, y, z);
+
+			for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
+				CoordTriplet c = center.copy();
+				c.translate(dir);
+				
+				Block adjacentBlock = world.getBlock(c.x, c.y, c.z);
+				if(adjacentBlock == BigReactors.blockExchangerInteriorPart || adjacentBlock == BigReactors.blockExchangerPart) {
+					int adjacentMetadata = world.getBlockMetadata(c.x, c.y, c.z);
+					if( (adjacentBlock == BigReactors.blockExchangerInteriorPart && adjacentMetadata == metadata) ||
+						(adjacentBlock == BigReactors.blockExchangerPart && adjacentMetadata == BlockExchangerPart.METADATA_FLUIDPORT)) {
+						// Heat pipes connect to adjacent heat pipes of the same type or fluid ports
+						connectedAdjoiningBlocks++;
+					}
+				}
+			}
+
+			if(connectedAdjoiningBlocks != 2) {
+				throw new MultiblockValidationException(String.format("%d, %d, %d - Exchanger pipes must only connect to two other blocks", x, y, z));
+			}
+		}
+		else {
+			super.isBlockGoodForInterior(world, x, y, z);
+		}
+	}
+	
 	@Override
 	public void onAttachedPartWithMultiblockData(IMultiblockPart part,
 			NBTTagCompound data) {
@@ -71,7 +111,7 @@ public class MultiblockHeatExchanger extends
 
 	@Override
 	protected int getMinimumNumberOfBlocksForAssembledMachine() {
-		return 36; // 4 x 3 x 3, which translates to a filled 2x1x1 interior
+		return 34; // 4 x 3 x 3, with a 2x1x1 core
 	}
 
 	@Override
@@ -131,12 +171,11 @@ public class MultiblockHeatExchanger extends
 	@Override
 	public FluidTankInfo[] getTankInfo() {
 		FluidTankInfo[] tankInfo = new FluidTankInfo[4];
-		for(int i = 0; i < 2; i++) {
-			for(int j = 0; j < 2; j++) {
-				tankInfo[i * 2 + j] = m_Containers[i].getSingleTankInfo(j);
-			}
-		}
-
+		tankInfo[0] = m_Condenser.getSingleTankInfo(CondenserContainer.HOT);
+		tankInfo[1] = m_Condenser.getSingleTankInfo(CondenserContainer.COLD);
+		tankInfo[2] = m_Evaporator.getSingleTankInfo(SteamEvapContainer.STEAM);
+		tankInfo[3] = m_Evaporator.getSingleTankInfo(SteamEvapContainer.WATER);
+		
 		return tankInfo;
 	}
 

@@ -42,6 +42,8 @@ import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockExchangerInteriorPart;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockExchangerPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMBCreativePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMultiblockGlass;
@@ -104,6 +106,9 @@ public class BigReactors {
 	public static BlockTurbinePart blockTurbinePart;
 	public static BlockTurbineRotorPart blockTurbineRotorPart;
 
+	public static BlockExchangerInteriorPart blockExchangerInteriorPart;
+	public static BlockExchangerPart blockExchangerPart;
+	
 	public static BlockMultiblockGlass blockMultiblockGlass;
 	public static BlockMBCreativePart blockMultiblockCreativePart;
 	
