@@ -88,6 +88,12 @@ TODO - General
 - Highlight inventory & fluid slots dynamically when they are exposed via the right-hand-side buttons
 - Change all UI strings to be in the localization file to allow for full localization
 
+### Audio
+- Add running audio for reactors, turbines and other machines.
+  - Ensure audio is appropriately positional and isn't obnoxiously loud.
+  - Add option to disable running audio in-game, either from machine UIs or from a mod-specific Options menu
+  - Suggestions for audio: Issue #367
+
 Wishlist
 --------
 ## User Interface/Graphics
