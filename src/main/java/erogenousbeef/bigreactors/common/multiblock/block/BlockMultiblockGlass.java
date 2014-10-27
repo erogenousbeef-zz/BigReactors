@@ -31,6 +31,8 @@ public class BlockMultiblockGlass extends BlockContainer {
 	public static final int METADATA_REACTOR = 0;
 	public static final int METADATA_TURBINE = 1;
 	
+	private static final String textureBaseName = "multiblockGlass";
+	
 	private static String[] subBlocks = new String[] { "reactor", "turbine" };
 	private IIcon[][] icons = new IIcon[subBlocks.length][16];
 	private IIcon transparentIcon;
@@ -40,8 +42,8 @@ public class BlockMultiblockGlass extends BlockContainer {
 		
 		setStepSound(soundTypeGlass);
 		setHardness(2.0f);
-		setBlockName("multiblockGlass");
-		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "multiblockGlass");
+		setBlockName("brMultiblockGlass");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + textureBaseName);
 		setCreativeTab(BigReactors.TAB);
 	}
 
@@ -61,11 +63,11 @@ public class BlockMultiblockGlass extends BlockContainer {
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister par1IconRegister)
 	{
-		this.transparentIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".transparent");
+		this.transparentIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "tile." + textureBaseName + ".transparent");
 		
 		for(int metadata = 0; metadata < subBlocks.length; metadata++) {
 			for(int i = 0; i < 16; ++i) {
-				icons[metadata][i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + "." + subBlocks[metadata] + "." + Integer.toString(i));
+				icons[metadata][i] = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + "tile." + textureBaseName + "." + subBlocks[metadata] + "." + Integer.toString(i));
 			}
 		}
 	}
