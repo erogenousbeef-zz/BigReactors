@@ -441,6 +441,14 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(rotorBlade, "CII", 'C', "ingotCyanite", 'I', ironOrSteelIngot));
 			}
 			
+			if(blockExchangerPart != null) {
+				// TODO: Register recipes for heat exchanger parts
+			}
+			
+			if(blockExchangerInteriorPart != null) {
+				// TODO: Register recipes for heat exchanger pipe parts
+			}
+			
 			registerGameBalanceData();
 		}
 
@@ -619,7 +627,6 @@ public class BigReactors {
 	
 	public static void registerTurbineParts() {
 		if(BigReactors.blockTurbinePart == null) {
-			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbinePart = new BlockTurbinePart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbinePart, ItemBlockBigReactors.class, "BRTurbinePart");
 
@@ -628,19 +635,34 @@ public class BigReactors {
 			OreDictionary.registerOre("turbinePowerTap", BigReactors.blockTurbinePart.getItemStack("powerTap"));
 			OreDictionary.registerOre("turbineFluidPort", BigReactors.blockTurbinePart.getItemStack("fluidPort"));
 			OreDictionary.registerOre("turbineBearing", BigReactors.blockTurbinePart.getItemStack("bearing"));
-
-			BRConfig.CONFIGURATION.save();
 		}
 
 		if(BigReactors.blockTurbineRotorPart == null) {
-			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbineRotorPart = new BlockTurbineRotorPart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockBigReactors.class, "BRTurbineRotorPart");
 
 			OreDictionary.registerOre("turbineRotorShaft", BigReactors.blockTurbineRotorPart.getItemStack("rotor"));
 			OreDictionary.registerOre("turbineRotorBlade", BigReactors.blockTurbineRotorPart.getItemStack("blade"));
-
-			BRConfig.CONFIGURATION.save();
+		}
+	}
+	
+	public static void registerExchangerParts() {
+		if(BigReactors.blockExchangerPart == null) {
+			BigReactors.blockExchangerPart = new BlockExchangerPart(Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockExchangerPart, ItemBlockBigReactors.class, "BRExchangerPart");
+			
+			OreDictionary.registerOre("heatExchangerCasing", BigReactors.blockExchangerPart.getItemStack("casing"));
+			OreDictionary.registerOre("heatExchangerController", BigReactors.blockExchangerPart.getItemStack("controller"));
+			OreDictionary.registerOre("heatExchangerFluidPort", BigReactors.blockExchangerPart.getItemStack("fluidPort"));
+			OreDictionary.registerOre("heatExchangerComputerPort", BigReactors.blockExchangerPart.getItemStack("computerPort"));
+		}
+		
+		if(BigReactors.blockExchangerInteriorPart == null) {
+			BigReactors.blockExchangerInteriorPart = new BlockExchangerInteriorPart(Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockExchangerInteriorPart, ItemBlockBigReactors.class,"BRExchangerInteriorPart");
+			
+			OreDictionary.registerOre("heatExchangerInteriorPrimaryPipe", BigReactors.blockExchangerInteriorPart.getItemStack("primary"));
+			OreDictionary.registerOre("heatExchangerInteriorSecondaryPipe", BigReactors.blockExchangerInteriorPart.getItemStack("secondary"));
 		}
 	}
 	
