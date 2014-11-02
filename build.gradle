@@ -38,11 +38,13 @@ repositories {
         name = "OpenComputers"
         url = "http://maven.cil.li/"
     }
-    repositories {
-        maven {
-            name = "codechicken"
-            url = "http://chickenbones.net/maven"
-        }
+    maven {
+        name = "codechicken"
+        url = "http://chickenbones.net/maven"
+    }
+    ivy {
+        name "CoFHCore"
+        artifactPattern "http://addons.cursecdn.com/files/2212/895/[module]-[revision].[ext]"
     }
 }
 
@@ -51,9 +53,7 @@ dependencies {
     compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.64:dev'
     compile 'com.mod-buildcraft:buildcraft:6.0.18:dev'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.4.0.+:api'
-		
-	// Remember to use the non-obfuscated dev versions!
-	compile files('lib/CoFHCore-[1.7.10]3.0.0B6-dev-32.jar');		// CoFHCore - general libraries
+    compile name: 'CoFHCore', version: '[1.7.10]3.0.0B6-dev-32', ext: 'jar'
 }
 
 processResources
