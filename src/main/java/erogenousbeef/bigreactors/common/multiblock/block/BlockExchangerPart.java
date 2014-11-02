@@ -327,4 +327,14 @@ inv:		for(int i = 0; i < inventory.getSizeInventory(); i++)
 		MultiblockControllerBase exchanger = part.getMultiblockController();
 		return exchanger != null && exchanger.isAssembled();
 	}
+	
+	public ItemStack getItemStack(String name) {
+		for(int i = 0; i < _subBlocks.length; i++) {
+			if(_subBlocks[i].equals(name)) {
+				return new ItemStack(this, 1, i);
+			}
+		}
+		
+		throw new IllegalArgumentException("Unable to find Heat Exchanger part with name " + name);
+	}
 }
