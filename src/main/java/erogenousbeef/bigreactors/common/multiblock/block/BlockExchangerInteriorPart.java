@@ -30,7 +30,7 @@ public class BlockExchangerInteriorPart extends BlockContainer {
 		setStepSound(soundTypeMetal);
 		setHardness(2.0f);
 		setBlockName("blockExchangerInteriorPart");
-		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockExchangerPart");
+		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockExchangerInteriorPart");
 		setCreativeTab(BigReactors.TAB);
 	}
 
