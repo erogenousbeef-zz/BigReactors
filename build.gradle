@@ -44,16 +44,16 @@ repositories {
     }
     ivy {
         name "CoFHCore"
-        artifactPattern "http://addons.cursecdn.com/files/2212/895/[module]-[revision].[ext]"
+        artifactPattern "http://addons.cursecdn.com/files/2218/330/[module]-[revision].[ext]"
     }
 }
 
 dependencies {
-    compile 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
-    compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.64:dev'
+    //compile 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
+    //compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.67:dev'
     compile 'com.mod-buildcraft:buildcraft:6.0.18:dev'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.4.0.+:api'
-    compile name: 'CoFHCore', version: '[1.7.10]3.0.0B6-dev-32', ext: 'jar'
+    compile name: 'CoFHCore', version: '[1.7.10]3.0.0B8-dev-36', ext: 'jar'
 }
 
 processResources
