@@ -1,11 +1,18 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.4.0A)
+Next Release (Anticipated Version: 0.5.0A)
 ------------------------------------------
 
-Current Release (0.4.0rc11)
+Current Release (0.4.0A)
 --------------------------------
+- **Dependency**: CoFHCore dependency update to **3.0.0B8**
+- Bugfix: Power taps no longer show up as green when adjacent to ME cables, as ME cables don't actually accept RF connections.
+
+Older Releases
+--------------
+
+### 0.4.0rc11
 - **Dependency**: Forge dependency update to **10.13.2.1232**
 - Compatibility: OpenComputers support upgraded from 1.3 to 1.4. Big Reactors now works with OC 1.4 instead of 1.3.
 - Compatiblity: Yellorite ore now has the additional oredict name `oreYellorium`, for the convenience of mods which automatically add ore/dust/ingot recipes based on names, such as AOBD.
@@ -88,8 +95,6 @@ Current Release (0.4.0rc11)
 - Enhancement: Turbine and Reactor computer ports now expose `getMinimumCoordinate` and `getMaximumCoordinate` commands for machine-size computations.
 - Localization: Russian translation updated. Thanks Adaptivity!
 
-Older Releases
---------------
 ### Release 0.3.4A2
 - Bugfix: Proxy network code fixed. Coil clutch now works properly.
 
