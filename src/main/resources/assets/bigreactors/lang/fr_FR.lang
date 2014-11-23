@@ -1,0 +1,64 @@
+# Big Reactors Language File - French
+# @author Paulin jorys
+
+itemGroup.BigReactors=Gros reacteurs
+
+# Blocks
+tile.brOre.0.name=Minerai de Yellorite
+tile.brMetal.0.name=Bloc de Yellorium
+tile.brMetal.1.name=Bloc de Cyanite
+tile.brMetal.2.name=Bloc de Graphite
+tile.brMetal.3.name=Bloc de Blutonium
+tile.brMetal.4.name=Bloc de Ludicrite
+tile.yelloriumFuelRod.name=Barre a combustible de Yellorium
+tile.brMultiblockGlass.0.name=Vitre pour reacteur
+tile.brMultiblockGlass.1.name=Vitre pour turbine
+tile.blockReactorRedstonePort.name=Port redstone de reacteur
+tile.blockReactorPart.0.name=Boitier de reacteur
+tile.blockReactorPart.1.name=Controleur de reacteur
+tile.blockReactorPart.2.name=Barre de commande de réacteur
+tile.blockReactorPart.3.name=Sortie d'energie pour reacteur
+tile.blockReactorPart.4.name=Port d'acces pour reacteur
+tile.blockReactorPart.6.name=Port rednet pour reacteur
+tile.blockReactorPart.7.name=Port computer pour reacteur
+tile.blockReactorPart.5.name=Port de refroidissement pour reacteur
+tile.blockRadiothermalGen.0=Radiothermal Generator
+tile.blockBRDevice.0.name=Retraitement de Cyanite
+tile.blockTurbinePart.0.name=Boitier de turbine
+tile.blockTurbinePart.1.name=Controleur de turbine
+tile.blockTurbinePart.2.name=Port energie pour turbine
+tile.blockTurbinePart.3.name=Port a liquide pour turbine
+tile.blockTurbinePart.4.name=Base de rotor pour turbine
+tile.blockTurbinePart.5.name=Port computer pour turbine
+tile.blockTurbineRotorPart.0.name=Pale de rotor pour turbine
+tile.blockTurbineRotorPart.1.name=Axe de rotor pour turbine
+tile.blockMBCreativePart.0.name=Condenseur pour reacteur creatif
+tile.blockMBCreativePart.1.name=Generateur de vapeur pour turbine Creatif
+
+# Items
+item.ingotYellorium.name=Lingot de Yellorium
+item.ingotCyanite.name=Lingot de Cyanite
+item.ingotGraphite.name=Barre de Graphite
+item.ingotBlutonium.name=Lingot de Blutonium
+item.ingotLudicrite.name=Lingot de Ludicrite
+item.dustYellorium.name=Pourdre de Yellorium
+item.dustCyanite.name=Pourdre de Cyanite
+item.dustBlutonium.name=Pourdre de Blutonium
+item.dustGraphite.name=Pourdre de Graphite
+item.dustLudicrite.name=Pourdre de Ludicrite
+item.bucket.cyanite.name=Seau de Cyanite liquide
+item.bucket.yellorium.name=Seau de  Yellorium liquide
+item.beefDebugTool.name=BeefTronic™ Outil a diagnostics
+
+# Fluids
+fluid.tile.water=Eau
+fluid.tile.lava=Lave
+fluid.tile.yellorium=Yellorium liquide
+fluid.tile.cyanite=Cyanite liquide
+fluid.tile.blutonium=Blutonium liquide
+fluid.steam=Vapeur
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Yellorium liquide
+tile.fluid.cyanite.still.name=Cyanite liquide
+tile.fluid.blutonium.still.name=Blutonium liquide
