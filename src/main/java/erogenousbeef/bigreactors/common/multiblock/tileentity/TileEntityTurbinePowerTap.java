@@ -79,7 +79,10 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 			if(!(te instanceof TileEntityReactorPowerTap)) {
 				// Skip power taps, as they implement these APIs and we don't want to shit energy back and forth
 				if(te instanceof IEnergyHandler) {
-					rfNetwork = (IEnergyHandler)te;
+					IEnergyHandler handler = (IEnergyHandler)te;
+					if(handler.canConnectEnergy(out.getOpposite())) {
+						rfNetwork = handler;
+					}
 				}
 			}
 		}
