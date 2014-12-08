@@ -839,6 +839,8 @@ public class BigReactors {
 		ReactorInterior.registerBlock("blockShiny", 		0.57f, 0.86f, 1.58f, IHeatEntity.conductivityEmerald);		
 		ReactorInterior.registerBlock("blockTitanium", 	0.58f, 0.87f, 1.59f, 2.7f); // Mariculture
 		ReactorInterior.registerBlock("blockEnderium", 	0.60f, 0.88f, 1.60f, IHeatEntity.conductivityDiamond);
+		
+		ReactorInterior.registerBlock("blockLudicrite", 0.92f, 1.0f, 6.1f, 4.75f);
 
 		if(enableFantasyMetals) {
 			ReactorInterior.registerBlock("blockMithril", 	0.53f, 0.81f, 1.45f, IHeatEntity.conductivitySilver);
