@@ -1,0 +1,64 @@
+# Big Reactors Language File - Danish
+# @author Erogenous Beef, soerenkk <https://github.com/soerenkk>
+
+itemGroup.BigReactors=Store Reaktorer
+
+# Blocks
+tile.brOre.0.name=Uran
+tile.brMetal.0.name=Uran Blok
+tile.brMetal.1.name=Cyanite Blok
+tile.brMetal.2.name=Grafit Blok
+tile.brMetal.3.name=Plutonium Blok
+tile.brMetal.4.name=Ludicrite Blok
+tile.yelloriumFuelRod.name=Uran Stang
+tile.brMultiblockGlass.0.name=Reaktor Glas
+tile.brMultiblockGlass.1.name=Turbine Glas
+tile.blockReactorRedstonePort.name=Reaktor Redstone Port
+tile.blockReactorPart.0.name=Reaktor Ramme
+tile.blockReactorPart.1.name=Reaktor Regulator
+tile.blockReactorPart.2.name=Reaktor Stang Kontrol Enhed
+tile.blockReactorPart.3.name=Reaktor Strøm Udtag
+tile.blockReactorPart.4.name=Reaktor Kontrol Port
+tile.blockReactorPart.6.name=Reaktor RedNet Port
+tile.blockReactorPart.7.name=Reaktor Computer Port
+tile.blockReactorPart.5.name=Reaktor Køler Port
+tile.blockRadiothermalGen.0=Radiotermisk Generator
+tile.blockBRDevice.0.name=Cyanite Bearbejder
+tile.blockTurbinePart.0.name=Turbine Ramme
+tile.blockTurbinePart.1.name=Turbine Regulator
+tile.blockTurbinePart.2.name=Turbine Strøm Port
+tile.blockTurbinePart.3.name=Turbine Væske Port
+tile.blockTurbinePart.4.name=Turbine Rotor Leje
+tile.blockTurbinePart.5.name=Turbine Computer Port
+tile.blockTurbineRotorPart.0.name=Turbine Rotor Skaft
+tile.blockTurbineRotorPart.1.name=Turbine Rotor Blad
+tile.blockMBCreativePart.0.name=Reaktor Kreativ Køler Port
+tile.blockMBCreativePart.1.name=Turbine Kreativ Damp Generator
+
+# Items
+item.ingotYellorium.name=Uran Bar
+item.ingotCyanite.name=Cyanite Bar
+item.ingotGraphite.name=Grafit Bar
+item.ingotBlutonium.name=Plutonium Bar
+item.ingotLudicrite.name=Ludicrite Bar
+item.dustYellorium.name=Uran Støv
+item.dustCyanite.name=Cyanite Støv
+item.dustBlutonium.name=Plutonium Støv
+item.dustGraphite.name=Grafit Støv
+item.dustLudicrite.name=Ludicrite Støv
+item.bucket.cyanite.name=Spand Flydende Cyanite
+item.bucket.yellorium.name=Spand Flydende Uran
+item.beefDebugTool.name=BeefTronic™ Diagnostics Tool # Trademark, would not translate for legal reasons #
+
+# Fluids
+fluid.tile.water=Vand
+fluid.tile.lava=Lava
+fluid.tile.yellorium=Flydende Uran
+fluid.tile.cyanite=Flydende Cyanite
+fluid.tile.blutonium=Flydende Plutonium
+fluid.steam=Damp
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Flydende Uran
+tile.fluid.cyanite.still.name=Flydende Cyanite
+tile.fluid.blutonium.still.name=Flydende Plutonium
