@@ -21,7 +21,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidBlock;
-import cofh.api.energy.IEnergyHandler;
+import cofh.api.energy.IEnergyProvider;
 import cofh.lib.util.helpers.ItemHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import erogenousbeef.bigreactors.api.IHeatEntity;
@@ -56,7 +56,7 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyHandler, IReactorFuelInfo, IMultipleFluidHandler, IActivateable {
+public class MultiblockReactor extends RectangularMultiblockControllerBase implements IEnergyProvider, IReactorFuelInfo, IMultipleFluidHandler, IActivateable {
 	public static final int FuelCapacityPerFuelRod = 4 * Reactants.standardSolidReactantAmount; // 4 ingots per rod
 	
 	public static final int FLUID_SUPERHEATED = CoolantContainer.HOT;
@@ -1106,17 +1106,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		else { return (float)amtFuel / (float)(amtFuel+amtWaste); }
 	}
 
-	/** DO NOT USE **/
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive,
-			boolean simulate) {
-		int amtReceived = (int)Math.min(maxReceive, Math.floor(this.maxEnergyStored - this.energyStored));
-		if(!simulate) {
-			this.addStoredEnergy(amtReceived);
-		}
-		return amtReceived;
-	}
-
+	// IEnergyProvider
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
 			boolean simulate) {

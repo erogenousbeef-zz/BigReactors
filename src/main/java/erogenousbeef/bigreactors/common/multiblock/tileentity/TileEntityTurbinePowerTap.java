@@ -5,13 +5,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import cofh.api.energy.IEnergyHandler;
+import cofh.api.energy.IEnergyProvider;
+import cofh.api.energy.IEnergyReceiver;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard implements IEnergyHandler, INeighborUpdatableEntity {
+public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard implements IEnergyProvider, INeighborUpdatableEntity {
 
-	IEnergyHandler 	rfNetwork;
+	IEnergyReceiver	rfNetwork;
 	
 	public TileEntityTurbinePowerTap() {
 		super();
@@ -78,8 +79,8 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 			TileEntity te = world.getTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(!(te instanceof TileEntityReactorPowerTap)) {
 				// Skip power taps, as they implement these APIs and we don't want to shit energy back and forth
-				if(te instanceof IEnergyHandler) {
-					IEnergyHandler handler = (IEnergyHandler)te;
+				if(te instanceof IEnergyReceiver) {
+					IEnergyReceiver handler = (IEnergyReceiver)te;
 					if(handler.canConnectEnergy(out.getOpposite())) {
 						rfNetwork = handler;
 					}
@@ -109,29 +110,21 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		return units;
 	}
 
-
-	// IEnergyHandler
-
+	// IEnergyConnection
 	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive,
-			boolean simulate) {
-		// HAHA NO
-		return 0;
-	}
+	public boolean canConnectEnergy(ForgeDirection from) {
+		if(!this.isConnected()) { return false; }
 
+		return from == getOutwardsDir();
+	}
+	
+	// IEnergyProvider
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
 			boolean simulate) {
 		if(!this.isConnected()) { return 0; }
 
 		return getTurbine().extractEnergy(from, maxExtract, simulate);
-	}
-
-	@Override
-	public boolean canConnectEnergy(ForgeDirection from) {
-		if(!this.isConnected()) { return false; }
-
-		return from == getOutwardsDir();
 	}
 
 	@Override

@@ -19,7 +19,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.FluidTankInfo;
-import cofh.api.energy.IEnergyHandler;
+import cofh.api.energy.IEnergyProvider;
 import cofh.lib.util.helpers.ItemHelper;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.relauncher.Side;
@@ -49,7 +49,7 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockControllerBase;
 
-public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyHandler, IMultipleFluidHandler, ISlotlessUpdater, IActivateable {
+public class MultiblockTurbine extends RectangularMultiblockControllerBase implements IEnergyProvider, IMultipleFluidHandler, ISlotlessUpdater, IActivateable {
 
 	public enum VentStatus {
 		VentOverflow,
@@ -853,13 +853,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		return tanks[tankIdx].getInfo();
 	}
 
-	// IEnergyHandler
-
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-		// haha no
-		return 0;
-	}
+	// IEnergyProvider
 
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
