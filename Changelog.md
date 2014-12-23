@@ -4,13 +4,21 @@ Big Reactors Changelog
 Next Release (Anticipated Version: 0.5.0A)
 ------------------------------------------
 
-Current Release (0.4.0A)
+
+
+Current Release (0.4.1A)
 --------------------------------
-- **Dependency**: CoFHCore dependency update to **3.0.0B8**
-- Bugfix: Power taps no longer show up as green when adjacent to ME cables, as ME cables don't actually accept RF connections.
+- **Dependency**: CoFHCore dependency update to **3.0.0B9**, fixes crashes with EnderIO
+- Compatibility: Mekanism combiner recipe for yellorite corrected to require 8 dusts, in line with other combiner recipes
+- Enhancement: reactorPowerProductionMultiplier and turbinePowerProductionMultiplier config options added. They stack with powerProductionMultiplier.
+- Localization: Danish translation added (thanks SoerenKK!)
 
 Older Releases
 --------------
+
+### 0.4.0A
+- **Dependency**: CoFHCore dependency update to **3.0.0B8**
+- Bugfix: Power taps no longer show up as green when adjacent to ME cables, as ME cables don't actually accept RF connections.
 
 ### 0.4.0rc11
 - **Dependency**: Forge dependency update to **10.13.2.1232**
