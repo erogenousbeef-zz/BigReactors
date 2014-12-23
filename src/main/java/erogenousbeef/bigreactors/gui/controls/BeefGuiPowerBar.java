@@ -1,16 +1,16 @@
 package erogenousbeef.bigreactors.gui.controls;
 
 import net.minecraftforge.common.util.ForgeDirection;
-import cofh.api.energy.IEnergyHandler;
+import cofh.api.energy.IEnergyProvider;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
 public class BeefGuiPowerBar extends BeefGuiTextureProgressBar implements
 		IBeefTooltipControl {
 
-	IEnergyHandler _entity;
+	IEnergyProvider _entity;
 	
-	public BeefGuiPowerBar(BeefGuiBase container, int x, int y, IEnergyHandler entity) {
+	public BeefGuiPowerBar(BeefGuiBase container, int x, int y, IEnergyProvider entity) {
 		super(container, x, y);
 		_entity = entity;
 	}

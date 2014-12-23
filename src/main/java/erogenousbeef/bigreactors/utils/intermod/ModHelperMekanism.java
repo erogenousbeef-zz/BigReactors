@@ -33,7 +33,9 @@ public class ModHelperMekanism extends ModHelperBase {
 
 		if(yelloriteOre != null && doubledYelloriumDust != null) {
 			addMekanismEnrichmentChamberRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy());
-			addMekanismCombinerRecipe(doubledYelloriumDust.copy(), yelloriteOre.copy());
+			ItemStack octupledYelloriumDust = dustYellorium.copy();
+			octupledYelloriumDust.stackSize = 8;
+			addMekanismCombinerRecipe(octupledYelloriumDust, yelloriteOre.copy());
 		}
 	
 		if(ingotYellorium != null && dustYellorium != null) {
@@ -71,7 +73,7 @@ public class ModHelperMekanism extends ModHelperBase {
 	}
 
 	/**
-	 * Add a Combiner recipe. (2 Dust + Cobble -> Ore)
+	 * Add a Combiner recipe. (8 Dust + Cobble -> Ore)
 	 * @param input - input ItemStack
 	 * @param output - output ItemStack
 	 */

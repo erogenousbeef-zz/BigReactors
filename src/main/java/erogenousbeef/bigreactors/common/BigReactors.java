@@ -162,6 +162,9 @@ public class BigReactors {
 	public static float powerProductionMultiplier = 1.0f;
 	public static float fuelUsageMultiplier = 1.0f;
 	
+	public static float reactorPowerProductionMultiplier = 1.0f;
+	public static float turbinePowerProductionMultiplier = 1.0f;
+	
 	public static float turbineCoilDragMultiplier = 1.0f;
 	public static float turbineAeroDragMultiplier = 1.0f;
 	public static float turbineMassDragMultiplier = 1.0f;
@@ -217,6 +220,9 @@ public class BigReactors {
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
 			fuelUsageMultiplier = (float)BRConfig.CONFIGURATION.get("General", "fuelUsageMultiplier", 1.0f, "A multiplier for balancing fuel consumption. Defaults to 1.").getDouble(1.0);
 
+			reactorPowerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing reactor power production. Stacks with powerProductionMultiplier. Defaults to 1.").getDouble(1.0);
+			turbinePowerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing turbine power production. Stacks with powerProductionMultiplier. Defaults to 1.").getDouble(1.0);
+			
 			maximumTurbineSize = BRConfig.CONFIGURATION.get("General",  "maxTurbineSize", 16, "The maximum valid size of a turbine in the X/Z plane, in blocks. Lower this for smaller turbines, which means lower max output.").getInt();
 			maximumTurbineHeight = BRConfig.CONFIGURATION.get("General",  "maxTurbineHeight", 32, "The maximum valid height of a turbine (Y axis), in blocks. (Default: 32)").getInt();
 			
@@ -225,6 +231,8 @@ public class BigReactors {
 			turbineMassDragMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbineMassDragMultiplier", 1.0, "A multiplier for balancing rotor sizes. Multiplies the amount of energy lost to friction per tick. (Default: 1)").getDouble(1.0);
 			turbineFluidPerBladeMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbineFluidPerBladeMultiplier", 1.0, "A multiplier for balancing coil size. Multiplies the amount of fluid each blade block can process (base of 25 will be multiplied, then rounded down to the nearest integer). (Default: 1)").getDouble(1.0);
 
+			
+			
 			MultiblockTurbine.inputFluidPerBlade = (int) Math.floor(MultiblockTurbine.inputFluidPerBlade * turbineFluidPerBladeMultiplier);
 			MultiblockTurbine.inductorBaseDragCoefficient *= turbineCoilDragMultiplier;
 
