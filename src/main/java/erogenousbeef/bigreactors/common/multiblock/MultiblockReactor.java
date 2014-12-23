@@ -422,8 +422,9 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 	 * @param newEnergy Base, unmultiplied energy to generate
 	 */
 	protected void generateEnergy(float newEnergy) {
-		this.energyGeneratedLastTick += newEnergy * BigReactors.powerProductionMultiplier;
-		this.addStoredEnergy(newEnergy * BigReactors.powerProductionMultiplier);
+		newEnergy = newEnergy * BigReactors.powerProductionMultiplier * BigReactors.reactorPowerProductionMultiplier;
+		this.energyGeneratedLastTick += newEnergy;
+		this.addStoredEnergy(newEnergy);
 	}
 
 	/**
