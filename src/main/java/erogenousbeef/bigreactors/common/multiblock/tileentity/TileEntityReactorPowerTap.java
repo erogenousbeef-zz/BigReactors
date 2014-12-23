@@ -5,12 +5,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import cofh.api.energy.IEnergyHandler;
+import cofh.api.energy.IEnergyProvider;
+import cofh.api.energy.IEnergyReceiver;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyHandler, INeighborUpdatableEntity {
-	IEnergyHandler 	rfNetwork;
+public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyProvider, INeighborUpdatableEntity {
+	IEnergyReceiver	rfNetwork;
 	
 	public TileEntityReactorPowerTap() {
 		super();
@@ -72,8 +73,8 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 			TileEntity te = world.getTileEntity(x + out.offsetX, y + out.offsetY, z + out.offsetZ);
 			if(!(te instanceof TileEntityReactorPowerTap)) {
 				// Skip power taps, as they implement these APIs and we don't want to shit energy back and forth
-				if(te instanceof IEnergyHandler) {
-					IEnergyHandler handler = (IEnergyHandler)te;
+				if(te instanceof IEnergyReceiver) {
+					IEnergyReceiver handler = (IEnergyReceiver)te;
 					if(handler.canConnectEnergy(out.getOpposite())) {
 						rfNetwork = handler;
 					}
@@ -102,14 +103,14 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		
 		return units;
 	}
-	
-	// Thermal Expansion
-	@Override
-	public int receiveEnergy(ForgeDirection from, int maxReceive,
-			boolean simulate) {
-		return 0;
-	}
 
+	// IEnergyConnection
+	@Override
+	public boolean canConnectEnergy(ForgeDirection from) {
+		return from == getOutwardsDir();
+	}
+	
+	// IEnergyProvider
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
 			boolean simulate) {
@@ -121,11 +122,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		}
 
 		return 0;
-	}
-
-	@Override
-	public boolean canConnectEnergy(ForgeDirection from) {
-		return from == getOutwardsDir();
 	}
 
 	@Override
