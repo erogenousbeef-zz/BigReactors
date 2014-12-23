@@ -6,8 +6,11 @@ Next Release (Anticipated Version: 0.5.0A)
 
 
 
-Current Release (0.4.1A)
+Current Release (0.4.1A2)
 --------------------------------
+- Bugfix: Actually adding the correct names for the config options mentioned for 0.4.1A
+
+### 0.4.1A
 - **Dependency**: CoFHCore dependency update to **3.0.0B9**, fixes crashes with EnderIO
 - Compatibility: Mekanism combiner recipe for yellorite corrected to require 8 dusts, in line with other combiner recipes
 - Enhancement: reactorPowerProductionMultiplier and turbinePowerProductionMultiplier config options added. They stack with powerProductionMultiplier.
