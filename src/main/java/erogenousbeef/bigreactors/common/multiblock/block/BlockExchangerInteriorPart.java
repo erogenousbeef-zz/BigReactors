@@ -4,6 +4,7 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.client.renderer.ExchangerPipeSimpleRenderer;
 import erogenousbeef.bigreactors.common.BigReactors;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -19,11 +20,14 @@ import net.minecraft.world.World;
 
 public class BlockExchangerInteriorPart extends BlockContainer {
 
-	public static final int METADATA_PRIMARY = 0;
-	public static final int METADATA_SECONDARY = 1;
-
 	private static final String[] _subBlocks = { "primary", "secondary" };
 	private IIcon[] _icons;
+	
+	public static final int METADATA_PRIMARY = 0;
+	public static final int METADATA_SECONDARY = 1;
+	public static final int NUM_BLOCK_TYPES = _subBlocks.length;
+
+	public static int renderId;
 
 	public BlockExchangerInteriorPart(Material material) {
 		super(material);
@@ -32,6 +36,11 @@ public class BlockExchangerInteriorPart extends BlockContainer {
 		setBlockName("blockExchangerInteriorPart");
 		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockExchangerInteriorPart");
 		setCreativeTab(BigReactors.TAB);
+	}
+	
+	@Override
+	public int getRenderType() {
+		return renderId;
 	}
 
 	@Override
@@ -56,6 +65,7 @@ public class BlockExchangerInteriorPart extends BlockContainer {
 		_icons = new IIcon[_subBlocks.length];
 		for(int i = 0; i < _subBlocks.length; i++) {
 			_icons[i] = par1IconRegister.registerIcon(prefix + _subBlocks[i]);
+			ExchangerPipeSimpleRenderer.updateUVT(i, _icons[i]);
 		}
 		
 		blockIcon = par1IconRegister.registerIcon(prefix + "default");
@@ -64,15 +74,13 @@ public class BlockExchangerInteriorPart extends BlockContainer {
 	@Override
 	public boolean isOpaqueCube()
 	{
-		// TODO: Switch to false once renderer is in
-		return true;
+		return false;
 	}
 
 	@Override
 	public boolean renderAsNormalBlock()
 	{
-		// TODO: Switch to false once renderer is in
-		return true;
+		return false;
 	}
 	
 	@Override

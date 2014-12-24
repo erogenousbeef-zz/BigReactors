@@ -12,12 +12,14 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import erogenousbeef.bigreactors.client.renderer.ExchangerPipeSimpleRenderer;
 import erogenousbeef.bigreactors.client.renderer.RotorSimpleRenderer;
 import erogenousbeef.bigreactors.client.renderer.RotorSpecialRenderer;
 import erogenousbeef.bigreactors.client.renderer.SimpleRendererFuelRod;
 import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.CommonProxy;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockExchangerInteriorPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityTurbineRotorBearing;
@@ -60,6 +62,10 @@ public class ClientProxy extends CommonProxy {
 		if(BigReactors.blockTurbinePart != null) {
 			ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTurbineRotorBearing.class, new RotorSpecialRenderer());
 		}
+		
+		BlockExchangerInteriorPart.renderId = RenderingRegistry.getNextAvailableRenderId();
+		ISimpleBlockRenderingHandler exchangerPipeISBRH = new ExchangerPipeSimpleRenderer();
+		RenderingRegistry.registerBlockHandler(BlockExchangerInteriorPart.renderId, exchangerPipeISBRH);
 	}
 
 	@Override

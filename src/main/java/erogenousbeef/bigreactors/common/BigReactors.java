@@ -52,6 +52,9 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePor
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityExchangerComputerPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityExchangerFluidPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityExchangerPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -493,6 +496,10 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityTurbineRotorBearing.class, "BRTurbineRotorBearing");
 			GameRegistry.registerTileEntity(TileEntityTurbineRotorPart.class, "BRTurbineRotorPart");
 			GameRegistry.registerTileEntity(TileEntityTurbineCreativeSteamGenerator.class, "BRTurbineCreativeSteamGenerator");
+			
+			GameRegistry.registerTileEntity(TileEntityExchangerPart.class, "BRExchangerPart");
+			GameRegistry.registerTileEntity(TileEntityExchangerComputerPort.class, "BRExchangerComputerPort");
+			GameRegistry.registerTileEntity(TileEntityExchangerFluidPort.class, "BRExchangerFluidPort");
 
 			registeredTileEntities = true;
 		}
