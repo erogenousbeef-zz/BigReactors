@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 
 import org.lwjgl.input.Keyboard;
 
@@ -58,10 +59,10 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		
 		Keyboard.enableRepeatEvents(true);
 		
-		titleString = new BeefGuiLabel(this, "Reactor Control Rod", leftX, topY);
+		titleString = new BeefGuiLabel(this, StatCollector.translateToLocal("tile.blockReactorPart.2.name"), leftX, topY);
 		topY += titleString.getHeight() + 8;
 		
-		rodNameLabel = new BeefGuiLabel(this, "Name:", leftX, topY + 6);
+		rodNameLabel = new BeefGuiLabel(this, StatCollector.translateToLocal("gui.controlrod.name"), leftX, topY + 6);
 		
 		rodName = new GuiTextField(fontRendererObj, leftX + 4 + rodNameLabel.getWidth(), topY, 100, 20);
 		rodName.setCanLoseFocus(true);
@@ -69,19 +70,19 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		rodName.setText(entity.getName());
 		rodName.setEnabled(true);
 		
-		setNameBtn = new GuiButton(2, guiLeft + 140, topY, 30, 20, "Set");
+		setNameBtn = new GuiButton(2, guiLeft + 140, topY, 30, 20, StatCollector.translateToLocal("gui.controlrod.set"));
 		setNameBtn.enabled = false;
 		topY += 28;
 		
-		rodInsertIcon = new BeefGuiIcon(this, leftX+42, topY, 16, 16, ClientProxy.GuiIcons.getIcon("controlRod"), new String[] { EnumChatFormatting.AQUA + "Rod Insertion", "", "Change the control rod's insertion.", "Higher insertion slows reaction rate.", "", "Lower reaction rates reduce heat,", "energy, radiation output, and", "fuel consumption." });
+		rodInsertIcon = new BeefGuiIcon(this, leftX+42, topY, 16, 16, ClientProxy.GuiIcons.getIcon("controlRod"), new String[] { EnumChatFormatting.AQUA + StatCollector.translateToLocal("gui.controlrod.rodinsertion"), "", StatCollector.translateToLocal("gui.controlrod.changeinsertion"), StatCollector.translateToLocal("gui.controlrod.higherinsertion"), "", StatCollector.translateToLocal("gui.controlrod.lowerreaction"), StatCollector.translateToLocal("gui.controlrod.energyradand"), StatCollector.translateToLocal("gui.controlrod.fuelcons") });
 		insertionLabel = new BeefGuiLabel(this, "", leftX+62, topY+5);
 		topY += 20;
 		insertionBar = new BeefGuiInsertionProgressBar(this, leftX+40, topY);
 
 		topY += 12;
-		rodRetractBtn = new GuiIconButton(0, leftX+70, topY, 20, 20, ClientProxy.GuiIcons.getIcon("upArrow"), new String[] { EnumChatFormatting.AQUA + "Insert Rod", "Increase insertion by 10.", "", "Shift: +100", "Alt: +5", "Shift+Alt: +1", "", "Ctrl: Change ALL Rods" });
+		rodRetractBtn = new GuiIconButton(0, leftX+70, topY, 20, 20, ClientProxy.GuiIcons.getIcon("upArrow"), new String[] { EnumChatFormatting.AQUA + StatCollector.translateToLocal("gui.controlrod.insertrod"), StatCollector.translateToLocal("gui.controlrod.increaseinser"), "", "Shift: +100", "Alt: +5", "Shift+Alt: +1", "", StatCollector.translateToLocal("gui.controlrod.changeallrods") });
 		topY += 20;
-		rodInsertBtn = new GuiIconButton(1, leftX+70, topY, 20, 20, ClientProxy.GuiIcons.getIcon("downArrow"), new String[] { EnumChatFormatting.AQUA + "Retract Rod", "Reduce insertion by 10.", "", "Shift: -100", "Alt: -5", "Shift+Alt: -1", "", "Ctrl: Change ALL Rods" });
+		rodInsertBtn = new GuiIconButton(1, leftX+70, topY, 20, 20, ClientProxy.GuiIcons.getIcon("downArrow"), new String[] { EnumChatFormatting.AQUA + StatCollector.translateToLocal("gui.controlrod.retractrod"), StatCollector.translateToLocal("gui.controlrod.reduceinser"), "", "Shift: -100", "Alt: -5", "Shift+Alt: -1", "", StatCollector.translateToLocal("gui.controlrod.changeallrods") });
 		topY += 32;
 
 		registerControl(insertionBar);

@@ -17,7 +17,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class ItemBeefDebugTool extends ItemBase {
@@ -31,10 +33,10 @@ public class ItemBeefDebugTool extends ItemBase {
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List infoList, boolean advancedTooltips) {
 		super.addInformation(stack, player, infoList, advancedTooltips);
-		infoList.add("Rightclick a block to show debug info");
+		infoList.add(StatCollector.translateToLocal("beefDebugTool.debuginfo"));
 		infoList.add("");
-		infoList.add(EnumChatFormatting.ITALIC + "Queries on server, by default.");
-		infoList.add(EnumChatFormatting.GREEN + "Shift:" + EnumChatFormatting.GRAY + EnumChatFormatting.ITALIC + " Query on client");
+		infoList.add(EnumChatFormatting.ITALIC + StatCollector.translateToLocal("beefDebugTool.queriesserver"));
+		infoList.add(EnumChatFormatting.GREEN + "Shift: " + EnumChatFormatting.GRAY + EnumChatFormatting.ITALIC + StatCollector.translateToLocal("beefDebugTool.queryclient"));
 	}
 
 	@Override
@@ -64,11 +66,11 @@ public class ItemBeefDebugTool extends ItemBase {
 		if(b != null) {
 			ItemStack blockStack = new ItemStack(b, 1, world.getBlockMetadata(x,y,z));
 			String oreName = ItemHelper.oreProxy.getOreName(blockStack);
-			player.addChatMessage(new ChatComponentText(String.format("[%s] Canonical ore name for %s: %s", world.isRemote?"CLIENT":"SERVER", b.getUnlocalizedName(), oreName)));
+			player.addChatMessage(new ChatComponentTranslation("beefDebugTool.canonicalore", world.isRemote?"CLIENT":"SERVER", b.getUnlocalizedName(), oreName));
 
 			ArrayList<String> allOreNames = OreDictionaryArbiter.getAllOreNames(blockStack);
 			if(allOreNames != null) {
-				player.addChatMessage(new ChatComponentText(String.format("[%s] All ore names (%d):", clientOrServer, allOreNames.size())));
+				player.addChatMessage(new ChatComponentTranslation("beefDebugTool.allorenames", clientOrServer, allOreNames.size()));
 				for(String on : allOreNames) {
 					player.addChatMessage(new ChatComponentText(on));
 				}
