@@ -103,6 +103,7 @@ public class SteamEvapContainer extends FluidHelper {
 	}
 	
 	public int getSteamProducedLastTick() { return m_SteamProducedLastTick; }
+	public void setSteamProducedLastTick(int produced) { m_SteamProducedLastTick = produced; }
 	
 	/**
 	 * Attempt to evaporate water into a given steam type. If no full units (1mB) of steam
@@ -163,8 +164,8 @@ public class SteamEvapContainer extends FluidHelper {
 		
 		// Do the actual drain/fill
 		drain(WATER, waterUnitsToUse, true);
-		fill(STEAM, new FluidStack(steamFluid, steamUnitsToCreate), true);
-		
+		m_SteamProducedLastTick = fill(STEAM, new FluidStack(steamFluid, steamUnitsToCreate), true);
+	
 		// Slurp RF out of the thermal buffer
 		rfAbsorption = steamUnitsToCreate * rfPerSteamUnit; // Recalculate RF absorbed based on steam actually created
 		helper.setRf(helper.getRf() - rfAbsorption);

@@ -1,5 +1,6 @@
 package erogenousbeef.bigreactors.common.multiblock.tileentity;
 
+import erogenousbeef.bigreactors.common.multiblock.MultiblockHeatExchanger;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
 import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
@@ -23,6 +24,14 @@ public class TileEntityExchangerFluidPort extends TileEntityExchangerPart implem
 		SecondaryOutlet
 	};
 	private static final PortDirection[] s_PortDirections = PortDirection.values();
+	private static final FluidTankInfo[] s_NoTanks = new FluidTankInfo[0];
+	
+	private static int[] s_ExchangerIndices = {
+		MultiblockHeatExchanger.CONDENSER_INLET,
+		MultiblockHeatExchanger.CONDENSER_OUTLET,
+		MultiblockHeatExchanger.EVAPORATOR_INLET,
+		MultiblockHeatExchanger.EVAPORATOR_OUTLET
+	};
 	
 	private IFluidHandler m_PumpDestination;
 	private PortDirection m_PortDirection;
@@ -59,7 +68,7 @@ public class TileEntityExchangerFluidPort extends TileEntityExchangerPart implem
 		m_PortDirection = newDirection;
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		if(!worldObj.isRemote) {
-			if(!isInlet()) {
+			if(isOutlet()) {
 				checkForAdjacentTank();
 			}
 			else {
@@ -80,7 +89,7 @@ public class TileEntityExchangerFluidPort extends TileEntityExchangerPart implem
 
 	private void checkForAdjacentTank() {
 		m_PumpDestination = null;
-		if(worldObj.isRemote || isInlet()) {
+		if(worldObj.isRemote || !isOutlet()) {
 			return;
 		}
 
@@ -97,8 +106,34 @@ public class TileEntityExchangerFluidPort extends TileEntityExchangerPart implem
 
 	@Override
 	public void onMultiblockServerTick() {
-		if(isOutlet() && m_PumpDestination != null) {
-			// TODO: Pump shit
+		if(!isOutlet() || m_PumpDestination == null) { return; }
+		
+		MultiblockHeatExchanger exchanger = this.getExchangerController();
+
+		// Pick outlet tank based on direction setting
+		int exchangerIdx = s_ExchangerIndices[m_PortDirection.ordinal()];
+		if(exchanger.getFluidAmount(exchangerIdx) <= 0) { return; } // Shortcut to reduce allocations
+		
+		FluidStack fluidToPump = exchanger.drain(exchangerIdx, exchanger.getCapacity(exchangerIdx), false);
+		ForgeDirection pumpFromDir = getOutwardsDir().getOpposite();
+
+		if(fluidToPump == null || fluidToPump.amount <= 0 || !m_PumpDestination.canFill(pumpFromDir, fluidToPump.getFluid())) {
+			return;
+		}
+		
+		// Acquire amount which can be filled
+		int fluidAccepted = m_PumpDestination.fill(pumpFromDir, fluidToPump, false);
+		if(fluidAccepted <= 0) { return; }
+		
+		// Pump out however much we can (limited by the destination or amount contained)
+		fluidToPump.amount = Math.min(fluidAccepted, fluidToPump.amount);
+		fluidToPump = exchanger.drain(exchangerIdx, fluidToPump.amount, true);
+		int fluidPumped = m_PumpDestination.fill(pumpFromDir, fluidToPump, true);
+		fluidToPump.amount = fluidToPump.amount - fluidPumped;
+
+		// If any fluid could not be pumped, try to return it to the source.
+		if(fluidToPump.amount > 0) {
+			exchanger.returnFluid(exchangerIdx, fluidToPump);
 		}
 	}
 
@@ -140,41 +175,51 @@ public class TileEntityExchangerFluidPort extends TileEntityExchangerPart implem
 
 	@Override
 	public int fill(ForgeDirection from, FluidStack resource, boolean doFill) {
-		// TODO Auto-generated method stub
-		return 0;
+		if(!isInlet() || resource == null || getOutwardsDir() != from) { return 0; }
+		
+		MultiblockHeatExchanger exchanger = getExchangerController();
+		return exchanger.fill(s_ExchangerIndices[m_PortDirection.ordinal()], resource, doFill);
 	}
 
 	@Override
 	public FluidStack drain(ForgeDirection from, FluidStack resource,
 			boolean doDrain) {
-		// TODO Auto-generated method stub
-		return null;
+		if(!isOutlet() || from != getOutwardsDir() || resource == null) { return null; }
+
+		MultiblockHeatExchanger exchanger = getExchangerController();
+		return exchanger.drain(s_ExchangerIndices[m_PortDirection.ordinal()], resource, doDrain);
 	}
 
 	@Override
 	public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain) {
-		// TODO Auto-generated method stub
-		return null;
+		if(!isOutlet() || from != getOutwardsDir() || maxDrain <= 0) { return null; }
+
+		MultiblockHeatExchanger exchanger = getExchangerController();
+		return exchanger.drain(s_ExchangerIndices[m_PortDirection.ordinal()], maxDrain, doDrain);
 	}
 
 	@Override
 	public boolean canFill(ForgeDirection from, Fluid fluid) {
-		// TODO Auto-generated method stub
-		return false;
+		if(!isInlet() || from != getOutwardsDir()) { return false; }
+
+		MultiblockHeatExchanger exchanger = getExchangerController();
+		return exchanger.canFill(s_ExchangerIndices[m_PortDirection.ordinal()],  fluid);
 	}
 
 	@Override
 	public boolean canDrain(ForgeDirection from, Fluid fluid) {
-		// TODO Auto-generated method stub
-		return false;
+		if(!isOutlet() || from != getOutwardsDir()) { return false; }
+
+		MultiblockHeatExchanger exchanger = getExchangerController();
+		return exchanger.canDrain(s_ExchangerIndices[m_PortDirection.ordinal()], fluid);
 	}
 
 	@Override
 	public FluidTankInfo[] getTankInfo(ForgeDirection from) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		if(from != getOutwardsDir()) { return s_NoTanks; }
 
-	
-	
+		// TODO: Pick tank based on direction setting
+		MultiblockHeatExchanger exchanger = getExchangerController();
+		return exchanger.getSingleTankInfoArray(s_ExchangerIndices[m_PortDirection.ordinal()]);
+	}
 }

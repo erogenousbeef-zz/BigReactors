@@ -26,7 +26,7 @@ public class TileEntityExchangerComputerPort extends TileEntityExchangerPart imp
 	}
 
 	public enum ComputerMethod {
-		
+		// TODO
 	};
 
 	public static final int numMethods = ComputerMethod.values().length;
@@ -57,6 +57,7 @@ public class TileEntityExchangerComputerPort extends TileEntityExchangerPart imp
 
 		ComputerMethod computerMethod = ComputerMethod.values()[method];
 		switch(computerMethod) {
+			// TODO: Implement computer API
 			default:
 				throw new Exception("Computer method not implemented - yell at Beef");
 		}

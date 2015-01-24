@@ -145,15 +145,21 @@ public abstract class FluidHelper implements IConditionalUpdater {
 		fluids[idx] = newFluid;
 	}
 	
-	protected int getFluidAmount(int idx) {
+	public int getFluidAmount(int idx) {
 		if(fluids[idx] == null) { return 0; }
 		else { return fluids[idx].amount; }
 		
 	}
 	
-	protected Fluid getFluidType(int idx) {
+	public Fluid getFluidType(int idx) {
 		if(fluids[idx] == null) { return null; }
 		else { return fluids[idx].getFluid(); }
+	}
+	
+	// Returns a copy, not the original
+	public FluidStack getFluidStack(int idx) {
+		if(fluids[idx] == null) { return null; }
+		else { return fluids[idx].copy(); }
 	}
 	
 	protected abstract boolean isFluidValidForStack(int stackIdx, Fluid fluid);
@@ -369,6 +375,13 @@ public abstract class FluidHelper implements IConditionalUpdater {
 	public FluidTankInfo getSingleTankInfo(int idx) {
 		if(idx >= fluids.length || idx < 0) { return null; }
 		return new FluidTankInfo(fluids[idx] == null ? null : fluids[idx].copy(), getCapacity());
+	}
+	
+	public FluidTankInfo[] getSingleTankInfoArray(int idx) {
+		if(idx >= fluids.length || idx < 0) { return emptyTankArray; }
+		FluidTankInfo[] tanks = new FluidTankInfo[1];
+		tanks[0] = getSingleTankInfo(idx);
+		return tanks;
 	}
 	
 	public String getDebugInfo() {

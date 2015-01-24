@@ -16,8 +16,8 @@ public class CondenserContainer extends FluidHelper {
 	private final static String[] TANK_NAMES = { "hot", "cold" };
 	private final static int NUM_TANKS = 2;
 	
-	private int m_CondensedLastTick = 0;
-	private float m_RfTransferCoefficient = 0f;
+	private int m_CondensedLastTick = 0; // Not persisted: reporting only
+	private float m_RfTransferCoefficient = 0f; // Not persisted: Set on assembly
 	
 	public CondenserContainer() {
 		super(true);
@@ -26,6 +26,14 @@ public class CondenserContainer extends FluidHelper {
 	
 	public void setRfTransferCoefficient(float coeff) {
 		m_RfTransferCoefficient = Math.max(0f, coeff);
+	}
+	
+	public int getFluidCondensedLastTick() {
+		return m_CondensedLastTick;
+	}
+	
+	public void setFluidCondensedLastTick(int fluidAmt) {
+		m_CondensedLastTick = fluidAmt;
 	}
 	
 	@Override
@@ -110,6 +118,7 @@ public class CondenserContainer extends FluidHelper {
 		drain(HOT, unitsToCondense, true);
 		fill(COLD, new FluidStack(coldFluid, unitsToCondense), true);
 		helper.setRf(helper.getRf() + transferRfT);
+		m_CondensedLastTick = unitsToCondense;
 		return transferRfT;
 	}
 	
