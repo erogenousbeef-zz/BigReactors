@@ -582,8 +582,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			setEnergyStored(Math.max(getEnergyStored(), data.getFloat("storedEnergy")));
 		}
 		
-		if(data.hasKey("wasteEjection")) {
-			this.wasteEjection = s_EjectionSettings[data.getInteger("wasteEjection")];
+		if(data.hasKey("wasteEjection2")) {
+			this.wasteEjection = s_EjectionSettings[data.getInteger("wasteEjection2")];
 		}
 		
 		if(data.hasKey("fuelHeat")) {
@@ -812,6 +812,8 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			this.wasteEjection = newSetting;
 			
 			if(!this.worldObj.isRemote) {
+				markReferenceCoordDirty();
+
 				if(this.updatePlayers.size() > 0) {
 					for(EntityPlayer player : updatePlayers) {
                         CommonPacketHandler.INSTANCE.sendTo(new ReactorUpdateWasteEjectionMessage(this), (EntityPlayerMP)player);
