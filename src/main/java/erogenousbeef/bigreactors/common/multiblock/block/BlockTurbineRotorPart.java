@@ -36,6 +36,7 @@ public class BlockTurbineRotorPart extends BlockContainer {
 		super(material);
 
 		setStepSound(soundTypeMetal);
+		setLightLevel(0.9f);
 		setHardness(2.0f);
 		setBlockName("blockTurbineRotorPart");
 		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + "blockTurbineRotorPart");
