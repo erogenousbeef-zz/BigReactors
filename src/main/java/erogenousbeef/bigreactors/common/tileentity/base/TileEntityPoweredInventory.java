@@ -8,6 +8,9 @@ import cofh.api.energy.IEnergyHandler;
 public abstract class TileEntityPoweredInventory extends TileEntityInventory implements IEnergyHandler {
 	public static float energyPerRF = 1f;
 	
+	protected boolean m_ReceivesEnergy = true;
+	protected boolean m_ProvidesEnergy = true;
+	
 	// Internal power
 	private int cycledTicks;
 	private EnergyStorage energyStorage;
@@ -151,13 +154,13 @@ public abstract class TileEntityPoweredInventory extends TileEntityInventory imp
 	/* IEnergyHandler */
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-
+		if(!m_ReceivesEnergy) { return 0; }
 		return energyStorage.receiveEnergy(maxReceive, simulate);
 	}
 
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-
+		if(!m_ProvidesEnergy) { return 0; }
 		return energyStorage.extractEnergy(maxExtract, simulate);
 	}
 
