@@ -36,6 +36,9 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	
 	public TileEntityCyaniteReprocessor() {
 		super();
+		
+		// Do not transmit energy from the internal buffer.
+		m_ProvidesEnergy = false;
 	}
 
 	@Override
