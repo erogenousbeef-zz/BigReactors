@@ -3,6 +3,10 @@
 /build
 /run
 
+# Minecraft runtime files and config files
+/logs
+/config
+
 # Eclipse
 .classpath
 .project
