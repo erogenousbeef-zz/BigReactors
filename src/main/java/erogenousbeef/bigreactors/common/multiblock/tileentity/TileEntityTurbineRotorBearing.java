@@ -55,7 +55,7 @@ public class TileEntityTurbineRotorBearing extends
 		CoordTriplet minCoord = turbine.getMinimumCoord();
 		CoordTriplet maxCoord = turbine.getMaximumCoord();
 
-		boundingBox = AxisAlignedBB.getBoundingBox(minCoord.x, minCoord.y, minCoord.z, maxCoord.x, maxCoord.y, maxCoord.z);
+		boundingBox = AxisAlignedBB.getBoundingBox(minCoord.x, minCoord.y, minCoord.z, maxCoord.x + 1, maxCoord.y + 1, maxCoord.z + 1);
 		
 		if(worldObj.isRemote) {
 			// Calculate rotor info
