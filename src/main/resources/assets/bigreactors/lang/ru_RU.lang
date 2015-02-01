@@ -62,3 +62,28 @@ fluid.steam=Пар
 tile.fluid.yellorium.still.name=Жидкий йеллориум
 tile.fluid.cyanite.still.name=Жидкий цианит
 tile.fluid.blutonium.still.name=Жидкий блутоний
+
+# Tooltips
+beefDebugTool.debuginfo=ПКМ по блоку, чтобы увидеть информацию
+beefDebugTool.queriesserver=По-умолчанию запрашивает на сервере.
+beefDebugTool.queryclient=Запрос на клиенте
+
+# Messages
+beefDebugTool.canonicalore=[%s] Каноническое название руды %s: %s
+beefDebugTool.allorenames=[%s] Все названия руды (%d):
+
+# GUI
+gui.controlrod=Контролирующий стержень
+gui.controlrod.name=Имя:
+gui.controlrod.set=Принять
+gui.controlrod.rodinsertion=Опускание стержня
+gui.controlrod.changeinsertion=Изменяет глубину, на которой находится стержень.
+gui.controlrod.higherinsertion=Чем ниже опущен стержень, тем ниже скорость реакции.
+gui.controlrod.lowerreaction=Снижение скорости реакции уменьшает нагрев,
+gui.controlrod.energyradand=энергию, выход радиации и
+gui.controlrod.fuelcons=потребление топлива.
+gui.controlrod.insertrod=Опустить стержень
+gui.controlrod.retractrod=Поднять стержень
+gui.controlrod.increaseinser=Опускает стержень на 10%.
+gui.controlrod.reduceinser=Поднимает стержень на 10%.
+gui.controlrod.changeallrods=Ctrl: Изменить все стержни

@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.StatCollector;
 
 import org.lwjgl.opengl.GL11;
 
@@ -29,7 +30,7 @@ public class BeefGuiInsertionProgressBar extends BeefGuiControlBase implements I
 	protected float insertion = 0f;
 
 	protected String[] tooltip = {
-			EnumChatFormatting.AQUA + "Control Rod",
+			EnumChatFormatting.AQUA + StatCollector.translateToLocal("gui.controlrod"),
 			"",
 			"Insertion: XX%"
 	};
