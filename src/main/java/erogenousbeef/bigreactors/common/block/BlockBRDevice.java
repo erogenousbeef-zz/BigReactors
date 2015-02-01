@@ -151,6 +151,14 @@ public class BlockBRDevice extends BlockCoFHBase {
 		if(te == null) { return false; }
 
 		if(entityPlayer.isSneaking()) {
+
+			// Wrench + Sneak = Dismantle
+			if(StaticUtils.Inventory.isPlayerHoldingWrench(entityPlayer)) {
+				// Pass simulate == true on the client to prevent creation of "ghost" item stacks
+				dismantleBlock(entityPlayer, null, world, x, y, z, false, world.isRemote);
+				return true;
+			}
+
 			return false;
 		}
 		
