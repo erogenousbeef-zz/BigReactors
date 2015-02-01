@@ -48,10 +48,12 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		getFuelConsumedLastTick,// No arguments
 		getMinimumCoordinate,	// No arguments
 		getMaximumCoordinate,	// No arguments
+		getControlRodLocation,	// Required Arg: integer (index)
 		isActivelyCooled,		// No arguments
 		setActive,				// Required Arg: integer (active)
 		setControlRodLevel,		// Required Args: fuel rod index, integer (insertion)
 		setAllControlRodLevels,	// Required Arg: integer (insertion)
+		setControlRodName,		// Required Args: fuel rod index, string (name)
 		doEjectWaste,			// No arguments
 		doEjectFuel				// No arguments
 	}
@@ -187,6 +189,23 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			CoordTriplet coord = reactor.getMaximumCoord();
 			return new Object[] { coord.x, coord.y, coord.z };
 		}
+		
+		case getControlRodLocation:
+		{
+			if(arguments.length < 1) {
+				throw new IllegalArgumentException("Insufficient number of arguments, expected 1");
+			}
+			
+			if(!(arguments[0] instanceof Double)) {
+				throw new IllegalArgumentException("Invalid argument 0, expected Number");
+			}
+			
+			CoordTriplet rodCoord = getControlRodCoordFromArguments(reactor, arguments, 0);
+			CoordTriplet reactorMinCoord = reactor.getMinimumCoord();
+			return new Object[] { rodCoord.x - reactorMinCoord.x,
+								  rodCoord.y - reactorMinCoord.y,
+								  rodCoord.z - reactorMinCoord.z };
+		}
 
 		case setActive:
 			if(arguments.length < 1) {
@@ -228,6 +247,21 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			controlRod.setControlRodInsertion((short) newLevel);
 			
 			return null;
+			
+		case setControlRodName:
+			if(arguments.length < 2) {
+				throw new IllegalArgumentException("Insufficient number of arguments, expected 2 (control rod index, name)");
+			}
+			
+			if(arguments[1] == null || !(arguments[1] instanceof String)) {
+				throw new IllegalArgumentException("Invalid argument 1, must be a non-null String");
+			}
+			
+			controlRod = getControlRodFromArguments(reactor, arguments, 0);
+			controlRod.setName((String)arguments[1]);;
+			
+			return null;
+			
 		// "do" methods - void return, no inputs
 		case doEjectWaste:
 			reactor.ejectWaste(false, null);
@@ -240,7 +274,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		}
 	}
 	
-	private TileEntityReactorControlRod getControlRodFromArguments(MultiblockReactor reactor, Object[] arguments, int index) throws Exception {
+	private CoordTriplet getControlRodCoordFromArguments(MultiblockReactor reactor, Object[] arguments, int index) throws Exception {
 		if(!(arguments[index] instanceof Double)) {
 			throw new IllegalArgumentException(String.format("Invalid argument %d, expected Number", index));
 		}
@@ -251,8 +285,12 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			throw new IndexOutOfBoundsException(String.format("Invalid argument %d, control rod index is out of bounds", index));
 		}
 		
-		CoordTriplet coord = reactor.getControlRodLocations()[rodIndex];
-		
+		return reactor.getControlRodLocations()[rodIndex];
+	}
+	
+	private TileEntityReactorControlRod getControlRodFromArguments(MultiblockReactor reactor, Object[] arguments, int index) throws Exception {
+		CoordTriplet coord = getControlRodCoordFromArguments(reactor, arguments, index);
+
 		TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
 		if(!(te instanceof TileEntityReactorControlRod)) {
 			throw new Exception("Encountered an invalid tile entity when seeking a control rod. That's weird.");
