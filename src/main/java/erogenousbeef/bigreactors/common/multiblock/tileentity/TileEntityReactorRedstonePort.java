@@ -178,7 +178,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	}
 	
 	public static int unpackControlRodLevelOff(int level) {
-		return ((level % 0xFF00) >> 8) & 0xFF;
+		return ((level & 0xFF00) >> 8) & 0xFF;
 	}
 
 	public boolean isInputActiveOnPulse() {
