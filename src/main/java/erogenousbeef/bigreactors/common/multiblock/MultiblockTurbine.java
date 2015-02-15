@@ -1022,7 +1022,7 @@ public class MultiblockTurbine extends RectangularMultiblockControllerBase imple
 		minInterior = getMinimumCoord();
 		maxInterior = getMaximumCoord();
 		minInterior.x++; minInterior.y++; minInterior.z++;
-		maxInterior.x++; maxInterior.y++; maxInterior.z++;
+		maxInterior.x--; maxInterior.y--; maxInterior.z--;
 		
 		rotorMass = 0;
 		bladeSurfaceArea = 0;
