@@ -34,6 +34,7 @@ import erogenousbeef.bigreactors.common.block.BlockBRDevice;
 import erogenousbeef.bigreactors.common.block.BlockBRGenericFluid;
 import erogenousbeef.bigreactors.common.block.BlockBRMetal;
 import erogenousbeef.bigreactors.common.block.BlockBROre;
+import erogenousbeef.bigreactors.common.data.StandardFluids;
 import erogenousbeef.bigreactors.common.data.StandardReactants;
 import erogenousbeef.bigreactors.common.item.ItemBRBucket;
 import erogenousbeef.bigreactors.common.item.ItemBeefDebugTool;
@@ -41,6 +42,8 @@ import erogenousbeef.bigreactors.common.item.ItemBlockBigReactors;
 import erogenousbeef.bigreactors.common.item.ItemIngot;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockTurbine;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockExchangerInteriorPart;
+import erogenousbeef.bigreactors.common.multiblock.block.BlockExchangerPart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockFuelRod;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMBCreativePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockMultiblockGlass;
@@ -49,6 +52,9 @@ import erogenousbeef.bigreactors.common.multiblock.block.BlockReactorRedstonePor
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbinePart;
 import erogenousbeef.bigreactors.common.multiblock.block.BlockTurbineRotorPart;
 import erogenousbeef.bigreactors.common.multiblock.helpers.RadiationHelper;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityExchangerComputerPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityExchangerFluidPort;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityExchangerPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
@@ -103,6 +109,9 @@ public class BigReactors {
 	public static BlockTurbinePart blockTurbinePart;
 	public static BlockTurbineRotorPart blockTurbineRotorPart;
 
+	public static BlockExchangerInteriorPart blockExchangerInteriorPart;
+	public static BlockExchangerPart blockExchangerPart;
+	
 	public static BlockMultiblockGlass blockMultiblockGlass;
 	public static BlockMBCreativePart blockMultiblockCreativePart;
 	
@@ -214,8 +223,8 @@ public class BigReactors {
 			powerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing overall power production from Big Reactors. Defaults to 1.").getDouble(1.0);
 			fuelUsageMultiplier = (float)BRConfig.CONFIGURATION.get("General", "fuelUsageMultiplier", 1.0f, "A multiplier for balancing fuel consumption. Defaults to 1.").getDouble(1.0);
 
-			reactorPowerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing reactor power production. Stacks with powerProductionMultiplier. Defaults to 1.").getDouble(1.0);
-			turbinePowerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "powerProductionMultiplier", 1.0f, "A multiplier for balancing turbine power production. Stacks with powerProductionMultiplier. Defaults to 1.").getDouble(1.0);
+			reactorPowerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "reactorPowerProductionMultiplier", 1.0f, "A multiplier for balancing reactor power production. Stacks with powerProductionMultiplier. Defaults to 1.").getDouble(1.0);
+			turbinePowerProductionMultiplier = (float)BRConfig.CONFIGURATION.get("General", "turbinePowerProductionMultiplier", 1.0f, "A multiplier for balancing turbine power production. Stacks with powerProductionMultiplier. Defaults to 1.").getDouble(1.0);
 			
 			maximumTurbineSize = BRConfig.CONFIGURATION.get("General",  "maxTurbineSize", 16, "The maximum valid size of a turbine in the X/Z plane, in blocks. Lower this for smaller turbines, which means lower max output.").getInt();
 			maximumTurbineHeight = BRConfig.CONFIGURATION.get("General",  "maxTurbineHeight", 32, "The maximum valid height of a turbine (Y axis), in blocks. (Default: 32)").getInt();
@@ -443,6 +452,14 @@ public class BigReactors {
 				GameRegistry.addRecipe(new ShapedOreRecipe(rotorBlade, "CII", 'C', "ingotCyanite", 'I', ironOrSteelIngot));
 			}
 			
+			if(blockExchangerPart != null) {
+				// TODO: Register recipes for heat exchanger parts
+			}
+			
+			if(blockExchangerInteriorPart != null) {
+				// TODO: Register recipes for heat exchanger pipe parts
+			}
+			
 			registerGameBalanceData();
 		}
 
@@ -479,6 +496,10 @@ public class BigReactors {
 			GameRegistry.registerTileEntity(TileEntityTurbineRotorBearing.class, "BRTurbineRotorBearing");
 			GameRegistry.registerTileEntity(TileEntityTurbineRotorPart.class, "BRTurbineRotorPart");
 			GameRegistry.registerTileEntity(TileEntityTurbineCreativeSteamGenerator.class, "BRTurbineCreativeSteamGenerator");
+			
+			GameRegistry.registerTileEntity(TileEntityExchangerPart.class, "BRExchangerPart");
+			GameRegistry.registerTileEntity(TileEntityExchangerComputerPort.class, "BRExchangerComputerPort");
+			GameRegistry.registerTileEntity(TileEntityExchangerFluidPort.class, "BRExchangerFluidPort");
 
 			registeredTileEntities = true;
 		}
@@ -621,7 +642,6 @@ public class BigReactors {
 	
 	public static void registerTurbineParts() {
 		if(BigReactors.blockTurbinePart == null) {
-			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbinePart = new BlockTurbinePart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbinePart, ItemBlockBigReactors.class, "BRTurbinePart");
 
@@ -630,19 +650,34 @@ public class BigReactors {
 			OreDictionary.registerOre("turbinePowerTap", BigReactors.blockTurbinePart.getItemStack("powerTap"));
 			OreDictionary.registerOre("turbineFluidPort", BigReactors.blockTurbinePart.getItemStack("fluidPort"));
 			OreDictionary.registerOre("turbineBearing", BigReactors.blockTurbinePart.getItemStack("bearing"));
-
-			BRConfig.CONFIGURATION.save();
 		}
 
 		if(BigReactors.blockTurbineRotorPart == null) {
-			BRConfig.CONFIGURATION.load();
 			BigReactors.blockTurbineRotorPart = new BlockTurbineRotorPart(Material.iron);
 			GameRegistry.registerBlock(BigReactors.blockTurbineRotorPart, ItemBlockBigReactors.class, "BRTurbineRotorPart");
 
 			OreDictionary.registerOre("turbineRotorShaft", BigReactors.blockTurbineRotorPart.getItemStack("rotor"));
 			OreDictionary.registerOre("turbineRotorBlade", BigReactors.blockTurbineRotorPart.getItemStack("blade"));
-
-			BRConfig.CONFIGURATION.save();
+		}
+	}
+	
+	public static void registerExchangerParts() {
+		if(BigReactors.blockExchangerPart == null) {
+			BigReactors.blockExchangerPart = new BlockExchangerPart(Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockExchangerPart, ItemBlockBigReactors.class, "BRExchangerPart");
+			
+			OreDictionary.registerOre("heatExchangerCasing", BigReactors.blockExchangerPart.getItemStack("casing"));
+			OreDictionary.registerOre("heatExchangerController", BigReactors.blockExchangerPart.getItemStack("controller"));
+			OreDictionary.registerOre("heatExchangerFluidPort", BigReactors.blockExchangerPart.getItemStack("fluidPort"));
+			OreDictionary.registerOre("heatExchangerComputerPort", BigReactors.blockExchangerPart.getItemStack("computerPort"));
+		}
+		
+		if(BigReactors.blockExchangerInteriorPart == null) {
+			BigReactors.blockExchangerInteriorPart = new BlockExchangerInteriorPart(Material.iron);
+			GameRegistry.registerBlock(BigReactors.blockExchangerInteriorPart, ItemBlockBigReactors.class,"BRExchangerInteriorPart");
+			
+			OreDictionary.registerOre("heatExchangerInteriorPrimaryPipe", BigReactors.blockExchangerInteriorPart.getItemStack("primary"));
+			OreDictionary.registerOre("heatExchangerInteriorSecondaryPipe", BigReactors.blockExchangerInteriorPart.getItemStack("secondary"));
 		}
 	}
 	
@@ -763,6 +798,9 @@ public class BigReactors {
 
 	// This must be done in init or later
 	protected static void registerGameBalanceData() {
+		// Register water<>steam
+		StandardFluids.register();
+
 		// Register ingot & block => reactant mappings
 		StandardReactants.yelloriumMapping = Reactants.registerSolid("ingotYellorium", StandardReactants.yellorium);
 		StandardReactants.cyaniteMapping = Reactants.registerSolid("ingotCyanite", StandardReactants.cyanite);

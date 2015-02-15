@@ -1259,23 +1259,6 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 		return coolantContainer.getTankInfo(-1);
 	}
 	
-	protected void markReferenceCoordForUpdate() {
-		CoordTriplet rc = getReferenceCoord();
-		if(worldObj != null && rc != null) {
-			worldObj.markBlockForUpdate(rc.x, rc.y, rc.z);
-		}
-	}
-	
-	protected void markReferenceCoordDirty() {
-		if(worldObj == null || worldObj.isRemote) { return; }
-
-		CoordTriplet referenceCoord = getReferenceCoord();
-		if(referenceCoord == null) { return; }
-
-		TileEntity saveTe = worldObj.getTileEntity(referenceCoord.x, referenceCoord.y, referenceCoord.z);
-		worldObj.markTileEntityChunkModified(referenceCoord.x, referenceCoord.y, referenceCoord.z, saveTe);
-	}
-
 	@Override
 	public boolean getActive() {
 		return this.active;
