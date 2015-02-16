@@ -38,9 +38,9 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		outputFuelAmount, 	// Output: Fuel amount in a control rod, raw value, (0-4*height)
 		outputWasteAmount, 	// Output: Waste amount in a control rod, raw value, (0-4*height)
 		outputEnergyAmount; // Output: Energy in the reactor's buffer, percentile (0-100, 100 = 100% full)
-		
+
 		public static final CircuitType[] s_Types = CircuitType.values();
-		
+
 		public static boolean hasCoordinate(TileEntityReactorRedNetPort.CircuitType circuitType) {
 			return circuitType == CircuitType.inputSetControlRod;
 		}
@@ -61,15 +61,15 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	protected int[] oldValue;
 
 	public final static int numChannels = 16;
-	
+
 	IRedNetNetworkContainer redNetwork;
 	IRedNetInputNode redNetInput;
 
 	int ticksSinceLastUpdate;
-	
+
 	public TileEntityReactorRedNetPort() {
 		super();
-		
+
 		channelCircuitTypes = new CircuitType[numChannels];
 		coordMappings = new CoordTriplet[numChannels];
 		inputActivatesOnPulse = new boolean[numChannels];
@@ -81,29 +81,29 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			inputActivatesOnPulse[i] = false;
 			oldValue[i] = 0;
 		}
-		
+
 		redNetwork = null;
 		redNetInput = null;
 
 		ticksSinceLastUpdate = 0;
 	}
-	
+
 	// IMultiblockPart
 	@Override
 	public void onAttached(MultiblockControllerBase newController) {
 		super.onAttached(newController);
 
 		if(this.worldObj.isRemote) { return; } 
-		
+
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
-	
+
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockController) {
 		super.onMachineAssembled(multiblockController);
 
 		if(this.worldObj.isRemote) { return; } 
-		
+
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
 
@@ -112,7 +112,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
 		return new GuiReactorRedNetPort(new ContainerBasic(), this);
 	}
-	
+
 	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		return new ContainerBasic();
@@ -124,20 +124,20 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		super.writeToNBT(par1NBTTagCompound);
 		encodeSettings(par1NBTTagCompound);
 	}
-	
+
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
 		super.encodeDescriptionPacket(packetData);
 		encodeSettings(packetData);
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
 	{
 		super.readFromNBT(par1NBTTagCompound);
 		decodeSettings(par1NBTTagCompound);
 	}
-	
+
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		super.decodeDescriptionPacket(packetData);
@@ -150,17 +150,17 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		for(int i = 0; i < numChannels; i++) {
 			outputs[i] = getValueForChannel(i);
 		}
-		
+
 		return outputs;
 	}
-	
+
 	public int getValueForChannel(int channel) {
 		if(channel < 0 || channel >= numChannels) { return 0; }
-		
+
 		if(!this.isConnected()) { return 0; }
-		
+
 		TileEntity te = null;
-		
+
 		switch(channelCircuitTypes[channel]) {
 		case outputFuelTemperature:
 			return (int)Math.floor(getReactorController().getFuelHeat());
@@ -184,22 +184,22 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			return 0;
 		}
 	}
-	
+
 	public void onInputValuesChanged(int[] newValues) {
 		for(int i = 0; i < newValues.length; i++) {
 			onInputValueChanged(i, newValues[i]);
 		}
 	}
-	
+
 	public void onInputValueChanged(int channel, int newValue) {
 		if(channel < 0 || channel >= numChannels) { return; }
 		CircuitType type = channelCircuitTypes[channel];
 		if(!isInput(type)) { return; }
 		if(!this.isConnected()) { return; }
-		
+
 		if(newValue == oldValue[channel]) { return; }
 		boolean isPulse = (oldValue[channel] == 0 && newValue != 0);
-		
+
 		MultiblockReactor reactor = null;
 		switch(type) {
 		case inputActive:
@@ -235,28 +235,30 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 				reactor = getReactorController();
 				reactor.ejectWaste(false, null);
 			}
+			break;
 		default:
 			break;
 		}
-		
+
 		oldValue[channel] = newValue;
 	}
-	
+
 	// Public RedNet helpers for GUI & updates
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) {
 		checkForConnections(world, x, y, z);
 	}
-	
+
 	@Override
 	public void onNeighborTileChange(IBlockAccess world, int x, int y, int z, int neighborX, int neighborY, int neighborZ) {
 		checkForConnections(world, x, y, z);
 	}
-	
+
 	/**
 	 * Updates the connected RedNet network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
+	@Override
 	public void onMultiblockServerTick() {
 		if(!this.isConnected()) { return; }
 
@@ -264,11 +266,11 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 		if(ticksSinceLastUpdate < BigReactors.ticksPerRedstoneUpdate) { return; }
 
 		ForgeDirection out = getOutwardsDir();
-		
+
 		if(redNetwork != null) {
 				redNetwork.updateNetwork(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite());
 		}
-		
+
 		if(redNetInput != null) {
 			redNetInput.onInputsChanged(worldObj, xCoord+out.offsetX, yCoord+out.offsetY, zCoord+out.offsetZ, out.getOpposite(), getOutputValues());
 		}
@@ -284,7 +286,7 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	public CoordTriplet getMappedCoord(int channel) {
 		return this.coordMappings[channel];
 	}
-	
+
 	public boolean isInputActivatedOnPulse(int channel) {
 		return this.inputActivatesOnPulse[channel];
 	}
@@ -300,24 +302,24 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	protected TileEntity getMappedTileEntity(int channel) {
 		if(channel < 0 || channel >= numChannels) { return null; }
 		if(coordMappings[channel] == null) { return null; }
-		
+
 		CoordTriplet coord = coordMappings[channel];
-		
+
 		if(coord == null) { return null; }
 		if(!this.worldObj.checkChunksExist(coord.x, coord.y, coord.z, coord.x, coord.y, coord.z)) {
 			return null;
 		}
-		
+
 		return this.worldObj.getTileEntity(coord.x, coord.y, coord.z);
 	}
-	
+
 	protected void setControlRodInsertion(int channel, CoordTriplet coordTriplet, int newValue) {
 		if(!this.isConnected()) { return; }
 		if(!this.worldObj.checkChunksExist(coordTriplet.x, coordTriplet.y, coordTriplet.z,
 											coordTriplet.x, coordTriplet.y, coordTriplet.z)) {
 			return;
 		}
-		
+
 		TileEntity te = this.worldObj.getTileEntity(coordTriplet.x, coordTriplet.y, coordTriplet.z);
 		if(te instanceof TileEntityReactorControlRod) {
 			((TileEntityReactorControlRod)te).setControlRodInsertion((short)newValue);
@@ -326,10 +328,10 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 			clearChannel(channel);
 		}
 	}
-	
+
 	protected NBTTagCompound encodeSetting(int channel) {
 		NBTTagCompound entry = new NBTTagCompound();
-		
+
 		entry.setInteger("channel", channel);
 		entry.setInteger("setting", this.channelCircuitTypes[channel].ordinal());
 		if(isInput(this.channelCircuitTypes[channel]) && CircuitType.canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
@@ -343,18 +345,18 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 				entry.setInteger("z", coord.z);
 			}
 		}
-		
+
 		return entry;
 	}
 
 	protected void decodeSetting(NBTTagCompound settingTag) {
 		int channel = settingTag.getInteger("channel");
 		int settingIdx = settingTag.getInteger("setting");
-		
+
 		clearChannel(channel);
-		
+
 		channelCircuitTypes[channel] = CircuitType.values()[settingIdx];
-		
+
 		if(isInput(this.channelCircuitTypes[channel]) && CircuitType.canBeToggledBetweenPulseAndNormal(this.channelCircuitTypes[channel])) {
 			inputActivatesOnPulse[channel] = settingTag.getBoolean("pulse");
 		}
@@ -373,20 +375,20 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 	// Receives settings from a client via an update packet
 	public void onCircuitUpdate(RedNetChange[] changes) {
 		if(changes == null || changes.length < 1) { return; }
-		
+
 		for(int i = 0; i < changes.length; i++) {
 			int channelID = changes[i].getChannel();
 			CircuitType newType = changes[i].getType();
-			
+
 			channelCircuitTypes[channelID] = newType;
-			
+
 			if(CircuitType.canBeToggledBetweenPulseAndNormal(newType)) {
 				inputActivatesOnPulse[channelID] = changes[i].getPulseOrToggle();
 			}
-			
+
 			if(CircuitType.hasCoordinate(newType)) {
 				CoordTriplet coord = changes[i].getCoord();
-				
+
 				// Validate that we're pointing at the right thing, just in case.
 				if(coord != null) {
 					TileEntity te = worldObj.getTileEntity(coord.x, coord.y, coord.z);
@@ -402,29 +404,29 @@ public class TileEntityReactorRedNetPort extends TileEntityReactorPart implement
 				coordMappings[channelID] = null;
 			}
 		}
-		
+
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		markDirty();
 	}
-	
+
 	// Helpers
 	protected void encodeSettings(NBTTagCompound destination) {
 		NBTTagList tagArray = new NBTTagList();
-		
+
 		for(int i = 0; i < numChannels; i++) {
 			tagArray.appendTag(encodeSetting(i));
 		}
-		
+
 		destination.setTag("redNetConfig", tagArray);
 	}
-	
+
 	protected void decodeSettings(NBTTagCompound source) {
 		NBTTagList tagArray = source.getTagList("redNetConfig", 10);
 		for(int i = 0; i < tagArray.tagCount(); i++) {
-			decodeSetting( (NBTTagCompound)tagArray.getCompoundTagAt(i) );
+			decodeSetting(tagArray.getCompoundTagAt(i));
 		}
 	}
-	
+
 	/**
 	 * Check for a world connection, if we're assembled.
 	 * @param world

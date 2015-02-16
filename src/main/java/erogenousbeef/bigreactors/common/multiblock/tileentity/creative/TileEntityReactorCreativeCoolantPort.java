@@ -4,10 +4,9 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
 import erogenousbeef.bigreactors.common.multiblock.helpers.CoolantContainer;
-import erogenousbeef.bigreactors.common.multiblock.interfaces.ITickableMultiblockPart;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
 
-public class TileEntityReactorCreativeCoolantPort extends TileEntityReactorCoolantPort implements ITickableMultiblockPart {
+public class TileEntityReactorCreativeCoolantPort extends TileEntityReactorCoolantPort {
 
 	public TileEntityReactorCreativeCoolantPort() {
 		super();

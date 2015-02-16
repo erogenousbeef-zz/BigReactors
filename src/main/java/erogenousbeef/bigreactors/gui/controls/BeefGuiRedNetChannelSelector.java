@@ -4,18 +4,16 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.passive.EntitySheep;
 import erogenousbeef.bigreactors.client.gui.BeefGuiBase;
 import erogenousbeef.bigreactors.gui.BeefGuiControlBase;
-import erogenousbeef.bigreactors.gui.IBeefGuiControl;
 import erogenousbeef.bigreactors.gui.IBeefTooltipControl;
 
-public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements IBeefGuiControl,
-		IBeefTooltipControl {
+public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements IBeefTooltipControl {
 
 	String caption;
 	int channelIdx;
 	boolean selected;
-	
+
 	protected int barHeight = 4;
-	
+
 	/**
 	 * 
 	 * @param container
@@ -32,7 +30,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 		this.channelIdx = colorIdx;
 		this.selected = false;
 	}
-	
+
 	@Override
 	public boolean isMouseOver(int mouseX, int mouseY) {
 		// Only mouse over when the color or line are moused over.
@@ -61,9 +59,9 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 		this.drawRect(absoluteX, absoluteY, absoluteX+height, absoluteY+height, borderColor);
 		this.drawRect(absoluteX+width-height, absoluteY, absoluteX+width, absoluteY+height, borderColor);
 		this.drawRect(absoluteX+height, barTop, absoluteX+width-height, barTop+barHeight, borderColor);
-		
+
 		float[] color = EntitySheep.fleeceColorTable[this.channelIdx];
-		
+
 		this.drawRect(absoluteX+1, absoluteY+1, absoluteX+height-1, absoluteY+height-1, color[0], color[1], color[2], 1.0f);
 		this.drawRect(absoluteX+width-height+1, absoluteY+1, absoluteX+width-1, absoluteY+height-1, 0xff777777);
 	}
@@ -78,7 +76,7 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 			guiContainer.onControlClicked(this);
 		}
 	}
-	
+
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
@@ -90,5 +88,4 @@ public class BeefGuiRedNetChannelSelector extends BeefGuiControlBase implements 
 	public int getChannel() {
 		return channelIdx;
 	}
-	
 }

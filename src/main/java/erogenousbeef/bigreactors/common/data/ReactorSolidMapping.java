@@ -25,6 +25,7 @@ public class ReactorSolidMapping {
 		return referenceItem.isItemEqual(otherItem);
 	}
 	
+	@Override
 	public boolean equals(Object other) {
 		if(other instanceof ReactorSolidMapping) {
 			return isEqual((ReactorSolidMapping)other);

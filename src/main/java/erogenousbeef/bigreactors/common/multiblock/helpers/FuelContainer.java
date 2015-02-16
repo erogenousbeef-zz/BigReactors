@@ -105,6 +105,7 @@ public class FuelContainer extends ReactantContainer {
 		return getReactantType(WASTE);
 	}
 	
+	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
 		super.writeToNBT(destination);
 		
@@ -112,6 +113,7 @@ public class FuelContainer extends ReactantContainer {
 		return destination;
 	}
 	
+	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
 		

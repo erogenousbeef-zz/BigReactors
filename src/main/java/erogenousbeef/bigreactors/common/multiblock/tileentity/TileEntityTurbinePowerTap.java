@@ -13,7 +13,7 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard implements IEnergyProvider, INeighborUpdatableEntity {
 
 	IEnergyReceiver	rfNetwork;
-	
+
 	public TileEntityTurbinePowerTap() {
 		super();
 		rfNetwork = null;
@@ -37,27 +37,27 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 	public boolean isAttachedToPowerNetwork() {
 		return rfNetwork != null;
 	}
-	
+
 	// IMultiblockPart
 	@Override
 	public void onAttached(MultiblockControllerBase newController) {
 		super.onAttached(newController);
-		
+
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
-		
+
 		this.notifyNeighborsOfTileChange();
 	}
-	
+
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 		super.onMachineAssembled(multiblockControllerBase);
 
-		
+
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
-		
+
 		this.notifyNeighborsOfTileChange();
 	}
-	
+
 	/**
 	 * Check for a world connection, if we're assembled.
 	 * @param world
@@ -87,7 +87,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 				}
 			}
 		}
-		
+
 		boolean isConnected = (rfNetwork != null);
 		if(wasConnected != isConnected && worldObj.isRemote) {
 			// Re-render on clients
@@ -104,9 +104,9 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 		}
 
 		ForgeDirection approachDirection = getOutwardsDir().getOpposite();
-		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, (int)units, false);
+		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, units, false);
 		units -= energyConsumed;
-		
+
 		return units;
 	}
 
@@ -117,7 +117,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 
 		return from == getOutwardsDir();
 	}
-	
+
 	// IEnergyProvider
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
@@ -130,7 +130,7 @@ public class TileEntityTurbinePowerTap extends TileEntityTurbinePartStandard imp
 	@Override
 	public int getEnergyStored(ForgeDirection from) {
 		if(!this.isConnected()) { return 0; }
-		
+
 		return getTurbine().getEnergyStored(from);
 	}
 

@@ -7,7 +7,7 @@ public class ReactantData {
 	public enum ReactantType {
 		Fuel,
 		Waste,
-	};
+	}
 	public static final ReactantType[] s_Types = ReactantType.values();
 	
 	private String name;

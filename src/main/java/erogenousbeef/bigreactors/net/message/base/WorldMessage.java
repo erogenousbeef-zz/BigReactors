@@ -46,6 +46,7 @@ public abstract class WorldMessage implements IMessage {
 		
 		protected abstract IMessage handleMessage(M message, MessageContext ctx, TileEntity te);
 		
+		@Override
 		public IMessage onMessage(WorldMessage message, MessageContext ctx) {
 			World world = getWorld(ctx);
 			if(world == null) {

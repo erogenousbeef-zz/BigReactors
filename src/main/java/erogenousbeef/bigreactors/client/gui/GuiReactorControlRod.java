@@ -122,14 +122,14 @@ public class GuiReactorControlRod extends BeefGuiBase {
 		
 		insertionLabel.setLabelText(String.format("%d%%", entity.getControlRodInsertion()));
 		this.setNameBtn.enabled = !entity.getName().equals(this.rodName.getText());
-		insertionBar.setInsertion((float)entity.getControlRodInsertion() / 100f);
+		insertionBar.setInsertion(entity.getControlRodInsertion() / 100f);
 	}
 	
 	@Override
 	protected void actionPerformed(GuiButton button) {
 		switch(button.id) {
 		case 2:
-            CommonPacketHandler.INSTANCE.sendToServer(new ControlRodChangeNameMessage(entity.xCoord, entity.yCoord, entity.zCoord, this.rodName.getText()));
+			CommonPacketHandler.INSTANCE.sendToServer(new ControlRodChangeNameMessage(entity.xCoord, entity.yCoord, entity.zCoord, this.rodName.getText()));
 			this.rodName.setFocused(false);
 			break;
 		case 0:

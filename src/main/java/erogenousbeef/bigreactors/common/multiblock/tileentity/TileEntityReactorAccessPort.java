@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,22 +28,22 @@ import erogenousbeef.bigreactors.gui.container.ContainerReactorAccessPort;
 import erogenousbeef.bigreactors.utils.AdjacentInventoryHelper;
 import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
-public class TileEntityReactorAccessPort extends TileEntityReactorPart implements IInventory, ISidedInventory, INeighborUpdatableEntity {
+public class TileEntityReactorAccessPort extends TileEntityReactorPart implements ISidedInventory, INeighborUpdatableEntity {
 
 	protected ItemStack[] _inventories;
 	protected boolean isInlet;
 	protected AdjacentInventoryHelper adjacencyHelper;
-	
+
 	public static final int SLOT_INLET = 0;
 	public static final int SLOT_OUTLET = 1;
 	public static final int NUM_SLOTS = 2;
-	
+
 	private static final int[] kInletExposed = {SLOT_INLET};
 	private static final int[] kOutletExposed = {SLOT_OUTLET};
-	
+
 	public TileEntityReactorAccessPort() {
 		super();
-		
+
 		_inventories = new ItemStack[getSizeInventory()];
 		isInlet = true;
 	}
@@ -75,12 +74,12 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	public int consumeReactantItem(int reactantDesired) {
 		ItemStack inputItem = getStackInSlot(SLOT_INLET);
 		if(inputItem == null) { return 0; }
-		
+
 		SourceProductMapping mapping = Reactants.getSolidToReactant(inputItem);
 		if(mapping == null) { return 0; }
-		
+
 		int sourceItemsToConsume = Math.min(inputItem.stackSize, mapping.getSourceAmount(reactantDesired));
-		
+
 		if(sourceItemsToConsume <= 0) { return 0; }
 
 		decrStackSize(SLOT_INLET, sourceItemsToConsume);
@@ -97,13 +96,13 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	 */
 	public int emitReactant(String reactantType, int amount) {
 		if(reactantType == null || amount <= 0) { return 0; }
-		
+
 		ItemStack outputItem = getStackInSlot(SLOT_OUTLET);
 		if(outputItem != null && outputItem.stackSize >= getInventoryStackLimit()) {
 			// Already full?
 			return 0;
 		}
-		
+
 		// If we have an output item, try to produce more of it, given its mapping
 		if(outputItem != null) {
 			// Find matching mapping
@@ -112,20 +111,20 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				// Items are incompatible!
 				return 0;
 			}
-			
+
 			// We're using the original source item >> reactant mapping here
 			// This means that source == item, and product == reactant
 			int amtToProduce = mapping.getSourceAmount(amount);
 			amtToProduce = Math.min(amtToProduce, getInventoryStackLimit() - outputItem.stackSize);
 			if(amtToProduce <= 0) {	return 0; }
-			
+
 			// Do we actually produce any reactant at this reduced amount?
 			int reactantToConsume = mapping.getProductAmount(amtToProduce);
 			if(reactantToConsume <= 0) { return 0; }
-			
+
 			outputItem.stackSize += amtToProduce;
 			onItemsReceived();
-			
+
 			return reactantToConsume;
 		}
 
@@ -140,7 +139,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			for(SourceProductMapping mapping: mappings) {
 				// How much product can we produce?
 				int potentialProducts = mapping.getProductAmount(amount);
-				
+
 				// And how much reactant will that consume?
 				int potentialReactant = mapping.getSourceAmount(potentialProducts);
 
@@ -174,14 +173,14 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		else {
 			newItem = newItem.copy(); // Don't stomp the oredict
 		}
-		
+
 		newItem.stackSize = itemsToProduce;
 		setInventorySlotContents(SLOT_OUTLET, newItem);
 		onItemsReceived();
-		
+
 		return reactantConsumed;
 	}
-	
+
 	// Multiblock overrides
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase controller) {
@@ -190,7 +189,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		adjacencyHelper = new AdjacentInventoryHelper(this.getOutwardsDir());
 		checkForAdjacentInventories();
 	}
-	
+
 	@Override
 	public void onMachineBroken() {
 		super.onMachineBroken();
@@ -198,7 +197,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	}
 
 	// TileEntity overrides
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound tag) {
 		super.readFromNBT(tag);
@@ -206,7 +205,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(tag.hasKey("Items")) {
 			NBTTagList tagList = tag.getTagList("Items", 10);
 			for(int i = 0; i < tagList.tagCount(); i++) {
-				NBTTagCompound itemTag = (NBTTagCompound)tagList.getCompoundTagAt(i);
+				NBTTagCompound itemTag = tagList.getCompoundTagAt(i);
 				int slot = itemTag.getByte("Slot") & 0xff;
 				if(slot >= 0 && slot <= _inventories.length) {
 					ItemStack itemStack = new ItemStack((Block)null,0,0);
@@ -215,17 +214,17 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				}
 			}
 		}
-		
+
 		if(tag.hasKey("isInlet")) {
 			this.isInlet = tag.getBoolean("isInlet");
 		}
 	}
-	
+
 	@Override
 	public void writeToNBT(NBTTagCompound tag) {
 		super.writeToNBT(tag);
 		NBTTagList tagList = new NBTTagList();
-		
+
 		for(int i = 0; i < _inventories.length; i++) {
 			if((_inventories[i]) != null) {
 				NBTTagCompound itemTag = new NBTTagCompound();
@@ -234,33 +233,33 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 				tagList.appendTag(itemTag);
 			}
 		}
-		
+
 		if(tagList.tagCount() > 0) {
 			tag.setTag("Items", tagList);
 		}
-		
+
 		tag.setBoolean("isInlet", isInlet);
 	}
-	
+
 	// MultiblockTileEntityBase
 	@Override
 	protected void encodeDescriptionPacket(NBTTagCompound packetData) {
 		super.encodeDescriptionPacket(packetData);
-		
+
 		packetData.setBoolean("inlet", isInlet);
 	}
-	
+
 	@Override
 	protected void decodeDescriptionPacket(NBTTagCompound packetData) {
 		super.decodeDescriptionPacket(packetData);
-		
+
 		if(packetData.hasKey("inlet")) {
 			setInlet(packetData.getBoolean("inlet"));
 		}
 	}
-	
+
 	// IInventory
-	
+
 	@Override
 	public int getSizeInventory() {
 		return NUM_SLOTS;
@@ -334,7 +333,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		{
 			return false;
 		}
-		return entityplayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64D;
+		return entityplayer.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 64D;
 	}
 
 	@Override
@@ -361,7 +360,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 	}
 
 	// ISidedInventory
-	
+
 	@Override
 	public int[] getAccessibleSlotsFromSide(int side) {
 		if(isInlet()) {
@@ -408,9 +407,9 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 		if(isInlet == shouldBeInlet) { return; }
 
 		isInlet = shouldBeInlet;
-		
+
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-		
+
 		if(!worldObj.isRemote) {
 			distributeItems();
 			markChunkDirty();
@@ -418,17 +417,17 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 
 		notifyNeighborsOfTileChange();
 	}
-	
+
 	protected void distributeItems() {
 		if(worldObj.isRemote) { return; }
 		if(adjacencyHelper == null) { return; }
-		
+
 		if(this.isInlet()) { return; }
-		
+
 		_inventories[SLOT_OUTLET] = adjacencyHelper.distribute(_inventories[SLOT_OUTLET]);
 		markChunkDirty();
 	}
-	
+
 	protected void checkForAdjacentInventories() {
 		ForgeDirection outDir = getOutwardsDir();
 
@@ -443,7 +442,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			}
 		}
 	}
-	
+
 	protected void markChunkDirty() {
 		worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
 	}

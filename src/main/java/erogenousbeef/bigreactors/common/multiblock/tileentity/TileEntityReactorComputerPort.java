@@ -252,14 +252,14 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 			if(arguments.length < 2) {
 				throw new IllegalArgumentException("Insufficient number of arguments, expected 2 (control rod index, name)");
 			}
-			
+
 			if(arguments[1] == null || !(arguments[1] instanceof String)) {
 				throw new IllegalArgumentException("Invalid argument 1, must be a non-null String");
 			}
-			
+
 			controlRod = getControlRodFromArguments(reactor, arguments, 0);
-			controlRod.setName((String)arguments[1]);;
-			
+			controlRod.setName((String)arguments[1]);
+
 			return null;
 			
 		// "do" methods - void return, no inputs
@@ -273,7 +273,7 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 		default: throw new Exception("Method unimplemented - yell at Beef");
 		}
 	}
-	
+
 	private CoordTriplet getControlRodCoordFromArguments(MultiblockReactor reactor, Object[] arguments, int index) throws Exception {
 		if(!(arguments[index] instanceof Double)) {
 			throw new IllegalArgumentException(String.format("Invalid argument %d, expected Number", index));

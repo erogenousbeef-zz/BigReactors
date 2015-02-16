@@ -23,33 +23,33 @@ import erogenousbeef.bigreactors.common.BigReactors;
 import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedstonePort;
 
 @Optional.InterfaceList({
-	@Optional.Interface(iface = "powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode", modid = "MineFactoryReloaded")	
+	@Optional.Interface(iface = "powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode", modid = "MineFactoryReloaded")
 })
 public class BlockReactorRedstonePort extends BlockContainer implements IRedNetOmniNode {
 
 	protected IIcon blockIconLit;
-	
+
 	public static final int META_REDSTONE_LIT = 1;
 	public static final int META_REDSTONE_UNLIT = 0;
-	
+
 	protected final static int REDSTONE_VALUE_OFF = 0;  // corresponds to no power
 	protected final static int REDSTONE_VALUE_ON  = 15; // corresponds to strong power
-	
+
 	public BlockReactorRedstonePort(Material material) {
 		super(material);
-		
+
 		setStepSound(soundTypeMetal);
 		setHardness(2.0f);
 		setBlockName("blockReactorRedstonePort");
 		this.setBlockTextureName(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName());
 		setCreativeTab(BigReactors.TAB);
 	}
-	
+
 	@Override
 	public TileEntity createNewTileEntity(World world, int metadata) {
 		return new TileEntityReactorRedstonePort();
 	}
-	
+
 	@Override
 	public IIcon getIcon(int side, int metadata)
 	{
@@ -60,7 +60,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 			return blockIcon;
 		}
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister par1IconRegister)
@@ -68,8 +68,8 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 		this.blockIcon = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".unlit");
 		this.blockIconLit = par1IconRegister.registerIcon(BigReactors.TEXTURE_NAME_PREFIX + getUnlocalizedName() + ".lit");
 	}
-	
-	
+
+
 	@Override
 	public int damageDropped(int metadata)
 	{
@@ -85,7 +85,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 		TileEntity te = world.getTileEntity(x, y, z);
 		if(te instanceof TileEntityReactorRedstonePort) {
 			if(!((TileEntityReactorRedstonePort)te).isConnected()) { return false; }
-			
+
 			if(!world.isRemote)
 				((TileEntityReactorRedstonePort)te).sendRedstoneUpdate();
 
@@ -97,11 +97,12 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 
 		return false;
 	}
-	
-    /**
-     * A randomly called display update to be able to add particles or other items for display
-     */
-    @SideOnly(Side.CLIENT)
+
+	/**
+	 * A randomly called display update to be able to add particles or other items for display
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
     public void randomDisplayTick(World world, int x, int y, int z, Random par5Random)
     {
     	TileEntity te = world.getTileEntity(x, y, z);
@@ -130,7 +131,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
         	}
         }
     }
-	
+
     @Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) {
     	super.onNeighborBlockChange(world, x, y,z, neighborBlock);
@@ -144,12 +145,12 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 	// Redstone API
 	@Override
 	public boolean canProvidePower() { return true; }
-	
+
 	@Override
 	public int isProvidingStrongPower(IBlockAccess world, int x, int y, int z, int side) {
 		return isProvidingWeakPower(world, x, y, z, side);
 	}
-	
+
 	@Override
 	public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
 		if(side == 0 || side == 1) { return REDSTONE_VALUE_OFF; }
@@ -162,7 +163,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 			else
 				return REDSTONE_VALUE_OFF;
 		}
-		
+
 		return REDSTONE_VALUE_OFF;
 	}
 
@@ -212,7 +213,7 @@ public class BlockReactorRedstonePort extends BlockContainer implements IRedNetO
 			port.onRedNetUpdate(inputValue);
 		}
 	}
-	
+
 	@Override
     public boolean canCreatureSpawn(EnumCreatureType type, IBlockAccess world, int x, int y, int z)
     {

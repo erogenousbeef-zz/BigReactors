@@ -9,7 +9,6 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.IFluidBlock;
 import cofh.lib.util.helpers.ItemHelper;
 import erogenousbeef.bigreactors.api.IHeatEntity;
-import erogenousbeef.bigreactors.api.IRadiationModerator;
 import erogenousbeef.bigreactors.api.data.ReactorInteriorData;
 import erogenousbeef.bigreactors.api.registry.ReactorInterior;
 import erogenousbeef.bigreactors.common.data.RadiationData;
@@ -20,12 +19,12 @@ import erogenousbeef.bigreactors.utils.StaticUtils;
 import erogenousbeef.core.multiblock.MultiblockValidationException;
 import erogenousbeef.core.multiblock.rectangular.RectangularMultiblockTileEntityBase;
 
-public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implements IRadiationModerator, IHeatEntity {
+public class TileEntityReactorFuelRod extends TileEntityReactorPartBase {
 
 	public TileEntityReactorFuelRod() {
 		super();
 	}
-	
+
 	// IRadiationModerator
 	@Override
 	public void moderateRadiation(RadiationData data, RadiationPacket radiation) {
@@ -34,7 +33,7 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		// Grab control rod insertion and reactor heat
 		MultiblockReactor reactor = getReactorController();
 		float heat = reactor.getFuelHeat();
-		
+
 		int maxY = reactor.getMaximumCoord().y;
 		TileEntity te = worldObj.getTileEntity(xCoord, maxY, zCoord);
 		if(!(te instanceof TileEntityReactorControlRod)) {
@@ -42,8 +41,8 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		}
 
 		// Scale control rod insertion 0..1
-		float controlRodInsertion = Math.min(1f, Math.max(0f, ((float)((TileEntityReactorControlRod)te).getControlRodInsertion())/100f));
-		
+		float controlRodInsertion = Math.min(1f, Math.max(0f, ((TileEntityReactorControlRod)te).getControlRodInsertion() / 100f));
+
 		// Fuel absorptiveness is determined by control rod + a heat modifier.
 		// Starts at 1 and decays towards 0.05, reaching 0.6 at 1000 and just under 0.2 at 2000. Inflection point at about 500-600.
 		// Harder radiation makes absorption more difficult.
@@ -56,16 +55,16 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		// Absorb up to 50% better with control rods inserted.
 		float controlRodBonus = (1f - scaledAbsorption) * controlRodInsertion * 0.5f;
 		float controlRodPenalty = scaledAbsorption * controlRodInsertion * 0.5f;
-		
+
 		float radiationAbsorbed = (scaledAbsorption + controlRodBonus) * radiation.intensity;
 		float fertilityAbsorbed = (scaledAbsorption - controlRodPenalty) * radiation.intensity;
-		
+
 		float fuelModerationFactor = getFuelModerationFactor();
 		fuelModerationFactor += fuelModerationFactor * controlRodInsertion + controlRodInsertion; // Full insertion doubles the moderation factor of the fuel as well as adding its own level
-		
+
 		radiation.intensity = Math.max(0f, radiation.intensity - radiationAbsorbed);
 		radiation.hardness /= fuelModerationFactor;
-		
+
 		// Being irradiated both heats up the fuel and also enhances its fertility
 		data.fuelRfChange += radiationAbsorbed * RadiationHelper.rfPerRadiationUnit;
 		data.fuelAbsorbedRadiation += fertilityAbsorbed;
@@ -81,12 +80,12 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 		// TODO: Lookup type of fuel and get data from there
 		return 0.5f;
 	}
-	
+
 	// Goes up from 1. How tolerant is this fuel of hard radiation?
 	private float getFuelHardnessDivisor() {
 		return 1.0f;
 	}
-	
+
 	// IHeatEntity
 	@Override
 	public float getThermalConductivity() {
@@ -131,7 +130,7 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 			((RectangularMultiblockTileEntityBase)entityBelow).isGoodForBottom();
 			return;
 		}
-		
+
 		throw new MultiblockValidationException(String.format("Fuel rod at %d, %d, %d must be part of a vertical column that reaches the entire height of the reactor, with a control rod on top.", xCoord, yCoord, zCoord));
 	}
 
@@ -144,7 +143,7 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 	}
 
 	// Reactor information retrieval methods
-	
+
 	/**
 	 * Returns the rate of heat transfer from this block to the reactor environment, based on this block's surrounding blocks.
 	 * Note that this method queries the world, so use it sparingly.
@@ -177,10 +176,10 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 
 		return heatTransferRate;
 	}
-	
+
 	private float getConductivityFromBlock(Block block, int metadata) {
 		ReactorInteriorData interiorData = null;
-		
+
 		if(block == Blocks.iron_block) {
 			interiorData = ReactorInterior.getBlockData("blockIron");
 		}
@@ -203,11 +202,11 @@ public class TileEntityReactorFuelRod extends TileEntityReactorPartBase implemen
 				}
 			}
 		}
-		
+
 		if(interiorData == null) {
 			interiorData = RadiationHelper.airData;
 		}
-		
+
 		return interiorData.heatConductivity;
 	}
 }

@@ -40,20 +40,20 @@ public class TileEntityTurbinePartStandard extends TileEntityTurbinePartBase {
 			throw new MultiblockValidationException(String.format("%d, %d, %d - this part is not valid for the interior of a turbine", xCoord, yCoord, zCoord));
 		}
 	}
-	
+
 	@Override
 	public Object getContainer(InventoryPlayer inventoryPlayer) {
 		if(!this.isConnected()) {
 			return null;
 		}
-		
+
 		if(getBlockMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
-			return (Object)(new ContainerSlotless(getTurbine(), inventoryPlayer.player));
+			return new ContainerSlotless(getTurbine(), inventoryPlayer.player);
 		}
-		
+
 		return null;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@Override
 	public Object getGuiElement(InventoryPlayer inventoryPlayer) {
@@ -81,5 +81,5 @@ public class TileEntityTurbinePartStandard extends TileEntityTurbinePartBase {
 		if(worldObj.isRemote && getBlockMetadata() == BlockTurbinePart.METADATA_CONTROLLER) {
 			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		}
-	}	
+	}
 }
