@@ -207,7 +207,7 @@ public class TileEntityReactorAccessPort extends TileEntityReactorPart implement
 			for(int i = 0; i < tagList.tagCount(); i++) {
 				NBTTagCompound itemTag = tagList.getCompoundTagAt(i);
 				int slot = itemTag.getByte("Slot") & 0xff;
-				if(slot >= 0 && slot <= _inventories.length) {
+				if(slot <= _inventories.length) {
 					ItemStack itemStack = new ItemStack((Block)null,0,0);
 					itemStack.readFromNBT(itemTag);
 					_inventories[slot] = itemStack;
