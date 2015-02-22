@@ -6,15 +6,25 @@ Next Release (Anticipated Version: 0.5.0A)
 
 
 
-Current Release (0.4.1A)
+Current Release (0.4.2A)
 --------------------------------
+- Enhancement: Added setControlRodName, getControlRodLocation Computer methods
+- Enhancement: Turbine rotors now emit light for player convenience
+- Bugfix: Fixed deserialization and saving of waste ejection settings on reactors
+- Bugfix: Turbine rotor bearings now have correct AABB when turbines are assembled
+- Bugfix: Cyanite reprocessors no longer emit power to connected energy networks and therefore no longer act like batteries
+- Bugfix: Devices (reprocessors) now properly drop their block when broken with picks and can be shift+rightclick dismantled with wrenches
+- Bugfix: Turbines properly confine their coil calculations to their interiors and do not count exterior metal blocks as coil parts
+- Localization: French Canadian translation added (thanks DragonsLover!)
+
+Older Releases
+--------------
+
+### 0.4.1A/0.4.1A2
 - **Dependency**: CoFHCore dependency update to **3.0.0B9**, fixes crashes with EnderIO
 - Compatibility: Mekanism combiner recipe for yellorite corrected to require 8 dusts, in line with other combiner recipes
 - Enhancement: reactorPowerProductionMultiplier and turbinePowerProductionMultiplier config options added. They stack with powerProductionMultiplier.
 - Localization: Danish translation added (thanks SoerenKK!)
-
-Older Releases
---------------
 
 ### 0.4.0A
 - **Dependency**: CoFHCore dependency update to **3.0.0B8**
