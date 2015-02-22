@@ -6,10 +6,11 @@ Next Release (Anticipated Version: 0.5.0A)
 
 
 
-Current Release (0.4.2A)
+Current Release (0.4.2A2)
 --------------------------------
 - Enhancement: Added setControlRodName, getControlRodLocation Computer methods
 - Enhancement: Turbine rotors now emit light for player convenience
+- Enhancement: Exceptions during Lua execution in ComputerCraft are now rethrown as LuaExceptions and will appear in Lua, instead of being logged out. Should reduce server log spam on servers with buggy CC programs.
 - Bugfix: Fixed deserialization and saving of waste ejection settings on reactors
 - Bugfix: Turbine rotor bearings now have correct AABB when turbines are assembled
 - Bugfix: Cyanite reprocessors no longer emit power to connected energy networks and therefore no longer act like batteries
