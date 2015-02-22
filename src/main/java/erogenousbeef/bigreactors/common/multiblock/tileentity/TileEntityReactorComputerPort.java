@@ -11,6 +11,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fluids.Fluid;
 import cpw.mods.fml.common.Optional;
 import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import erogenousbeef.bigreactors.common.BRLog;
@@ -315,14 +316,13 @@ public class TileEntityReactorComputerPort extends TileEntityReactorPart impleme
 	
 	@Override
 	@Optional.Method(modid = "ComputerCraft")
-	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int method, Object[] arguments) {
+	public Object[] callMethod(IComputerAccess computer, ILuaContext context, int method, Object[] arguments) throws LuaException {
         try {
             return callMethod(method, arguments);
         } catch(Exception e) {
-        	BRLog.info("Exception received when calling computercraft method: %s", e.getMessage());
-            e.printStackTrace();
+        	// Rethrow errors as LuaExceptions for CC
+        	throw new LuaException(e.getMessage());
         }
-        return null;
     }
 	
 	@Override
