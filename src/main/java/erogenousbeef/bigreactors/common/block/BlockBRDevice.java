@@ -205,15 +205,16 @@ public class BlockBRDevice extends BlockCoFHBase {
 		int metadata = world.getBlockMetadata(x, y, z);
 		stacks.add(new ItemStack(getItemDropped(metadata, world.rand, 0), 1, damageDropped(metadata)));
 		
-		TileEntity te = world.getTileEntity(x, y, z);
-		
-		if(te instanceof IInventory) {
-			IInventory invTe = (IInventory)te;
-			for(int i = 0; i < invTe.getSizeInventory(); i++) {
-				ItemStack stack = invTe.getStackInSlot(i);
-				if(stack != null) {
-					stacks.add(stack);
-					if(!simulate) {
+		if(returnDrops && !simulate)
+		{
+			TileEntity te = world.getTileEntity(x, y, z);
+			
+			if(te instanceof IInventory) {
+				IInventory invTe = (IInventory)te;
+				for(int i = 0; i < invTe.getSizeInventory(); i++) {
+					ItemStack stack = invTe.getStackInSlot(i);
+					if(stack != null) {
+						stacks.add(stack);
 						invTe.setInventorySlotContents(i, null);
 					}
 				}
@@ -230,10 +231,6 @@ public class BlockBRDevice extends BlockCoFHBase {
 			}
 		}
 
-		if(!returnDrops) {
-			stacks.clear();
-		}
-		
 		return stacks;
 	}
 	
