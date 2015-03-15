@@ -135,7 +135,7 @@ public class CommonProxy {
 		
 		// Easter Egg - Check if today is valentine's day. If so, change all particles to hearts.
 		Calendar calendar = Calendar.getInstance();
-		BigReactors.isValentinesDay = (calendar.get(Calendar.MONTH) == 2 && calendar.get(Calendar.DAY_OF_MONTH) == 14);
+		BigReactors.isValentinesDay = (calendar.get(Calendar.MONTH) == 1 && calendar.get(Calendar.DAY_OF_MONTH) == 14);
 	}
 	
 	@SideOnly(Side.CLIENT)
