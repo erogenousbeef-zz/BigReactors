@@ -26,7 +26,7 @@ group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conv
 archivesBaseName = "BigReactors"
 
 minecraft {
-    version = "1.7.10-10.13.2.1232"
+    version = "1.7.10-10.13.2.1291"
     runDir = "run"	
 
     replaceIn "BRConfig.java"
@@ -44,7 +44,7 @@ repositories {
     }
     ivy {
         name "CoFHCore"
-        artifactPattern "http://addons.cursecdn.com/files/2221/835/[module]-[revision].[ext]"
+        artifactPattern "http://addons-origin.cursecdn.com/files/2230/211/[module]-[revision].[ext]"
     }
 }
 
@@ -53,7 +53,7 @@ dependencies {
     //compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.67:dev'
     compile 'com.mod-buildcraft:buildcraft:6.0.18:dev'
     compile 'li.cil.oc:OpenComputers:MC1.7.10-1.4.0.+:api'
-    compile name: 'CoFHCore', version: '[1.7.10]3.0.0B9-40-dev', ext: 'jar'
+    compile name: 'CoFHCore', version: '[1.7.10]3.0.0RC7-211-dev', ext: 'jar'
 }
 
 processResources
