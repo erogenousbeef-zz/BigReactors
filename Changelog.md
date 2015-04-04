@@ -6,8 +6,18 @@ Next Release (Anticipated Version: 0.5.0A)
 
 
 
-Current Release (0.4.2A2)
+Current Release (0.4.3A)
 --------------------------------
+- **Dependency**: Forge dependency update to **10.13.2.1291**
+- **Dependency**: CoFHCore dependency update to **3.0.0RC7**
+- Bugfix: Fixed a number of crashes and corrupt states which could occur when breaking blocks on a running reactor. This occurred most commonly when breaking multiple blocks with a Tinker's Construct hammer.
+- Bugfix: Fixed reactorPowerProductionMultiplier and turbinePowerProductionMultiplier using the config value for powerProductionMultiplier, causing exponential output changes when changing powerProductionMultiplier.
+- Bugfix: Valentine's Day easter egg now correctly fires on Valentine's day, not a month later. Thanks RAnders00!
+
+Older Releases
+--------------
+
+### 0.4.2A/0.4.2A2
 - Enhancement: Added setControlRodName, getControlRodLocation Computer methods
 - Enhancement: Turbine rotors now emit light for player convenience
 - Enhancement: Exceptions during Lua execution in ComputerCraft are now rethrown as LuaExceptions and will appear in Lua, instead of being logged out. Should reduce server log spam on servers with buggy CC programs.
@@ -17,9 +27,6 @@ Current Release (0.4.2A2)
 - Bugfix: Devices (reprocessors) now properly drop their block when broken with picks and can be shift+rightclick dismantled with wrenches
 - Bugfix: Turbines properly confine their coil calculations to their interiors and do not count exterior metal blocks as coil parts
 - Localization: French Canadian translation added (thanks DragonsLover!)
-
-Older Releases
---------------
 
 ### 0.4.1A/0.4.1A2
 - **Dependency**: CoFHCore dependency update to **3.0.0B9**, fixes crashes with EnderIO
