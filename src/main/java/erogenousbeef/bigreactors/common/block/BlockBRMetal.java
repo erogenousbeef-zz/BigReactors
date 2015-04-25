@@ -37,7 +37,7 @@ public class BlockBRMetal extends Block {
 	@Override
 	public IIcon getIcon(int side, int metadata)
 	{
-		metadata = Math.max(0, Math.min(NUM_BLOCKS, metadata));
+		metadata = Math.max(0, Math.min(NUM_BLOCKS-1, metadata));
 		return _icons[metadata];
 	}
 	
