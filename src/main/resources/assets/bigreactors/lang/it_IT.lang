@@ -1,0 +1,64 @@
+# Big Reactors Language File - Italian
+# @author TheElixZammuto
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Yellorite Grezzo
+tile.brMetal.0.name=Blocco di Yellorium
+tile.brMetal.1.name=Blocco di Cianite
+tile.brMetal.2.name=Blocco di Grafite
+tile.brMetal.3.name=Blocco di Blutonium
+tile.brMetal.4.name=Blocco di Ludicrite
+tile.yelloriumFuelRod.name=Asta del Nocciolo del Reattore
+tile.brMultiblockGlass.0.name=Vetro per Reattore
+tile.brMultiblockGlass.1.name=Vetro per Turbina
+tile.blockReactorRedstonePort.name=Porta di Pietrarossa per Reattore
+tile.blockReactorPart.0.name=Struttura per Reattore
+tile.blockReactorPart.1.name=Controller per Reattore
+tile.blockReactorPart.2.name=Controller del Nocciolo del Reattore
+tile.blockReactorPart.3.name=Porta di Energia del Reattore
+tile.blockReactorPart.4.name=Porta d'accesso del Reattore
+tile.blockReactorPart.6.name=Porta RedNet del Reattore
+tile.blockReactorPart.7.name=Porta per Computer del Reattore
+tile.blockReactorPart.5.name=Porta per Fluidi del Reattore
+tile.blockRadiothermalGen.0=Generatore Radiotermico
+tile.blockBRDevice.0.name=Processore di Cianite
+tile.blockTurbinePart.0.name=Struttura per Turbina
+tile.blockTurbinePart.1.name=Controller per Turbina
+tile.blockTurbinePart.2.name=Porta di Energia per Turbina
+tile.blockTurbinePart.3.name=Porta per fuidi per Turbina
+tile.blockTurbinePart.4.name=Cuscinetto del Rotore della Turbina
+tile.blockTurbinePart.5.name=Porta per Computer della Turbina
+tile.blockTurbineRotorPart.0.name=Asta del Rotore della Turbina
+tile.blockTurbineRotorPart.1.name=Lame del Rotore della Turbina
+tile.blockMBCreativePart.0.name=Porta per Fluidi del Reattore Creativa
+tile.blockMBCreativePart.1.name=Generatore di Vapore per Turbina Creative
+
+# Items
+item.ingotYellorium.name=Lingotto di Yellorium
+item.ingotCyanite.name=Lingotto di Cianite
+item.ingotGraphite.name=Barra di Grafite
+item.ingotBlutonium.name=Lingotto di Blutonium
+item.ingotLudicrite.name=Lingotto di Ludicrite
+item.dustYellorium.name=Polvere di Yellorio
+item.dustCyanite.name=Polvere di Cianite
+item.dustBlutonium.name=Polvere di Blutonium
+item.dustGraphite.name=Polvere di Grafite
+item.dustLudicrite.name=Polvere di Ludicrite
+item.bucket.cyanite.name=Secchio di Cianite Fluida
+item.bucket.yellorium.name=Secchio di Yellorium Fluida
+item.beefDebugTool.name=Strumento di Diagnostica BeefTronic™ 
+
+# Fluids
+fluid.tile.water=Acqua
+fluid.tile.lava=Lava
+fluid.tile.yellorium=Yellorium Fluido
+fluid.tile.cyanite=Cianite Fluido
+fluid.tile.blutonium=Blutonium Fluido
+fluid.steam=Vapore
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Yellorium Fluido
+tile.fluid.cyanite.still.name=Cianite Fluido
+tile.fluid.blutonium.still.name=Blutonium Fluido
