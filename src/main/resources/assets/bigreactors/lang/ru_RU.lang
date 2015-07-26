@@ -33,7 +33,7 @@ tile.blockTurbinePart.5.name=Компьютерный Порт Турбины
 tile.blockTurbineRotorPart.0.name=Ось Турбины
 tile.blockTurbineRotorPart.1.name=Лопасть Турибы
 tile.blockMBCreativePart.0.name=Творческий Жидкостный Порт Реактора
-tile.blockMBCreativePart.1.name=Творческий Жидкостный Порт Турбины
+tile.blockMBCreativePart.1.name=Творческий Генератор Пара Турбины
 
 # Items
 item.ingotYellorium.name=Желтониевый Слиток
