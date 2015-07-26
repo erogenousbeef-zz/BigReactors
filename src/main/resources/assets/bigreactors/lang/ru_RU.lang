@@ -1,64 +1,64 @@
 # Big Reactors Language File - Russian
-# @author Vladimir Gendel
+# @author zlotnleo
 
-itemGroup.BigReactors=Big Reactors
+itemGroup.BigReactors=Большие Реакторы
 
 # Blocks
-tile.brOre.0.name=Йелоритовая руда
-tile.brMetal.0.name=Йеллориумовый блок
-tile.brMetal.1.name=Цианитовый блок
-tile.brMetal.2.name=Графитовый блок
-tile.brMetal.3.name=Блутониевый блок
-tile.brMetal.4.name=Лудикритовый блок
-tile.yelloriumFuelRod.name=Йеллориумовый топливный стержень
-tile.brMultiblockGlass.0.name=Реакторное стекло
-tile.brMultiblockGlass.1.name=Турбинное стекло
-tile.blockReactorRedstonePort.name=Красный порт реактора
-tile.blockReactorPart.0.name=Реакторный корпус
-tile.blockReactorPart.1.name=Реакторный контроллер
-tile.blockReactorPart.2.name=Реакторный контролирующий стержень
-tile.blockReactorPart.3.name=Реакторная розетка
-tile.blockReactorPart.4.name=Реакторный порт доступа
-tile.blockReactorPart.6.name=Реакторный RedNet порт
-tile.blockReactorPart.7.name=Компьютерный порт реактора
-tile.blockReactorPart.5.name=Реакторный порт охлаждения
-tile.blockRadiothermalGen.0=Радиотепловой генератор
-tile.blockBRDevice.0.name=Переработчик цианита
-tile.blockTurbinePart.0.name=Турбинный корпус
-tile.blockTurbinePart.1.name=Турбинный контроллер
-tile.blockTurbinePart.2.name=Турбинный порт питания
-tile.blockTurbinePart.3.name=Турбинный порт жидкостей
-tile.blockTurbinePart.4.name=Подшипник ротора турбины
-tile.blockTurbinePart.5.name=Компьютерный порт турбины
-tile.blockTurbineRotorPart.0.name=Вал ротора турбины
-tile.blockTurbineRotorPart.1.name=Лезвие ротора турбины
-tile.blockMBCreativePart.0.name=Реакторный творческий порт охлаждения
-tile.blockMBCreativePart.1.name=Турбинный творческий генератор пара
+tile.brOre.0.name=Желтониевая Руда
+tile.brMetal.0.name=Желтониевый Блок
+tile.brMetal.1.name=Бирюзитовый Блок
+tile.brMetal.2.name=Графитовый Блок
+tile.brMetal.3.name=Синетониевый Блок
+tile.brMetal.4.name=Лудикрайтовый Блок
+tile.yelloriumFuelRod.name=Желтониевый Топливный Стержень
+tile.brMultiblockGlass.0.name=Стекло Реактора
+tile.brMultiblockGlass.1.name=Стекло Турбины
+tile.blockReactorRedstonePort.name=Реакторный Порт Красного Камня
+tile.blockReactorPart.0.name=Корпус Реактора
+tile.blockReactorPart.1.name=Пункт Управления Реактором
+tile.blockReactorPart.2.name=Управляющий Степень Реактора
+tile.blockReactorPart.3.name=Энергетический Порт Реактора
+tile.blockReactorPart.4.name=Порт Доступа к Реактору
+tile.blockReactorPart.6.name=RedNet Порт Реактора
+tile.blockReactorPart.7.name=Компьютерный Порт Реактора
+tile.blockReactorPart.5.name=Жидкостный Порт Реактора
+tile.blockRadiothermalGen.0=Радиотепловой Генератор
+tile.blockBRDevice.0.name=Переработчик Бирюзита
+tile.blockTurbinePart.0.name=Корпус Турбины
+tile.blockTurbinePart.1.name=Пункт Управления Турбиной
+tile.blockTurbinePart.2.name=Энергетический Порт Турбины
+tile.blockTurbinePart.3.name=Жидкостный Порт Турбины
+tile.blockTurbinePart.4.name=Подшипник для Ротора Турбины
+tile.blockTurbinePart.5.name=Компьютерный Порт Турбины
+tile.blockTurbineRotorPart.0.name=Ось Турбины
+tile.blockTurbineRotorPart.1.name=Лопасть Турибы
+tile.blockMBCreativePart.0.name=Творческий Жидкостный Порт Реактора
+tile.blockMBCreativePart.1.name=Творческий Жидкостный Порт Турбины
 
 # Items
-item.ingotYellorium.name=Йеллориумовый слиток
-item.ingotCyanite.name=Цианитовый слиток
-item.ingotGraphite.name=Графитовый слиток
-item.ingotBlutonium.name=Блутониевый слиток
-item.ingotLudicrite.name=Лудикритовый слиток
-item.dustYellorium.name=Йеллориумовая пыль
-item.dustCyanite.name=Цианитовая пыль
-item.dustBlutonium.name=Блутониевая пыль
-item.dustGraphite.name=Графитовая пыль
-item.dustLudicrite.name=Лудикритовая пыль
-item.bucket.cyanite.name=Ведро жидкого цианита
-item.bucket.yellorium.name=Ведро жидкого йеллориума
-item.beefDebugTool.name=Инструмент диагностики BeefTronic™
+item.ingotYellorium.name=Желтониевый Слиток
+item.ingotCyanite.name=Бирюзитовый Слиток
+item.ingotGraphite.name=Графитовый Брусок
+item.ingotBlutonium.name=Синетониевый Слиток
+item.ingotLudicrite.name=Лудикрайтовый Слиток
+item.dustYellorium.name=Желтониевая Пыль
+item.dustCyanite.name=Бирюзитовая Пыль
+item.dustBlutonium.name=Синетониевая Пыль
+item.dustGraphite.name=Графитовая Пыль
+item.dustLudicrite.name=Лудикрайтовая Пыль
+item.bucket.cyanite.name=Ведро Жидкого Бирюзита
+item.bucket.yellorium.name=Ведро Жидкого Желтония
+item.beefDebugTool.name=BeefTronic™ - Приспособление Диагностики
 
 # Fluids
 fluid.tile.water=Вода
 fluid.tile.lava=Лава
-fluid.tile.yellorium=Жидкий йеллориум
-fluid.tile.cyanite=Жидкий цианит
-fluid.tile.blutonium=Жидкий блутоний
+fluid.tile.yellorium=Жидкий Желтоний
+fluid.tile.cyanite=Жидкий Бирюзит
+fluid.tile.blutonium=Жидкий Синетоний
 fluid.steam=Пар
 
 # Placeable Fluids
-tile.fluid.yellorium.still.name=Жидкий йеллориум
-tile.fluid.cyanite.still.name=Жидкий цианит
-tile.fluid.blutonium.still.name=Жидкий блутоний
+tile.fluid.yellorium.still.name=Жидкий Желтоний
+tile.fluid.cyanite.still.name=Жидкий Бирюзит
+tile.fluid.blutonium.still.name=Жидкий Синетоний
