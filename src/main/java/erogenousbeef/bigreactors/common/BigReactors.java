@@ -867,6 +867,7 @@ public class BigReactors {
 		ReactorInterior.registerFluid("pyrotheum",	0.66f, 0.90f, 1.00f, IHeatEntity.conductivityIron);
 		
 		ReactorInterior.registerFluid("life essence", 0.70f, 0.55f, 1.75f, IHeatEntity.conductivityGold); // From Blood Magic
+		ReactorInterior.registerFluid("liquidhelium",	0.72f, 0.98f, 1.95f, IHeatEntity.conductivityDiamond); // NuclearCraft
 
 		if(enableComedy) {
 			ReactorInterior.registerBlock("blockMeat", 	0.50f, 0.33f, 1.33f, IHeatEntity.conductivityStone);
