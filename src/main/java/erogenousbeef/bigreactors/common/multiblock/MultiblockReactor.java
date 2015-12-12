@@ -293,7 +293,7 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			//Avoid possible class-casting exception for control rod by testing the TileEntity first
 			if(proposedRod instanceof TileEntityReactorControlRod) {
 				//Reassign entity if it does cast properly
-				sourceControlRod = proposedRod;
+				sourceControlRod = (TileEntityReactorControlRod) proposedRod;
 				//Delete reference to control rod TileEntity
 				proposedRod = null;
 			}
