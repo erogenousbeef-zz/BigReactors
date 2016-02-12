@@ -20,7 +20,7 @@ apply plugin: 'forge'
 sourceSets.main.java.srcDirs += 'BeefCore/src/main/java'
 
 ant.loadproperties(srcFile: "version.properties")
-version = ant.properties['vMajor'] + "." + ant.properties['vMinor'] + "." + ant.properties['vPatch'] + ant.properties['vSuffix']
+version = ant.properties['vMajor'] + "." + ant.properties['vMinor'] + "." + ant.properties['vPatch'] + "-" + ant.properties['vSuffix']
 
 group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
