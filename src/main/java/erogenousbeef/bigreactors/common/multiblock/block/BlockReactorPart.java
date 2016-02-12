@@ -1,7 +1,20 @@
 package erogenousbeef.bigreactors.common.multiblock.block;
 
-import java.util.List;
-
+import cpw.mods.fml.common.Optional;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.IPeripheralProvider;
+import erogenousbeef.bigreactors.common.BRLoader;
+import erogenousbeef.bigreactors.common.BigReactors;
+import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
+import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
+import erogenousbeef.bigreactors.common.multiblock.tileentity.*;
+import erogenousbeef.bigreactors.utils.StaticUtils;
+import erogenousbeef.core.common.CoordTriplet;
+import erogenousbeef.core.multiblock.IMultiblockPart;
+import erogenousbeef.core.multiblock.MultiblockControllerBase;
+import erogenousbeef.core.multiblock.rectangular.PartPosition;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -21,27 +34,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import powercrystals.minefactoryreloaded.api.rednet.IRedNetOmniNode;
 import powercrystals.minefactoryreloaded.api.rednet.connectivity.RedNetConnectionType;
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
-import erogenousbeef.bigreactors.common.BRLoader;
-import erogenousbeef.bigreactors.common.BigReactors;
-import erogenousbeef.bigreactors.common.multiblock.MultiblockReactor;
-import erogenousbeef.bigreactors.common.multiblock.interfaces.INeighborUpdatableEntity;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorAccessPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorComputerPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorControlRod;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorCoolantPort;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPart;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorPowerTap;
-import erogenousbeef.bigreactors.common.multiblock.tileentity.TileEntityReactorRedNetPort;
-import erogenousbeef.bigreactors.utils.StaticUtils;
-import erogenousbeef.core.common.CoordTriplet;
-import erogenousbeef.core.multiblock.IMultiblockPart;
-import erogenousbeef.core.multiblock.MultiblockControllerBase;
-import erogenousbeef.core.multiblock.rectangular.PartPosition;
+
+import java.util.List;
 
 @Optional.InterfaceList({
 	@Optional.Interface(iface = "dan200.computercraft.api.peripheral.IPeripheralProvider", modid = "ComputerCraft"),
