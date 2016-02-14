@@ -1,13 +1,17 @@
 Big Reactors Changelog
 ======================
 
-Next Release (Anticipated Version: 0.5.0A)
-------------------------------------------
-
-
-
-Current Release (0.4.3A)
+Current Release (0.4.4-UNOFFICIAL)
 --------------------------------
+- **Dependency**: Forge dependency update to **10.13.4.1614**
+- **Dependency**: CoFHCore dependency update to **3.1.1-324**
+- **Dependency**: Buildcraft dependency update to **7.1.14**
+- Bugfix: Fixed problem with Forge's new Fluid Handling
+- Cleaned up some outdated functions and imports
+
+Older Releases
+--------------
+### 0.4.3A
 - **Dependency**: Forge dependency update to **10.13.2.1291**
 - **Dependency**: CoFHCore dependency update to **3.0.0RC7**
 - Bugfix: Fixed a number of crashes and corrupt states which could occur when breaking blocks on a running reactor. This occurred most commonly when breaking multiple blocks with a Tinker's Construct hammer.

@@ -275,13 +275,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
 
     	if(tankIdx == FLUIDTANK_NONE) { return false; }
 
-    	IFluidTank tank = tanks[tankIdx];
-    	if(tank.getFluidAmount() <= 0) {
-    		return true;
-    	}
-    	else {
-    		return tank.getFluid().fluidID == fluid.getID();
-    	}
+		else {
+			FluidTank tank = this.tanks[tankIdx];
+			return tank.getFluidAmount() <= 0 || tank.getFluid().getFluidID() == fluid.getID();
+		}
     }
 
     /**
@@ -297,13 +294,10 @@ public abstract class TileEntityPoweredInventoryFluid extends
 
     	if(tankIdx == FLUIDTANK_NONE) { return false; }
 
-    	IFluidTank tank = tanks[tankIdx];
-    	if(tank.getFluidAmount() <= 0) {
-    		return false;
-    	}
-    	else {
-    		return tank.getFluid().fluidID == fluid.getID();
-    	}
+        else {
+            FluidTank tank = this.tanks[tankIdx];
+            return tank.getFluidAmount() > 0 && tank.getFluid().getFluidID() == fluid.getID();
+        }
     }
 
     /**

@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import buildcraft.api.transport.IInjectable;
 import buildcraft.api.transport.IPipeTile;
 import cofh.api.transport.IItemDuct;
 import erogenousbeef.bigreactors.utils.intermod.ModHelperBase;
@@ -58,7 +59,7 @@ public class AdjacentInventoryHelper {
 		}
 		else if(ModHelperBase.useBuildcraftTransport && pipe != null) {
 			if(pipe.isPipeConnected(dir.getOpposite())) {
-				itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite());
+				itemToDistribute.stackSize -= pipe.injectItem(itemToDistribute.copy(), true, dir.getOpposite(), null);
 				
 				if(itemToDistribute.stackSize <= 0) {
 					itemToDistribute = null;

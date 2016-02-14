@@ -10,12 +10,17 @@ For near-future plans and development status, see the Roadmap file.
 
 Big Reactors has an official website at [www.big-reactors.com](http://www.big-reactors.com)
 
-Alpha
+As erogenousbeef isn't around at the time, I forked his github repo an will do my best to maintain and update his mod.
+Maybe I will try to add some of the features he has written into his Roadmap.
+
+**In order to play you will need a version of CoFHCore in your mods folder**
+
+Alpha / Unofficial
 --------
 
 Big Reactors is in an alpha state. The major features exist, and there are no _known_ serious bugs. However, it's not fully balanced. I'm only one guy - I can't totally break all the combinations you crazy folks will discover. The internal radiation/power production simulation is very complicated.
 
-You can download the latest alpha from [the big-reactors.com download page](http://www.big-reactors.com/#/download).
+You can download the latest alpha/unofficial versions from [the Github Repo's release page](https://github.com/Tomson124/BigReactors/releases).
 
 _You will need other mods_ to play with Big Reactors. This is just a power-generation mod, so you will need a mod that supports the Redstone Flux (RF) power system. I personally recommend [Thermal Expansion](http://teamcofh.com/thermal-expansion).
 

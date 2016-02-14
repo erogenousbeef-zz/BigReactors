@@ -20,13 +20,13 @@ apply plugin: 'forge'
 sourceSets.main.java.srcDirs += 'BeefCore/src/main/java'
 
 ant.loadproperties(srcFile: "version.properties")
-version = ant.properties['vMajor'] + "." + ant.properties['vMinor'] + "." + ant.properties['vPatch'] + ant.properties['vSuffix']
+version = ant.properties['vMajor'] + "." + ant.properties['vMinor'] + "." + ant.properties['vPatch'] + "-" + ant.properties['vSuffix']
 
 group = "erogenousbeef" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BigReactors"
 
 minecraft {
-    version = "1.7.10-10.13.2.1291"
+    version = "1.7.10-10.13.4.1614-1.7.10"
     runDir = "run"	
 
     replaceIn "BRConfig.java"
@@ -44,16 +44,18 @@ repositories {
     }
     ivy {
         name "CoFHCore"
-        artifactPattern "http://addons-origin.cursecdn.com/files/2230/211/[module]-[revision].[ext]"
+        artifactPattern "http://addons-origin.cursecdn.com/files/2280/537/[module]-[revision].[ext]"
+        name "BuildCraft"
+        artifactPattern "http://www.mod-buildcraft.com/releases/BuildCraft/[revision]/[module]-[revision]-[classifier].[ext]"
     }
 }
 
 dependencies {
     //compile 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
     //compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.67:dev'
-    compile 'com.mod-buildcraft:buildcraft:6.0.18:dev'
-    compile 'li.cil.oc:OpenComputers:MC1.7.10-1.4.0.+:api'
-    compile name: 'CoFHCore', version: '[1.7.10]3.0.0RC7-211-dev', ext: 'jar'
+    compile name: "buildcraft", version: "7.1.14", classifier: "dev"
+    compile 'li.cil.oc:OpenComputers:MC1.7.10-1.6.+:api'
+    compile name: 'CoFHCore', version: '[1.7.10]3.1.1-324-dev', ext: 'jar'
 }
 
 processResources
