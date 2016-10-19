@@ -15,7 +15,7 @@ public class CoolantContainer extends FluidHelper {
 	private static final String[] tankNames = { "hot", "cold" };
 
 	private int fluidVaporizedLastTick;
-	
+
 	public CoolantContainer() {
 		super(true);
 		fluidVaporizedLastTick = 0;
@@ -30,10 +30,10 @@ public class CoolantContainer extends FluidHelper {
 	protected String[] getNBTTankNames() {
 		return tankNames;
 	}
-	
+
 	public boolean isAcceptedCoolant(Fluid fluid) {
 		if(fluid == null) { return false; }
-		
+
 		// TODO: Lookup
 		return fluid.getID() == FluidRegistry.WATER.getID();
 	}
@@ -42,64 +42,66 @@ public class CoolantContainer extends FluidHelper {
 		if(incoming == null) { return 0; }
 		return fill(COLD, incoming, true);
 	}
-	
+
 	public int drainCoolant(int amount) {
 		return drainFluidFromStack(COLD, amount);
 	}
-	
+
 	public Fluid getCoolantType() {
 		return getFluidType(COLD);
 	}
-	
+
 	public int getCoolantAmount() {
 		return getFluidAmount(COLD);
 	}
-	
+
 	public Fluid getVaporType() {
 		return getFluidType(HOT);
 	}
-	
+
 	public int getVaporAmount() {
 		return getFluidAmount(HOT);
 	}
-	
+
+	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound destination) {
 		super.writeToNBT(destination);
 
 		return destination;
 	}
-	
+
+	@Override
 	public void readFromNBT(NBTTagCompound data) {
 		super.readFromNBT(data);
 	}
-	
+
 	public void emptyCoolant() {
 		setFluid(COLD, null);
 	}
-	
+
 	public void emptyVapor() {
 		setFluid(HOT, null);
 	}
-	
+
 	public void setCoolant(FluidStack newFuel) {
 		setFluid(COLD, newFuel);
 	}
-	
+
 	public void setVapor(FluidStack newWaste) {
 		setFluid(HOT, newWaste);
 	}
-	
+
 	public void merge(CoolantContainer other) {
 		super.merge(other);
 	}
-	
+
 	public float getCoolantTemperature(float reactorTemperature) {
 		Fluid coolantType = getCoolantType();
 		if(coolantType == null || getFluidAmount(COLD) <= 0) { return reactorTemperature; }
 
 		return Math.min(reactorTemperature, getBoilingPoint(coolantType));
 	}
-	
+
 	/**
 	 * Attempt to transfer some heat (in RF) into the coolant system.
 	 * This method assumes you've already checked the coolant temperature, above,
@@ -115,12 +117,12 @@ public class CoolantContainer extends FluidHelper {
 		int coolantAmt = getFluidAmount(COLD);
 
 		float heatOfVaporization = getHeatOfVaporization(coolantType);
-		
+
 		int mbVaporized = Math.min(coolantAmt, (int)(rfAbsorbed / heatOfVaporization));
 
 		// Cap by the available space in the vapor chamber
 		mbVaporized = Math.min(mbVaporized, getRemainingSpaceForFluid(HOT));
-		
+
 		// We don't do partial vaporization. Just return all the heat.
 		if(mbVaporized < 1) { return rfAbsorbed; }
 
@@ -130,38 +132,38 @@ public class CoolantContainer extends FluidHelper {
 			BRLog.warning("Coolant in tank (%s) has no registered vapor type!", coolantType.getName());
 			return rfAbsorbed;
 		}
-		
+
 		Fluid existingVaporType = getVaporType();
 		if(existingVaporType != null && !newVaporType.getName().equals(existingVaporType.getName())) {
 			// Can't vaporize anything with incompatible vapor in the vapor tank
 			return rfAbsorbed;
 		}
-		
+
 		// Vaporize! -- POINT OF NO RETURN
 		fluidVaporizedLastTick = mbVaporized;
 		this.drainCoolant(mbVaporized);
-		
+
 		if(existingVaporType != null) {
 			addFluidToStack(HOT, mbVaporized);
 		}
 		else {
 			fill(HOT, new FluidStack(newVaporType, mbVaporized), true);
 		}
-		
+
 		// Calculate how much we actually absorbed via vaporization
-		float energyConsumed = (float)mbVaporized * heatOfVaporization;
-		
+		float energyConsumed = mbVaporized * heatOfVaporization;
+
 		// And return energy remaining after absorption
 		return Math.max(0f, rfAbsorbed - energyConsumed);
 	}
-	
+
 	private float getBoilingPoint(Fluid fluid) {
 		if(fluid == null) { throw new IllegalArgumentException("Cannot pass a null fluid to getBoilingPoint"); } // just in case
 
 		// TODO: Lookup
 		return 100f;
 	}
-	
+
 	/**
 	 * Returns the amount of heat (in RF) needed to convert 1mB of liquid into 1mB of vapor. 
 	 * @return
@@ -172,7 +174,7 @@ public class CoolantContainer extends FluidHelper {
 		// TODO: Make a registry for this, do a lookup
 		return 4f; // TE converts 1mB steam into 2 RF of work in a steam turbine, so we assume it's 50% efficient.
 	}
-	
+
 	private Fluid getVaporizedCoolantFluid(Fluid fluid) {
 		if(fluid == null) { throw new IllegalArgumentException("Cannot pass a null fluid to getVaporizedCoolantFluid"); } // just in case
 
@@ -190,7 +192,7 @@ public class CoolantContainer extends FluidHelper {
 			return false;
 		}
 	}
-	
+
 	public int getFluidVaporizedLastTick() {
 		return fluidVaporizedLastTick;
 	}

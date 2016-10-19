@@ -22,7 +22,6 @@ import erogenousbeef.bigreactors.net.message.MachineCommandActivateMessage;
 import erogenousbeef.bigreactors.net.message.multiblock.ReactorChangeWasteEjectionMessage;
 import erogenousbeef.bigreactors.net.message.multiblock.ReactorCommandEjectMessage;
 import erogenousbeef.bigreactors.utils.StaticUtils;
-import erogenousbeef.core.common.CoordTriplet;
 
 public class GuiReactorStatus extends BeefGuiBase {
 

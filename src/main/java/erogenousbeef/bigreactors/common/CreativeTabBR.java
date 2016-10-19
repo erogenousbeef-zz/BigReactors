@@ -10,6 +10,7 @@ public class CreativeTabBR extends CreativeTabs {
 		super(par2Str);
 	}
 
+	@Override
 	public Item getTabIconItem()
 	{
 		return Item.getItemFromBlock(BigReactors.blockYelloriteOre);

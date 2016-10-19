@@ -29,7 +29,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 	int[] levelAtLastUpdate;
 
 	private static final int FORCE_UPDATE = -1000;
-	
+
 	public ReactantContainer(String[] tankNames, int capacity) {
 		assert(tankNames != null);
 		assert(tankNames.length > 0);
@@ -42,7 +42,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			tanks[i] = null;
 			levelAtLastUpdate[i] = FORCE_UPDATE;
 		}
-		
+
 		this.capacity = capacity;
 	}
 
@@ -53,19 +53,19 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		capacity = newCapacity;
 
 		clampContentsToCapacity();
-	}	
+	}
 
 	/// GETTERS
 	public String getReactantType(int reactantIdx) {
 		assert(reactantIdx >= 0 && reactantIdx < tanks.length);
 		return tanks[reactantIdx] == null ? null : tanks[reactantIdx].getName();
 	}
-	
+
 	public int getReactantAmount(int reactantIdx) {
 		assert(reactantIdx >= 0 && reactantIdx < tanks.length);
 		return tanks[reactantIdx] == null ? 0 : tanks[reactantIdx].amount;
 	}
-	
+
 	/**
 	 * @return Total amount of stuff contained, across all fluid tanks
 	 */
@@ -76,21 +76,21 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		}
 		return amt;
 	}
-	
+
 	/// SETTERS
 	public void setReactant(int reactantIdx, ReactantStack newStack ) {
 		assert(reactantIdx >= 0 && reactantIdx < tanks.length);
 		tanks[reactantIdx] = newStack;
 	}
-	
+
 	/// ADD/REMOVE HELPERS
 	protected int addToStack(int idx, int fluidAmount) {
 		if(tanks[idx] == null) {
 			throw new IllegalArgumentException("Cannot add reactant with only an integer when tank is empty!");
 		}
-		
+
 		int amtToAdd = Math.min(fluidAmount, getRemainingSpace());
-		
+
 		tanks[idx].amount += amtToAdd;
 		return amtToAdd;
 	}
@@ -100,11 +100,11 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		if(reactantName == null || amount <= 0) {
 			return 0;
 		}
-		
+
 		if(!canAddToStack(idx, reactantName)) {
 			return 0;
 		}
-		
+
 		int amtToAdd = Math.min(amount, getRemainingSpace());
 		if(amtToAdd <= 0) {
 			return 0;
@@ -112,17 +112,17 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		if(!doFill) {
 			return amtToAdd;
 		}
-		
+
 		if(tanks[idx] == null) {
 			tanks[idx] = new ReactantStack(reactantName, amtToAdd);
 		}
 		else {
 			tanks[idx].amount += amtToAdd;
 		}
-		
+
 		return amtToAdd;
 	}
-	
+
 	/**
 	 * Dump everything in a given reactant tank.
 	 * @param idx Index of the tank to dump
@@ -132,10 +132,10 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 
 		int amt = tanks[idx] != null ? tanks[idx].amount : 0;
 		setReactant(idx, null);
-		
+
 		return amt;
 	}
-	
+
 	/**
 	 * Remove some amount of reactant, but don't bother returning it.
 	 * We're just dumping it into the ether.
@@ -169,17 +169,17 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 		}
 		return tanks[idx].isReactantEqual(incoming);
 	}
-	
+
 	public boolean canDrain(int idx, ReactantStack reactant) {
 		if(reactant == null || idx < 0 || idx >= tanks.length) { return false; }
 
 		if(tanks[idx] == null) { return false; }
-		
+
 		return tanks[idx].isReactantEqual(reactant) && tanks[idx].amount > 0;
 	}
 
 	/// SAVE/LOAD
-	
+
 	protected NBTTagCompound writeToNBT(NBTTagCompound destination) {
 		ReactantStack stack;
 		for(int i = 0; i < tankNames.length; i++) {
@@ -188,10 +188,10 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 				destination.setTag(tankNames[i], stack.writeToNBT(new NBTTagCompound()));
 			}
 		}
-		
+
 		return destination;
 	}
-	
+
 	protected void readFromNBT(NBTTagCompound data) {
 		for(int i = 0; i < tankNames.length; i++) {
 			if(data.hasKey(tankNames[i])) {
@@ -204,7 +204,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			}
 		}
 	}
-	
+
 	public void serialize(ByteBuf buffer) {
 		buffer.writeInt(capacity);
 		for(int i = 0; i < tankNames.length; i++) {
@@ -216,7 +216,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			}
 		}
 	}
-	
+
 	public void deserialize(ByteBuf buffer) {
 		capacity = buffer.readInt();
 		for(int i = 0; i < tankNames.length; i++) {
@@ -226,7 +226,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			if(hasReactant) {
 				String reactantName = ByteBufUtils.readUTF8String(buffer);
 				int amount = buffer.readInt();
-				
+
 				if(!Reactants.isKnown(reactantName)) {
 					BRLog.warning("Read an unknown reactant <%s> from a network message; tank %s will remain empty", reactantName, tankNames[i]);
 				}
@@ -245,8 +245,9 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			tanks = other.tanks;
 		}
 	}
-	
+
 	/// Implementation: IConditionalUpdater
+	@Override
 	public boolean shouldUpdate() {
 		ticksSinceLastUpdate++;
 
@@ -254,7 +255,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			int dev = 0;
 			boolean shouldUpdate = false;
 			for(int i = 0; i < tanks.length && !shouldUpdate; i++) {
-				
+
 				if(tanks[i] == null && levelAtLastUpdate[i] > 0) {
 					shouldUpdate = true;
 				}
@@ -267,23 +268,23 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 					}
 				}
 				// else, both levels are zero, no-op
-				
+
 				float divisor = capacity;
 				if(divisor == 0) { divisor = 4000; } // totally arbitrary 4kmb
-				if(((float)dev/divisor) >= minimumDevianceForUpdate) {
+				if((dev / divisor) >= minimumDevianceForUpdate) {
 					// Only update if we're more than 5% off our current amount
 					shouldUpdate = true;
 				}
 			}
-			
+
 			if(shouldUpdate) {
 				resetLastSeenLevels();
 			}
-			
+
 			ticksSinceLastUpdate = 0;
 			return shouldUpdate;
 		}
-		
+
 		return false;
 	}
 
@@ -305,7 +306,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 	public int getRemainingSpace() {
 		return getCapacity() - getTotalAmount();
 	}
-	
+
 	/**
 	 * When a container is overfilled, forcibly "spill" some reactants
 	 * to return to a non-overfull state.
@@ -314,7 +315,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 	protected void clampContentsToCapacity() {
 		if(getTotalAmount() > capacity) {
 			int diff = getTotalAmount() - capacity;
-			
+
 			// Reduce stuff in the tanks. Start with waste, to be nice to players.
 			for(int i = tanks.length - 1; i >= 0 && diff > 0; i--) {
 				if(tanks[i] != null) {
@@ -330,7 +331,7 @@ public abstract class ReactantContainer implements IConditionalUpdater {
 			}
 		}
 	}
-	
+
 	public String getDebugInfo() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Capacity: ").append(Integer.toString(getCapacity()));

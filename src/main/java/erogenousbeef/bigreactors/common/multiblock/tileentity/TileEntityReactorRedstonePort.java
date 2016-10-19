@@ -25,20 +25,20 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	protected int outputLevel;
 	protected boolean activeOnPulse;
 	protected boolean greaterThan; // if false, less than
-	
+
 	protected int ticksSinceLastUpdate;
-	
+
 	// These are local-only and used for handy state calculations
 	protected boolean isExternallyPowered;
-	
+
 	public TileEntityReactorRedstonePort() {
 		super();
-		
+
 		circuitType = circuitType.DISABLED;
 		isExternallyPowered = false;
 		ticksSinceLastUpdate = 0;
 	}
-	
+
 	// Redstone methods
 	public boolean isRedstoneActive() {
 		if(!this.isConnected()) { return false; }
@@ -64,15 +64,15 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			return this.isExternallyPowered;
 		}
 	}
-	
+
 	public boolean isInput() {
 		return TileEntityReactorRedNetPort.isInput(this.circuitType);
 	}
-	
+
 	public boolean isOutput() {
 		return TileEntityReactorRedNetPort.isOutput(this.circuitType);
 	}
-	
+
 	protected boolean checkVariable(int value) {
 		if(this.greaterThan) {
 			return value > getOutputLevel();
@@ -81,7 +81,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			return value < getOutputLevel();
 		}
 	}
-	
+
 	public void sendRedstoneUpdate() {
 		if(this.worldObj != null && !this.worldObj.isRemote) {
 			int md;
@@ -98,7 +98,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			}
 		}
 	}
-	
+
 	public void onNeighborBlockChange(int x, int y, int z, Block neighborBlock) {
 		if(!this.isConnected()) { return; }
 
@@ -164,11 +164,11 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			break;
 		}
 	}
-	
+
 	public int getOutputLevel() { return outputLevel; }
 	public int getControlRodLevelWhileOff() { return ((outputLevel & 0xFF00) >> 8) & 0xFF; }
 	public int getControlRodLevelWhileOn () { return outputLevel & 0xFF; }
-	
+
 	public static int packControlRodLevels(byte off, byte on) {
 		return (((int)off << 8) & 0xFF00) | (on & 0xFF);
 	}
@@ -176,7 +176,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	public static int unpackControlRodLevelOn(int level) {
 		return level & 0xFF;
 	}
-	
+
 	public static int unpackControlRodLevelOff(int level) {
 		return ((level & 0xFF00) >> 8) & 0xFF;
 	}
@@ -198,7 +198,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 
 		if(isAlwaysActiveOnPulse(circuitType)) { this.activeOnPulse = true; }
 		else if(TileEntityReactorRedNetPort.isOutput(this.circuitType)) { this.activeOnPulse = false; }
-		
+
 		// Do updates
 		if(this.isInput()) {
 			// Update inputs so we don't pulse/change automatically
@@ -221,10 +221,10 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			this.worldObj.markTileEntityChunkModified(xCoord, yCoord, zCoord, this);
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public boolean getGreaterThan() { return this.greaterThan; }
-	
+
 	public CircuitType getCircuitType() { return this.circuitType; }
 	private boolean shouldSetControlRodsInsteadOfChange() { return !greaterThan; }
 
@@ -238,7 +238,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			}
 		}
 	}
-	
+
 	/**
 	 * Call with the coordinates of the block to check and the direction
 	 * towards that block from your block.
@@ -250,7 +250,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		Block block = world.getBlock(x, y, z);
 		return isReceivingRedstonePowerFrom(world, x, y, z, dir, block);
 	}
-	
+
 	/**
 	 * Call with the coordinates of the block to check and the direction
 	 * towards that block from your block.
@@ -266,7 +266,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 			return world.getIndirectPowerOutput(x, y, z, dir.ordinal()) || world.isBlockProvidingPowerTo(x, y, z, dir.ordinal()) > 0;
 		}
 	}
-	
+
 	// TileEntity overrides
 
 	// Only refresh if we're switching functionality
@@ -277,7 +277,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		if(oldID != newID) {
 			return true;
 		}
-	
+
 		// All redstone ports are the same, we just use metadata to easily signal changes.
 		return false;
     }
@@ -287,6 +287,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 	 * Updates the redstone block's status, if it's an output network, if there is one.
 	 * Will only send one update per N ticks, where N is a configurable setting.
 	 */
+	@Override
 	public void onMultiblockServerTick() {
 		if(!this.isConnected()) { return; }
 
@@ -299,26 +300,26 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		}
 		ticksSinceLastUpdate = 0;
 	}
-	
+
 	// MultiblockTileEntityBase methods
 	private void readData(NBTTagCompound data) {
 		if(data.hasKey("circuitType")) {
 			this.circuitType = circuitType.values()[data.getInteger("circuitType")];
 		}
-		
+
 		if(data.hasKey("outputLevel")) {
 			this.outputLevel = data.getInteger("outputLevel");
 		}
-		
+
 		if(data.hasKey("greaterThan")) {
 			this.greaterThan = data.getBoolean("greaterThan");
 		}
-		
+
 		if(data.hasKey("activeOnPulse")) {
 			this.activeOnPulse = data.getBoolean("activeOnPulse");
 		}
 	}
-	
+
 	private void writeData(NBTTagCompound data) {
 		data.setInteger("circuitType", this.circuitType.ordinal());
 		data.setInteger("outputLevel", this.outputLevel);
@@ -338,7 +339,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		super.writeToNBT(data);
 		this.writeData(data);
 	}
-	
+
 	@Override
 	public void decodeDescriptionPacket(NBTTagCompound data) {
 		super.decodeDescriptionPacket(data);
@@ -350,7 +351,7 @@ public class TileEntityReactorRedstonePort extends TileEntityReactorPartBase
 		super.encodeDescriptionPacket(data);
 		this.writeData(data);
 	}
-	
+
 	@Override
 	public void isGoodForFrame() throws MultiblockValidationException {
 		throw new MultiblockValidationException(String.format("%d, %d, %d - Redstone ports may only be placed on a reactor's external side faces, not as part of the frame", xCoord, yCoord, zCoord));

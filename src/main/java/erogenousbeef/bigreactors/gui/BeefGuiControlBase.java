@@ -13,9 +13,9 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 	protected int absoluteX, absoluteY; // Screen-relative X/Y (for backgrounds)
 	protected int relativeX, relativeY; // GUI-relative X/Y (for foregrounds)
 	protected int width, height;
-	
+
 	public boolean visible;
-	
+
 	// We use absolute coords to match other Minecraft controls.
 	protected BeefGuiControlBase(BeefGuiBase container, int absoluteX, int absoluteY, int width, int height) {
 		this.guiContainer = container;
@@ -38,29 +38,30 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 		if(mouseX < absoluteX || mouseX > absoluteX+width || mouseY < absoluteY || mouseY > absoluteY+height) { return false; }
 		return true;
 	}
-	
+
 	public int getWidth() { return width; }
 	public int getHeight() { return height; }
-	
-	
+
+
 	/**
 	 * Handle mouse clicks. Called for all clicks, not just ones inside the control.
 	 * @param mouseX Screen-relative mouse X coordinate.
 	 * @param mouseY Screen-relative mouse Y coordinate.
 	 * @param mouseButton Button being pressed. 0 = left, 1 = right, 2 = middle.
 	 */
+	@Override
 	public void onMouseClicked(int mouseX, int mouseY, int mouseButton) {}
-	
+
 	// Static Helpers
 	protected static void drawRect(int xMin, int yMin, int xMax, int yMax, int color)
 	{
-		float a = (float)(color >> 24 & 255) / 255.0F;
-		float r = (float)(color >> 16 & 255) / 255.0F;
-		float g = (float)(color >> 8 & 255) / 255.0F;
-		float b = (float)(color & 255) / 255.0F;
+		float a = (color >> 24 & 255) / 255.0F;
+		float r = (color >> 16 & 255) / 255.0F;
+		float g = (color >> 8 & 255) / 255.0F;
+		float b = (color & 255) / 255.0F;
 		drawRect(xMin, yMin, xMax, yMax, r, g, b, a);
 	}
-	
+
 	protected static void drawRect(int xMin, int yMin, int xMax, int yMax, float r, float g, float b, float a)
 	{
 		int temp;
@@ -91,17 +92,17 @@ public abstract class BeefGuiControlBase implements IBeefGuiControl {
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glDisable(GL11.GL_BLEND);
 	}
-	
-    protected static void drawTexturedModelRectFromIcon(int x, int y, IIcon icon, int width, int height)
-    {
-        Tessellator tessellator = Tessellator.instance;
-        tessellator.startDrawingQuads();
-        tessellator.addVertexWithUV((double)(x + 0), (double)(y + height), 0.0D, (double)icon.getMinU(), (double)icon.getMaxV());
-        tessellator.addVertexWithUV((double)(x + width), (double)(y + height), 0.0D, (double)icon.getMaxU(), (double)icon.getMaxV());
-        tessellator.addVertexWithUV((double)(x + width), (double)(y + 0), 0.0D, (double)icon.getMaxU(), (double)icon.getMinV());
-        tessellator.addVertexWithUV((double)(x + 0), (double)(y + 0), 0.0D, (double)icon.getMinU(), (double)icon.getMinV());
-        tessellator.draw();
-    }
-	
-    public boolean isVisible() { return visible; }
+
+	protected static void drawTexturedModelRectFromIcon(int x, int y, IIcon icon, int width, int height)
+	{
+		Tessellator tessellator = Tessellator.instance;
+		tessellator.startDrawingQuads();
+		tessellator.addVertexWithUV(x + 0, y + height, 0.0D, icon.getMinU(), icon.getMaxV());
+		tessellator.addVertexWithUV(x + width, y + height, 0.0D, icon.getMaxU(), icon.getMaxV());
+		tessellator.addVertexWithUV(x + width, y + 0, 0.0D, icon.getMaxU(), icon.getMinV());
+		tessellator.addVertexWithUV(x + 0, y + 0, 0.0D, icon.getMinU(), icon.getMinV());
+		tessellator.draw();
+	}
+
+	public boolean isVisible() { return visible; }
 }

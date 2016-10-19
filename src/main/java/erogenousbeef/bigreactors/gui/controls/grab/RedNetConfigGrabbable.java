@@ -32,6 +32,7 @@ public class RedNetConfigGrabbable implements IBeefGuiGrabbable {
 		return false;
 	}
 	
+	@Override
 	public String getName() {
 		return name;
 	}

@@ -12,13 +12,13 @@ import erogenousbeef.core.multiblock.MultiblockControllerBase;
 
 public class TileEntityReactorPowerTap extends TileEntityReactorPart implements IEnergyProvider, INeighborUpdatableEntity {
 	IEnergyReceiver	rfNetwork;
-	
+
 	public TileEntityReactorPowerTap() {
 		super();
-		
+
 		rfNetwork = null;
 	}
-	
+
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) {
 		if(isConnected()) {
@@ -37,16 +37,16 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	@Override
 	public void onAttached(MultiblockControllerBase newController) {
 		super.onAttached(newController);
-		
+
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
 	}
-	
+
 	@Override
 	public void onMachineAssembled(MultiblockControllerBase multiblockControllerBase) {
 		super.onMachineAssembled(multiblockControllerBase);
 
 		checkForConnections(this.worldObj, xCoord, yCoord, zCoord);
-		
+
 		// Force a connection to the power taps
 		this.notifyNeighborsOfTileChange();
 	}
@@ -80,9 +80,8 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 					}
 				}
 			}
-			
 		}
-		
+
 		boolean isConnected = (rfNetwork != null);
 		if(wasConnected != isConnected) {
 			worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -96,11 +95,11 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 		if(rfNetwork == null) {
 			return units;
 		}
-		
+
 		ForgeDirection approachDirection = getOutwardsDir().getOpposite();
-		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, (int)units, false);
+		int energyConsumed = rfNetwork.receiveEnergy(approachDirection, units, false);
 		units -= energyConsumed;
-		
+
 		return units;
 	}
 
@@ -109,7 +108,7 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 	public boolean canConnectEnergy(ForgeDirection from) {
 		return from == getOutwardsDir();
 	}
-	
+
 	// IEnergyProvider
 	@Override
 	public int extractEnergy(ForgeDirection from, int maxExtract,
@@ -139,6 +138,6 @@ public class TileEntityReactorPowerTap extends TileEntityReactorPart implements 
 
 		return this.getReactorController().getMaxEnergyStored(from);
 	}
-	
+
 	public boolean hasEnergyConnection() { return rfNetwork != null; }
 }

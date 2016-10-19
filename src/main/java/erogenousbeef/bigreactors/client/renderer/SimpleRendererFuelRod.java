@@ -22,7 +22,7 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 
 	private static final float FLUID_RENDER_OFFSET_MAX = 0.05f;
 	private static final float FLUID_RENDER_OFFSET_MIN = 0.45f;
-	
+
 	public SimpleRendererFuelRod() {
 	}
 
@@ -30,32 +30,32 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 	public void renderInventoryBlock(Block block, int metadata, int modelID,
 			RenderBlocks renderer) {
 		Tessellator tessellator = Tessellator.instance;
-        GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(0.0F, -1.0F, 0.0F);
-        renderer.renderFaceYNeg(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 0, metadata));
-        tessellator.draw();
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(0.0F, 1.0F, 0.0F);
-        renderer.renderFaceYPos(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 1, metadata));
-        tessellator.draw();
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(0.0F, 0.0F, -1.0F);
-        renderer.renderFaceZNeg(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 2, metadata));
-        tessellator.draw();
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(0.0F, 0.0F, 1.0F);
-        renderer.renderFaceZPos(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 3, metadata));
-        tessellator.draw();
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(-1.0F, 0.0F, 0.0F);
-        renderer.renderFaceXNeg(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 4, metadata));
-        tessellator.draw();
-        tessellator.startDrawingQuads();
-        tessellator.setNormal(1.0F, 0.0F, 0.0F);
-        renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 5, metadata));
-        tessellator.draw();
-        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
+		GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+		tessellator.startDrawingQuads();
+		tessellator.setNormal(0.0F, -1.0F, 0.0F);
+		renderer.renderFaceYNeg(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 0, metadata));
+		tessellator.draw();
+		tessellator.startDrawingQuads();
+		tessellator.setNormal(0.0F, 1.0F, 0.0F);
+		renderer.renderFaceYPos(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 1, metadata));
+		tessellator.draw();
+		tessellator.startDrawingQuads();
+		tessellator.setNormal(0.0F, 0.0F, -1.0F);
+		renderer.renderFaceZNeg(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 2, metadata));
+		tessellator.draw();
+		tessellator.startDrawingQuads();
+		tessellator.setNormal(0.0F, 0.0F, 1.0F);
+		renderer.renderFaceZPos(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 3, metadata));
+		tessellator.draw();
+		tessellator.startDrawingQuads();
+		tessellator.setNormal(-1.0F, 0.0F, 0.0F);
+		renderer.renderFaceXNeg(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 4, metadata));
+		tessellator.draw();
+		tessellator.startDrawingQuads();
+		tessellator.setNormal(1.0F, 0.0F, 0.0F);
+		renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, renderer.getBlockIconFromSideAndMetadata(block, 5, metadata));
+		tessellator.draw();
+		GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 	}
 
 	@Override
@@ -63,170 +63,170 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 			Block block, int modelId, RenderBlocks renderer) {
 		if(!(block instanceof BlockFuelRod)) { return false; }
 
-        Tessellator tessellator = Tessellator.instance;
+		Tessellator tessellator = Tessellator.instance;
 
-        boolean renderTop = block.shouldSideBeRendered(world, x, y + 1, z, 0);
-        boolean renderBottom = block.shouldSideBeRendered(world, x, y - 1, z, 0);
-        boolean renderedFuelOnTop = false;
-        boolean renderedFuelOnBottom = false;
-        
-        boolean[] renderSides = new boolean[]
-        {
-            block.shouldSideBeRendered(world, x, y, z - 1, 2), 
-            block.shouldSideBeRendered(world, x, y, z + 1, 3),
-            block.shouldSideBeRendered(world, x - 1, y, z, 4), 
-            block.shouldSideBeRendered(world, x + 1, y, z, 5)
-        };
+		boolean renderTop = block.shouldSideBeRendered(world, x, y + 1, z, 0);
+		boolean renderBottom = block.shouldSideBeRendered(world, x, y - 1, z, 0);
+		boolean renderedFuelOnTop = false;
+		boolean renderedFuelOnBottom = false;
 
-        if (!renderTop && !renderBottom && !renderSides[0] && !renderSides[1] && !renderSides[2] && !renderSides[3])
-        {
-            return false;
-        }
+		boolean[] renderSides = new boolean[]
+		{
+			block.shouldSideBeRendered(world, x, y, z - 1, 2),
+			block.shouldSideBeRendered(world, x, y, z + 1, 3),
+			block.shouldSideBeRendered(world, x - 1, y, z, 4),
+			block.shouldSideBeRendered(world, x + 1, y, z, 5)
+		};
 
-        boolean rendered = false;
-        int blockMetadata = world.getBlockMetadata(x, y, z);
-        
-        // Render internal bits, if we can
-        TileEntity te;
-        te = world.getTileEntity(x, y, z);
-        if(te instanceof TileEntityReactorFuelRod) {
-        	TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)te;
-        	if(fuelRod.isConnected()) {
-        		MultiblockReactor reactor = (MultiblockReactor)fuelRod.getMultiblockController();
-        		int fuelAmount = reactor.getFuelAmount();
-        		int wasteAmount = reactor.getWasteAmount();
-        		int totalFluid = fuelAmount + wasteAmount;
-        		int capacity = reactor.getCapacity();
-        		if(capacity > 0 && totalFluid > 0) {
-        			// Okay, we're connected and have some kind of fluid inside. Let's do this.
-        	        float fluidColumnOffsetFromCenter = -1f;
-        	        float red, green, blue;
-        	        IIcon iconSide, iconBottom;
-        	        iconSide = iconBottom = null;
-        	        red = green = blue = 1f;
+		if(!renderTop && !renderBottom && !renderSides[0] && !renderSides[1] && !renderSides[2] && !renderSides[3])
+		{
+			return false;
+		}
 
-    	    		iconSide = BigReactors.fluidFuelColumn.getFlowingIcon();
-    	    		iconBottom = BigReactors.fluidFuelColumn.getStillIcon();
+		boolean rendered = false;
+		int blockMetadata = world.getBlockMetadata(x, y, z);
 
-    	    		ReactantData fuelData = Reactants.getReactant(reactor.getFuelType());
-    	    		ReactantData wasteData = Reactants.getReactant(reactor.getWasteType());
-        	        
-    	    		int fuelColor = fuelData != null ? fuelData.getColor() : StandardReactants.colorYellorium;
-    	    		int wasteColor = wasteData != null ? wasteData.getColor() : StandardReactants.colorCyanite;
-    	    		
-        	    	if(fuelAmount == 0) {
-        	        	red = unpackR(wasteColor);
-        	        	green = unpackG(wasteColor);
-        	        	blue = unpackB(wasteColor);
-        	    	}
-        	    	else if(fuelAmount >= totalFluid) {
-        	        	red = unpackR(fuelColor);
-        	        	green = unpackG(fuelColor);
-        	        	blue = unpackB(fuelColor);
-        	    	}
-        	    	else {
-        	        	// Blend the colors
-        	        	float proportion = (float)fuelAmount / (float)totalFluid;
-        	        	float fuelR, fuelG, fuelB;
-        	        	float wasteR, wasteG, wasteB;
+		// Render internal bits, if we can
+		TileEntity te;
+		te = world.getTileEntity(x, y, z);
+		if(te instanceof TileEntityReactorFuelRod) {
+			TileEntityReactorFuelRod fuelRod = (TileEntityReactorFuelRod)te;
+			if(fuelRod.isConnected()) {
+				MultiblockReactor reactor = (MultiblockReactor)fuelRod.getMultiblockController();
+				int fuelAmount = reactor.getFuelAmount();
+				int wasteAmount = reactor.getWasteAmount();
+				int totalFluid = fuelAmount + wasteAmount;
+				int capacity = reactor.getCapacity();
+				if(capacity > 0 && totalFluid > 0) {
+					// Okay, we're connected and have some kind of fluid inside. Let's do this.
+					float fluidColumnOffsetFromCenter = -1f;
+					float red, green, blue;
+					IIcon iconSide, iconBottom;
+					iconSide = iconBottom = null;
+					red = green = blue = 1f;
 
-        	        	fuelR = unpackR(fuelColor);
-        	        	fuelG = unpackG(fuelColor);
-        	        	fuelB = unpackB(fuelColor);
-        	        	wasteR = unpackR(wasteColor);
-        	        	wasteG = unpackG(wasteColor);
-        	        	wasteB = unpackB(wasteColor);
+					iconSide = BigReactors.fluidFuelColumn.getFlowingIcon();
+					iconBottom = BigReactors.fluidFuelColumn.getStillIcon();
 
-        	        	red = lerp(wasteR, fuelR, proportion);
-        	        	green = lerp(wasteG, fuelG, proportion);
-        	        	blue = lerp(wasteB, fuelB, proportion);
-        	    	}
+					ReactantData fuelData = Reactants.getReactant(reactor.getFuelType());
+					ReactantData wasteData = Reactants.getReactant(reactor.getWasteType());
 
-    	    		float pctFilled = Math.min(1f, Math.max(0f, (float)totalFluid / (float)capacity));
-    	    		fluidColumnOffsetFromCenter = lerp(FLUID_RENDER_OFFSET_MIN, FLUID_RENDER_OFFSET_MAX, pctFilled);
-        	    	
-    	    		if(iconSide != null && iconBottom != null) {
-    	    			// We've got fuel data! Let's do this thang.
-    	    			
-	    	            tessellator.setColorRGBA_F(red, green, blue, 0.75f);
-	    	            tessellator.setBrightness(world.getLightBrightnessForSkyBlocks(x, y, z, 15));
+					int fuelColor = fuelData != null ? fuelData.getColor() : StandardReactants.colorYellorium;
+					int wasteColor = wasteData != null ? wasteData.getColor() : StandardReactants.colorCyanite;
 
-    	    			renderer.setOverrideBlockTexture(iconBottom);
-	    	            float xzMin = fluidColumnOffsetFromCenter;
-	    	            float xzMax = 1f - fluidColumnOffsetFromCenter;
-	    				renderer.setRenderBounds(xzMin, 0.01f, xzMin, xzMax, 0.99f, xzMax);
-	    	            
-    	    			if(renderer.renderAllFaces || renderBottom) {
-    	    				rendered = true;
-    	    				renderer.renderFaceYNeg(block, x, y, z, iconBottom);
-    	    			}
-    	    			
-    	    			if(renderer.renderAllFaces || renderTop) {
-    	    				rendered = true;
-    	    				renderer.renderFaceYPos(block, x, y, z, iconBottom);
-    	    			}
-    	    			
-    	    			renderer.setOverrideBlockTexture(iconSide);
-	    				renderer.setRenderBounds(xzMin, 0f, xzMin, xzMax, 1f, xzMax);
-	    				
-	    				if(renderer.renderAllFaces || renderSides[0]) {
-    	    				rendered = true;
-	    		            renderer.renderFaceZNeg(block, x, y, z, iconSide);
-	    				}
-	    				if(renderer.renderAllFaces || renderSides[1]) {
-    	    				rendered = true;
-	    		            renderer.renderFaceZPos(block, x, y, z, iconSide);
-	    				}
-	    				if(renderer.renderAllFaces || renderSides[2]) {
-    	    				rendered = true;
-	    		            renderer.renderFaceXNeg(block, x, y, z, iconSide);
-	    				}
-	    				if(renderer.renderAllFaces || renderSides[3]) {
-    	    				rendered = true;
-	    		            renderer.renderFaceXPos(block, x, y, z, iconSide);
-	    				}
-    	    		}
-        		}
-        	}
-        }
-        
-        // Then render external housing
-        tessellator.setColorRGBA(255, 255, 255, 255);
-        renderer.setRenderBoundsFromBlock(block);
-        renderer.setOverrideBlockTexture(null);
+					if(fuelAmount == 0) {
+						red = unpackR(wasteColor);
+						green = unpackG(wasteColor);
+						blue = unpackB(wasteColor);
+					}
+					else if(fuelAmount >= totalFluid) {
+						red = unpackR(fuelColor);
+						green = unpackG(fuelColor);
+						blue = unpackB(fuelColor);
+					}
+					else {
+						// Blend the colors
+						float proportion = (float)fuelAmount / (float)totalFluid;
+						float fuelR, fuelG, fuelB;
+						float wasteR, wasteG, wasteB;
 
-        // First, render the regular block
-        if(!renderedFuelOnBottom && (renderer.renderAllFaces || renderBottom)) {
-        	rendered = true;
-            tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-            renderer.renderFaceYNeg(block, x, y, z, block.getIcon(0, blockMetadata));
-        }
-        if(renderer.renderAllFaces || renderTop) {
-        	rendered = true;
-            tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-            renderer.renderFaceYPos(block, x, y, z, block.getIcon(1, blockMetadata));
-        }
-        if(renderer.renderAllFaces || renderSides[0]) {
-        	rendered = true;
-            tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-            renderer.renderFaceZNeg(block, x, y, z, block.getIcon(2, blockMetadata));
-        }
-        if(renderer.renderAllFaces || renderSides[1]) {
-        	rendered = true;
-            tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-            renderer.renderFaceZPos(block, x, y, z, block.getIcon(3, blockMetadata));
-        }
-        if(renderer.renderAllFaces || renderSides[2]) {
-        	rendered = true;
-            tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-            renderer.renderFaceXNeg(block, x, y, z, block.getIcon(4, blockMetadata));
-        }
-        if(renderer.renderAllFaces || renderSides[3]) {
-        	rendered = true;
-            tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
-            renderer.renderFaceXPos(block, x, y, z, block.getIcon(5, blockMetadata));
-        }
-        
+						fuelR = unpackR(fuelColor);
+						fuelG = unpackG(fuelColor);
+						fuelB = unpackB(fuelColor);
+						wasteR = unpackR(wasteColor);
+						wasteG = unpackG(wasteColor);
+						wasteB = unpackB(wasteColor);
+
+						red = lerp(wasteR, fuelR, proportion);
+						green = lerp(wasteG, fuelG, proportion);
+						blue = lerp(wasteB, fuelB, proportion);
+					}
+
+					float pctFilled = Math.min(1f, Math.max(0f, (float)totalFluid / (float)capacity));
+					fluidColumnOffsetFromCenter = lerp(FLUID_RENDER_OFFSET_MIN, FLUID_RENDER_OFFSET_MAX, pctFilled);
+
+					if(iconSide != null && iconBottom != null) {
+						// We've got fuel data! Let's do this thang.
+
+						tessellator.setColorRGBA_F(red, green, blue, 0.75f);
+						tessellator.setBrightness(world.getLightBrightnessForSkyBlocks(x, y, z, 15));
+
+						renderer.setOverrideBlockTexture(iconBottom);
+						float xzMin = fluidColumnOffsetFromCenter;
+						float xzMax = 1f - fluidColumnOffsetFromCenter;
+						renderer.setRenderBounds(xzMin, 0.01f, xzMin, xzMax, 0.99f, xzMax);
+
+						if(renderer.renderAllFaces || renderBottom) {
+							rendered = true;
+							renderer.renderFaceYNeg(block, x, y, z, iconBottom);
+						}
+
+						if(renderer.renderAllFaces || renderTop) {
+							rendered = true;
+							renderer.renderFaceYPos(block, x, y, z, iconBottom);
+						}
+
+						renderer.setOverrideBlockTexture(iconSide);
+						renderer.setRenderBounds(xzMin, 0f, xzMin, xzMax, 1f, xzMax);
+
+						if(renderer.renderAllFaces || renderSides[0]) {
+							rendered = true;
+							renderer.renderFaceZNeg(block, x, y, z, iconSide);
+						}
+						if(renderer.renderAllFaces || renderSides[1]) {
+							rendered = true;
+							renderer.renderFaceZPos(block, x, y, z, iconSide);
+						}
+						if(renderer.renderAllFaces || renderSides[2]) {
+							rendered = true;
+							renderer.renderFaceXNeg(block, x, y, z, iconSide);
+						}
+						if(renderer.renderAllFaces || renderSides[3]) {
+							rendered = true;
+							renderer.renderFaceXPos(block, x, y, z, iconSide);
+						}
+					}
+				}
+			}
+		}
+
+		// Then render external housing
+		tessellator.setColorRGBA(255, 255, 255, 255);
+		renderer.setRenderBoundsFromBlock(block);
+		renderer.setOverrideBlockTexture(null);
+
+		// First, render the regular block
+		if(!renderedFuelOnBottom && (renderer.renderAllFaces || renderBottom)) {
+			rendered = true;
+			tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+			renderer.renderFaceYNeg(block, x, y, z, block.getIcon(0, blockMetadata));
+		}
+		if(renderer.renderAllFaces || renderTop) {
+			rendered = true;
+			tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+			renderer.renderFaceYPos(block, x, y, z, block.getIcon(1, blockMetadata));
+		}
+		if(renderer.renderAllFaces || renderSides[0]) {
+			rendered = true;
+			tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+			renderer.renderFaceZNeg(block, x, y, z, block.getIcon(2, blockMetadata));
+		}
+		if(renderer.renderAllFaces || renderSides[1]) {
+			rendered = true;
+			tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+			renderer.renderFaceZPos(block, x, y, z, block.getIcon(3, blockMetadata));
+		}
+		if(renderer.renderAllFaces || renderSides[2]) {
+			rendered = true;
+			tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+			renderer.renderFaceXNeg(block, x, y, z, block.getIcon(4, blockMetadata));
+		}
+		if(renderer.renderAllFaces || renderSides[3]) {
+			rendered = true;
+			tessellator.setBrightness(block.getMixedBrightnessForBlock(world, x, y, z));
+			renderer.renderFaceXPos(block, x, y, z, block.getIcon(5, blockMetadata));
+		}
+
 		return rendered;
 	}
 
@@ -242,16 +242,17 @@ public class SimpleRendererFuelRod implements ISimpleBlockRenderingHandler {
 
 	/// HELPERS ///
 	protected static float unpackR(int rgb) {
-		return (float)(rgb >> 16 & 255) / 255.0F;
+		return (rgb >> 16 & 255) / 255.0F;
 	}
-	
+
 	protected static float unpackG(int rgb) {
-		return (float)(rgb >> 8 & 255) / 255.0F;
+		return (rgb >> 8 & 255) / 255.0F;
 	}
-	
+
 	protected static float unpackB(int rgb) {
-		return (float)(rgb & 255) / 255.0F;
-	}	
+		return (rgb & 255) / 255.0F;
+	}
+
 	protected static float lerp(float min, float max, float value) {
 		return min + (max-min)*value;
 	}

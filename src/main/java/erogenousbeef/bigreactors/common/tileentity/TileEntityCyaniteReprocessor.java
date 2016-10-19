@@ -7,7 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
-import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -170,6 +169,7 @@ public class TileEntityCyaniteReprocessor extends TileEntityPoweredInventoryFlui
 	}
 	
 	// IReconfigurableSides & IBeefReconfigurableSides
+	@Override
 	@SideOnly(Side.CLIENT)
 	public IIcon getIconForSide(int side) {
 		if(side == facing) {

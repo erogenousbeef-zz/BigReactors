@@ -48,7 +48,7 @@ public class RotorSpecialRenderer extends TileEntitySpecialRenderer {
 		
 		float speed = turbine.getRotorSpeed();
 		if(speed > 0.001f) {
-			angle += speed * ((float)elapsedTime / 60000f) * 360f; // RPM * time in minutes * 360 degrees per rotation
+			angle += speed * (elapsedTime / 60000f) * 360f; // RPM * time in minutes * 360 degrees per rotation
 			angle = angle % 360f;
 			bearing.setAngle(angle);
 		}

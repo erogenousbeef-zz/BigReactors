@@ -42,6 +42,7 @@ public interface IReactorFuel {
 	 * @param otherObject The other object with which you should compare.
 	 * @return True if the fuels are equal, false otherwise.
 	 */
+	@Override
 	public boolean equals(Object otherObject);
 
 	// TODO: Add fuel characteristics here

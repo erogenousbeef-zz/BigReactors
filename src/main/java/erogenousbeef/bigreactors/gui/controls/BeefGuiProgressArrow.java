@@ -10,7 +10,7 @@ public class BeefGuiProgressArrow extends BeefGuiControlBase {
 	TileEntityPoweredInventory entity;
 	private int arrowU;
 	private int arrowV;
-	
+
 	public BeefGuiProgressArrow(BeefGuiBase container, int x, int y, int arrowU, int arrowV, TileEntityPoweredInventory entity) {
 		super(container, x, y, 25, 16);
 		this.arrowU = arrowU;
@@ -21,7 +21,7 @@ public class BeefGuiProgressArrow extends BeefGuiControlBase {
 	@Override
 	public void drawBackground(TextureManager renderEngine, int mouseX, int mouseY) {
 		if(entity.getCycleCompletion() > 0.0) {
-			int progressWidth = (int)(entity.getCycleCompletion() * (float)(this.width-1));
+			int progressWidth = (int)(entity.getCycleCompletion() * (this.width - 1));
 			renderEngine.bindTexture(this.guiContainer.getGuiBackground());
 			guiContainer.drawTexturedModalRect(this.absoluteX, this.absoluteY, arrowU, arrowV, 1+progressWidth, this.height);
 		}
@@ -30,5 +30,4 @@ public class BeefGuiProgressArrow extends BeefGuiControlBase {
 	@Override
 	public void drawForeground(TextureManager renderEngine, int mouseX, int mouseY) {
 	}
-
 }

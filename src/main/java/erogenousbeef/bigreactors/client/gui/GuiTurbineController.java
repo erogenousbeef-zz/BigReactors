@@ -21,7 +21,6 @@ import erogenousbeef.bigreactors.net.message.MachineCommandActivateMessage;
 import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeInductorMessage;
 import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeMaxIntakeMessage;
 import erogenousbeef.bigreactors.net.message.multiblock.TurbineChangeVentMessage;
-import erogenousbeef.core.common.CoordTriplet;
 
 public class GuiTurbineController extends BeefGuiBase {
 

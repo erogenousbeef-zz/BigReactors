@@ -282,10 +282,12 @@ public abstract class TileEntityBeefBase extends TileCoFHBase implements IBeefGu
 	public void onReceiveUpdate(NBTTagCompound updateTag) {}
 
 	// Weird shit from TileCoFHBase
+	@Override
 	public String getName() {
 		return this.getBlockType().getUnlocalizedName();
 	}
 	
+	@Override
 	public int getType() {
 		return getBlockMetadata();
 	}

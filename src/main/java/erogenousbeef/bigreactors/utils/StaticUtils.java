@@ -25,7 +25,7 @@ import erogenousbeef.core.common.CoordTriplet;
 public class StaticUtils {
 
 	public static final ForgeDirection[] CardinalDirections = new ForgeDirection[] { ForgeDirection.NORTH, ForgeDirection.EAST, ForgeDirection.SOUTH, ForgeDirection.WEST };
-	
+
 	public static final ForgeDirection neighborsBySide[][] = new ForgeDirection[][] {
 		{ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST},
 		{ForgeDirection.NORTH, ForgeDirection.SOUTH, ForgeDirection.WEST, ForgeDirection.EAST},
@@ -34,7 +34,7 @@ public class StaticUtils {
 		{ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.NORTH, ForgeDirection.SOUTH},
 		{ForgeDirection.UP, ForgeDirection.DOWN, ForgeDirection.SOUTH, ForgeDirection.NORTH}
 	};
-	
+
 	public static class Inventory {
 		/**
 		 * Consume a single item from a stack of items
@@ -45,7 +45,7 @@ public class StaticUtils {
 		{
 			return consumeItem(stack, 1);
 		}
-		
+
 		/**
 		 * Consume some amount of items from a stack of items. Assumes you've already validated
 		 * the consumption. If you try to consume more than the stack has, it will simply destroy
@@ -72,9 +72,9 @@ public class StaticUtils {
 			{
 				stack.splitStack(amount);
 				return stack;
-			}	
+			}
 		}
-		
+
 		/**
 		 * Is this player holding a goddamn wrench?
 		 * @return True if the player is holding a goddamn wrench. BC only, screw you.
@@ -87,7 +87,7 @@ public class StaticUtils {
 			return (ModHelperBase.useCofh && currentItem instanceof IToolHammer) ||
 					(ModHelperBase.useBuildcraftTools && currentItem instanceof IToolWrench);
 		}
-		
+
 		/**
 		 * Check to see if two stacks are equal. NBT-sensitive.
 		 * Lifted from PowerCrystalsCore.
@@ -142,7 +142,7 @@ public class StaticUtils {
 			return te;
 		}
 	}
-	
+
 	public static class Fluids {
 		/* Below stolen from COFHLib because COFHLib itself still relies on cofh.core */
 		public static boolean fillTankWithContainer(World world, IFluidHandler handler, EntityPlayer player) {
@@ -168,11 +168,11 @@ public class StaticUtils {
 
 		public static boolean fillContainerFromTank(World world, IFluidHandler handler, EntityPlayer player, FluidStack tankFluid) {
 			ItemStack container = player.getCurrentEquippedItem();
-			
+
 			if (FluidContainerRegistry.isEmptyContainer(container)) {
 			        ItemStack returnStack = FluidContainerRegistry.fillFluidContainer(tankFluid, container);
 			        FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(returnStack);
-			
+
 			        if (fluid == null || returnStack == null) {
 			                return false;
 			        }
@@ -185,7 +185,7 @@ public class StaticUtils {
 			                }
 			                handler.drain(ForgeDirection.UNKNOWN, fluid.amount, true);
 			                container.stackSize--;
-			
+
 			                if (container.stackSize <= 0) {
 			                        container = null;
 			                }
@@ -197,7 +197,7 @@ public class StaticUtils {
 			return false;
 		}
 	}
-	
+
 	public static class ExtraMath {
 		/**
 		 * Linear interpolate between two numbers.
@@ -211,7 +211,7 @@ public class StaticUtils {
 			modifier = Math.min(1f, Math.max(0f, modifier));
 		    return from + modifier * (to - from);
 		}
-		
+
 		/**
 		 * Calculate the volume of the cube defined by two coordinates.
 		 * @param minimum Minimum coordinate.
@@ -227,38 +227,38 @@ public class StaticUtils {
 			return xsize * ysize * zsize;
 		}
 	}
-	
+
 	public static class Energy {
 		public static float RFPerCentigradePerUnitVolume = 10f;
 
 		public static float getRFFromVolumeAndTemp(int volume, float temperature) {
-			return temperature * (float)volume * RFPerCentigradePerUnitVolume;
+			return temperature * volume * RFPerCentigradePerUnitVolume;
 		}
-		
+
 		public static float getTempFromVolumeAndRF(int volume, float rf) {
-			return rf / ((float)volume * RFPerCentigradePerUnitVolume);
+			return rf / (volume * RFPerCentigradePerUnitVolume);
 		}
 	}
-	
+
 	public static class Strings {
 		public static String[] sizePrefixes = {"", "Ki", "Me", "Gi", "Te", "Pe", "Ex", "Ze", "Yo", "Ho"};
 		// Ho = Hojillion
-		
+
 		public static String formatRF(float number) {
 			String prefix = "";
 			if(number < 0f) {
 				prefix = "-";
 				number *= -1;
 			}
-			
+
 			if(number <= 0.00001f) { return "0.00 RF"; }
-			
+
 			int power = (int)Math.floor(Math.log10(number));
 
 			int decimalPoints = 2 - (power % 3);
 			int letterIdx = Math.max(0, Math.min(sizePrefixes.length, power / 3));
 			double divisor = Math.pow(1000f, letterIdx);
-			
+
 			if(divisor > 0) {
 				return String.format("%s%." + Integer.toString(decimalPoints) + "f %sRF", prefix, number/divisor, sizePrefixes[letterIdx]);
 			}
@@ -266,14 +266,14 @@ public class StaticUtils {
 				return String.format("%s%." + Integer.toString(decimalPoints) + "f RF", prefix, number);
 			}
 		}
-		
+
 		public static String formatMillibuckets(float number) {
 			String prefix = "";
 			if(number < 0f) {
 				prefix = "-";
 				number *= -1;
 			}
-			
+
 			if(number <= 0.00001f) { return "0.000 mB"; }
 			int power = (int)Math.floor(Math.log10(number));
 			if(power < 1) {
@@ -302,7 +302,7 @@ public class StaticUtils {
 			}
 		}
 	}
-	
+
 	// Mob = Mobile = Entity
 	public static class Mob {
 		/**
@@ -323,7 +323,7 @@ public class StaticUtils {
 			}
 		}
 	}
-	
+
 	public static class TE {
 		public static TileEntity getTileEntityUnsafe(IBlockAccess iba, int x, int y, int z) {
 			TileEntity te = null;
@@ -336,22 +336,22 @@ public class StaticUtils {
 				// Should never happen, generally
 				te = iba.getTileEntity(x, y, z);
 			}
-			
+
 			return te;
 		}
-		
+
 		public static TileEntity getTileEntityUnsafe(World world, int x, int y, int z) {
 			TileEntity te = null;
-			
+
 			Chunk chunk = world.getChunkFromBlockCoords(x, z);
 			if(chunk != null) {
 				te = chunk.getTileEntityUnsafe(x & 0x0F, y, z & 0x0F);
 			}
-			
+
 			return te;
 		}
 	}
-	
+
 	public static class WorldGen {
 		/**
 		 * Check if a Big Reactors world generator should even bother to run

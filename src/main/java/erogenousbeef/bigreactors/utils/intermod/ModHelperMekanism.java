@@ -12,8 +12,8 @@ public class ModHelperMekanism extends ModHelperBase {
 	@Optional.Method(modid = "Mekanism")
 	@Override
 	public void register() {
-		ItemIngot ingotGeneric = ((ItemIngot)BigReactors.ingotGeneric);
-		
+		ItemIngot ingotGeneric = BigReactors.ingotGeneric;
+
 		ItemStack yelloriteOre 	= new ItemStack(BigReactors.blockYelloriteOre, 1);
 		ItemStack ingotYellorium= ingotGeneric.getItemStackForType("ingotYellorium");
 		ItemStack ingotCyanite 	= ingotGeneric.getItemStackForType("ingotCyanite");
@@ -24,22 +24,19 @@ public class ModHelperMekanism extends ModHelperBase {
 		ItemStack dustGraphite 	= ingotGeneric.getItemStackForType("dustGraphite");
 		ItemStack dustBlutonium = ingotGeneric.getItemStackForType("dustBlutonium");
 
-		// Some mods make me do this myself. :V
-		ItemStack doubledYelloriumDust = null;
 		if(dustYellorium != null) {
-			doubledYelloriumDust = dustYellorium.copy();
+			// Some mods make me do this myself. :V
+			ItemStack doubledYelloriumDust = dustYellorium.copy();
 			doubledYelloriumDust.stackSize = 2;
-		}
 
-		if(yelloriteOre != null && doubledYelloriumDust != null) {
 			addMekanismEnrichmentChamberRecipe(yelloriteOre.copy(), doubledYelloriumDust.copy());
 			ItemStack octupledYelloriumDust = dustYellorium.copy();
 			octupledYelloriumDust.stackSize = 8;
 			addMekanismCombinerRecipe(octupledYelloriumDust, yelloriteOre.copy());
-		}
-	
-		if(ingotYellorium != null && dustYellorium != null) {
-			addMekanismCrusherRecipe(ingotYellorium.copy(), dustYellorium.copy());
+
+			if(ingotYellorium != null) {
+				addMekanismCrusherRecipe(ingotYellorium.copy(), dustYellorium.copy());
+			}
 		}
 
 		if(ingotCyanite != null && dustCyanite != null) {
@@ -54,7 +51,7 @@ public class ModHelperMekanism extends ModHelperBase {
 			addMekanismCrusherRecipe(ingotBlutonium.copy(), dustBlutonium.copy());
 		}
 	}
-	
+
 	/// Mekanism Compat - taken from Mekanism's API. Extracted to allow compat with last known green build.
 	/**
 	 * Add an Enrichment Chamber recipe. (Ore -> 2 Dust)
@@ -87,7 +84,7 @@ public class ModHelperMekanism extends ModHelperBase {
 			System.err.println("[Mekanism] Error while adding recipe: " + e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Add a Crusher recipe. (Ingot -> Dust)
 	 * @param input - input ItemStack
