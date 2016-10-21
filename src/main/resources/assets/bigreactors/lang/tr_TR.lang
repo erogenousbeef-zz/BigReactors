@@ -1,0 +1,64 @@
+# Big Reactors Language File - Turkish
+# @author Ömer Yağmurlu
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Yellorite Madeni
+tile.brMetal.0.name=Yellorium Blok
+tile.brMetal.1.name=Cyanite Blok
+tile.brMetal.2.name=Grafit Blok
+tile.brMetal.3.name=Blutonium Blok
+tile.brMetal.4.name=Ludicrite Blok
+tile.yelloriumFuelRod.name=Yellorium Yakıt Çubuğu
+tile.brMultiblockGlass.0.name=Reaktör Camı
+tile.brMultiblockGlass.1.name=Türbin Camı
+tile.blockReactorRedstonePort.name=Reaktör Kızıltaş Girdi/Çıktısı
+tile.blockReactorPart.0.name=Reaktör Kaplaması
+tile.blockReactorPart.1.name=Reaktör Kontrol Paneli
+tile.blockReactorPart.2.name=Reaktör Kontrol Çubuğu
+tile.blockReactorPart.3.name=Reaktör Enerji Çıkışı
+tile.blockReactorPart.4.name=Reaktör Erişim Girdi/Çıktısı
+tile.blockReactorPart.6.name=Reaktör RedNet Girdi/Çıktısı
+tile.blockReactorPart.7.name=Reaktör Bilgisayar Girdi/Çıktısı
+tile.blockReactorPart.5.name=Reaktör Soğutma Girdi/Çıktısı
+tile.blockRadiothermalGen.0=Radyotermal Jenerator
+tile.blockBRDevice.0.name=Cyanite Dönüştürücü
+tile.blockTurbinePart.0.name=Türbin Kaplaması
+tile.blockTurbinePart.1.name=Türbin Kontrol Paneli
+tile.blockTurbinePart.2.name=Türbin Enerji Girdi/Çıktısı
+tile.blockTurbinePart.3.name=Türbin Sıvı Girdi/Çıktısı
+tile.blockTurbinePart.4.name=Türbin Rotor Mili
+tile.blockTurbinePart.5.name=Türbin Bilgisayar Girdi/Çıktısı
+tile.blockTurbineRotorPart.0.name=Türbin Rotor Şaftı
+tile.blockTurbineRotorPart.1.name=Türbin Rotor Kanadı
+tile.blockMBCreativePart.0.name=Reaktör Yaratıcı Soğutma Girdi/Çıktısı
+tile.blockMBCreativePart.1.name=Türbin Yaratıcı Buhar Jeneratörü
+
+# Items
+item.ingotYellorium.name=Yellorium Külçesi
+item.ingotCyanite.name=Cyanite Külçesi
+item.ingotGraphite.name=Graphite Külçesi
+item.ingotBlutonium.name=Blutonium Külçesi
+item.ingotLudicrite.name=Ludicrite Külçesi
+item.dustYellorium.name=Yellorium Tozu
+item.dustCyanite.name=Cyanite Tozu
+item.dustBlutonium.name=Blutonium Tozu
+item.dustGraphite.name=Graphite Tozu
+item.dustLudicrite.name=Ludicrite Tozu
+item.bucket.cyanite.name=Sıvı Cyanite Kovası
+item.bucket.yellorium.name=Sıvı Yellorium Kovası
+item.beefDebugTool.name=BeefTronic™ Teşhis Aracı
+
+# Fluids
+fluid.tile.water=Su
+fluid.tile.lava=Lav
+fluid.tile.yellorium=Sıvı Yellorium
+fluid.tile.cyanite=Sıvı Cyanite
+fluid.tile.blutonium=Sıvı Blutonium
+fluid.steam=Buhar
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Sıvı Yellorium
+tile.fluid.cyanite.still.name=Sıvı Cyanite
+tile.fluid.blutonium.still.name=Sıvı Blutonium
