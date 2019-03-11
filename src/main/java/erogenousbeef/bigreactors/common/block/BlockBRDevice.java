@@ -131,7 +131,9 @@ public class BlockBRDevice extends BlockCoFHBase {
 		case META_CYANITE_REPROCESSOR:
 			return new TileEntityCyaniteReprocessor();
 		default:
-			throw new IllegalArgumentException("Unknown metadata for tile entity");
+			System.err.println("Unknown metadata for BigReactors tile entity!");
+			return null;
+			//throw new IllegalArgumentException("Unknown metadata for tile entity");
 		}
 	}
 
