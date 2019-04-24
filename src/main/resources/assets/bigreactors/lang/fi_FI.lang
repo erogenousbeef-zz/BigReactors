@@ -1,0 +1,64 @@
+# Big Reactors Language File - Finish (Suomi)
+# @author  Syorito Hatsuki
+
+itemGroup.BigReactors=Big Reactors
+
+# Blocks
+tile.brOre.0.name=Yellorite Malmi
+tile.brMetal.0.name=Yellorium Kuutio
+tile.brMetal.1.name=Kyaniitti Kuutio
+tile.brMetal.2.name=Grafiitti Kuutio
+tile.brMetal.3.name=Blutonium Kuutio
+tile.brMetal.4.name=Ludicrite Kuutio
+tile.yelloriumFuelRod.name=Yellorium polttoainesauvan
+tile.brMultiblockGlass.0.name=Reaktorilasi
+tile.brMultiblockGlass.1.name=Turbiinilasi
+tile.blockReactorRedstonePort.name=Reaktorin Punakivi Portti
+tile.blockReactorPart.0.name=Reaktorikotelo
+tile.blockReactorPart.1.name=Reaktoriohjain
+tile.blockReactorPart.2.name=Reaktorin ohjaustanko
+tile.blockReactorPart.3.name=Reaktorin virtapistoke
+tile.blockReactorPart.4.name=Reaktorin pääsyportti
+tile.blockReactorPart.6.name=Reaktorin RedNet-portti
+tile.blockReactorPart.7.name=Reaktorin tietokoneportti
+tile.blockReactorPart.5.name=Reaktorin jäähdytysnesteportti
+tile.blockRadiothermalGen.0=Radioterminen generaattori
+tile.blockBRDevice.0.name=Syaniitin uudelleenkäsittelijä
+tile.blockTurbinePart.0.name=Turbiinikotelo
+tile.blockTurbinePart.1.name=Turbiiniohjain
+tile.blockTurbinePart.2.name=Turbiinin tehoportti
+tile.blockTurbinePart.3.name=Turbiinin nesteportti
+tile.blockTurbinePart.4.name=Turbiinin roottorin laakeri
+tile.blockTurbinePart.5.name=Turbiinitietokoneen portti
+tile.blockTurbineRotorPart.0.name=Turbiinin roottorin akseli
+tile.blockTurbineRotorPart.1.name=Turbiinin roottorin terä
+tile.blockMBCreativePart.0.name=Reaktorin luova jäähdytysnesteportti
+tile.blockMBCreativePart.1.name=Turbiinin luova höyrygeneraattori
+
+# Items
+item.ingotYellorium.name=Yellorium Harkko
+item.ingotCyanite.name=Kyaniitti Harkko
+item.ingotGraphite.name=Grafiitti BeefTronic ™ -diagnostiikkatyökalu
+item.ingotBlutonium.name=Blutonium Harkko
+item.ingotLudicrite.name=Ludicrite Harkko
+item.dustYellorium.name=Yellorium Pöly
+item.dustCyanite.name=Kyaniitti Pöly
+item.dustBlutonium.name=Blutonium Pöly
+item.dustGraphite.name=Grafiitti Pöly
+item.dustLudicrite.name=Ludicrite Pöly
+item.bucket.cyanite.name=Ämpärillinen Kyaniittiä
+item.bucket.yellorium.name=Ämpärillinen Yelloriumia
+item.beefDebugTool.name=BeefTronic ™ -diagnostiikkatyökalu
+
+# Fluids
+fluid.tile.water=Vesi
+fluid.tile.lava=Laava
+fluid.tile.yellorium=Yellorium Neste
+fluid.tile.cyanite=Kyaniitti Neste
+fluid.tile.blutonium=Blutonium Neste
+fluid.steam=Höyry
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Yellorium Neste
+tile.fluid.cyanite.still.name=Kyaniitti Neste
+tile.fluid.blutonium.still.name=Blutonium Neste
