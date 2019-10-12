@@ -59,3 +59,8 @@ tile.fluid.cyanite.still.name=Flüssiges Cyanit
 fluid.tile.blutonium=Flüssiges Blutonium
 tile.fluid.blutonium.still.name=Flüssiges Blutonium
 fluid.steam=Dampf
+
+# Placeable Fluids
+tile.fluid.yellorium.still.name=Flüssiges Yellorium
+tile.fluid.cyanite.still.name=Flüssiges Cyanit
+tile.fluid.blutonium.still.name=Flüssiges Blutonium
