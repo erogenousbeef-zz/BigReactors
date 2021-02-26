@@ -1,11 +1,9 @@
 package erogenousbeef.bigreactors.common.multiblock;
 
 import io.netty.buffer.ByteBuf;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
@@ -288,11 +286,10 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 
 			// Radiate from that control rod
 			TileEntityReactorFuelRod source  = currentFuelRod.next();
-			TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod)worldObj.getTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
-			if(sourceControlRod != null)
-			{
+			TileEntity tileEntity = worldObj.getTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
+			if (tileEntity instanceof TileEntityReactorControlRod) {
+				TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod) tileEntity;
 				RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
-
 				// Assimilate results of radiation
 				if(radData != null) {
 					addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
