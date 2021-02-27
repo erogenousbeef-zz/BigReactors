@@ -283,18 +283,19 @@ public class MultiblockReactor extends RectangularMultiblockControllerBase imple
 			if(!currentFuelRod.hasNext()) {
 				currentFuelRod = attachedFuelRods.iterator();
 			}
-
-			// Radiate from that control rod
-			TileEntityReactorFuelRod source  = currentFuelRod.next();
-			TileEntity tileEntity = worldObj.getTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
-			if (tileEntity instanceof TileEntityReactorControlRod) {
-				TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod) tileEntity;
-				RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
-				// Assimilate results of radiation
-				if(radData != null) {
-					addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
-					addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
-					fuelConsumedLastTick += radData.fuelUsage;
+			if (this.currentFuelRod.hasNext()) {
+				// Radiate from that control rod
+				TileEntityReactorFuelRod source  = currentFuelRod.next();
+				TileEntity tileEntity = worldObj.getTileEntity(source.xCoord, getMaximumCoord().y, source.zCoord);
+				if (tileEntity instanceof TileEntityReactorControlRod) {
+					TileEntityReactorControlRod sourceControlRod = (TileEntityReactorControlRod) tileEntity;
+					RadiationData radData = radiationHelper.radiate(worldObj, fuelContainer, source, sourceControlRod, getFuelHeat(), getReactorHeat(), attachedControlRods.size());
+					// Assimilate results of radiation
+					if(radData != null) {
+						addFuelHeat(radData.getFuelHeatChange(attachedFuelRods.size()));
+						addReactorHeat(radData.getEnvironmentHeatChange(getReactorVolume()));
+						fuelConsumedLastTick += radData.fuelUsage;
+					}
 				}
 			}
 		}
